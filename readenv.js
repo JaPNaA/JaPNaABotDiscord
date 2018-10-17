@@ -5,6 +5,7 @@ function readEnv() {
     const obj = {};
 
     for (const line of lines) {
+        if (line.match(/^\s*#/) || line.match(/^\s*$/)) continue;
         const [key, value] = line.split("=");
         obj[key] = value;
     }
