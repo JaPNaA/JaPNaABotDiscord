@@ -7,7 +7,18 @@ class BotCommand {
 
     testAndRun(commandEvent, commandWord, argString) {
         if (commandWord === this.triggerWord) {
-            this.func(this.bot, commandEvent, argString);
+            try {
+                this.func(this.bot, commandEvent, argString);
+            } catch (e) {
+                /** @type {String} */
+                let msg = e.stack;
+
+                msg = msg.split(__dirname).join(".");
+
+                this.bot.send(commandEvent.channelId, 
+                    "```An error occured\n" + msg + "```"
+                );
+            }
         }
     }
 }

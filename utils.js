@@ -12,5 +12,15 @@ module.exports = {
             }
         }
         return null;
+    },
+
+    /**
+     * converts string to array of arguments
+     * @param {String} string string to convert
+     */
+    stringToArgs(string) {
+        return string
+            .split(/\s+/) // split at every space
+            .filter(e => e); // remove any empty
     }
 };

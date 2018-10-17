@@ -47,6 +47,10 @@ class Bot {
     }
 
     stop() {
+        for (let plugin of this.registeredPlugins) {
+            plugin._stop();
+        }
+        
         this.registeredCommands.length = 0;
         this.registeredPlugins.length = 0;
     }
