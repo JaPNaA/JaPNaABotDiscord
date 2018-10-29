@@ -70,11 +70,16 @@ client.on("message", (user, userId, channelId, message, event) => bot.onmessage(
 process.on("SIGINT", function() {
     bot.stop();
     client.disconnect();
-    console.log("Gracefully stoping...");
-    console.log(process._getActiveHandles());
-    console.log(process._getActiveRequests());
+    console.log("\nGracefully stoping...");
+
+    setInterval(function () {
+        if (!process._getActiveRequests().length) {
+            process.exit(0);
+        }
+    }, 10);
 
     setTimeout(function() {
         process.exit(0);
+        console.log("Stop handler timed out");
     }, 10000);
 });
