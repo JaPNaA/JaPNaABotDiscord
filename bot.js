@@ -1,5 +1,6 @@
 
 const UTILS = require("./utils.js");
+const FS = require("fs");
 
 const { DiscordCommandEvent, DiscordMessageEvent } = require("./events.js");
 const BotCommand = require("./botcommand.js");
@@ -8,10 +9,11 @@ class Bot {
     /**
      * Bot constructor
      * @param {Object} config bot config
+     * @param {Object} memory bot memory
      * @param {Object} client client
      * @param {Function} restartFunc restarting function
      */
-    constructor(config, client, restartFunc) {
+    constructor(config, memory, client, restartFunc) {
         /** @type {String} */
         this.id = undefined;
 
@@ -22,6 +24,15 @@ class Bot {
         this.restartFunc = restartFunc;
 
         this.config = config;
+        this.memory = memory;
+
+        /**
+         * Timeout that writes memory to disk every once in a while
+         * @type {NodeJS.Timeout}
+         */
+        this.autoWriteSI = null;
+        this.autoWriteInterval = 60 * 1000; // every minute
+        this.memoryChanged = false;
 
         /**
          * @type {BotCommand[]} list of commands registered
@@ -41,6 +52,8 @@ class Bot {
 
         this.registerCommand("restart", this.restart);
 
+        this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
+
         if (this.client.connected) {
             this.onready(null);
         }
@@ -50,6 +63,10 @@ class Bot {
         for (let plugin of this.registeredPlugins) {
             plugin._stop();
         }
+
+        this.writeMemory();
+
+        clearInterval(this.autoWriteInterval);
         
         this.registeredCommands.length = 0;
         this.registeredPlugins.length = 0;
@@ -85,14 +102,78 @@ class Bot {
     /**
      * Send message
      * @param {String} channelId channel id
-     * @param {String} message message to send
+     * @param {String|Object} message message to send
      */
     send(channelId, message) {
         console.log("send: " + message);
-        this.client.sendMessage({
-            message: message,
-            to: channelId
+
+        if (typeof message === "string") {
+            this.client.sendMessage({
+                message: message,
+                to: channelId,
+            });
+        } else if (typeof message === "object") {
+            this.client.sendMessage({
+                to: channelId,
+                ...message
+            });
+        } else {
+            throw new TypeError("Message is not of valid type");
+        }
+    }
+
+    /**
+     * Stores something in memory
+     * @param {String} namespace namespace of thing to remember
+     * @param {String} key key
+     * @param {String|Number|Object} value value to remember
+     * @param {Boolean} important write after remember?
+     */
+    remember(namespace, key, value, important) {
+        if (!this.memory[namespace]) {
+            this.memory[namespace] = {};
+        }
+
+        this.memory[namespace][key] = value;
+        this.memoryChanged = true;
+
+        if (important) {
+            this.writeMemory();
+        }
+    }
+
+    /**
+     * Recalls something from memory
+     * @param {String} namespace namespace of thing
+     * @param {String} key key
+     */
+    recall(namespace, key) {
+        if (!this.memory[namespace]) {
+            return null;
+        }
+        if (this.memory[namespace].hasOwnProperty(key)) {
+            return this.memory[namespace][key];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Writes memory to disk
+     * @param {Boolean} [isAuto=false] is the save automatic?
+     */
+    writeMemory(isAuto) {
+        if (isAuto && !this.memoryChanged) return;
+
+        FS.writeFile("./memory.json", JSON.stringify(this.memory), function(e) {
+            if (e) {
+                console.error("Failed to write to memory", e);
+                return;
+            }
+            console.log("Written to memory");
         });
+
+        this.memoryChanged = false;
     }
 
     /**

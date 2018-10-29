@@ -15,7 +15,7 @@ module.exports = {
     },
 
     /**
-     * converts string to array of arguments
+     * Converts string to array of arguments
      * @param {String} string string to convert
      * @returns {String[]} arguments
      */
@@ -23,5 +23,23 @@ module.exports = {
         return string
             .split(/\s+/) // split at every space
             .filter(e => e); // remove any empty
+    },
+
+    /**
+     * Generates a random number with parameters
+     * @param {Number} [min = 0] min value
+     * @param {Number} [max = 1] max value
+     * @param {Number} [step = 0] always divisible by
+     */
+    random(min = 0, max = 1, step = 0) {
+        if (step) { // step is not 0
+            let smin = Math.floor(min / step);
+            let smax = Math.floor(max / step) + 1;
+            return step * Math.floor(smin + Math.random() * (smax - smin));
+        } else if (step === 1) { // optimize for 1
+            return Math.floor(min + Math.random() * (max - min));
+        } else { // step is 0, no step, default
+            return min + Math.random() * (max - min);
+        }
     }
 };

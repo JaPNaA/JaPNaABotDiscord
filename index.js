@@ -10,6 +10,14 @@ const client = new DISCORD.Client({
 });
 
 let config = JSON.parse(FS.readFileSync("./config.json").toString());
+let memory;
+
+try {
+    memory = JSON.parse(FS.readFileSync("./memory.json").toString());
+} catch (e) {
+    FS.writeFileSync("./memory.json", "{}");
+    memory = {};
+}
 
 /** @type {Bot} */
 let bot;
@@ -41,7 +49,7 @@ function loadPlugin(path) {
 
 function init() {
     config = JSON.parse(FS.readFileSync("./config.json").toString());
-    bot = new Bot(config, client, init);
+    bot = new Bot(config, memory, client, init);
 
     for (let i of config["plugins"]) {
         const error = loadPlugin(i);
@@ -58,3 +66,15 @@ init();
 
 client.on("ready", event => bot.onready(event));
 client.on("message", (user, userId, channelId, message, event) => bot.onmessage(user, userId, channelId, message, event));
+
+process.on("SIGINT", function() {
+    bot.stop();
+    client.disconnect();
+    console.log("Gracefully stoping...");
+    console.log(process._getActiveHandles());
+    console.log(process._getActiveRequests());
+
+    setTimeout(function() {
+        process.exit(0);
+    }, 10000);
+});

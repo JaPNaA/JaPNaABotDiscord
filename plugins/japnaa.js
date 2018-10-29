@@ -1,14 +1,16 @@
 const BotPlugin = require("../plugin.js");
-const { stringToArgs } = require("../utils.js");
+const { stringToArgs, random } = require("../utils.js");
 
 class Japnaa extends BotPlugin {
     constructor(bot) {
         super(bot);
 
+        this.namespace = "japnaa";
+
         /**
          * Counter for this.count()
          */
-        this.counter = 0;
+        this.counter = bot.recall(this.namespace, "counter") || 0;
 
         
         /**
@@ -33,11 +35,18 @@ class Japnaa extends BotPlugin {
     count(bot, event, args) {
         this.counter++;
 
+        this.bot.remember(this.namespace, "counter", this.counter);
+
         bot.send(event.channelId, this.counter.toString() + "!");
     }
 
     jap(bot, event, args) {
-        bot.send(event.channelId, "**JaP is " + (args || "kewl") + "**");
+        bot.send(event.channelId, {
+            embed: {
+                color: 0xF2495D,
+                description: "**JaP is " + (args || "kewl") + "**"
+            }
+        });
     }
 
     tetris(bot, event, args) {
@@ -45,11 +54,42 @@ class Japnaa extends BotPlugin {
     }
 
     echo(bot, event, args) {
-        bot.send(event.channelId, args);
+        let json = null;
+        try {
+            json = JSON.parse(args);
+        } catch (err) { void 0; }
+
+        if (json) {
+            bot.send(event.channelId, json);
+        } else {
+            bot.send(event.channelId, args);
+        }
+    }
+
+    _randomString() {
+        const min = 32, max = 127;
+        let rands = [];
+
+        for (let i = 0; i < 128; i++) {
+            rands.push(random(min, max, 1));
+        }
+
+        return String.fromCharCode(...rands);
     }
 
     random(bot, event, argString) {
         const args = stringToArgs(argString);
+
+        // !random string
+        if (args[0].toLowerCase() == "string") {
+            bot.send(event.channelId, 
+                "```" + 
+                this._randomString()
+                    .replace(/`$/g, "` ") // because discord markup
+                + "```"
+            );
+            return;
+        }
 
         console.log(" >> " + JSON.stringify(args));
 
@@ -87,13 +127,7 @@ class Japnaa extends BotPlugin {
         if (isNaN(max) || isNaN(min) || isNaN(step)) {
             bot.send(event.channelId, "**Invalid arguments**");
         } else {
-            if (step) { // step is not 0
-                let smin = Math.floor(min / step);
-                let smax = Math.floor(max / step) + 1;
-                result = step * Math.floor(smin + Math.random() * (smax - smin));
-            } else { // step is 0, no step
-                result = min + Math.random() * (max - min);
-            }
+            result = random(min, max, step);
         }
 
         bot.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
