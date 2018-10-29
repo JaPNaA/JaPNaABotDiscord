@@ -17,6 +17,7 @@ module.exports = {
     /**
      * converts string to array of arguments
      * @param {String} string string to convert
+     * @returns {String[]} arguments
      */
     stringToArgs(string) {
         return string

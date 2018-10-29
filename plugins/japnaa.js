@@ -33,7 +33,7 @@ class Japnaa extends BotPlugin {
     count(bot, event, args) {
         this.counter++;
 
-        bot.send(event.channelId, this.counter.toString() + ", lol I can count!");
+        bot.send(event.channelId, this.counter.toString() + "!");
     }
 
     jap(bot, event, args) {
@@ -61,26 +61,26 @@ class Japnaa extends BotPlugin {
 
         // do different things with different amount of arguments
         switch (args.length) {
-            case 0:
-                max = 1;
-                min = 0;
-                step = 0;
-                break;
-            case 1:
-                max = parseFloat(args[0]);
-                min = 0;
-                step = 1;
-                break;
-            case 2:
-                max = parseFloat(args[0]);
-                min = parseFloat(args[1]);
-                step = 1;
-                break;
-            case 3:
-                max = parseFloat(args[0]);
-                min = parseFloat(args[1]);
-                step = parseFloat(args[2]);
-                break;
+        case 0:
+            max = 1;
+            min = 0;
+            step = 0;
+            break;
+        case 1:
+            max = parseFloat(args[0]);
+            min = 0;
+            step = 1;
+            break;
+        case 2:
+            max = parseFloat(args[0]);
+            min = parseFloat(args[1]);
+            step = 1;
+            break;
+        case 3:
+            max = parseFloat(args[0]);
+            min = parseFloat(args[1]);
+            step = parseFloat(args[2]);
+            break;
         }
 
         // check if arguments are valid
@@ -108,6 +108,7 @@ class Japnaa extends BotPlugin {
     
     _stopSpam() {
         clearInterval(this.spamInterval);
+        this.spamQue.length = 0;
         this.spamIntervalActive = false;
     }
 
@@ -122,13 +123,60 @@ class Japnaa extends BotPlugin {
         }
     }
 
+    
     spam(bot, event, args) {
+        const cleanArgs = args.trim().toLowerCase();
+        
+        // !spam stop
+        if (cleanArgs === "stop") {
+            this._stopSpam();
+            return;
+        }
+
+        let [amountArg, counterArg, ...messageArg] = stringToArgs(args);
+        let amount, useCounter, message = "";
+
+        // parse amount argument (0)
+        let amountParsed = parseInt(amountArg);
+        if (amountParsed) {
+            amount = amountParsed;
+        } else {
+            amount = 3;
+            if (amountArg) {
+                message += amountArg + " ";
+            }
+        }
+
+        // parse counter argument (1)
+        let counterParsed = counterArg && counterArg.toLowerCase() === "true";
+        if (counterParsed) {
+            useCounter = true;
+        } else {
+            useCounter = false;
+            if (counterArg) {
+                message += counterArg + " ";
+            }
+        }
+
+        // add final strings to message
+        message += messageArg.join(" ");
+
+        let count = 0;
         const spamFunc = function() {
-            bot.send(event.channelId, args);
-            return true;
+            if (useCounter) {
+                bot.send(event.channelId, `**${count + 1}/${amount}:** ${message}`);
+            } else {
+                bot.send(event.channelId, message);
+            }
+            count++;
+            return count < amount;
         };
-        this.spamQue.push(spamFunc);
-        this._startSpam();
+
+        // prevent empty message from being added to que
+        if (message.trim()) {
+            this.spamQue.push(spamFunc);
+            this._startSpam();
+        }
     }
 
     throw(bot, event, args) {

@@ -4,6 +4,7 @@
     ],
     "addLink": "https://discordapp.com/api/oauth2/authorize?client_id=501862082334031883&permissions=2112&scope=bot",
     "plugins": [
+        "default",
         "japnaa"
     ]
 }
