@@ -20,6 +20,7 @@ class Default extends BotPlugin {
     _start() {
         this._registerCommand("ping", this.ping);
         this._registerCommand("link", this.link);
+        this._registerCommand("code", this.code);
     }
 }
 
