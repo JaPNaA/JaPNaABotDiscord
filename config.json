@@ -3,7 +3,10 @@
     "!",
     "/"
   ],
+  
   "addLink": "https://discordapp.com/api/oauth2/authorize?client_id=501862082334031883&permissions=2112&scope=bot",
+  "gitlabLink": "https://gitlab.com/JaPNaA/japnaabotdiscord",
+
   "plugins": [
     "default",
     "japnaa"
