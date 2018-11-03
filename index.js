@@ -19,6 +19,8 @@ try {
     memory = {};
 }
 
+let shuttingDown = false;
+
 /** @type {Bot} */
 let bot;
 
@@ -66,8 +68,14 @@ init();
 
 client.on("ready", event => bot.onready(event));
 client.on("message", (user, userId, channelId, message, event) => bot.onmessage(user, userId, channelId, message, event));
+client.on("disconnect", function() {
+    if (!shuttingDown) {
+        client.connect();
+    }
+});
 
 process.on("SIGINT", function() {
+    shuttingDown = true;
     bot.stop();
     client.disconnect();
     console.log("\nGracefully stoping...");

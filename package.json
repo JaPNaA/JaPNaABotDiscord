@@ -14,5 +14,8 @@
   ],
   "author": "JaPNaA",
   "license": "ISC",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "discord.io": "github:izy521/discord.io"
+  }
 }

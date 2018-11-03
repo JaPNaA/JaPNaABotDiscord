@@ -10,7 +10,12 @@ class Default extends BotPlugin {
     }
 
     link(bot, event, args) {
-        bot.send(event.channelId, "You can add me to another server with this link:\n" + bot.config.addLink);
+        bot.send(event.channelId, {
+            embed: {
+                color: 0xF2495D,
+                description: "You can add me to another server with this link:\n" + bot.config.addLink
+            }
+        });
     }
 
     code(bot, event, args) {
@@ -20,6 +25,7 @@ class Default extends BotPlugin {
     _start() {
         this._registerCommand("ping", this.ping);
         this._registerCommand("link", this.link);
+        this._registerCommand("invite", this.link);
         this._registerCommand("code", this.code);
     }
 }
