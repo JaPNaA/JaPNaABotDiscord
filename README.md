@@ -14,7 +14,7 @@ To add your own commands, you must create a .js file in the plugins directory.
 
 Start the file with the boilerplate code:
 ```javascript
-const BotPlugin = require("../plugin.js");
+const BotPlugin = require("../src/plugin.js");
 
 class MyPlugin extends BotPlugin {
     constructor(bot) {
@@ -36,3 +36,8 @@ module.exports = MyPlugin;
 ```
 
 Save the file as [Your plugin name].js, and add it to the config.json plugins list as [Your plugin name]
+
+## Updating the bot
+If you've only changed config.json, and the plugins directory, you can simply
+update the bot by re-downloading the repo and copy `config.json`, 
+`memory.json`, and `plugins/` to the new repo, replacing any existing files.
