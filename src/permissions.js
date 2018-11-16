@@ -43,6 +43,38 @@ class Permissions {
         this.MANAGE_WEBHOOKS = getBit(this.num, 27);
         this.MANAGE_EMOJIS = getBit(this.num, 28);
     }
+
+    toReadable(str) {
+        return str.toLowerCase().replace(/_/g, " ");
+    }
+
+    toString() {
+        let str = [];
+        for (let key of Permissions.keys) {
+            if (this[key]) {
+                str.push("**" + this.toReadable(key) + "**");
+            } else {
+                str.push(this.toReadable(key));
+            }
+        }
+
+        return this.num + ": " + str.join(", ");
+    }
 }
+
+Permissions.keys = [
+    "CREATE_INSTANT_INVITE", "KICK_MEMBERS",
+    "BAN_MEMBERS", "ADMINISTRATOR", "MANAGE_CHANNELS",
+    "MANAGE_GUILD", "ADD_REACTIONS", "VIEW_AUDIT_LOG",
+    "VIEW_CHANNEL", "SEND_MESSAGES",
+    "SEND_TTS_MESSAGES", "MANAGE_MESSAGES",
+    "EMBED_LINKS", "ATTACH_FILES",
+    "READ_MESSAGE_HISTORY", "MENTION_EVERYONE",
+    "USE_EXTERNAL_EMOJIS", "CONNECT", "SPEAK",
+    "MUTE_MEMBERS", "DEAFEN_MEMBERS", "MOVE_MEMBERS",
+    "USE_VAD", "PRIORITY_SPEAKER", "CHANGE_NICKNAME",
+    "MANAGE_NICKNAMES", "MANAGE_ROLES",
+    "MANAGE_WEBHOOKS", "MANAGE_EMOJIS"
+];
 
 module.exports = Permissions;

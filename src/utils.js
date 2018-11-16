@@ -30,6 +30,7 @@ module.exports = {
      * @param {Number} [min = 0] min value
      * @param {Number} [max = 1] max value
      * @param {Number} [step = 0] always divisible by
+     * @returns {Number} generated
      */
     random(min = 0, max = 1, step = 0) {
         if (step) { // step is not 0
@@ -47,8 +48,22 @@ module.exports = {
      * Gets bit from int
      * @param {Number} int integer to get bit of
      * @param {Number} pos position of bit
+     * @returns {Boolean} bit
      */
     getBit(int, pos) {
         return Boolean(int >> pos & 1);
+    },
+
+    /**
+     * Gets userId from string
+     * @param {String} id user id as argument
+     * @returns {String|null} id
+     */
+    toUserId(id) {
+        let matches = id.match(/\d{7,}/);
+        if (matches) {
+            return matches[0];
+        }
+        return null;
     }
 };

@@ -1,4 +1,5 @@
 const BotPlugin = require("../src/plugin.js");
+const { toUserId } = require("../src/utils.js");
 
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
@@ -31,23 +32,56 @@ class Default extends BotPlugin {
      * @param {String} args userId
      */
     userinfo(bot, event, args) {
-        const userId = args || event.userId;
+        let userId = event.userId;
 
-        /** @type {String[]} */
+        /** @type {Object.<String, String>[]} */
         let response = [];
-        
-        response.push("**User info:**\n" + JSON.stringify(bot.getUser(userId)));
-        
-        if (bot.getChannel(event.channelId)) {
-            response.push("**User of Server info:**\n" + JSON.stringify(bot.getUser_channel(userId, event.channelId)));
 
-            const permissions = bot.getPermissions_channel(event.channelId, userId);
-            response.push("**Permissions in server:**\n" + JSON.stringify(permissions));
+        if (args) {
+            let newUserId = toUserId(args);
+            if (newUserId) {
+                userId = newUserId;
+            } else {
+                bot.send(event.channelId, "**User does not exist.**");
+                return;
+            }
         }
 
-        console.log(response);
+        let user = bot.getUser(userId);
 
-        bot.send(event.channelId, response.join("\n\n"));
+        if (user) {
+            response.push({
+                name: "User info",
+                value: JSON.stringify(user) + "\n"
+            });
+
+            if (bot.getChannel(event.channelId)) {
+                response.push({
+                    name: "User of server info",
+                    value: JSON.stringify(bot.getUser_channel(userId, event.channelId)) + "\n"
+                });
+    
+                const permissions = bot.getPermissions_channel(event.channelId, userId);
+                response.push({
+                    name: "Permissions in server",
+                    value: permissions.toString() + "\n"
+                });
+            }
+
+            bot.send(event.channelId, {
+                embed: {
+                    color: 3447003,
+                    author: {
+                        name: "Information for " + user.username,
+                        icon_url: "https://cdn.discordapp.com/avatars/" + userId + "/" + user.avatar + ".png?size=32"
+                    },
+                    fields: response,
+                    timestamp: new Date()
+                }
+            });
+        } else {
+            bot.send(event.channelId, "**User does not exist.**");
+        }
     }
 
     /**

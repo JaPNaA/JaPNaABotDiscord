@@ -329,7 +329,8 @@ class Bot {
         let permissionsNum = 0;
 
         for (let role of roles) {
-            permissionsNum |= server.roles[role].permissions;
+            // @ts-ignore
+            permissionsNum |= server.roles[role]._permissions;
         }
 
         return new Permissions(permissionsNum);

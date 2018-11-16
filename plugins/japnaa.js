@@ -252,6 +252,16 @@ class Japnaa extends BotPlugin {
         throw new Error(args || "User-Thrown Error");
     }
 
+    /**
+     * Changes rich presence
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args string to set as play
+     */
+    play(bot, event, args) {
+        bot.playGame(args);
+    }
+
     _stop() {
         this._stopSpam();
     }
@@ -262,8 +272,7 @@ class Japnaa extends BotPlugin {
         this._registerCommand("random", this.random);
         this._registerCommand("spam", this.spam);
         this._registerCommand("throw", this.throw);
-
-        this.bot.playGame("Beep boop. Boop beep.");
+        this._registerCommand("play", this.play);
     }
 }
 

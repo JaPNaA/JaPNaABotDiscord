@@ -46,7 +46,11 @@ class JapnaaWeird extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      */
     onmessageHandler_lol(bot, event) {
-        if (this.lolRegexp.test(event.message) && !event.precommand) {
+        if (
+            !event.precommand && // is not a command
+            !bot.getUser(event.userId).bot && // sender is not a bot
+            this.lolRegexp.test(event.message) // contains valid 'lol'
+        ) {
             bot.send(event.channelId, "lol");
         }
     }
@@ -56,6 +60,8 @@ class JapnaaWeird extends BotPlugin {
         this._registerCommand("tetris", this.tetris);
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
+
+        this.bot.playGame("Beep boop. Boop beep... wait... this isn't a game!");
     }
 }
 
