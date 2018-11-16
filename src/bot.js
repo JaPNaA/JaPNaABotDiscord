@@ -334,6 +334,16 @@ class Bot {
 
         return new Permissions(permissionsNum);
     }
+
+    playGame(name) {
+        this.client.setPresence({
+            game: {
+                name: name,
+                type: 0
+            },
+            idle_since: Date.now() - 1
+        });
+    }
 }
 
 module.exports = Bot;

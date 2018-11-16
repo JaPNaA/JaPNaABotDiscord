@@ -263,13 +263,7 @@ class Japnaa extends BotPlugin {
         this._registerCommand("spam", this.spam);
         this._registerCommand("throw", this.throw);
 
-        this.bot.client.setPresence({
-            game: {
-                name: "Beep boop. Boop beep.",
-                type: 0
-            },
-            idle_since: Date.now() - 1
-        });
+        this.bot.playGame("Beep boop. Boop beep.");
     }
 }
 
