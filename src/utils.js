@@ -41,5 +41,14 @@ module.exports = {
         } else { // step is 0, no step, default
             return min + Math.random() * (max - min);
         }
+    },
+
+    /**
+     * Gets bit from int
+     * @param {Number} int integer to get bit of
+     * @param {Number} pos position of bit
+     */
+    getBit(int, pos) {
+        return Boolean(int >> pos & 1);
     }
 };

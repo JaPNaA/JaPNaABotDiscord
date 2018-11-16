@@ -1,6 +1,10 @@
+/**
+ * @typedef {import("discord.io").Client} Client;
+ */
 
 const UTILS = require("./utils.js");
 const FS = require("fs");
+const Permissions = require("./permissions.js");
 
 const { DiscordCommandEvent, DiscordMessageEvent } = require("./events.js");
 const BotCommand = require("./botcommand.js");
@@ -11,14 +15,14 @@ class Bot {
      * @param {Object} config bot config
      * @param {Object} memory bot memory
      * @param {String} memoryPath path to memory
-     * @param {Object} client client
+     * @param {Client} client client
      * @param {Function} restartFunc restarting function
      */
     constructor(config, memory, memoryPath, client, restartFunc) {
         /** @type {String} */
         this.id = undefined;
 
-        /** @type {Object} */
+        /** @type {Client} */
         this.client = client;
 
         /** @type {Function} */
@@ -111,7 +115,11 @@ class Bot {
      * @param {String|Object} message message to send
      */
     send(channelId, message) {
-        console.log("send: " + message);
+        console.log(">>", message);
+
+        for (let plugin of this.registeredPlugins) {
+            plugin._dispatchEvent("send", message);
+        }
 
         if (typeof message === "string") {
             this.client.sendMessage({
@@ -133,7 +141,7 @@ class Bot {
      * @param {String} namespace namespace of thing to remember
      * @param {String} key key
      * @param {String|Number|Object} value value to remember
-     * @param {Boolean} important write after remember?
+     * @param {Boolean} [important=false] write after remember?
      */
     remember(namespace, key, value, important) {
         if (!this.memory[namespace]) {
@@ -171,6 +179,10 @@ class Bot {
     writeMemory(isAuto) {
         if (isAuto && !this.memoryChanged) return;
 
+        for (let plugin of this.registeredPlugins) {
+            plugin._dispatchEvent("beforememorywrite", null);
+        }
+
         FS.writeFile(this.memoryPath, JSON.stringify(this.memory), function(e) {
             if (e) {
                 console.error("Failed to write to memory", e);
@@ -187,6 +199,11 @@ class Bot {
      */
     onready() {
         this.id = this.client.id;
+        
+        for (let plugin of this.registeredPlugins) {
+            plugin._dispatchEvent("start", null);
+        }
+
         console.log("Started");
     }
 
@@ -201,11 +218,15 @@ class Bot {
     onmessage(username, userId, channelId, message, event) {
         if (userId == this.id) return;
 
-        console.log("message: " + message);
-
-        const messageEvent = new DiscordMessageEvent(username, userId, channelId, message, event);
+        console.log("<<", message);
 
         let precommandUsed = UTILS.startsWithAny(message, this.config["bot.precommand"]);
+        const messageEvent = new DiscordMessageEvent(username, userId, channelId, message, precommandUsed, event);
+
+        for (let plugin of this.registeredPlugins) {
+            plugin._dispatchEvent("message", messageEvent);
+        }
+
         if (precommandUsed) {
             this.oncommand(messageEvent, precommandUsed, message.slice(precommandUsed.length));
         }
@@ -219,6 +240,10 @@ class Bot {
      */
     oncommand(messageEvent, pre, commandStr) {
         const commandEvent = new DiscordCommandEvent(messageEvent, pre, commandStr);
+
+        for (let plugin of this.registeredPlugins) {
+            plugin._dispatchEvent("command", commandEvent);
+        }
 
         const firstWhiteSpaceMatch = commandStr.match(/\s/);
 
@@ -238,6 +263,76 @@ class Bot {
                 command.testAndRun(commandEvent, commandWord, argString);
             }
         }
+    }
+
+    /**
+     * Gets the channel with channelId
+     * @param {String} channelId
+     */
+    getChannel(channelId) {
+        return this.client.channels[channelId];
+    }
+
+    /**
+     * Gets the server with serverId
+     * @param {String} serverId id of server
+     */
+    getServer(serverId) {
+        return this.client.servers[serverId];
+    }
+
+    /**
+     * Gets user
+     * @param {String} userId id of user
+     */
+    getUser(userId) {
+        return this.client.users[userId];
+    }
+
+    /**
+     * Gets user from channel
+     * @param {String} userId id of user
+     * @param {String} channelId id of server
+     */
+    getUser_channel(userId, channelId) {
+        return this.getServer(this.getChannel(channelId).guild_id).members[userId];
+    }
+
+    /**
+     * Gets user from server
+     * @param {String} userId id of user
+     * @param {String} serverId id of server
+     */
+    getUser_server(userId, serverId) {
+        return this.getServer(serverId).members[userId];
+    }
+
+    /**
+     * Gets the permissions of user from userId in channelId
+     * @param {String} userId id of user
+     */
+    getPermissions_channel(channelId, userId) {
+        const serverId = this.getChannel(channelId).guild_id;
+        return this.getPermissions_server(serverId, userId);
+    }
+
+    /**
+     * Gets the permissions of user from userId in serverId
+     * @param {String} userId id of user
+     */
+    getPermissions_server(serverId, userId) {
+        const server = this.getServer(serverId);
+
+        const user = server.members[userId];
+        const roles = user.roles.concat([serverId]);
+
+        let permissionsNum = 0;
+
+        for (let role of roles) {
+            permissionsNum |= server.roles[role].permissions;
+        }
+
+        return new Permissions(permissionsNum);
     }
 }
 

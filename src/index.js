@@ -12,9 +12,16 @@ const client = new DISCORD.Client({
     autorun: true
 });
 
-let config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
-let memory;
+let config;
+try {
+    config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
+} catch (e) {
+    console.error(e);
+    console.error("\x1B[91mconfig.json does not exist, or is corrupted.");
+    process.exit(-1);
+}
 
+let memory;
 try {
     memory = JSON.parse(FS.readFileSync(MEMORY_PATH).toString());
 } catch (e) {

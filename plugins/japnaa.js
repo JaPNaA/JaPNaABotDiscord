@@ -1,6 +1,14 @@
 const BotPlugin = require("../src/plugin.js");
 const { stringToArgs, random } = require("../src/utils.js");
 
+/**
+ * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
+ * @typedef {import("../src/bot.js")} Bot
+ */
+
+/**
+ * Commonly used commands made by me
+ */
 class Japnaa extends BotPlugin {
     constructor(bot) {
         super(bot);
@@ -32,6 +40,11 @@ class Japnaa extends BotPlugin {
         this.spamIntervalActive = false;
     }
 
+    /**
+     * makes the bot count
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     */
     count(bot, event) {
         this.counter++;
 
@@ -40,19 +53,12 @@ class Japnaa extends BotPlugin {
         bot.send(event.channelId, this.counter.toString() + "!");
     }
 
-    jap(bot, event, args) {
-        bot.send(event.channelId, {
-            embed: {
-                color: 0xF2495D,
-                description: "**JaP is " + (args || "kewl") + "**"
-            }
-        });
-    }
-
-    tetris(bot, event, args) {
-        bot.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
-    }
-
+    /**
+     * says whatever you say
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args what to echo back
+     */
     echo(bot, event, args) {
         let json = null;
         try {
@@ -66,6 +72,9 @@ class Japnaa extends BotPlugin {
         }
     }
 
+    /**
+     * Generates a 128 character radom string
+     */
     _randomString() {
         const min = 32, max = 127;
         let rands = [];
@@ -77,6 +86,12 @@ class Japnaa extends BotPlugin {
         return String.fromCharCode(...rands);
     }
 
+    /**
+     * Generates random stuff
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} argString arguments [min, max, step] | "String"
+     */
     random(bot, event, argString) {
         const args = stringToArgs(argString);
 
@@ -133,6 +148,9 @@ class Japnaa extends BotPlugin {
         bot.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
     }
 
+    /**
+     * Begins spamming from spam que with interval
+     */
     _startSpam() {
         if (this.spamIntervalActive) return;
         clearInterval(this.spamInterval);
@@ -140,12 +158,18 @@ class Japnaa extends BotPlugin {
         this.spamIntervalActive = true;
     }
     
+    /**
+     * Stops spamming
+     */
     _stopSpam() {
         clearInterval(this.spamInterval);
         this.spamQue.length = 0;
         this.spamIntervalActive = false;
     }
 
+    /**
+     * Send spam, triggered by interval, by que
+     */
     _sendSpam() {
         if (this.spamQue.length) {
             let spamFunc = this.spamQue.shift();
@@ -157,7 +181,12 @@ class Japnaa extends BotPlugin {
         }
     }
 
-    
+    /**
+     * Makes the bot spam stuff
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args "stop" | [amount, [counter], ...message]
+     */
     spam(bot, event, args) {
         const cleanArgs = args.trim().toLowerCase();
         
@@ -213,6 +242,12 @@ class Japnaa extends BotPlugin {
         }
     }
 
+    /**
+     * Throws an error
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args Error message
+     */
     throw(bot, event, args) {
         throw new Error(args || "User-Thrown Error");
     }
@@ -223,12 +258,18 @@ class Japnaa extends BotPlugin {
 
     _start() {
         this._registerCommand("echo", this.echo);
-        this._registerCommand("jap", this.jap);
-        this._registerCommand("tetris", this.tetris);
         this._registerCommand("count", this.count);
         this._registerCommand("random", this.random);
         this._registerCommand("spam", this.spam);
         this._registerCommand("throw", this.throw);
+
+        this.bot.client.setPresence({
+            game: {
+                name: "Beep boop. Boop beep.",
+                type: 0
+            },
+            idle_since: Date.now() - 1
+        });
     }
 }
 
