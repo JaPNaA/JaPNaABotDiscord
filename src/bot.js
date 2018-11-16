@@ -62,7 +62,7 @@ class Bot {
         this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
 
         if (this.client.connected) {
-            this.onready(null);
+            this.onready();
         }
     }
 
@@ -83,7 +83,6 @@ class Bot {
      * Restarts bot on command
      * @param {Bot} bot this
      * @param {DiscordMessageEvent} event data
-     * @param {String} args arguments as string
      */
     restart(bot, event) {
         bot.send(event.channelId, "**Restarting**");
@@ -185,9 +184,8 @@ class Bot {
 
     /**
      * ready callback
-     * @param {*} event webscoket event
      */
-    onready(event) {
+    onready() {
         this.id = this.client.id;
         console.log("Started");
     }

@@ -70,7 +70,7 @@ function init() {
 
 init();
 
-client.on("ready", event => bot.onready(event));
+client.on("ready", () => bot.onready());
 client.on("message", (user, userId, channelId, message, event) => bot.onmessage(user, userId, channelId, message, event));
 client.on("disconnect", function() {
     if (!shuttingDown) {
