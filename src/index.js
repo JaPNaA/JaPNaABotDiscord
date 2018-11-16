@@ -4,18 +4,21 @@ const FS = require("fs");
 
 const Bot = require("./bot.js");
 
+const CONFIG_PATH = "./data/config.json";
+const MEMORY_PATH = "./data/memory.json";
+
 const client = new DISCORD.Client({
     token: ENV.token,
     autorun: true
 });
 
-let config = JSON.parse(FS.readFileSync("./config.json").toString());
+let config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
 let memory;
 
 try {
-    memory = JSON.parse(FS.readFileSync("./memory.json").toString());
+    memory = JSON.parse(FS.readFileSync(MEMORY_PATH).toString());
 } catch (e) {
-    FS.writeFileSync("./memory.json", "{}");
+    FS.writeFileSync(MEMORY_PATH, "{}");
     memory = {};
 }
 
@@ -29,7 +32,7 @@ let bot;
  * @param {String} path input
  */
 function getPluginPath(path) {
-    const npath = "./plugins/" + path + ".js";
+    const npath = "../plugins/" + path + ".js";
     delete require.cache[require.resolve(npath)];
     return require(npath);
 }
@@ -50,8 +53,8 @@ function loadPlugin(path) {
 }
 
 function init() {
-    config = JSON.parse(FS.readFileSync("./config.json").toString());
-    bot = new Bot(config, memory, client, init);
+    config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
+    bot = new Bot(config, memory, MEMORY_PATH, client, init);
 
     for (let i of config["plugins"]) {
         const error = loadPlugin(i);
@@ -59,8 +62,9 @@ function init() {
         if (error) {
             // send error message
             console.error(error);
+        } else {
+            console.log("Successfully loaded plugin " + i);
         }
-        console.log("Successfully loaded plugin " + i);
     }
 }
 
@@ -81,6 +85,7 @@ process.on("SIGINT", function() {
     console.log("\nGracefully stoping...");
 
     setInterval(function () {
+        // @ts-ignore
         if (!process._getActiveRequests().length) {
             process.exit(0);
         }

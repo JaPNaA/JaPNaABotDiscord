@@ -10,10 +10,11 @@ class Bot {
      * Bot constructor
      * @param {Object} config bot config
      * @param {Object} memory bot memory
+     * @param {String} memoryPath path to memory
      * @param {Object} client client
      * @param {Function} restartFunc restarting function
      */
-    constructor(config, memory, client, restartFunc) {
+    constructor(config, memory, memoryPath, client, restartFunc) {
         /** @type {String} */
         this.id = undefined;
 
@@ -24,6 +25,12 @@ class Bot {
         this.restartFunc = restartFunc;
 
         this.config = config;
+
+        /** 
+         * Path to memory
+         * @type {String} 
+         */
+        this.memoryPath = memoryPath;
         this.memory = memory;
 
         /**
@@ -78,7 +85,7 @@ class Bot {
      * @param {DiscordMessageEvent} event data
      * @param {String} args arguments as string
      */
-    restart(bot, event, args) {
+    restart(bot, event) {
         bot.send(event.channelId, "**Restarting**");
         console.log("Restarting");
         bot.stop();
@@ -165,7 +172,7 @@ class Bot {
     writeMemory(isAuto) {
         if (isAuto && !this.memoryChanged) return;
 
-        FS.writeFile("./memory.json", JSON.stringify(this.memory), function(e) {
+        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), function(e) {
             if (e) {
                 console.error("Failed to write to memory", e);
                 return;

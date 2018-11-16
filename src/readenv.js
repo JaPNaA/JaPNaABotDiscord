@@ -1,7 +1,7 @@
 const FS = require("fs");
 
 function readEnv() {
-    const lines = FS.readFileSync("./.env").toString().split("\n");
+    const lines = FS.readFileSync("./data/.env").toString().split("\n");
     const obj = {};
 
     for (const line of lines) {

@@ -1,5 +1,5 @@
-const BotPlugin = require("../plugin.js");
-const { stringToArgs, random } = require("../utils.js");
+const BotPlugin = require("../src/plugin.js");
+const { stringToArgs, random } = require("../src/utils.js");
 
 class Japnaa extends BotPlugin {
     constructor(bot) {
@@ -32,7 +32,7 @@ class Japnaa extends BotPlugin {
         this.spamIntervalActive = false;
     }
 
-    count(bot, event, args) {
+    count(bot, event) {
         this.counter++;
 
         this.bot.remember(this.namespace, "counter", this.counter);

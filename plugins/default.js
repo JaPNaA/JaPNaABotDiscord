@@ -1,15 +1,15 @@
-const BotPlugin = require("../plugin.js");
+const BotPlugin = require("../src/plugin.js");
 
 class Default extends BotPlugin {
     constructor(bot) {
         super(bot);
     }
 
-    ping(bot, event, args) {
+    ping(bot, event) {
         bot.send(event.channelId, "Pong!");
     }
 
-    link(bot, event, args) {
+    link(bot, event) {
         bot.send(event.channelId, {
             embed: {
                 color: 0xF2495D,
@@ -18,7 +18,7 @@ class Default extends BotPlugin {
         });
     }
 
-    code(bot, event, args) {
+    code(bot, event) {
         bot.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
     }
 
