@@ -1,11 +1,13 @@
+const CONFIG_PATH = "./data/config.json";
+const MEMORY_PATH = "./data/memory.json";
+const ENV_PATH = "./data/.env";
+
 const DISCORD = require("discord.io");
-const ENV = require("./readenv.js")();
+/** environment variables */
+const ENV = require("./readenv.js")(ENV_PATH);
 const FS = require("fs");
 
 const Bot = require("./bot.js");
-
-const CONFIG_PATH = "./data/config.json";
-const MEMORY_PATH = "./data/memory.json";
 
 const client = new DISCORD.Client({
     token: ENV.token,
@@ -13,7 +15,7 @@ const client = new DISCORD.Client({
 });
 
 let config;
-try {
+try { // in case the config file doesn't exist
     config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
 } catch (e) {
     console.error(e);
@@ -22,13 +24,17 @@ try {
 }
 
 let memory;
-try {
+try { // in case the memory file doesn't exist
     memory = JSON.parse(FS.readFileSync(MEMORY_PATH).toString());
 } catch (e) {
     FS.writeFileSync(MEMORY_PATH, "{}");
     memory = {};
 }
 
+/**
+ * Is the bot currently shutting down?
+ * @type {Boolean}
+ */
 let shuttingDown = false;
 
 /** @type {Bot} */
@@ -59,6 +65,9 @@ function loadPlugin(path) {
     }
 }
 
+/**
+ * Initalizes and starts the bot with plugins
+ */
 function init() {
     config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
     bot = new Bot(config, memory, MEMORY_PATH, client, init);
@@ -77,6 +86,7 @@ function init() {
 
 init();
 
+// set hooks
 client.on("ready", () => bot.onready());
 client.on("message", (user, userId, channelId, message, event) => bot.onmessage(user, userId, channelId, message, event));
 client.on("disconnect", function() {
@@ -85,6 +95,7 @@ client.on("disconnect", function() {
     }
 });
 
+// gacefully stop on ctrl-c
 process.on("SIGINT", function() {
     shuttingDown = true;
     bot.stop();

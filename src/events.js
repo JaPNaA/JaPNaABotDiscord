@@ -5,16 +5,44 @@ class DiscordMessageEvent {
      * @param {String} userId of sender
      * @param {String} channelId in
      * @param {String} message sent
-     * @param {Boolean|String} precommand is message valid command? If so, what is precommand?
+     * @param {String|null} precommand is message valid command? If so, what is precommand?
      * @param {*} event websocket event
      */
     constructor(username, userId, channelId, message, precommand, event) {
+        /**
+         * Username of sender
+         * @type {String}
+         */
         this.username = username;
+
+        /**
+         * Id of sender
+         * @type {String}
+         */
         this.userId = userId;
+
+        /**
+         * Id of channel message was sent in
+         * @type {String}
+         */
         this.channelId = channelId;
+
+        /**
+         * Message that was sent
+         * @type {String}
+         */
         this.message = message;
-        this.wsevent = event;
+
+        /**
+         * Precommand used, if any
+         * @type {String|null}
+         */
         this.precommand = precommand;
+
+        /**
+         * WebSocket event data
+         */
+        this.wsevent = event;
     }
 }
 
@@ -28,8 +56,19 @@ class DiscordCommandEvent extends DiscordMessageEvent {
      * @param {String} content after precommand
      */
     constructor(messageEvent, pre, content) {
+        // inheirt all properties of DiscordMessageEvent
         super(messageEvent.username, messageEvent.userId, messageEvent.channelId, messageEvent.message, messageEvent.precommand, messageEvent.wsevent);
+
+        /**
+         * Precommand used
+         * @type {String}
+         */
         this.precommand = pre;
+
+        /**
+         * What came after the precommand
+         * @type {String}
+         */
         this.commandContent = content;
     }
 }

@@ -19,15 +19,28 @@ class Bot {
      * @param {Function} restartFunc restarting function
      */
     constructor(config, memory, memoryPath, client, restartFunc) {
-        /** @type {String} */
+        /**
+         * userId of the bot
+         * @type {String}
+         */
         this.id = undefined;
 
-        /** @type {Client} */
+        /**
+         * Discord.io Client
+         * @type {Client}
+         */
         this.client = client;
 
-        /** @type {Function} */
+        /**
+         * Function to call to restart itself
+         * @type {Function} 
+         */
         this.restartFunc = restartFunc;
 
+        /** 
+         * config.json data
+         * @type {Object}
+         */
         this.config = config;
 
         /** 
@@ -58,6 +71,9 @@ class Bot {
         this.start();
     }
 
+    /**
+     * Starts the bot
+     */
     start() {
         console.log("Bot starting...");
 
@@ -70,6 +86,9 @@ class Bot {
         }
     }
 
+    /**
+     * Stops the bot (async)
+     */
     stop() {
         for (let plugin of this.registeredPlugins) {
             plugin._stop();
@@ -336,10 +355,14 @@ class Bot {
         return new Permissions(permissionsNum);
     }
 
+    /**
+     * Sets rich presence game
+     * @param {String} name of game
+     */
     playGame(name) {
         this.client.setPresence({
             game: {
-                name: name,
+                name: name || null,
                 type: 0
             },
             idle_since: Date.now() - 1
