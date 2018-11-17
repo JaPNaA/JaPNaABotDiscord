@@ -315,23 +315,10 @@ class Bot {
             plugin._dispatchEvent("command", commandEvent);
         }
 
-        const firstWhiteSpaceMatch = commandStr.match(/\s/);
-
-        if (firstWhiteSpaceMatch) {
-            const firstWhiteSpaceIndex = firstWhiteSpaceMatch.index;
-            const commandWord = commandStr.slice(0, firstWhiteSpaceIndex).toLowerCase();
-            const argString = commandStr.slice(firstWhiteSpaceIndex + 1);
-
-            for (let command of this.registeredCommands) {
-                command.testAndRun(commandEvent, commandWord, argString);
-            }
-        } else {
-            const commandWord = commandStr.toLowerCase();
-            const argString = "";
-            
-            for (let command of this.registeredCommands) {
-                command.testAndRun(commandEvent, commandWord, argString);
-            }
+        for (let i = this.registeredCommands.length - 1; i >= 0; i--) {
+            let command = this.registeredCommands[i];
+            let ran = command.testAndRun(commandEvent);
+            if (ran) break;
         }
     }
 

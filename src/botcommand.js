@@ -29,22 +29,27 @@ class BotCommand {
     /**
      * Tests if the commandWord matches, and runs the command if it does.
      * @param {DiscordCommandEvent} commandEvent the event triggering function
-     * @param {String} commandWord the word used in command
-     * @param {String} argString the arguments of the command
+     * @returns {Boolean} Was the command was ran
      */
-    testAndRun(commandEvent, commandWord, argString) {
-        if (commandWord === this.triggerWord) {
+    testAndRun(commandEvent) {
+        let commandContent = commandEvent.commandContent;
+        if (commandContent.startsWith(this.triggerWord)) {
             let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.channelId);
+            let argString = commandContent.slice(this.triggerWord.length);
             
             if (!this.requiredPermission || permissions.has(this.requiredPermission)) {
-                this.tryRunCommand(commandEvent, argString);
+                this.tryRunCommand(commandEvent, argString.trimLeft());
             } else {
                 this.bot.send(commandEvent.channelId, 
                     "<@" + commandEvent.userId + "> **You must have " +
                     this.requiredPermission + " permissions to run this command.**"
                 );
             }
+
+            return true;
         }
+
+        return false;
     }
 
     tryRunCommand(commandEvent, argString) {
