@@ -17,5 +17,8 @@
   "private": true,
   "dependencies": {
     "discord.io": "github:izy521/discord.io"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.9"
   }
 }

@@ -269,14 +269,20 @@ class Japnaa extends BotPlugin {
      * @param {String} args message to send
      */
     tell(bot, event, args) {
-        let endTagIndex = args.match(/>/).index;
-        let user = toUserId(args.slice(0, endTagIndex));
-        let message = args.slice(endTagIndex + 1).trimLeft();
+        let tagMatch = args.match(/^\s*<@\d+>\s*/);
+
+        if (!tagMatch) {
+            bot.send(event.channelId, "<insert help message>");
+            return;
+        }
+
+        let user = toUserId(tagMatch[0]);
+        let message = args.slice(tagMatch[0].length + 1);
 
         bot.sendDM(user, {
+            message: "<@" + event.userId + "> told you",
             embed: {
                 color: 0xF2495D,
-                title: "<@" + event.userId + "> told you:",
                 description: message
             }
         }, function() {
