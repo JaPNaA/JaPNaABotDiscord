@@ -68,6 +68,11 @@ class Bot {
          */
         this.registeredPlugins = [];
 
+        this.permissionsNamespace = "permissions";
+        this.permissionsAdmin = "_admin";
+        this.permissionsGlobal = "global";
+        this.memoryDelimiter = ".";
+
         this.start();
     }
 
@@ -351,7 +356,7 @@ class Bot {
      * @param {String} userId id of user
      */
     createPermissionKey_user_global(userId) {
-        return "global." + userId;
+        return this.permissionsGlobal + this.memoryDelimiter + userId;
     }
 
     /**
@@ -360,7 +365,7 @@ class Bot {
      * @param {String} userId id of user
      */
     createPermissionKey_user_server(serverId, userId) {
-        return serverId + "." + userId;
+        return serverId + this.memoryDelimiter + userId;
     }
 
     /**
@@ -370,7 +375,7 @@ class Bot {
      * @param {String} channelId id of channel
      */
     createPermissionKey_user_channel(serverId, userId, channelId) {
-        return serverId + "." + userId + "." + channelId;
+        return serverId + this.memoryDelimiter + userId + this.memoryDelimiter + channelId;
     }
 
     /**
@@ -431,18 +436,18 @@ class Bot {
 
         let permissions = new Permissions(permissionsNum);
         permissions.customImportJSON(
-            this.recall("permissions", this.createPermissionKey_user_global(userId))
+            this.recall(this.permissionsNamespace, this.createPermissionKey_user_global(userId))
         );
 
         if (serverId) {
             permissions.customImportJSON(
-                this.recall("permissions", this.createPermissionKey_user_server(serverId, userId))
+                this.recall(this.permissionsNamespace, this.createPermissionKey_user_server(serverId, userId))
             );
         }
 
         if (channelId) {
             permissions.customImportJSON(
-                this.recall("permissions", 
+                this.recall(this.permissionsNamespace, 
                     this.createPermissionKey_user_channel(serverId, userId, channelId)
                 )
             );
@@ -461,7 +466,7 @@ class Bot {
     editPermissions_user_channel(userId, channelId, permissionName, value) {
         let serverId = this.getChannel(channelId).guild_id;
         
-        let permString = this.recall("permissions", 
+        let permString = this.recall(this.permissionsNamespace, 
             this.createPermissionKey_user_channel(serverId, userId, channelId)
         );
 
@@ -469,7 +474,7 @@ class Bot {
         permissions.customImportJSON(permString);
         permissions.customWrite(permissionName, value);
 
-        this.remember("permissions", 
+        this.remember(this.permissionsNamespace, 
             this.createPermissionKey_user_channel(serverId, userId, channelId), 
             permissions.customToJSON(), true
         );
@@ -483,7 +488,7 @@ class Bot {
      * @param {Boolean} value value of permission to write
      */
     editPermissions_user_server(userId, serverId, permissionName, value) {
-        let permString = this.recall("permissions",
+        let permString = this.recall(this.permissionsNamespace,
             this.createPermissionKey_user_server(serverId, userId)
         );
 
@@ -491,7 +496,7 @@ class Bot {
         permissions.customImportJSON(permString);
         permissions.customWrite(permissionName, value);
 
-        this.remember("permissions",
+        this.remember(this.permissionsNamespace,
             this.createPermissionKey_user_server(serverId, userId),
             permissions.customToJSON(), true
         );
@@ -504,7 +509,7 @@ class Bot {
      * @param {Boolean} value of permission to write
      */
     editPermissions_user_global(userId, permissionName, value) {
-        let permString = this.recall("permissions", 
+        let permString = this.recall(this.permissionsNamespace, 
             this.createPermissionKey_user_global(userId)
         );
 
@@ -512,7 +517,7 @@ class Bot {
         permission.customImportJSON(permString);
         permission.customWrite(permissionName, value);
 
-        this.remember("permissions",
+        this.remember(this.permissionsNamespace,
             this.createPermissionKey_user_global(userId),
             permission.customToJSON(), true
         );

@@ -111,8 +111,8 @@ class Default extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      */
     iamthebotadmin(bot, event) {
-        if (bot.recall("permissions", "_admin")) {
-            if (bot.recall("permissions", "_admin") === event.userId) {
+        if (bot.recall(bot.permissionsNamespace, bot.permissionsAdmin)) {
+            if (bot.recall(bot.permissionsNamespace, bot.permissionsAdmin) === event.userId) {
                 bot.send(event.channelId, "Yes. You are the bot admin.");
             } else {
                 bot.send(event.channelId, "You are not the bot admin.");
@@ -120,7 +120,7 @@ class Default extends BotPlugin {
             return;
         } else {
             bot.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
-            bot.remember("permissions", "_admin", event.userId, true);
+            bot.remember(bot.permissionsNamespace, bot.permissionsAdmin, event.userId, true);
 
             bot.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
         }

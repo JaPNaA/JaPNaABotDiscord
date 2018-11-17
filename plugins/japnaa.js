@@ -19,7 +19,7 @@ class Japnaa extends BotPlugin {
          * Counter for this.count()
          */
         this.counter = bot.recall(this.namespace, "counter") || 0;
-
+        
         
         /**
          * Que of spam functions
