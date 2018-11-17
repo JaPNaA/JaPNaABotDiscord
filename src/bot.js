@@ -410,27 +410,36 @@ class Bot {
      * @param {String} channelId id of channel
      */
     getPermissions_channel(userId, channelId) {
-        const serverId = this.getChannel(channelId).guild_id;
+        const channel = this.getChannel(channelId);
+        let serverId;
+        if (channel) {
+            serverId = channel.guild_id;
+        } else {
+            serverId = null;
+        }
+
         return this.getPermissions_server(userId, serverId, channelId);
     }
 
     /**
      * Gets the permissions of user from userId in serverId
      * @param {String} userId id of user
-     * @param {String} serverId id of server
+     * @param {String} [serverId] id of server
      * @param {String} [channelId] if of channel
      */
     getPermissions_server(userId, serverId, channelId) {
-        const server = this.getServer(serverId);
-
-        const user = server.members[userId];
-        const roles = user.roles.concat([serverId]);
-
+        let server, user, roles;
         let permissionsNum = 0;
 
-        for (let role of roles) {
-            // @ts-ignore
-            permissionsNum |= server.roles[role]._permissions;
+        if (serverId) {
+            server = this.getServer(serverId);
+            user = server.members[userId];
+            roles = user.roles.concat([serverId]);
+
+            for (let role of roles) {
+                // @ts-ignore
+                permissionsNum |= server.roles[role]._permissions;
+            }
         }
 
         let permissions = new Permissions(permissionsNum);
@@ -438,9 +447,11 @@ class Bot {
             this.recall("permissions", this.createPermissionKey_user_global(userId))
         );
 
-        permissions.customImportJSON(
-            this.recall("permissions", this.createPermissionKey_user_server(serverId, userId))
-        );
+        if (serverId) {
+            permissions.customImportJSON(
+                this.recall("permissions", this.createPermissionKey_user_server(serverId, userId))
+            );
+        }
 
         if (channelId) {
             permissions.customImportJSON(

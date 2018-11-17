@@ -66,5 +66,3 @@ class JapnaaWeird extends BotPlugin {
 }
 
 module.exports = JapnaaWeird;
-
-
