@@ -106,6 +106,27 @@ class Default extends BotPlugin {
     }
 
     /**
+     * Sets the bot admin
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     */
+    iamthebotadmin(bot, event) {
+        if (bot.recall("permissions", "_admin")) {
+            if (bot.recall("permissions", "_admin") === event.userId) {
+                bot.send(event.channelId, "Yes. You are the bot admin.");
+            } else {
+                bot.send(event.channelId, "You are not the bot admin.");
+            }
+            return;
+        } else {
+            bot.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
+            bot.remember("permissions", "_admin", event.userId, true);
+
+            bot.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
+        }
+    }
+
+    /**
      * Sends link to add bot to server
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
@@ -134,6 +155,7 @@ class Default extends BotPlugin {
         this._registerCommand("invite", this.link);
         this._registerCommand("code", this.code);
         this._registerCommand("userinfo", this.userinfo);
+        this._registerCommand("iamthebotadmin", this.iamthebotadmin);
     }
 }
 

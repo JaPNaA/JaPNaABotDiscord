@@ -71,6 +71,9 @@ class Permissions {
         this.MANAGE_WEBHOOKS = getBit(this.num, 27);
         /** Allows management and editing of emojis */
         this.MANAGE_EMOJIS = getBit(this.num, 28);
+
+        /** Custom Permissions */
+        this.customPermissions = {};
     }
 
     /**
@@ -79,7 +82,7 @@ class Permissions {
      * @returns {Boolean} has permission?
      */
     has(permission) {
-        return Boolean(this[permission]);
+        return Boolean(this[permission]) || Boolean(this.customPermissions[permission]);
     }
 
     /**
@@ -105,7 +108,56 @@ class Permissions {
             }
         }
 
-        return this.num + ": " + str.join(", ");
+        let customStr = [];
+        let customKeys = Object.keys(this.customPermissions);
+        for (let key of customKeys) {
+            if (this.customPermissions[key]) {
+                customStr.push("**" + this.toReadable(key) + "**");
+            } else {
+                customStr.push(this.toReadable(key));
+            }
+        }
+
+        return this.num + ": " + str.join(", ") + "\n" + "Custom: " + customStr.join(", ");
+    }
+
+    /**
+     * Converts custom permissions to json
+     * @returns {String} json string
+     */
+    customToJSON() {
+        let keys = [];
+        let okeys = Object.keys(this.customPermissions);
+
+        for (let okey of okeys) {
+            if (this.customPermissions[okey]) {
+                keys.push(okey);
+            }
+        }
+
+        return JSON.stringify(keys);
+    }
+
+    /**
+     * Imports json string to customPermissions
+     * @param {String} json string
+     */
+    customImportJSON(json) {
+        if (!json) return;
+        
+        let keys = JSON.parse(json);
+        for (let key of keys) {
+            this.customPermissions[key] = true;
+        }
+    }
+
+    /**
+     * Writes a custom permission
+     * @param {String} permission permission to write
+     * @param {Boolean} value value of permission
+     */
+    customWrite(permission, value) {
+        this.customPermissions[permission] = value;
     }
 }
 

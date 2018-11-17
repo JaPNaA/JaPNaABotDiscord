@@ -77,7 +77,7 @@ class Bot {
     start() {
         console.log("Bot starting...");
 
-        this.registerCommand("restart", this.restart, "ADMINISTRATOR");
+        this.registerCommand("restart", this.restart, "BOT_ADMINISTRATOR");
 
         this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
 
@@ -360,6 +360,33 @@ class Bot {
     }
 
     /**
+     * Creates the key for permissions
+     * @param {String} userId id of user
+     */
+    createPermissionKey_user_global(userId) {
+        return "global." + userId;
+    }
+
+    /**
+     * Creates the key for permissions
+     * @param {String} serverId id of server
+     * @param {String} userId id of user
+     */
+    createPermissionKey_user_server(serverId, userId) {
+        return serverId + "." + userId;
+    }
+
+    /**
+     * Creates the key for permissions
+     * @param {String} serverId id of user
+     * @param {String} userId id of user
+     * @param {String} channelId id of channel
+     */
+    createPermissionKey_user_channel(serverId, userId, channelId) {
+        return serverId + "." + userId + "." + channelId;
+    }
+
+    /**
      * Gets user from channel
      * @param {String} userId id of user
      * @param {String} channelId id of server
@@ -380,17 +407,20 @@ class Bot {
     /**
      * Gets the permissions of user from userId in channelId
      * @param {String} userId id of user
+     * @param {String} channelId id of channel
      */
     getPermissions_channel(userId, channelId) {
         const serverId = this.getChannel(channelId).guild_id;
-        return this.getPermissions_server(userId, serverId);
+        return this.getPermissions_server(userId, serverId, channelId);
     }
 
     /**
      * Gets the permissions of user from userId in serverId
      * @param {String} userId id of user
+     * @param {String} serverId id of server
+     * @param {String} [channelId] if of channel
      */
-    getPermissions_server(userId, serverId) {
+    getPermissions_server(userId, serverId, channelId) {
         const server = this.getServer(serverId);
 
         const user = server.members[userId];
@@ -403,7 +433,91 @@ class Bot {
             permissionsNum |= server.roles[role]._permissions;
         }
 
-        return new Permissions(permissionsNum);
+        let permissions = new Permissions(permissionsNum);
+        permissions.customImportJSON(
+            this.recall("permissions", this.createPermissionKey_user_global(userId))
+        );
+
+        permissions.customImportJSON(
+            this.recall("permissions", this.createPermissionKey_user_server(serverId, userId))
+        );
+
+        if (channelId) {
+            permissions.customImportJSON(
+                this.recall("permissions", 
+                    this.createPermissionKey_user_channel(serverId, userId, channelId)
+                )
+            );
+        }
+
+        return permissions;
+    }
+
+    /**
+     * Sets the permissions of user in a channel
+     * @param {String} userId user
+     * @param {String} channelId id of channel
+     * @param {String} permissionName name of permission
+     * @param {Boolean} value value of permission to write
+     */
+    editPermissions_user_channel(userId, channelId, permissionName, value) {
+        let serverId = this.getChannel(channelId).guild_id;
+        
+        let permString = this.recall("permissions", 
+            this.createPermissionKey_user_channel(serverId, userId, channelId)
+        );
+
+        let permissions = new Permissions();
+        permissions.customImportJSON(permString);
+        permissions.customWrite(permissionName, value);
+
+        this.remember("permissions", 
+            this.createPermissionKey_user_channel(serverId, userId, channelId), 
+            permissions.customToJSON(), true
+        );
+    }
+
+    /**
+     * Sets the permissions of user in a server
+     * @param {String} userId id of user
+     * @param {String} serverId id of server
+     * @param {String} permissionName name of permission
+     * @param {Boolean} value value of permission to write
+     */
+    editPermissions_user_server(userId, serverId, permissionName, value) {
+        let permString = this.recall("permissions",
+            this.createPermissionKey_user_server(serverId, userId)
+        );
+
+        let permissions = new Permissions();
+        permissions.customImportJSON(permString);
+        permissions.customWrite(permissionName, value);
+
+        this.remember("permissions",
+            this.createPermissionKey_user_server(serverId, userId),
+            permissions.customToJSON(), true
+        );
+    }
+
+    /**
+     * Sets the permissions of user everywhere
+     * @param {String} userId id of user
+     * @param {String} permissionName name of permission
+     * @param {Boolean} value of permission to write
+     */
+    editPermissions_user_global(userId, permissionName, value) {
+        let permString = this.recall("permissions", 
+            this.createPermissionKey_user_global(userId)
+        );
+
+        let permission = new Permissions();
+        permission.customImportJSON(permString);
+        permission.customWrite(permissionName, value);
+
+        this.remember("permissions",
+            this.createPermissionKey_user_global(userId),
+            permission.customToJSON(), true
+        );
     }
 
     /**
