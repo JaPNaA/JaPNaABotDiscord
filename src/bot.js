@@ -77,7 +77,7 @@ class Bot {
     start() {
         console.log("Bot starting...");
 
-        this.registerCommand("restart", this.restart);
+        this.registerCommand("restart", this.restart, "ADMINISTRATOR");
 
         this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
 
@@ -124,8 +124,14 @@ class Bot {
         this.registeredPlugins.push(plugin);
     }
 
-    registerCommand(triggerWord, func) {
-        this.registeredCommands.push(new BotCommand(this, triggerWord, func));
+    /**
+     * Register a command
+     * @param {String} triggerWord word that triggers command
+     * @param {Function} func function to call
+     * @param {String} [requiredPermission] permissions required to call function
+     */
+    registerCommand(triggerWord, func, requiredPermission) {
+        this.registeredCommands.push(new BotCommand(this, triggerWord, func, requiredPermission));
     }
 
     /**
@@ -375,16 +381,16 @@ class Bot {
      * Gets the permissions of user from userId in channelId
      * @param {String} userId id of user
      */
-    getPermissions_channel(channelId, userId) {
+    getPermissions_channel(userId, channelId) {
         const serverId = this.getChannel(channelId).guild_id;
-        return this.getPermissions_server(serverId, userId);
+        return this.getPermissions_server(userId, serverId);
     }
 
     /**
      * Gets the permissions of user from userId in serverId
      * @param {String} userId id of user
      */
-    getPermissions_server(serverId, userId) {
+    getPermissions_server(userId, serverId) {
         const server = this.getServer(serverId);
 
         const user = server.members[userId];

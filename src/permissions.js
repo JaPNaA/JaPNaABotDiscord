@@ -74,6 +74,15 @@ class Permissions {
     }
 
     /**
+     * Check if has permission
+     * @param {String} permission string
+     * @returns {Boolean} has permission?
+     */
+    has(permission) {
+        return Boolean(this[permission]);
+    }
+
+    /**
      * Converts capital to lowercase, replace underscores with spaces
      * @param {String} str input string
      * @returns {String} readable string

@@ -38,9 +38,10 @@ class BotPlugin {
      * Registers an command handler
      * @param {String} name of command, called by [precommand][name]
      * @param {Function} func function to run when called
+     * @param {String} [requiredPermission] permission that is required to run command
      */
-    _registerCommand(name, func) {
-        this.bot.registerCommand(name, func.bind(this));
+    _registerCommand(name, func, requiredPermission) {
+        this.bot.registerCommand(name, func.bind(this), requiredPermission);
     }
 
     /**

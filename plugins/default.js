@@ -61,9 +61,9 @@ class Default extends BotPlugin {
                     value: JSON.stringify(bot.getUser_channel(userId, event.channelId)) + "\n"
                 });
     
-                const permissions = bot.getPermissions_channel(event.channelId, userId);
+                const permissions = bot.getPermissions_channel(userId, event.channelId);
                 response.push({
-                    name: "Permissions in server",
+                    name: "Permissions here",
                     value: permissions.toString() + "\n"
                 });
             }
