@@ -50,15 +50,36 @@ class Default extends BotPlugin {
         let user = bot.getUser(userId);
 
         if (user) {
+            let avatarUrl = "https://cdn.discordapp.com/avatars/" + userId + "/" + user.avatar + ".png";
+
+            let userStr = 
+                "Username: " + user.username +
+                "\nDiscriminator: " + user.discriminator +
+                "\nId: " + user.id + 
+                "\nAvatar: [" + user.avatar + "](" + avatarUrl + ")" +
+                "\nBot: " + user.bot +
+                "\nGame: " + JSON.stringify(user.game);
+
             response.push({
                 name: "User info",
-                value: JSON.stringify(user) + "\n"
+                value: userStr + "\n"
             });
 
             if (bot.getChannel(event.channelId)) {
+                let userInServer = bot.getUser_channel(userId, event.channelId);
+                let userInServerStr = 
+                    "Roles: " + (userInServer.roles.length >= 1 ? userInServer.roles.join(", ") : "none") + 
+                    "\nIs mute: " + (userInServer.mute ? "Yes" : "No") +
+                    "\nIs deaf: " + (userInServer.deaf ? "Yes" : "No") +
+                    "\nId: " + userInServer.id + 
+                    "\nJoined: " + userInServer.joined_at +
+                    "\nStatus: " + userInServer.status +
+                    "\nNick: " + userInServer.nick +
+                    "\nVoice Channel Id: " + userInServer.voice_channel_id;
+
                 response.push({
                     name: "User of server info",
-                    value: JSON.stringify(bot.getUser_channel(userId, event.channelId)) + "\n"
+                    value: userInServerStr + "\n"
                 });
     
                 const permissions = bot.getPermissions_channel(userId, event.channelId);
@@ -73,7 +94,7 @@ class Default extends BotPlugin {
                     color: 0xF2495D,
                     author: {
                         name: "Information for " + user.username,
-                        icon_url: "https://cdn.discordapp.com/avatars/" + userId + "/" + user.avatar + ".png?size=32"
+                        icon_url: avatarUrl + "?size=32"
                     },
                     fields: response,
                     timestamp: new Date()
