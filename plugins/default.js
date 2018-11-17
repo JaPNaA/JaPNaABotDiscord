@@ -70,7 +70,7 @@ class Default extends BotPlugin {
 
             bot.send(event.channelId, {
                 embed: {
-                    color: 3447003,
+                    color: 0xF2495D,
                     author: {
                         name: "Information for " + user.username,
                         icon_url: "https://cdn.discordapp.com/avatars/" + userId + "/" + user.avatar + ".png?size=32"

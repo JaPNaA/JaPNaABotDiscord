@@ -1,5 +1,5 @@
 const BotPlugin = require("../src/plugin.js");
-const { stringToArgs, random } = require("../src/utils.js");
+const { stringToArgs, random, toUserId } = require("../src/utils.js");
 
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
@@ -262,6 +262,28 @@ class Japnaa extends BotPlugin {
         bot.playGame(args);
     }
 
+    /**
+     * Tell someone something through DMs
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args message to send
+     */
+    tell(bot, event, args) {
+        let endTagIndex = args.match(/>/).index;
+        let user = toUserId(args.slice(0, endTagIndex));
+        let message = args.slice(endTagIndex + 1).trimLeft();
+
+        bot.sendDM(user, {
+            embed: {
+                color: 0xF2495D,
+                title: "<@" + event.userId + "> told you:",
+                description: message
+            }
+        }, function() {
+            bot.send(event.channelId, "Failed to tell <@" + user + ">");
+        });
+    }
+
     _stop() {
         this._stopSpam();
     }
@@ -273,6 +295,7 @@ class Japnaa extends BotPlugin {
         this._registerCommand("spam", this.spam);
         this._registerCommand("throw", this.throw);
         this._registerCommand("play", this.play);
+        this._registerCommand("tell", this.tell);
     }
 }
 

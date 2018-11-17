@@ -155,6 +155,51 @@ class Bot {
         }
     }
 
+    sendDM(userId, message, failCallback) {
+        console.log("D>", message);
+
+        let DMs = this.client.directMessages[userId];
+        let messageObject = null;
+
+        if (typeof message === "string") {
+            messageObject = {
+                message: message
+            };
+        } else if (typeof message === "object") {
+            messageObject = {
+                ...message
+            };
+        } else {
+            throw new TypeError("Message is not of valid type");
+        }
+        
+
+        if (DMs) {
+            messageObject.to = DMs.id;
+            this.client.sendMessage(messageObject);
+        } else {
+            this.client.createDMChannel(userId, 
+                /**
+                 * @this {Bot}
+                 */
+                function(err, DMs) {
+                    if (err) {
+                        console.error("Failed to get DMs");
+                        if (failCallback) {
+                            failCallback();
+                        }
+                        return;
+                    }
+                    messageObject.to = DMs.id;
+                    this.client.sendMessage(messageObject);
+                }.bind(this));
+        }
+
+        for (let plugin of this.registeredPlugins) {
+            plugin._dispatchEvent("send", message);
+        }
+    }
+
     /**
      * Stores something in memory
      * @param {String} namespace namespace of thing to remember
