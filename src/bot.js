@@ -1,6 +1,7 @@
 /**
- * @typedef {import("discord.io").Client} Client;
+ * @typedef {import("discord.io").Client} Client
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
+ * @typedef {import("./plugin.js")} Plugin
  */
 
 const UTILS = require("./utils.js");
@@ -80,16 +81,55 @@ class Bot {
         this.registeredCommands = [];
 
         /**
-         * @type {Array} list of plugins registered
+         * @type {Plugin[]} list of plugins registered
          */
         this.registeredPlugins = [];
 
+        /** 
+         * All events and handlers
+         * @type {Object.<string, Function[]>}
+         */
+        this.events = {
+            "message": [],
+            "command": [],
+            "send": [],
+            "senddm": [],
+            "sent": [],
+            "start": [],
+            "beforememorywrite": [],
+            "aftermemorywrite": []
+        };
+
+        /** Memory namespace for permission */
         this.permissionsNamespace = "permissions";
+        /** Memory Permission admin user */
         this.permissionsAdmin = "_admin";
+        /** Memory global identifier */
         this.permissionsGlobal = "global";
+        /** Memory name delimiter */
         this.memoryDelimiter = ".";
 
         this.start();
+    }
+
+    /**
+     * Adds event listener
+     * @param {String} name name of event
+     * @param {Function} func handler/callback function
+     */
+    addEventListener(name, func) {
+        this.events[name].push(func);
+    }
+
+    /**
+     * Call all event handlers for event
+     * @param {String} name of event
+     * @param {*} event Event data sent with dispatch
+     */
+    dispatchEvent(name, event) {
+        for (let handler of this.events[name]) {
+            handler(this, event);
+        }
     }
 
     /**
@@ -120,7 +160,7 @@ class Bot {
         this.writeMemory();
 
         clearInterval(this.autoWriteInterval);
-        
+
         this.registeredCommands.length = 0;
         this.registeredPlugins.length = 0;
     }
@@ -165,9 +205,7 @@ class Bot {
     send(channelId, message) {
         Logger.log_message(">>", message);
 
-        for (let plugin of this.registeredPlugins) {
-            plugin._dispatchEvent("send", message);
-        }
+        this.dispatchEvent("send", message);
 
         if (typeof message === "string") {
             this.client.sendMessage({
@@ -201,17 +239,17 @@ class Bot {
         } else {
             throw new TypeError("Message is not of valid type");
         }
-        
+
 
         if (DMs) {
             messageObject.to = DMs.id;
             this.client.sendMessage(messageObject);
         } else {
-            this.client.createDMChannel(userId, 
+            this.client.createDMChannel(userId,
                 /**
                  * @this {Bot}
                  */
-                function(err, DMs) {
+                function (err, DMs) {
                     if (err) {
                         Logger.warn("Failed to get DMs");
                         if (failCallback) {
@@ -224,9 +262,7 @@ class Bot {
                 }.bind(this));
         }
 
-        for (let plugin of this.registeredPlugins) {
-            plugin._dispatchEvent("send", message);
-        }
+        this.dispatchEvent("senddm", this);
     }
 
     /**
@@ -280,11 +316,9 @@ class Bot {
     writeMemory(isAuto) {
         if (isAuto && !this.memoryChanged) return;
 
-        for (let plugin of this.registeredPlugins) {
-            plugin._dispatchEvent("beforememorywrite", null);
-        }
+        this.dispatchEvent("beforememorywrite", null);
 
-        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), function(e) {
+        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), function (e) {
             if (e) {
                 Logger.error("Failed to write to memory", e);
                 return;
@@ -300,10 +334,8 @@ class Bot {
      */
     onready() {
         this.id = this.client.id;
-        
-        for (let plugin of this.registeredPlugins) {
-            plugin._dispatchEvent("start", null);
-        }
+
+        this.dispatchEvent("start", null);
 
         Logger.log("Started");
     }
@@ -321,17 +353,13 @@ class Bot {
         const messageEvent = new DiscordMessageEvent(username, userId, channelId, message, precommandUsed, event);
 
         if (userId === this.id) {
-            for (let plugin of this.registeredPlugins) {
-                plugin._dispatchEvent("sent", messageEvent);
-            }
+            this.dispatchEvent("sent", messageEvent);
             return;
         }
 
         Logger.log_message("<<", message);
 
-        for (let plugin of this.registeredPlugins) {
-            plugin._dispatchEvent("message", messageEvent);
-        }
+        this.dispatchEvent("message", messageEvent);
 
         if (precommandUsed) {
             this.oncommand(messageEvent, precommandUsed, message.slice(precommandUsed.length));
@@ -347,9 +375,7 @@ class Bot {
     oncommand(messageEvent, pre, commandStr) {
         const commandEvent = new DiscordCommandEvent(messageEvent, pre, commandStr);
 
-        for (let plugin of this.registeredPlugins) {
-            plugin._dispatchEvent("command", commandEvent);
-        }
+        this.dispatchEvent("command", commandEvent);
 
         for (let i = this.registeredCommands.length - 1; i >= 0; i--) {
             let command = this.registeredCommands[i];
@@ -524,7 +550,7 @@ class Bot {
 
         if (channelId) {
             permissions.customImportJSON(
-                this.recall(this.permissionsNamespace, 
+                this.recall(this.permissionsNamespace,
                     this.createLocationKey_user_channel(serverId, userId, channelId)
                 )
             );
@@ -542,8 +568,8 @@ class Bot {
      */
     editPermissions_user_channel(userId, channelId, permissionName, value) {
         let serverId = this.getChannel(channelId).guild_id;
-        
-        let permString = this.recall(this.permissionsNamespace, 
+
+        let permString = this.recall(this.permissionsNamespace,
             this.createLocationKey_user_channel(serverId, userId, channelId)
         );
 
@@ -551,8 +577,8 @@ class Bot {
         permissions.customImportJSON(permString);
         permissions.customWrite(permissionName, value);
 
-        this.remember(this.permissionsNamespace, 
-            this.createLocationKey_user_channel(serverId, userId, channelId), 
+        this.remember(this.permissionsNamespace,
+            this.createLocationKey_user_channel(serverId, userId, channelId),
             permissions.customToJSON(), true
         );
     }
@@ -586,7 +612,7 @@ class Bot {
      * @param {Boolean} value of permission to write
      */
     editPermissions_user_global(userId, permissionName, value) {
-        let permString = this.recall(this.permissionsNamespace, 
+        let permString = this.recall(this.permissionsNamespace,
             this.createLocationKey_user_global(userId)
         );
 

@@ -11,19 +11,6 @@ class BotPlugin {
     constructor(bot) {
         /** @type {Bot} */
         this.bot = bot;
-
-        /** 
-         * All events and handlers
-         * @type {Object.<string, Function[]>}
-         */
-        this._events = {
-            "message": [],
-            "command": [],
-            "send": [],
-            "sent": [],
-            "start": [],
-            "beforememorywrite": []
-        };
     }
 
     /**
@@ -52,18 +39,7 @@ class BotPlugin {
      * @param {Function} func handler/callback function
      */
     _registerEventHandler(name, func) {
-        this._events[name].push(func);
-    }
-
-    /**
-     * Call all event handlers for event
-     * @param {String} name of event
-     * @param {*} event Event data sent with dispatch
-     */
-    _dispatchEvent(name, event) {
-        for (let handler of this._events[name]) {
-            handler.call(this, this.bot, event);
-        }
+        this.bot.events[name].push(func.bind(this));
     }
 }
 
