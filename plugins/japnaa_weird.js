@@ -41,6 +41,15 @@ class JapnaaWeird extends BotPlugin {
     }
 
     /**
+     * ebola your parabola
+     * @param {Bot} bot
+     * @param {DiscordMessageEvent} event message event
+     */
+    your(bot, event) {
+        bot.send(event.channelId, "parabola");
+    }
+
+    /**
      * Listens for messages with 'lol' and deviations
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
@@ -58,6 +67,7 @@ class JapnaaWeird extends BotPlugin {
     _start() {
         this._registerCommand("jap", this.jap);
         this._registerCommand("tetris", this.tetris);
+        this._registerCommand("your", this.your);
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
 

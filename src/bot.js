@@ -443,6 +443,18 @@ class Bot {
     }
 
     /**
+     * Gets the global permissions of user
+     * @param {String} userId id of user
+     */
+    getPermissions_global(userId) {
+        let permissions = new Permissions();
+        permissions.customImportJSON(
+            this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
+        );
+        return permissions;
+    }
+
+    /**
      * Gets the permissions of user from userId in channelId
      * @param {String} userId id of user
      * @param {String} channelId id of channel

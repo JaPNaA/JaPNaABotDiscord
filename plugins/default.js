@@ -1,5 +1,7 @@
 const BotPlugin = require("../src/plugin.js");
+const BotCommandOptions = require("../src/botcommandOptions.js");
 const { toUserId } = require("../src/utils.js");
+const { inspect } = require("util");
 
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
@@ -23,6 +25,23 @@ class Default extends BotPlugin {
         let now = new Date();
         let then = new Date(event.wsevent.d.timestamp);
         bot.send(event.channelId, "Pong! Took " + (now.getTime() - then.getTime()) + "ms");
+    }
+
+    /**
+     * 
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args args string
+     */
+    eval(bot, event, args) {
+        let str = inspect(eval(args));
+        str = str.replace(/ {4}/g, "\t");
+
+        if (str.length > 1994) {
+            str = str.slice(0, 1991) + "...";
+        }
+
+        bot.send(event.channelId, "```" + str + "```");
     }
 
     /**
@@ -127,6 +146,27 @@ class Default extends BotPlugin {
     }
 
     /**
+     * Pretends to recieve a message from soneone else
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message evetn
+     * @param {String} args arguments
+     */
+    pretendget(bot, event, args) {
+        let tagMatch = args.match(/^\s*<@\d+>\s*/);
+
+        if (!tagMatch) {
+            bot.send(event.channelId, "<insert help message>");
+            return;
+        }
+
+        let userId = toUserId(tagMatch[0]);
+        let user = bot.getUser(userId);
+        let message = args.slice(tagMatch[0].length);
+
+        bot.onmessage(user.username, user.id, event.channelId, message, event.wsevent);
+    }
+
+    /**
      * Sends link to add bot to server
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
@@ -150,12 +190,21 @@ class Default extends BotPlugin {
     }
 
     _start() {
+        this._registerCommand("eval", this.eval, new BotCommandOptions({
+            requiredPermission: "BOT_ADMINISTRATOR"
+        }));
+
         this._registerCommand("ping", this.ping);
-        this._registerCommand("link", this.link);
-        this._registerCommand("invite", this.link);
-        this._registerCommand("code", this.code);
         this._registerCommand("userinfo", this.userinfo);
+        this._registerCommand("pretendget", this.pretendget, new BotCommandOptions({
+            requiredPermission: "BOT_ADMINISTRATOR"
+        }));
+        
         this._registerCommand("iamthebotadmin", this.iamthebotadmin);
+        
+        this._registerCommand("invite", this.link);
+        this._registerCommand("link", this.link);
+        this._registerCommand("code", this.code);
     }
 }
 

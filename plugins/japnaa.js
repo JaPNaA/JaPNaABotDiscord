@@ -161,12 +161,42 @@ class Japnaa extends BotPlugin {
     }
     
     /**
+     * Checks if the spam interval should be running or not
+     */
+    _checkSpamInterval() {
+        let keys = Object.keys(this.spamQue);
+
+        for (let key of keys) {
+            let que = this.spamQue[key];
+            if (que.length > 0) return;
+        }
+
+        clearInterval(this.spamInterval);
+        this.spamIntervalActive = false;
+    }
+
+    /**
      * Stops spamming
+     * @param {String} serverId
      */
     _stopSpam(serverId) {
+        if (this.spamQue[serverId]) {
+            this.spamQue[serverId].length = 0;
+        }
+        this._checkSpamInterval();
+    }
+
+    /**
+     * Stops all spam
+     */
+    _stopAllSpam() {
         clearInterval(this.spamInterval);
-        this.spamQue[serverId].length = 0;
         this.spamIntervalActive = false;
+
+        let keys = Object.keys(this.spamQue);
+        for (let key of keys) {
+            this._stopSpam(key);
+        }
     }
 
     /**
@@ -183,7 +213,7 @@ class Japnaa extends BotPlugin {
                     spamQue.push(spamFunc);
                 }
             } else {
-                this._stopSpam();
+                this._stopSpam(key);
             }
         }
     }
@@ -276,17 +306,25 @@ class Japnaa extends BotPlugin {
          */
         const cleanArgs = args.trim().toLowerCase();
         
-        // !spam stop
-        if (cleanArgs === "stop") {
-            this._stopSpam();
+        switch (cleanArgs) {
+        case "stop":
+            this._stopSpam(bot.getServerFromChannel(event.channelId).id);
+            bot.send(event.channelId, "All spam on this server stopped");
             return;
-        // !spam limit
-        } else if (cleanArgs === "limit") {
-            bot.send(event.channelId, 
-                "Your spam limit here: " + this._getSpamLimit(bot, event)
+        case "stop all":
+            if (bot.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
+                this._stopAllSpam();
+                bot.send(event.channelId, "All spam on every server stopped");
+            } else {
+                bot.send(event.channelId, "<@" + event.userId + ">, you don't have the permissions to do that.");
+            }
+            return;
+        case "limit":
+            bot.send(event.channelId,
+                "Your spam limit is: " + this._getSpamLimit(bot, event)
             );
             return;
-        } else if (cleanArgs === "que limit") {
+        case "que limit":
             bot.send(event.channelId,
                 "Server que limit: " + this._getSpamQueLimit(bot, event)
             );
@@ -340,7 +378,7 @@ class Japnaa extends BotPlugin {
         message += messageArg.join(" ");
 
         // check against limit
-        if (this._getSpamLimit(bot, event)) {
+        if (amount > this._getSpamLimit(bot, event)) {
             this.bot.send(event.channelId, "Too much spam ahh");
             return;
         }
@@ -383,7 +421,7 @@ class Japnaa extends BotPlugin {
         }
 
         let user = toUserId(tagMatch[0]);
-        let message = args.slice(tagMatch[0].length + 1);
+        let message = args.slice(tagMatch[0].length);
 
         bot.sendDM(user, {
             message: "<@" + event.userId + "> told you",
@@ -397,7 +435,7 @@ class Japnaa extends BotPlugin {
     }
 
     _stop() {
-        this._stopSpam();
+        this._stopAllSpam();
     }
 
     _start() {
