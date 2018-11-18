@@ -85,12 +85,18 @@ function main() {
         client.disconnect();
         Logger.log("\nGracefully stoping...");
 
-        setInterval(function () {
-            // @ts-ignore
-            if (!process._getActiveRequests().length) {
-                process.exit(0);
-            }
-        }, 10);
+        if (bot.hasActiveAsyncRequests()) {
+            Logger.log("Waiting for asnyc requests to finish...");
+
+            bot.addEventListener("doneasync", function () {
+                if (bot.hasActiveAsyncRequests()) {
+                    Logger.log("Async requests done");
+                    process.exit(0);
+                }
+            });
+        } else {
+            process.exit(0);
+        }
 
         setTimeout(function () {
             process.exit(0);

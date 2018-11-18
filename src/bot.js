@@ -97,7 +97,9 @@ class Bot {
             "sent": [],
             "start": [],
             "beforememorywrite": [],
-            "aftermemorywrite": []
+            "aftermemorywrite": [],
+            "addasync": [],
+            "doneasync": []
         };
 
         /** Memory namespace for permission */
@@ -108,6 +110,12 @@ class Bot {
         this.permissionsGlobal = "global";
         /** Memory name delimiter */
         this.memoryDelimiter = ".";
+
+        /**
+         * How many active asnyc requests are running
+         * @type {Number}
+         */
+        this.activeAsnycRequests = 0;
 
         this.start();
     }
@@ -130,6 +138,30 @@ class Bot {
         for (let handler of this.events[name]) {
             handler(this, event);
         }
+    }
+
+    /**
+     * Add new asnyc request to wait for
+     */
+    newAsnycRequest() {
+        this.activeAsnycRequests++;
+        this.dispatchEvent("addasync", this.activeAsnycRequests);
+    }
+
+    /**
+     * Remove asnyc request to wait for
+     */
+    doneAsyncRequest() {
+        this.activeAsnycRequests--;
+        this.dispatchEvent("doneasync", this.activeAsnycRequests);
+    }
+
+    /**
+     * Checks if there're more active asnyc requests
+     * @returns {Boolean}
+     */
+    hasActiveAsyncRequests() {
+        return this.activeAsnycRequests > 0;
     }
 
     /**
@@ -315,16 +347,21 @@ class Bot {
      */
     writeMemory(isAuto) {
         if (isAuto && !this.memoryChanged) return;
+        this.newAsnycRequest();
 
         this.dispatchEvent("beforememorywrite", null);
 
-        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), function (e) {
-            if (e) {
-                Logger.error("Failed to write to memory", e);
-                return;
-            }
-            Logger.log("Written to memory");
-        });
+        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), 
+            /** @this {Bot} */
+            function (e) {
+                this.doneAsyncRequest();
+
+                if (e) {
+                    Logger.error("Failed to write to memory", e);
+                    return;
+                }
+                Logger.log("Written to memory");
+            }.bind(this));
 
         this.memoryChanged = false;
     }
