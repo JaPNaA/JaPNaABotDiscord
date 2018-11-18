@@ -10,22 +10,22 @@ function main() {
     let DISCORD = require("discord.io");
     let Logger = require("./logger.js");
     let Bot = require("./bot.js");
-
-    let memoryPath = "./data/memory.json";
-
-    let token = null;
-
+    
     /** @type {DISCORD.Client} */
     let client = null;
-
+    
     /** @type {Bot} */
     let bot = null;
-
-    let config = null;
+    
+    let shuttingDown = false;
+    
     let memory = null;
 
-    let shuttingDown = false;
-
+    // configureable
+    // ----------------------------------------------------------------------------------------
+    let memoryPath = "./data/memory.json";
+    let token = null;
+    let config = null;
 
     /**
      * Initializes the bot
@@ -51,8 +51,15 @@ function main() {
 
     /**
      * Starts the bot
+     * @param {String} apiToken The Discord API token
+     * @param {Object} botConfig The bot's config
+     * @param {String} pathToMemoryFile the path to the memory file for the bot
      */
-    function start() {
+    function start(apiToken, botConfig, pathToMemoryFile) {
+        token = apiToken;
+        config = botConfig;
+        memoryPath = pathToMemoryFile;
+
         client = new DISCORD.Client({
             token: token,
             autorun: true
@@ -79,29 +86,40 @@ function main() {
         _init();
     }
 
-    function stop() {
+    /**
+     * Stop the bot
+     * @param {Number|null} timeout time untill the stop is forced. Null for no timeout
+     * @returns {Promise} resolves when the bot finishes stopping
+     */
+    function stop(timeout) {
         shuttingDown = true;
         bot.stop();
         client.disconnect();
         Logger.log("\nGracefully stoping...");
 
-        if (bot.hasActiveAsyncRequests()) {
-            Logger.log("Waiting for asnyc requests to finish...");
+        let promise = new Promise(function(resolve, reject) {
+            if (bot.hasActiveAsyncRequests()) {
+                Logger.log("Waiting for asnyc requests to finish...");
+    
+                bot.addEventListener("doneasync", function () {
+                    if (bot.hasActiveAsyncRequests()) {
+                        Logger.log("Async requests done");
+                        resolve(true);
+                    }
+                });
+            } else {
+                resolve(true);
+            }
+    
+            if (timeout !== null) {
+                setTimeout(function () {
+                    reject("Timed out");
+                    Logger.warn("Stop handler timed out");
+                }, timeout);
+            }
+        });
 
-            bot.addEventListener("doneasync", function () {
-                if (bot.hasActiveAsyncRequests()) {
-                    Logger.log("Async requests done");
-                    process.exit(0);
-                }
-            });
-        } else {
-            process.exit(0);
-        }
-
-        setTimeout(function () {
-            process.exit(0);
-            Logger.warn("Stop handler timed out");
-        }, 10000);
+        return promise;
     }
 
     module.exports = { loadPlugin, start, stop };
