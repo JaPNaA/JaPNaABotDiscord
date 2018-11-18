@@ -1,56 +1,34 @@
-const CONFIG_PATH = "./data/config.jsonc";
-const MEMORY_PATH = "./data/memory.json";
-const ENV_PATH = "./data/.env";
-
-const DISCORD = require("discord.io");
-const STRIP_JSON_COMMENTS = require("strip-json-comments");
-
-/** environment variables */
-const ENV = require("./readenv.js")(ENV_PATH);
+// @ts-ignore
+if (require.main === module) {
+    require("./run-standalone");
+}
 
 const FS = require("fs");
+let DISCORD = require("discord.io");
+let Logger = require("./logger.js");
+let Bot = require("./bot.js");
 
-const Logger = require("./logger.js");
-const Bot = require("./bot.js");
+let memoryPath = "./data/memory.json";
 
-const client = new DISCORD.Client({
-    token: ENV.token,
-    autorun: true
-});
+let token = null;
 
-let config;
-try { // in case the config file doesn't exist
-    config = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(CONFIG_PATH).toString()));
-} catch (e) {
-    Logger.error("\x1B[91mconfig.jsonc does not exist, or is corrupted.");
-    throw e;
-}
-
-let memory;
-try { // in case the memory file doesn't exist
-    memory = JSON.parse(FS.readFileSync(MEMORY_PATH).toString());
-} catch (e) {
-    FS.writeFileSync(MEMORY_PATH, "{}");
-    memory = {};
-}
-
-/**
- * Is the bot currently shutting down?
- * @type {Boolean}
- */
-let shuttingDown = false;
+/** @type {DISCORD.Client} */
+let client = null;
 
 /** @type {Bot} */
-let bot;
+let bot = null;
+
+let config = null;
+let memory = null;
+
+let shuttingDown = false;
+
 
 /**
- * converts config.plugins paths to relative
- * @param {String} path input
+ * Initializes the bot
  */
-function getPluginPath(path) {
-    const npath = "../plugins/" + path + ".js";
-    delete require.cache[require.resolve(npath)];
-    return require(npath);
+function _init() {
+    bot = new Bot(config, memory, memoryPath, client, _init);
 }
 
 /**
@@ -60,7 +38,7 @@ function getPluginPath(path) {
  */
 function loadPlugin(path) {
     try {
-        let plugin = new (getPluginPath(path))(bot);
+        let plugin = new (require(path))(bot);
         bot.registerPlugin(plugin);
         return null;
     } catch (e) {
@@ -69,37 +47,36 @@ function loadPlugin(path) {
 }
 
 /**
- * Initalizes and starts the bot with plugins
+ * Starts the bot
  */
-function init() {
-    config = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(CONFIG_PATH).toString()));
-    bot = new Bot(config, memory, MEMORY_PATH, client, init);
+function start() {
+    client = new DISCORD.Client({
+        token: token,
+        autorun: true
+    });
 
-    for (let i of config["plugins"]) {
-        const error = loadPlugin(i);
-
-        if (error) {
-            // send error message
-            Logger.error(error);
-        } else {
-            Logger.log("Successfully loaded plugin " + i);
+    client.on("ready", () => bot.onready());
+    client.on("message", (user, userId, channelId, message, event) => 
+        bot.onmessage(user, userId, channelId, message, event));
+    client.on("disconnect", function () {
+        if (!shuttingDown) {
+            client.connect();
         }
+    });
+
+    try { // in case the memory file doesn't exist
+        memory = JSON.parse(FS.readFileSync(memoryPath).toString());
+    } catch (e) {
+        FS.writeFileSync(memoryPath, "{}");
+        memory = {};
     }
+
+    shuttingDown = false;
+
+    _init();
 }
 
-init();
-
-// set hooks
-client.on("ready", () => bot.onready());
-client.on("message", (user, userId, channelId, message, event) => bot.onmessage(user, userId, channelId, message, event));
-client.on("disconnect", function() {
-    if (!shuttingDown) {
-        client.connect();
-    }
-});
-
-// gacefully stop on ctrl-c
-process.on("SIGINT", function() {
+function stop() {
     shuttingDown = true;
     bot.stop();
     client.disconnect();
@@ -112,8 +89,10 @@ process.on("SIGINT", function() {
         }
     }, 10);
 
-    setTimeout(function() {
+    setTimeout(function () {
         process.exit(0);
         Logger.warn("Stop handler timed out");
     }, 10000);
-});
+}
+
+module.exports = { loadPlugin, start, stop };

@@ -91,7 +91,8 @@ init();
 
 // set hooks
 client.on("ready", () => bot.onready());
-client.on("message", (user, userId, channelId, message, event) => bot.onmessage(user, userId, channelId, message, event));
+client.on("message", (user, userId, channelId, message, event) => 
+    bot.onmessage(user, userId, channelId, message, event));
 client.on("disconnect", function () {
     if (!shuttingDown) {
         client.connect();
