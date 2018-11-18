@@ -11,5 +11,9 @@
     "default",
     "japnaa",
     "japnaa_weird"
-  ]
+  ],
+  "plugin.japnaa": {
+    "spam.default_limit": 25,
+    "spam.default_que_limit": 5
+  }
 }

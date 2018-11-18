@@ -1,5 +1,6 @@
 /**
  * @typedef {import("./bot.js")} Bot
+ * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  */
 
 class BotPlugin {
@@ -38,10 +39,10 @@ class BotPlugin {
      * Registers an command handler
      * @param {String} name of command, called by [precommand][name]
      * @param {Function} func function to run when called
-     * @param {String} [requiredPermission] permission that is required to run command
+     * @param {BotCommandOptions} [options] permission that is required to run command
      */
-    _registerCommand(name, func, requiredPermission) {
-        this.bot.registerCommand(name, func.bind(this), requiredPermission);
+    _registerCommand(name, func, options) {
+        this.bot.registerCommand(name, func.bind(this), options);
     }
 
     /**

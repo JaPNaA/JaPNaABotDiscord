@@ -1,5 +1,6 @@
 /**
  * @typedef {import("discord.io").Client} Client;
+ * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  */
 
 const UTILS = require("./utils.js");
@@ -8,6 +9,7 @@ const Permissions = require("./permissions.js");
 
 const { DiscordCommandEvent, DiscordMessageEvent } = require("./events.js");
 const BotCommand = require("./botcommand.js");
+const BotCommandOptions = require("./botcommandOptions.js");
 
 class Bot {
     /**
@@ -82,7 +84,9 @@ class Bot {
     start() {
         console.log("Bot starting...");
 
-        this.registerCommand("restart", this.restart, "BOT_ADMINISTRATOR");
+        this.registerCommand("restart", this.restart, new BotCommandOptions({
+            requiredPermission: "BOT_ADMINISTRATOR"
+        }));
 
         this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
 
@@ -133,10 +137,10 @@ class Bot {
      * Register a command
      * @param {String} triggerWord word that triggers command
      * @param {Function} func function to call
-     * @param {String} [requiredPermission] permissions required to call function
+     * @param {BotCommandOptions} [options] permissions required to call function
      */
-    registerCommand(triggerWord, func, requiredPermission) {
-        this.registeredCommands.push(new BotCommand(this, triggerWord, func, requiredPermission));
+    registerCommand(triggerWord, func, options) {
+        this.registeredCommands.push(new BotCommand(this, triggerWord, func, options));
     }
 
     /**
@@ -248,6 +252,14 @@ class Bot {
     }
 
     /**
+     * Gets the config for a plugin
+     * @param {String} namespace namespace of config
+     */
+    getConfig_plugin(namespace) {
+        return this.config["plugin" + this.memoryDelimiter + namespace];
+    }
+
+    /**
      * Writes memory to disk
      * @param {Boolean} [isAuto=false] is the save automatic?
      */
@@ -336,6 +348,16 @@ class Bot {
     }
 
     /**
+     * Gets server from channelId
+     * @param {String} channelId id of channel
+     */
+    getServerFromChannel(channelId) {
+        let channel = this.client.channels[channelId];
+        if (!channel) return null;
+        return this.getServer(channel.guild_id);
+    }
+
+    /**
      * Gets the server with serverId
      * @param {String} serverId id of server
      */
@@ -352,29 +374,53 @@ class Bot {
     }
 
     /**
-     * Creates the key for permissions
+     * Creates the global key
+     */
+    createLocationKey_global() {
+        return this.permissionsGlobal;
+    }
+
+    /**
+     * Creates the key for server
+     * @param {String} serverId id of server
+     */
+    createLocationKey_server(serverId) {
+        return serverId;
+    }
+
+    /**
+     * Create the key for channel
+     * @param {String} serverId id of server
+     * @param {String} channelId id of channel
+     */
+    createLocationKey_channel(serverId, channelId) {
+        return serverId + this.memoryDelimiter + channelId;
+    }
+
+    /**
+     * Creates the location key
      * @param {String} userId id of user
      */
-    createPermissionKey_user_global(userId) {
+    createLocationKey_user_global(userId) {
         return this.permissionsGlobal + this.memoryDelimiter + userId;
     }
 
     /**
-     * Creates the key for permissions
+     * Creates the location key
      * @param {String} serverId id of server
      * @param {String} userId id of user
      */
-    createPermissionKey_user_server(serverId, userId) {
+    createLocationKey_user_server(serverId, userId) {
         return serverId + this.memoryDelimiter + userId;
     }
 
     /**
-     * Creates the key for permissions
+     * Creates the location key
      * @param {String} serverId id of user
      * @param {String} userId id of user
      * @param {String} channelId id of channel
      */
-    createPermissionKey_user_channel(serverId, userId, channelId) {
+    createLocationKey_user_channel(serverId, userId, channelId) {
         return serverId + this.memoryDelimiter + userId + this.memoryDelimiter + channelId;
     }
 
@@ -436,19 +482,19 @@ class Bot {
 
         let permissions = new Permissions(permissionsNum);
         permissions.customImportJSON(
-            this.recall(this.permissionsNamespace, this.createPermissionKey_user_global(userId))
+            this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
         );
 
         if (serverId) {
             permissions.customImportJSON(
-                this.recall(this.permissionsNamespace, this.createPermissionKey_user_server(serverId, userId))
+                this.recall(this.permissionsNamespace, this.createLocationKey_user_server(serverId, userId))
             );
         }
 
         if (channelId) {
             permissions.customImportJSON(
                 this.recall(this.permissionsNamespace, 
-                    this.createPermissionKey_user_channel(serverId, userId, channelId)
+                    this.createLocationKey_user_channel(serverId, userId, channelId)
                 )
             );
         }
@@ -467,7 +513,7 @@ class Bot {
         let serverId = this.getChannel(channelId).guild_id;
         
         let permString = this.recall(this.permissionsNamespace, 
-            this.createPermissionKey_user_channel(serverId, userId, channelId)
+            this.createLocationKey_user_channel(serverId, userId, channelId)
         );
 
         let permissions = new Permissions();
@@ -475,7 +521,7 @@ class Bot {
         permissions.customWrite(permissionName, value);
 
         this.remember(this.permissionsNamespace, 
-            this.createPermissionKey_user_channel(serverId, userId, channelId), 
+            this.createLocationKey_user_channel(serverId, userId, channelId), 
             permissions.customToJSON(), true
         );
     }
@@ -489,7 +535,7 @@ class Bot {
      */
     editPermissions_user_server(userId, serverId, permissionName, value) {
         let permString = this.recall(this.permissionsNamespace,
-            this.createPermissionKey_user_server(serverId, userId)
+            this.createLocationKey_user_server(serverId, userId)
         );
 
         let permissions = new Permissions();
@@ -497,7 +543,7 @@ class Bot {
         permissions.customWrite(permissionName, value);
 
         this.remember(this.permissionsNamespace,
-            this.createPermissionKey_user_server(serverId, userId),
+            this.createLocationKey_user_server(serverId, userId),
             permissions.customToJSON(), true
         );
     }
@@ -510,7 +556,7 @@ class Bot {
      */
     editPermissions_user_global(userId, permissionName, value) {
         let permString = this.recall(this.permissionsNamespace, 
-            this.createPermissionKey_user_global(userId)
+            this.createLocationKey_user_global(userId)
         );
 
         let permission = new Permissions();
@@ -518,7 +564,7 @@ class Bot {
         permission.customWrite(permissionName, value);
 
         this.remember(this.permissionsNamespace,
-            this.createPermissionKey_user_global(userId),
+            this.createLocationKey_user_global(userId),
             permission.customToJSON(), true
         );
     }

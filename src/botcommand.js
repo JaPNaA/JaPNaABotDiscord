@@ -1,10 +1,18 @@
 /**
  * @typedef {import("../src/events.js").DiscordCommandEvent} DiscordCommandEvent
  * @typedef {import("./bot.js")} Bot
+ * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  */
 
 class BotCommand {
-    constructor(bot, triggerWord, func, requiredPermission) {
+    /**
+     * BotCommand constructor
+     * @param {Bot} bot bot
+     * @param {String} commandName command name
+     * @param {Function} func function to call
+     * @param {BotCommandOptions} [options] command triggering options
+     */
+    constructor(bot, commandName, func, options) {
         /** @type {Bot} */
         this.bot = bot;
 
@@ -18,12 +26,18 @@ class BotCommand {
          * Permission required to run command
          * @type {String | undefined}
          */
-        this.requiredPermission = requiredPermission;
+        this.requiredPermission = options && options.requiredPermission;
+
+        /**
+         * Command can be run in Direct Messages?
+         * @type {Boolean}
+         */
+        this.noDM = (options && options.noDM) || false;
 
         /**
          * The word that triggers the command
          */
-        this.triggerWord = triggerWord.toLowerCase();
+        this.commandName = commandName.toLowerCase();
     }
 
     /**
@@ -33,18 +47,26 @@ class BotCommand {
      */
     testAndRun(commandEvent) {
         let commandContent = commandEvent.commandContent;
-        if (commandContent.startsWith(this.triggerWord)) {
+        if (commandContent.startsWith(this.commandName)) {
             let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.channelId);
-            let argString = commandContent.slice(this.triggerWord.length);
+            let argString = commandContent.slice(this.commandName.length);
             
-            if (!this.requiredPermission || permissions.has(this.requiredPermission)) {
-                this.tryRunCommand(commandEvent, argString.trimLeft());
-            } else {
+            if (this.noDM && !this.bot.getChannel(commandEvent.channelId)) {
+                this.bot.send(commandEvent.channelId,
+                    "You cannot run this command in Direct Messages"
+                );
+                return true;
+            }
+
+            if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
                 this.bot.send(commandEvent.channelId, 
                     "<@" + commandEvent.userId + "> **You must have " +
                     this.requiredPermission + " permissions to run this command.**"
                 );
+                return true;
             }
+
+            this.tryRunCommand(commandEvent, argString.trimLeft());
 
             return true;
         }
