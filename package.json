@@ -16,7 +16,8 @@
   "license": "ISC",
   "private": true,
   "dependencies": {
-    "discord.io": "github:izy521/discord.io"
+    "discord.io": "github:izy521/discord.io",
+    "strip-json-comments": "^2.0.1"
   },
   "devDependencies": {
     "@types/node": "^10.12.9"

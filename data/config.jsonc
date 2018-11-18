@@ -1,17 +1,32 @@
 {
+  // What comes before commands to trigger bot
   "bot.precommand": [
     "!",
     "/"
   ],
   
+  // Logging level:
+    // 0: Fatal Errors only
+    // 1: Errors+
+    // 2: Warnings+
+    // 3: Info+
+    // 4: Info+ and Message Logging
+  "bot.logging": 3,
+  
+  // Link to add current bot
   "addLink": "https://discordapp.com/api/oauth2/authorize?client_id=501862082334031883&permissions=8&scope=bot",
+
+  // Link to code
   "gitlabLink": "https://gitlab.com/JaPNaA/japnaabotdiscord",
 
+  // Plugins running in bot ( ./plugins/{}.js )
   "plugins": [
     "default",
     "japnaa",
     "japnaa_weird"
   ],
+
+  // JaPNaA plugin config
   "plugin.japnaa": {
     "spam.default_limit": 25,
     "spam.default_que_limit": 5

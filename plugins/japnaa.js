@@ -1,5 +1,6 @@
 const BotPlugin = require("../src/plugin.js");
 const BotCommandOptions = require("../src/botcommandOptions.js");
+const Logger = require("../src/logger.js");
 const { stringToArgs, random, toUserId } = require("../src/utils.js");
 
 /**
@@ -108,7 +109,7 @@ class Japnaa extends BotPlugin {
             return;
         }
 
-        console.log(" >> " + JSON.stringify(args));
+        Logger.log(" >> " + JSON.stringify(args));
 
         let max = 0;
         let min = 0;

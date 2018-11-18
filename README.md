@@ -15,20 +15,39 @@ To add your own commands, you must create a .js file in the plugins directory.
 Start the file with the boilerplate code:
 ```javascript
 const BotPlugin = require("../src/plugin.js");
+const BotCommandOptions = require("../src/botcommandOptions.js");
+const Logger = require("../src/logger.js");
 
+/**
+ * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
+ * @typedef {import("../src/bot.js")} Bot
+ */
+
+/**
+ * Example command
+ */
 class MyPlugin extends BotPlugin {
     constructor(bot) {
         super(bot);
-        // you can initialize variables here
+        // initialize variables here
     }
 
+    /**
+     * Example command
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args echos text back
+     */
     mycommand(bot, event, args) {
         bot.send(event.channelId, args);
+        Logger.log("mycommand was ran");
     }
 
     _start() {
-        this._registerCommand("mycommand", this.mycommand);
-        // commands don't get automagically registered. You have to register them yourself.
+        this._registerCommand("mycommand", this.mycommand, new BotCommandOptions({
+            // command options
+        }));
+        // register more commands here
     }
 }
 

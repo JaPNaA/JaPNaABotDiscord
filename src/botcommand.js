@@ -60,8 +60,8 @@ class BotCommand {
 
             if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
                 this.bot.send(commandEvent.channelId, 
-                    "<@" + commandEvent.userId + "> **You must have " +
-                    this.requiredPermission + " permissions to run this command.**"
+                    "<@" + commandEvent.userId + "> **You must have `" +
+                    this.requiredPermission + "` permissions to run this command.**"
                 );
                 return true;
             }

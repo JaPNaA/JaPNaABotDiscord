@@ -1,12 +1,16 @@
-const CONFIG_PATH = "./data/config.json";
+const CONFIG_PATH = "./data/config.jsonc";
 const MEMORY_PATH = "./data/memory.json";
 const ENV_PATH = "./data/.env";
 
 const DISCORD = require("discord.io");
+const STRIP_JSON_COMMENTS = require("strip-json-comments");
+
 /** environment variables */
 const ENV = require("./readenv.js")(ENV_PATH);
+
 const FS = require("fs");
 
+const Logger = require("./logger.js");
 const Bot = require("./bot.js");
 
 const client = new DISCORD.Client({
@@ -16,11 +20,10 @@ const client = new DISCORD.Client({
 
 let config;
 try { // in case the config file doesn't exist
-    config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
+    config = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(CONFIG_PATH).toString()));
 } catch (e) {
-    console.error(e);
-    console.error("\x1B[91mconfig.json does not exist, or is corrupted.");
-    process.exit(-1);
+    Logger.error("\x1B[91mconfig.jsonc does not exist, or is corrupted.");
+    throw e;
 }
 
 let memory;
@@ -69,7 +72,7 @@ function loadPlugin(path) {
  * Initalizes and starts the bot with plugins
  */
 function init() {
-    config = JSON.parse(FS.readFileSync(CONFIG_PATH).toString());
+    config = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(CONFIG_PATH).toString()));
     bot = new Bot(config, memory, MEMORY_PATH, client, init);
 
     for (let i of config["plugins"]) {
@@ -77,9 +80,9 @@ function init() {
 
         if (error) {
             // send error message
-            console.error(error);
+            Logger.error(error);
         } else {
-            console.log("Successfully loaded plugin " + i);
+            Logger.log("Successfully loaded plugin " + i);
         }
     }
 }
@@ -100,7 +103,7 @@ process.on("SIGINT", function() {
     shuttingDown = true;
     bot.stop();
     client.disconnect();
-    console.log("\nGracefully stoping...");
+    Logger.log("\nGracefully stoping...");
 
     setInterval(function () {
         // @ts-ignore
@@ -111,6 +114,6 @@ process.on("SIGINT", function() {
 
     setTimeout(function() {
         process.exit(0);
-        console.log("Stop handler timed out");
+        Logger.warn("Stop handler timed out");
     }, 10000);
 });

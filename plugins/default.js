@@ -193,12 +193,13 @@ class Default extends BotPlugin {
         this._registerCommand("eval", this.eval, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR"
         }));
-
-        this._registerCommand("ping", this.ping);
-        this._registerCommand("userinfo", this.userinfo);
+        
         this._registerCommand("pretendget", this.pretendget, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR"
         }));
+
+        this._registerCommand("ping", this.ping);
+        this._registerCommand("userinfo", this.userinfo);
         
         this._registerCommand("iamthebotadmin", this.iamthebotadmin);
         

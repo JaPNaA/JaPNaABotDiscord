@@ -20,6 +20,7 @@ class BotPlugin {
             "message": [],
             "command": [],
             "send": [],
+            "sent": [],
             "start": [],
             "beforememorywrite": []
         };

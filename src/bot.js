@@ -6,6 +6,7 @@
 const UTILS = require("./utils.js");
 const FS = require("fs");
 const Permissions = require("./permissions.js");
+const Logger = require("../src/logger.js");
 
 const { DiscordCommandEvent, DiscordMessageEvent } = require("./events.js");
 const BotCommand = require("./botcommand.js");
@@ -45,6 +46,19 @@ class Bot {
          */
         this.config = config;
 
+        /**
+         * Precommands that trigger the bot
+         * @type {String[]}
+         */
+        this.precommand = this.config["bot.precommand"];
+
+        /**
+         * Bot logging level
+         * @type {Number}
+         */
+        this.loggingLevel = this.config["bot.logging"];
+        Logger.setLevel(this.loggingLevel);
+
         /** 
          * Path to memory
          * @type {String} 
@@ -82,7 +96,7 @@ class Bot {
      * Starts the bot
      */
     start() {
-        console.log("Bot starting...");
+        Logger.log("Bot starting...");
 
         this.registerCommand("restart", this.restart, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR"
@@ -118,7 +132,7 @@ class Bot {
      */
     restart(bot, event) {
         bot.send(event.channelId, "**Restarting**");
-        console.log("Restarting");
+        Logger.log("Restarting");
         bot.stop();
         bot.restartFunc();
     }
@@ -149,7 +163,7 @@ class Bot {
      * @param {String|Object} message message to send
      */
     send(channelId, message) {
-        console.log(">>", message);
+        Logger.log_message(">>", message);
 
         for (let plugin of this.registeredPlugins) {
             plugin._dispatchEvent("send", message);
@@ -171,7 +185,7 @@ class Bot {
     }
 
     sendDM(userId, message, failCallback) {
-        console.log("D>", message);
+        Logger.log_message("D>", message);
 
         let DMs = this.client.directMessages[userId];
         let messageObject = null;
@@ -199,7 +213,7 @@ class Bot {
                  */
                 function(err, DMs) {
                     if (err) {
-                        console.error("Failed to get DMs");
+                        Logger.warn("Failed to get DMs");
                         if (failCallback) {
                             failCallback();
                         }
@@ -272,10 +286,10 @@ class Bot {
 
         FS.writeFile(this.memoryPath, JSON.stringify(this.memory), function(e) {
             if (e) {
-                console.error("Failed to write to memory", e);
+                Logger.error("Failed to write to memory", e);
                 return;
             }
-            console.log("Written to memory");
+            Logger.log("Written to memory");
         });
 
         this.memoryChanged = false;
@@ -291,7 +305,7 @@ class Bot {
             plugin._dispatchEvent("start", null);
         }
 
-        console.log("Started");
+        Logger.log("Started");
     }
 
     /**
@@ -303,12 +317,17 @@ class Bot {
      * @param {*} event websocket event
      */
     onmessage(username, userId, channelId, message, event) {
-        if (userId == this.id) return;
-
-        console.log("<<", message);
-
-        let precommandUsed = UTILS.startsWithAny(message, this.config["bot.precommand"]);
+        let precommandUsed = UTILS.startsWithAny(message, this.precommand);
         const messageEvent = new DiscordMessageEvent(username, userId, channelId, message, precommandUsed, event);
+
+        if (userId === this.id) {
+            for (let plugin of this.registeredPlugins) {
+                plugin._dispatchEvent("sent", messageEvent);
+            }
+            return;
+        }
+
+        Logger.log_message("<<", message);
 
         for (let plugin of this.registeredPlugins) {
             plugin._dispatchEvent("message", messageEvent);
