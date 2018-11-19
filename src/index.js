@@ -7,18 +7,19 @@ if (require.main === module) {
 
 function main() {
     const FS = require("fs");
-    let DISCORD = require("discord.io");
-    let Logger = require("./logger.js");
-    let Bot = require("./bot.js");
-    
+    const PATH = require("path");
+    const DISCORD = require("discord.io");
+    const Logger = require("./logger.js");
+    const Bot = require("./bot.js");
+
     /** @type {DISCORD.Client} */
     let client = null;
-    
+
     /** @type {Bot} */
     let bot = null;
-    
+
     let shuttingDown = false;
-    
+
     let memory = null;
 
     // configureable
@@ -36,12 +37,27 @@ function main() {
 
     /**
      * loads/reloads plugin
-     * @param {String} path path from config.plugins
+     * @param {String} path path to plugin
      * @returns {Error} any errors that may have occured
      */
     function loadPlugin(path) {
+        let npath = PATH.join(PATH.dirname(require.main.filename), path);
         try {
-            let plugin = new (require(path))(bot);
+            let plugin = new (require(npath))(bot);
+            bot.registerPlugin(plugin);
+            return null;
+        } catch (e) {
+            return e;
+        }
+    }
+
+    /**
+     * loads/reloads a builtin plugin
+     * @param {String} name name of builtin plugin
+     */
+    function loadBuiltinPlugin(name) {
+        try {
+            let plugin = new (require("../plugins/" + name + ".js"))(bot);
             bot.registerPlugin(plugin);
             return null;
         } catch (e) {
@@ -88,7 +104,7 @@ function main() {
 
     /**
      * Stop the bot
-     * @param {Number|null} timeout time untill the stop is forced. Null for no timeout
+     * @param {Number} [timeout] time untill the stop is forced. Null for no timeout
      * @returns {Promise} resolves when the bot finishes stopping
      */
     function stop(timeout) {
@@ -97,12 +113,12 @@ function main() {
         client.disconnect();
         Logger.log("\nGracefully stoping...");
 
-        let promise = new Promise(function(resolve, reject) {
+        let promise = new Promise(function (resolve) {
             if (bot.hasActiveAsyncRequests()) {
                 Logger.log("Waiting for asnyc requests to finish...");
-    
+
                 bot.addEventListener("doneasync", function () {
-                    if (bot.hasActiveAsyncRequests()) {
+                    if (!bot.hasActiveAsyncRequests()) {
                         Logger.log("Async requests done");
                         resolve(true);
                     }
@@ -110,10 +126,10 @@ function main() {
             } else {
                 resolve(true);
             }
-    
-            if (timeout !== null) {
+
+            if (timeout !== undefined) {
                 setTimeout(function () {
-                    reject("Timed out");
+                    resolve(false);
                     Logger.warn("Stop handler timed out");
                 }, timeout);
             }
@@ -122,5 +138,15 @@ function main() {
         return promise;
     }
 
-    module.exports = { loadPlugin, start, stop };
+    module.exports = {
+        loadPlugin, loadBuiltinPlugin, start, stop,
+        Bot: require("./bot.js"),
+        BotCommand: require("./botcommand.js"),
+        BotCommandOptions: require("./botcommandOptions.js"),
+        events: require("./events.js"),
+        Logger: require("./logger.js"),
+        Permissions: require("./permissions.js"),
+        BotPlugin: require("./plugin.js"),
+        utils: require("./utils.js")
+    };
 }
