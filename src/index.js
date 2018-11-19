@@ -145,8 +145,16 @@ function main() {
         return promise;
     }
 
+    /**
+     * Gets the local variable, bot
+     * @returns {Bot} bot
+     */
+    function getBot() {
+        return bot;
+    }
+
     module.exports = {
-        loadPlugin, loadBuiltinPlugin, start, stop,
+        loadPlugin, loadBuiltinPlugin, start, stop, getBot,
         Bot: require("./bot.js"),
         BotCommand: require("./botcommand.js"),
         BotCommandOptions: require("./botcommandOptions.js"),
