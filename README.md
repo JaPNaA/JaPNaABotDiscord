@@ -1,15 +1,27 @@
 # JaPNaABotDiscord
 This is the repository for JaPNaABot.
 
-## Setting up
+
+## Installing (npm)
+### Installing the bot
+```sh
+npm install git+https://gitlab.com/JaPNaA/japnaabotdiscord.git --save
+```
+### Using the bot
+```javascript
+require("japnaabot");
+```
+
+## Installing (direct download)
+### Setting up
 First, you must create a Discord application, add a bot, and get the access token. <br>
 Rename .env\_sample to .env, and insert the access token into the file. <br>
 You can start the bot by using the command `node .` or `npm start`
 
-## Customization
+### Customization
 All customization settings are in config.json.
 
-## Adding your own commands
+### Adding your own commands
 To add your own commands, you must create a .js file in the plugins directory.
 
 Start the file with the boilerplate code:
@@ -56,7 +68,7 @@ module.exports = MyPlugin;
 
 Save the file as [Your plugin name].js, and add it to the config.json plugins list as [Your plugin name]
 
-## Updating the bot
+### Updating the bot
 If you've only changed config.json, and the plugins directory, you can simply
 update the bot by re-downloading the repo and copy `config.json`, 
 `memory.json`, and `plugins/` to the new repo, replacing any existing files.
