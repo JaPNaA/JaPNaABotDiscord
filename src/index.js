@@ -9,6 +9,7 @@ function main() {
     const FS = require("fs");
     const PATH = require("path");
     const DISCORD = require("discord.io");
+    const STRIP_JSON_COMMENTS = require("strip-json-comments");
     const Logger = require("./logger.js");
     const Bot = require("./bot.js");
 
@@ -20,11 +21,14 @@ function main() {
 
     let shuttingDown = false;
 
+    let defaultConfig = JSON.parse(
+        STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../data/config.jsonc").toString())
+    );
     let memory = null;
 
     // configureable
     // ----------------------------------------------------------------------------------------
-    let memoryPath = "./data/memory.json";
+    let memoryPath = "../data/memory.json";
     let token = null;
     let config = null;
 
@@ -68,12 +72,15 @@ function main() {
     /**
      * Starts the bot
      * @param {String} apiToken The Discord API token
-     * @param {Object} botConfig The bot's config
+     * @param {Object} botConfig The bot's config, overriding default config
      * @param {String} pathToMemoryFile the path to the memory file for the bot
      */
     function start(apiToken, botConfig, pathToMemoryFile) {
         token = apiToken;
-        config = botConfig;
+        config = {
+            ...defaultConfig,
+            ...botConfig
+        };
         memoryPath = pathToMemoryFile;
 
         client = new DISCORD.Client({

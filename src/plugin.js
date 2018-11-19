@@ -39,7 +39,7 @@ class BotPlugin {
      * @param {Function} func handler/callback function
      */
     _registerEventHandler(name, func) {
-        this.bot.events[name].push(func.bind(this));
+        this.bot.addEventListener(name, func.bind(this));
     }
 }
 
