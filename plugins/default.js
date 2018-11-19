@@ -129,7 +129,7 @@ class Default extends BotPlugin {
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
      */
-    iamthebotadmin(bot, event) {
+    i_am_the_bot_admin(bot, event) {
         if (bot.recall(bot.permissionsNamespace, bot.permissionsAdmin)) {
             if (bot.recall(bot.permissionsNamespace, bot.permissionsAdmin) === event.userId) {
                 bot.send(event.channelId, "Yes. You are the bot admin.");
@@ -201,7 +201,7 @@ class Default extends BotPlugin {
         this._registerCommand("ping", this.ping);
         this._registerCommand("userinfo", this.userinfo);
         
-        this._registerCommand("iamthebotadmin", this.iamthebotadmin);
+        this._registerCommand("i am the bot admin", this.i_am_the_bot_admin);
         
         this._registerCommand("invite", this.link);
         this._registerCommand("link", this.link);

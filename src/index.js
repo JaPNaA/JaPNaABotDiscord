@@ -52,7 +52,7 @@ function main() {
      */
     function _getConfigFromPath() {
         if (!configPath) return;
-        
+
         let fileConfig = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(configPath).toString()));
         config = {
             ...defaultConfig,
@@ -63,10 +63,14 @@ function main() {
     /**
      * loads/reloads plugin
      * @param {String} path path to plugin
-     * @returns {Error} any errors that may have occured
+     * @returns {Error} any errors that may have occured while loading plugin
      */
     function loadPlugin(path) {
         let npath = PATH.join(PATH.dirname(require.main.filename), path);
+
+        // delete old plugin cache
+        delete require.cache[require.resolve(npath)];
+
         try {
             let plugin = new (require(npath))(bot);
             bot.registerPlugin(plugin);
@@ -82,10 +86,16 @@ function main() {
     /**
      * loads/reloads a builtin plugin
      * @param {String} name name of builtin plugin
+     * @returns {Error} any errors that may have occured while loading plugin
      */
     function loadBuiltinPlugin(name) {
+        let npath = "../plugins/" + name + ".js";
+
+        // delete old plugin cache
+        delete require.cache[require.resolve(npath)];
+
         try {
-            let plugin = new (require("../plugins/" + name + ".js"))(bot);
+            let plugin = new (require(npath))(bot);
             bot.registerPlugin(plugin);
             
             Logger.log("Successfully loaded built-in plugin", name);
@@ -192,6 +202,7 @@ function main() {
 
     /**
      * Gets the default config
+     * @returns {Object} default bot config
      */
     function getDefaultConfig() {
         return defaultConfig;
