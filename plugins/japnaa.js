@@ -378,9 +378,22 @@ class Japnaa extends BotPlugin {
         // add final strings to message
         message += messageArg.join(" ");
 
-        // check against limit
-        if (amount > this._getSpamLimit(bot, event)) {
-            this.bot.send(event.channelId, "Too much spam ahh");
+        // Check against limits
+        // ----------------------------------------------------------------------------------------
+        let spamLimit = this._getSpamLimit(bot, event);
+        let spamQueLimit = this._getSpamQueLimit(bot, event);
+
+        if (amount > spamLimit) {
+            this.bot.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
+            return;
+        }
+
+        let server = bot.getServerFromChannel(event.channelId);
+        if (
+            this.spamQue[server.id] &&
+            this.spamQue[server.id].length > spamQueLimit
+        ) {
+            this.bot.send(event.channelId, "**Too much spam already qued.**");
             return;
         }
 
