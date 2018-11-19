@@ -60,6 +60,12 @@ class Bot {
         this.loggingLevel = this.config["bot.logging"];
         Logger.setLevel(this.loggingLevel);
 
+        /**
+         * Tell the user that th bot doesn't know command?
+         * @type {Boolean}
+         */
+        this.doAlertCommandDoesNotExist = this.config["bot.alertCommandDoesNotExist"];
+
         /** 
          * Path to memory
          * @type {String} 
@@ -414,10 +420,22 @@ class Bot {
 
         this.dispatchEvent("command", commandEvent);
 
+        let someCommandRan = false;
+
         for (let i = this.registeredCommands.length - 1; i >= 0; i--) {
             let command = this.registeredCommands[i];
             let ran = command.testAndRun(commandEvent);
-            if (ran) break;
+            if (ran) {
+                someCommandRan = true;
+                break;
+            }
+        }
+
+        if (!someCommandRan) {
+            // command doesn't exist
+            if (this.doAlertCommandDoesNotExist) {
+                this.send(messageEvent.channelId, "<@" + messageEvent.userId + ">, that command doesn't exist");
+            }
         }
     }
 

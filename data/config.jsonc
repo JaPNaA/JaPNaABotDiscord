@@ -4,6 +4,9 @@
     "!",
     "/"
   ],
+
+  // Tell the user that the bot doesn't know command
+  "bot.alertCommandDoesNotExist": false,
   
   // Logging level:
   //   0: Fatal Errors only
@@ -19,15 +22,21 @@
   // Link to code
   "gitlabLink": "https://gitlab.com/JaPNaA/japnaabotdiscord",
 
+  // Automatically load plugins when bot starts?
+  "autoloadPlugins": true,
+
   // Plugins running in bot ( ./plugins/{}.js )
-  "plugins": [
+  "builtinPlugins": [
     "default",
     "japnaa"
   ],
 
+  // Plugins running in bot ( external )
+  "externalPlugins": [],
+
   // JaPNaA plugin config
   "plugin.japnaa": {
-    "spam.default_limit": 25,
-    "spam.default_que_limit": 5
+    "spam.defaultLimit": 25,
+    "spam.defaultQueLimit": 5
   }
 }

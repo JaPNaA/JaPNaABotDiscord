@@ -226,7 +226,7 @@ class Japnaa extends BotPlugin {
      * @returns {Number} spam limit
      */
     _getSpamLimit(bot, event) {
-        let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.default_limit"];
+        let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.defaultLimit"];
 
         let server = bot.getServerFromChannel(event.channelId);
         
@@ -251,7 +251,7 @@ class Japnaa extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      */
     _getSpamQueLimit(bot, event) {
-        let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.default_que_limit"];
+        let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.defaultQueLimit"];
         
         let server = bot.getServerFromChannel(event.channelId);
 
