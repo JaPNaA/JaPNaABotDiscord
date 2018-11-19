@@ -47,7 +47,9 @@ class BotCommand {
      */
     testAndRun(commandEvent) {
         let commandContent = commandEvent.commandContent;
-        if (commandContent.startsWith(this.commandName)) {
+        let commandContentClean = commandContent.toLowerCase().trimLeft();
+
+        if (commandContentClean.startsWith(this.commandName)) {
             let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.channelId);
             let argString = commandContent.slice(this.commandName.length);
             
