@@ -5,7 +5,7 @@ This is the repository for JaPNaABot.
 ## Installing (npm)
 ### Installing the bot
 ```sh
-npm install gitlab:JaPNaA/japnaabotdiscord.git --save
+npm install gitlab:JaPNaA/japnaabotdiscord --save
 ```
 ### Using the bot
 ```javascript
