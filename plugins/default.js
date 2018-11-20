@@ -125,6 +125,63 @@ class Default extends BotPlugin {
     }
 
     /**
+     * Converts all commands to a readable format
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event data
+     */
+    _allCommandsToReadable(bot, event) {
+        return bot.registeredCommands.map(command => {
+            let name = command.commandName;
+            let canRun = true;
+
+            if (
+                command.requiredPermission !== undefined &&
+                !bot.getPermissions_channel(event.userId, event.channelId)
+                    .has(command.requiredPermission)
+            ) {
+                canRun = false;
+            }
+
+            if (command.noDM && event.isDM) {
+                canRun = false;
+            }
+
+            if (canRun) {
+                return "**" + name + "**";
+            } else {
+                return name;
+            }
+        }).join(", ");
+    }
+
+    /**
+     * Pretends to recieve a message from soneone else
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args arguments
+     */
+    help(bot, event, args) {
+        let cleanArgs = args.toLowerCase().trim();
+        if (cleanArgs) {
+            // get help from help dir
+        } else {
+            let helpStr = "**Here are all the commands**:\n" +
+                this._allCommandsToReadable(bot, event) +
+                "\n" + "\n" +
+                "*Any commands in bold are ones you can run " + (event.isDM ? "here" : "there") + "*\n" +
+                "*You can type " + bot.precommand[0] + "help [commandName] to get more information on a command.*";
+
+            if (event.isDM) {
+                bot.send(event.channelId, helpStr);
+            } else {
+                // is server
+                bot.send(event.channelId, "I've sent you some help!");
+                bot.sendDM(event.userId, helpStr);
+            }
+        }
+    }
+
+    /**
      * Sets the bot admin
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
@@ -148,7 +205,7 @@ class Default extends BotPlugin {
     /**
      * Pretends to recieve a message from soneone else
      * @param {Bot} bot bot
-     * @param {DiscordMessageEvent} event message evetn
+     * @param {DiscordMessageEvent} event message event
      * @param {String} args arguments
      */
     pretendget(bot, event, args) {
@@ -164,6 +221,18 @@ class Default extends BotPlugin {
         let message = args.slice(tagMatch[0].length);
 
         bot.onmessage(user.username, user.id, event.channelId, message, event.wsevent);
+    }
+
+    /**
+     * Sends a message to a channel
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args arguments [channelId, ...message]
+     */
+    send(bot, event, args) {
+        let whitespaceIndex = args.match(/\s/).index;
+
+        bot.send(args.slice(0, whitespaceIndex), args.slice(whitespaceIndex + 1));
     }
 
     /**
@@ -198,8 +267,13 @@ class Default extends BotPlugin {
             requiredPermission: "BOT_ADMINISTRATOR"
         }));
 
+        this._registerCommand("send", this.send, new BotCommandOptions({
+            requiredPermission: "BOT_ADMINISTRATOR"
+        }));
+
         this._registerCommand("ping", this.ping);
         this._registerCommand("userinfo", this.userinfo);
+        this._registerCommand("help", this.help);
         
         this._registerCommand("i am the bot admin", this.i_am_the_bot_admin);
         

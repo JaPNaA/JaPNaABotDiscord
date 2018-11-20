@@ -117,11 +117,18 @@ class Bot {
         /** Memory name delimiter */
         this.memoryDelimiter = ".";
 
+
         /**
          * How many active asnyc requests are running
          * @type {Number}
          */
         this.activeAsnycRequests = 0;
+
+        /**
+         * Maps userId to DM Channel Id
+         * @type {Object.<string, string>}
+         */
+        this.userIdDMMap = {};
 
         this.start();
     }
@@ -263,7 +270,7 @@ class Bot {
     sendDM(userId, message, failCallback) {
         Logger.log_message("D>", message);
 
-        let DMs = this.client.directMessages[userId];
+        let DMs = this.client.directMessages[this.userIdDMMap[userId]];
         let messageObject = null;
 
         if (typeof message === "string") {
@@ -296,6 +303,7 @@ class Bot {
                         return;
                     }
                     messageObject.to = DMs.id;
+                    this.userIdDMMap[userId] = DMs.id;
                     this.client.sendMessage(messageObject);
                 }.bind(this));
         }
@@ -393,7 +401,13 @@ class Bot {
      */
     onmessage(username, userId, channelId, message, event) {
         let precommandUsed = UTILS.startsWithAny(message, this.precommand);
-        const messageEvent = new DiscordMessageEvent(username, userId, channelId, message, precommandUsed, event);
+        let isDM = this.getChannel(channelId) ? false : true;
+
+        const messageEvent = 
+            new DiscordMessageEvent(
+                username, userId, channelId, message, 
+                precommandUsed, event, isDM
+            );
 
         if (userId === this.id) {
             this.dispatchEvent("sent", messageEvent);
