@@ -2,6 +2,7 @@
  * @typedef {import("discord.io").Client} Client
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  * @typedef {import("./plugin.js")} Plugin
+ * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */
 
 const UTILS = require("./utils.js");
@@ -52,6 +53,12 @@ class Bot {
          * @type {String[]}
          */
         this.precommand = this.config["bot.precommand"];
+
+        /**
+         * The theme color used for general embeds
+         * @type {Number}
+         */
+        this.themeColor = parseInt(this.config["bot.themeColor"], 16);
 
         /**
          * Bot logging level
@@ -129,6 +136,12 @@ class Bot {
          * @type {Object.<string, string>}
          */
         this.userIdDMMap = {};
+
+        /**
+         * Data for help
+         * @type {Object.<string, BotCommandHelp>}
+         */
+        this.helpData = {};
 
         this.start();
     }
@@ -239,13 +252,34 @@ class Bot {
      * @param {BotCommandOptions} [options] permissions required to call function
      */
     registerCommand(triggerWord, func, options) {
-        this.registeredCommands.push(new BotCommand(this, triggerWord, func, options));
+        let command = new BotCommand(this, triggerWord, func, options);
+
+        this.registeredCommands.push(command);
+        this.registerHelp(command.commandName, command.help || null);
+    }
+
+    /**
+     * Add help information
+     * @param {String} command name of command for help
+     * @param {BotCommandHelp} data command help data
+     */
+    registerHelp(command, data) {
+        this.helpData[command] = data;
+    }
+
+    /**
+     * Get help information
+     * @param {String} command name of command for help
+     * @returns {BotCommandHelp} help infomation about command
+     */
+    getHelp(command) {
+        return this.helpData[command];
     }
 
     /**
      * Send message
      * @param {String} channelId channel id
-     * @param {String|Object} message message to send
+     * @param {String | Object} message message to send
      */
     send(channelId, message) {
         Logger.log_message(">>", message);

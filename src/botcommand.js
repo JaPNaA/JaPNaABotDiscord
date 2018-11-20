@@ -2,6 +2,7 @@
  * @typedef {import("../src/events.js").DiscordCommandEvent} DiscordCommandEvent
  * @typedef {import("./bot.js")} Bot
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
+ * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */
 
 class BotCommand {
@@ -33,6 +34,12 @@ class BotCommand {
          * @type {Boolean}
          */
         this.noDM = (options && options.noDM) || false;
+
+        /**
+         * Help for the command
+         * @type {BotCommandHelp | undefined}
+         */
+        this.help = (options && options.help);
 
         /**
          * The word that triggers the command

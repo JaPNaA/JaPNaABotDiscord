@@ -440,7 +440,7 @@ class Japnaa extends BotPlugin {
         bot.sendDM(user, {
             message: "<@" + event.userId + "> told you",
             embed: {
-                color: 0xF2495D,
+                color: bot.themeColor,
                 description: message
             }
         }, function() {

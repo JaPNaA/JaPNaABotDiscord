@@ -215,6 +215,7 @@ function main() {
         Bot: require("./bot.js"),
         BotCommand: require("./botcommand.js"),
         BotCommandOptions: require("./botcommandOptions.js"),
+        BotCommandHelp: require("./botcommandHelp.js"),
         events: require("./events.js"),
         Logger: require("./logger.js"),
         Permissions: require("./permissions.js"),

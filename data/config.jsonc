@@ -5,6 +5,9 @@
     "/"
   ],
 
+  // the theme color used for general embeds
+  "bot.themeColor": "F2495D",
+
   // Tell the user that the bot doesn't know command
   "bot.alertCommandDoesNotExist": false,
   
