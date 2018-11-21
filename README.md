@@ -6,7 +6,7 @@ JaPNaABot is a general bot with general bot things.
 
 ## Installing
 ```sh
-npm install git+https://gitlab.com/JaPNaA/japnaabotdiscord.git --save
+npm install gitlab:JaPNaA/japnaabotdiscord --save
 ```
 As simple as that. (Just... don't forget about the creating the folder part, `npm init`, you know)
 

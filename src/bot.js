@@ -2,6 +2,7 @@
  * @typedef {import("discord.io").Client} Client
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  * @typedef {import("./plugin.js")} Plugin
+ * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */
 
 const UTILS = require("./utils.js");
@@ -59,12 +60,24 @@ class Bot {
         this.precommand = this.config["bot.precommand"] || ["!"];
 
         /**
+         * The theme color used for general embeds
+         * @type {Number}
+         */
+        this.themeColor = parseInt(this.config["bot.themeColor"], 16);
+
+        /**
          * Bot logging level
          * @type {Number}
          * @private
          */
         this.loggingLevel = this.config["bot.logging"] || 3;
         Logger.setLevel(this.loggingLevel);
+
+        /**
+         * Tell the user that th bot doesn't know command?
+         * @type {Boolean}
+         */
+        this.doAlertCommandDoesNotExist = this.config["bot.alertCommandDoesNotExist"];
 
         /** 
          * Path to memory
@@ -153,12 +166,25 @@ class Bot {
          */
         this.memoryDelimiter = ".";
 
+
         /**
          * How many active asnyc requests are running
          * @type {Number}
          * @private
          */
         this.activeAsnycRequests = 0;
+
+        /**
+         * Maps userId to DM Channel Id
+         * @type {Object.<string, string>}
+         */
+        this.userIdDMMap = {};
+
+        /**
+         * Data for help
+         * @type {Object.<string, BotCommandHelp>}
+         */
+        this.helpData = {};
 
         this.start();
     }
@@ -271,13 +297,34 @@ class Bot {
      * @param {BotCommandOptions} [options] permissions required to call function
      */
     registerCommand(triggerWord, func, options) {
-        this.registeredCommands.push(new BotCommand(this, triggerWord, func, options));
+        let command = new BotCommand(this, triggerWord, func, options);
+
+        this.registeredCommands.push(command);
+        this.registerHelp(command.commandName, command.help || null);
+    }
+
+    /**
+     * Add help information
+     * @param {String} command name of command for help
+     * @param {BotCommandHelp} data command help data
+     */
+    registerHelp(command, data) {
+        this.helpData[command] = data;
+    }
+
+    /**
+     * Get help information
+     * @param {String} command name of command for help
+     * @returns {BotCommandHelp} help infomation about command
+     */
+    getHelp(command) {
+        return this.helpData[command];
     }
 
     /**
      * Send message
      * @param {String} channelId channel id
-     * @param {String|Object} message message to send
+     * @param {String | Object} message message to send
      */
     send(channelId, message) {
         Logger.log_message(">>", message);
@@ -302,7 +349,7 @@ class Bot {
     sendDM(userId, message, failCallback) {
         Logger.log_message("D>", message);
 
-        let DMs = this.client.directMessages[userId];
+        let DMs = this.client.directMessages[this.userIdDMMap[userId]];
         let messageObject = null;
 
         if (typeof message === "string") {
@@ -335,6 +382,7 @@ class Bot {
                         return;
                     }
                     messageObject.to = DMs.id;
+                    this.userIdDMMap[userId] = DMs.id;
                     this.client.sendMessage(messageObject);
                 }.bind(this));
         }
@@ -432,7 +480,13 @@ class Bot {
      */
     onmessage(username, userId, channelId, message, event) {
         let precommandUsed = UTILS.startsWithAny(message, this.precommand);
-        const messageEvent = new DiscordMessageEvent(username, userId, channelId, message, precommandUsed, event);
+        let isDM = this.getChannel(channelId) ? false : true;
+
+        const messageEvent = 
+            new DiscordMessageEvent(
+                username, userId, channelId, message, 
+                precommandUsed, event, isDM
+            );
 
         if (userId === this.id) {
             this.dispatchEvent("sent", messageEvent);
@@ -459,10 +513,22 @@ class Bot {
 
         this.dispatchEvent("command", commandEvent);
 
+        let someCommandRan = false;
+
         for (let i = this.registeredCommands.length - 1; i >= 0; i--) {
             let command = this.registeredCommands[i];
             let ran = command.testAndRun(commandEvent);
-            if (ran) break;
+            if (ran) {
+                someCommandRan = true;
+                break;
+            }
+        }
+
+        if (!someCommandRan) {
+            // command doesn't exist
+            if (this.doAlertCommandDoesNotExist) {
+                this.send(messageEvent.channelId, "<@" + messageEvent.userId + ">, that command doesn't exist");
+            }
         }
     }
 

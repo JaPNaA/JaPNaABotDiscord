@@ -2,6 +2,7 @@
  * @typedef {import("../src/events.js").DiscordCommandEvent} DiscordCommandEvent
  * @typedef {import("./bot.js")} Bot
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
+ * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */
 
 class BotCommand {
@@ -35,6 +36,12 @@ class BotCommand {
         this.noDM = (options && options.noDM) || false;
 
         /**
+         * Help for the command
+         * @type {BotCommandHelp | undefined}
+         */
+        this.help = (options && options.help);
+
+        /**
          * The word that triggers the command
          */
         this.commandName = commandName.toLowerCase();
@@ -47,7 +54,9 @@ class BotCommand {
      */
     testAndRun(commandEvent) {
         let commandContent = commandEvent.commandContent;
-        if (commandContent.startsWith(this.commandName)) {
+        let commandContentClean = commandContent.toLowerCase().trimLeft();
+
+        if (commandContentClean.startsWith(this.commandName)) {
             let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.channelId);
             let argString = commandContent.slice(this.commandName.length);
             

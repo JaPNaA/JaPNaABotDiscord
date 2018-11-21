@@ -1,10 +1,3 @@
-// @ts-ignore
-if (require.main === module) {
-    require("./run-standalone");
-} else {
-    main();
-}
-
 function main() {
     const FS = require("fs");
     const PATH = require("path");
@@ -25,32 +18,67 @@ function main() {
         STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../data/config.jsonc").toString())
     );
     let memory = null;
-
-    // configureable
+    
+    // configureables
     // ----------------------------------------------------------------------------------------
     let memoryPath = "../data/memory.json";
+    
+    /** @type {String} */
     let token = null;
+    /** @type {Object} */
     let config = null;
-
+    /** @type {String|null} */
+    let configPath = null;
+    
     /**
      * Initializes the bot
      */
     function _init() {
+        _getConfigFromPath();
         bot = new Bot(config, memory, memoryPath, client, _init);
+        
+        if (config["autoloadPlugins"]) {
+            for (let pluginName of config["builtinPlugins"]) {
+                loadBuiltinPlugin(pluginName);
+            }
+            for (let pluginPath of config["externalPlugins"]) {
+                loadPlugin(pluginPath);
+            }
+        }
     }
 
     /**
+     * Sets the config to the contents of the config file
+     */
+    function _getConfigFromPath() {
+        if (!configPath) return;
+
+        let fileConfig = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(configPath).toString()));
+        config = {
+            ...defaultConfig,
+            ...fileConfig
+        };
+    }
+    
+    /**
      * loads/reloads plugin
      * @param {String} path path to plugin
-     * @returns {Error} any errors that may have occured
+     * @returns {Error} any errors that may have occured while loading plugin
      */
     function loadPlugin(path) {
         let npath = PATH.join(PATH.dirname(require.main.filename), path);
+
+        // delete old plugin cache
+        delete require.cache[require.resolve(npath)];
+
         try {
             let plugin = new (require(npath))(bot);
             bot.registerPlugin(plugin);
+
+            Logger.log("Successfully loaded external plugin", path);
             return null;
         } catch (e) {
+            Logger.error("Failed to load external plugin", path, "\n", e);
             return e;
         }
     }
@@ -58,13 +86,22 @@ function main() {
     /**
      * loads/reloads a builtin plugin
      * @param {String} name name of builtin plugin
+     * @returns {Error} any errors that may have occured while loading plugin
      */
     function loadBuiltinPlugin(name) {
+        let npath = "../plugins/" + name + ".js";
+
+        // delete old plugin cache
+        delete require.cache[require.resolve(npath)];
+
         try {
-            let plugin = new (require("../plugins/" + name + ".js"))(bot);
+            let plugin = new (require(npath))(bot);
             bot.registerPlugin(plugin);
+            
+            Logger.log("Successfully loaded built-in plugin", name);
             return null;
         } catch (e) {
+            Logger.error("Failed to load built-in plugin", name, "\n", e);
             return e;
         }
     }
@@ -72,15 +109,25 @@ function main() {
     /**
      * Starts the bot
      * @param {String} apiToken The Discord API token
-     * @param {Object} botConfig The bot's config, overriding default config
+     * @param {String | Object} botConfig The bot's config, overriding default config, 
+     * or path to json/jsonc config.
+     * 
+     * Choosing a path will allow the bot to reload the config when you call the `!reload` command
+     * 
      * @param {String} pathToMemoryFile the path to the memory file for the bot
      */
     function start(apiToken, botConfig, pathToMemoryFile) {
         token = apiToken;
-        config = {
-            ...defaultConfig,
-            ...botConfig
-        };
+
+        if (typeof botConfig === "string") {
+            configPath = botConfig;
+        } else {
+            config = {
+                ...defaultConfig,
+                ...botConfig
+            };
+        }
+
         memoryPath = pathToMemoryFile;
 
         client = new DISCORD.Client({
@@ -111,7 +158,7 @@ function main() {
 
     /**
      * Stop the bot
-     * @param {Number} [timeout] time untill the stop is forced. Null for no timeout
+     * @param {Number} [timeout] time until the stop is forced. Null for no timeout
      * @returns {Promise} resolves when the bot finishes stopping
      */
     function stop(timeout) {
@@ -153,15 +200,33 @@ function main() {
         return bot;
     }
 
+    /**
+     * Gets the default config
+     * @returns {Object} default bot config
+     */
+    function getDefaultConfig() {
+        return defaultConfig;
+    }
+
     module.exports = {
-        loadPlugin, loadBuiltinPlugin, start, stop, getBot,
+        loadPlugin, loadBuiltinPlugin, start, stop, 
+        getBot, getDefaultConfig,
+
         Bot: require("./bot.js"),
         BotCommand: require("./botcommand.js"),
         BotCommandOptions: require("./botcommandOptions.js"),
+        BotCommandHelp: require("./botcommandHelp.js"),
         events: require("./events.js"),
         Logger: require("./logger.js"),
         Permissions: require("./permissions.js"),
         BotPlugin: require("./plugin.js"),
         utils: require("./utils.js")
     };
+}
+
+main();
+
+// @ts-ignore
+if (require.main === module) { // if not being 'require'-d into something else
+    require("./run-standalone");
 }

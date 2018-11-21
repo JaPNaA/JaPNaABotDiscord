@@ -95,10 +95,10 @@ class Permissions {
     }
 
     /**
-     * Converts this to a markdown string, with true being bold
+     * Converts this.* to markdown string, with true being bold
      * @returns {String}
      */
-    toString() {
+    discordPermToString() {
         let str = [];
         for (let key of Permissions.keys) {
             if (this[key]) {
@@ -108,17 +108,37 @@ class Permissions {
             }
         }
 
-        let customStr = [];
-        let customKeys = Object.keys(this.customPermissions);
-        for (let key of customKeys) {
+        return this.num + ": " + str.join(", ");
+    }
+
+    /**
+     * Converts this.customPermissions to markdown string, with true being bold
+     * @returns {String}
+     */
+    customToString() {
+        let str = [];
+        let keys = Object.keys(this.customPermissions);
+        for (let key of keys) {
             if (this.customPermissions[key]) {
-                customStr.push("**" + this.toReadable(key) + "**");
+                str.push("**" + this.toReadable(key) + "**");
             } else {
-                customStr.push(this.toReadable(key));
+                str.push(this.toReadable(key));
             }
         }
 
-        return this.num + ": " + str.join(", ") + "\n" + "Custom: " + customStr.join(", ");
+        if (str.length) {
+            return "Custom: " + str.join(", ");
+        } else {
+            return "Custom: none";
+        }
+    }
+
+    /**
+     * Converts this to a markdown string, with true being bold
+     * @returns {String}
+     */
+    toString() {
+        return this.discordPermToString() + "\n" + this.customToString();
     }
 
     /**

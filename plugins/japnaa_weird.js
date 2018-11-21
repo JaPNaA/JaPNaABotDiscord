@@ -34,7 +34,7 @@ class JapnaaWeird extends BotPlugin {
     jap(bot, event, args) {
         bot.send(event.channelId, {
             embed: {
-                color: 0xF2495D,
+                color: bot.themeColor,
                 description: "**JaP is " + (args || "kewl") + "**"
             }
         });
