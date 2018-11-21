@@ -54,20 +54,17 @@ japnaabot.start("<your api token>", {
 ```
 And now, the bot should no long respond to `!hello world`, and instead respond to `my bot, do hello world`
 
-There are a few built-in plugins that can add some useful commands. <br>
-For example, the `default` plugin.
+There’s another built-in plugin that hasn't been loaded in, "japnaa_weird" <br>
+As the name suggests, this adds some weirder things to the bot.
 
 You can add it with
 ```javascript
-japnaabot.loadBuiltinPlugin("default");
+japnaabot.loadBuiltinPlugin("japnaa_weird");
 ```
 
-And now the bot will have some new commands available to it, such as
-  - `eval` (admin only)
-  - `pretendget` (admin only)
-  - `ping`
-  - `userinfo`
-  - `I am the bot admin` (first person to run this is granted 'BOT_ADMINISTRATOR' permissions)
-  - `invite`
-  - `link`
-  - `code`
+This plugin adds some weird features that I suspect not eceryone will want, (thats why its not auto-loaded)
+  - respond to different variants of "lol"
+  - add commands `jap`, `tetris`, and `your`
+
+
+For further information, see the [docs](docs/index.md)
