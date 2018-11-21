@@ -14,6 +14,10 @@
   ],
   "author": "JaPNaA",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "gitlab",
+    "url": "https://gitlab.com/JaPNaA/japnaabotdiscord"
+  },
   "private": true,
   "dependencies": {
     "discord.io": "github:izy521/discord.io",
