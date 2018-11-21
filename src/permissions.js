@@ -122,10 +122,11 @@ class Permissions {
     }
 
     /**
-     * Converts custom permissions to json
-     * @returns {String} json string
+     * lists custom permissions has
+     * @returns {String[]} custom permissions
      */
-    customToJSON() {
+    getCustomPermissions() {
+        /** @type {String[]} */
         let keys = [];
         let okeys = Object.keys(this.customPermissions);
 
@@ -135,17 +136,20 @@ class Permissions {
             }
         }
 
-        return JSON.stringify(keys);
+        return keys;
     }
 
     /**
-     * Imports json string to customPermissions
-     * @param {String} json string
+     * Imports custom permissions
+     * @param {String[]} keys custom permissions
      */
-    customImportJSON(json) {
-        if (!json) return;
+    importCustomPermissions(keys) {
+        if (!keys) return;
+
+        if (typeof keys === "string") { // jic someone still has old method
+            keys = JSON.parse(keys);
+        }
         
-        let keys = JSON.parse(json);
         for (let key of keys) {
             this.customPermissions[key] = true;
         }

@@ -1,13 +1,14 @@
 # JaPNaABotDiscord Docs
+JaPNaABot is a generic Discord bot. <br>
 
-## Classes and methods
-require("japnaabotdiscord")
-Bot
-BotCommand
-BotCommandOptions
-BotCommandHelp
-DiscordMessageEvent
-DiscordCommandEvent
-Permissions
-Logger
-Plugin
+## Classes and stuff
+  - [require("japnaabotdiscord")](japnaabot.md)
+  - [Bot](bot.md)
+  - [BotCommand](botcommand.md)
+  - [BotCommandOptions](botCommandoptions.md)
+  - [BotCommandHelp](botCommandhelp.md)
+  - [DiscordMessageEvent](discordmessageevent.md)
+  - [DiscordCommandEvent](discordcommandevent.md)
+  - [Permissions](permissions.md)
+  - [Logger](logger.md)
+  - [Plugin](plugin.md)
