@@ -18,6 +18,9 @@
   //   3: Info+
   //   4: Info+ and Message Logging
   "bot.logging": 3,
+
+  // How often to write memory to disk automatically, in milliseconds
+  "memory.autoWriteInterval": 60000,
   
   // Link to add current bot
   "addLink": "https://discordapp.com/api/oauth2/authorize?client_id=501862082334031883&permissions=8&scope=bot",

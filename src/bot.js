@@ -27,32 +27,37 @@ class Bot {
         /**
          * userId of the bot
          * @type {String}
+         * @public
          */
         this.id = undefined;
 
         /**
          * Discord.io Client
          * @type {Client}
+         * @private
          */
         this.client = client;
 
         /**
          * Function to call to restart itself
          * @type {Function} 
+         * @private
          */
         this.restartFunc = restartFunc;
 
         /** 
          * config.json data
          * @type {Object}
+         * @private
          */
         this.config = config;
 
         /**
          * Precommands that trigger the bot
          * @type {String[]}
+         * @private
          */
-        this.precommand = this.config["bot.precommand"];
+        this.precommand = this.config["bot.precommand"] || ["!"];
 
         /**
          * The theme color used for general embeds
@@ -63,8 +68,9 @@ class Bot {
         /**
          * Bot logging level
          * @type {Number}
+         * @private
          */
-        this.loggingLevel = this.config["bot.logging"];
+        this.loggingLevel = this.config["bot.logging"] || 3;
         Logger.setLevel(this.loggingLevel);
 
         /**
@@ -76,31 +82,51 @@ class Bot {
         /** 
          * Path to memory
          * @type {String} 
+         * @private
          */
         this.memoryPath = memoryPath;
+        /**
+         * Bot memory
+         * @type {Object}
+         * @private
+         */
         this.memory = memory;
 
         /**
          * Timeout that writes memory to disk every once in a while
          * @type {NodeJS.Timeout}
+         * @private
          */
         this.autoWriteSI = null;
-        this.autoWriteInterval = 60 * 1000; // every minute
+        /** 
+         * How often to auto-write to disk?
+         * @type {Number}
+         * @private
+         */
+        this.autoWriteInterval = this.config["memory.autoWriteInterval"] || 60 * 1000; // every minute
+        /**
+         * Has the memory changed since last write?
+         * @type {Boolean}
+         * @private
+         */
         this.memoryChanged = false;
 
         /**
          * @type {BotCommand[]} list of commands registered
+         * @private
          */
         this.registeredCommands = [];
 
         /**
          * @type {Plugin[]} list of plugins registered
+         * @private
          */
         this.registeredPlugins = [];
 
         /** 
          * All events and handlers
          * @type {Object.<string, Function[]>}
+         * @private
          */
         this.events = {
             "message": [],
@@ -115,19 +141,36 @@ class Bot {
             "doneasync": []
         };
 
-        /** Memory namespace for permission */
+        /** 
+         * Memory namespace for permission 
+         * @type {String}
+         * @public
+         */
         this.permissionsNamespace = "permissions";
-        /** Memory Permission admin user */
+        /**
+         * Memory Permission admin user
+         * @type {String}
+         * @public
+         */
         this.permissionsAdmin = "_admin";
-        /** Memory global identifier */
+        /** 
+         * Memory global identifier
+         * @type {String}
+         * @public
+         */
         this.permissionsGlobal = "global";
-        /** Memory name delimiter */
+        /**
+         * Memory name delimiter
+         * @type {String}
+         * @public
+         */
         this.memoryDelimiter = ".";
 
 
         /**
          * How many active asnyc requests are running
          * @type {Number}
+         * @private
          */
         this.activeAsnycRequests = 0;
 
@@ -150,6 +193,7 @@ class Bot {
      * Adds event listener
      * @param {String} name name of event
      * @param {Function} func handler/callback function
+     * @public
      */
     addEventListener(name, func) {
         this.events[name].push(func);
@@ -159,6 +203,7 @@ class Bot {
      * Call all event handlers for event
      * @param {String} name of event
      * @param {*} event Event data sent with dispatch
+     * @private
      */
     dispatchEvent(name, event) {
         for (let handler of this.events[name]) {
@@ -169,7 +214,7 @@ class Bot {
     /**
      * Add new asnyc request to wait for
      */
-    newAsnycRequest() {
+    newAsyncRequest() {
         this.activeAsnycRequests++;
         this.dispatchEvent("addasync", this.activeAsnycRequests);
     }
@@ -395,7 +440,7 @@ class Bot {
      */
     writeMemory(isAuto) {
         if (isAuto && !this.memoryChanged) return;
-        this.newAsnycRequest();
+        this.newAsyncRequest();
 
         this.dispatchEvent("beforememorywrite", null);
 
@@ -596,7 +641,7 @@ class Bot {
      */
     getPermissions_global(userId) {
         let permissions = new Permissions();
-        permissions.customImportJSON(
+        permissions.importCustomPermissions(
             this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
         );
         return permissions;
@@ -641,18 +686,18 @@ class Bot {
         }
 
         let permissions = new Permissions(permissionsNum);
-        permissions.customImportJSON(
+        permissions.importCustomPermissions(
             this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
         );
 
         if (serverId) {
-            permissions.customImportJSON(
+            permissions.importCustomPermissions(
                 this.recall(this.permissionsNamespace, this.createLocationKey_user_server(serverId, userId))
             );
         }
 
         if (channelId) {
-            permissions.customImportJSON(
+            permissions.importCustomPermissions(
                 this.recall(this.permissionsNamespace,
                     this.createLocationKey_user_channel(serverId, userId, channelId)
                 )
@@ -672,17 +717,17 @@ class Bot {
     editPermissions_user_channel(userId, channelId, permissionName, value) {
         let serverId = this.getChannel(channelId).guild_id;
 
-        let permString = this.recall(this.permissionsNamespace,
+        let customPerms = this.recall(this.permissionsNamespace,
             this.createLocationKey_user_channel(serverId, userId, channelId)
         );
 
         let permissions = new Permissions();
-        permissions.customImportJSON(permString);
+        permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
 
         this.remember(this.permissionsNamespace,
             this.createLocationKey_user_channel(serverId, userId, channelId),
-            permissions.customToJSON(), true
+            permissions.getCustomPermissions(), true
         );
     }
 
@@ -694,17 +739,17 @@ class Bot {
      * @param {Boolean} value value of permission to write
      */
     editPermissions_user_server(userId, serverId, permissionName, value) {
-        let permString = this.recall(this.permissionsNamespace,
+        let customPerms = this.recall(this.permissionsNamespace,
             this.createLocationKey_user_server(serverId, userId)
         );
 
         let permissions = new Permissions();
-        permissions.customImportJSON(permString);
+        permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
 
         this.remember(this.permissionsNamespace,
             this.createLocationKey_user_server(serverId, userId),
-            permissions.customToJSON(), true
+            permissions.getCustomPermissions(), true
         );
     }
 
@@ -720,12 +765,12 @@ class Bot {
         );
 
         let permission = new Permissions();
-        permission.customImportJSON(permString);
+        permission.importCustomPermissions(permString);
         permission.customWrite(permissionName, value);
 
         this.remember(this.permissionsNamespace,
             this.createLocationKey_user_global(userId),
-            permission.customToJSON(), true
+            permission.getCustomPermissions(), true
         );
     }
 

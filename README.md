@@ -1,74 +1,70 @@
 # JaPNaABotDiscord
-This is the repository for JaPNaABot.
+JaPNaABot is a general bot with general bot things.
 
 
-## Installing (npm)
-### Installing the bot
+
+
+## Installing
 ```sh
 npm install gitlab:JaPNaA/japnaabotdiscord --save
 ```
-### Using the bot
+As simple as that. (Just... don't forget about the creating the folder part, `npm init`, you know)
+
+This takes approx. 1.3MB as of writing.
+
+## Using the bot
+Here's a simple boilerplate to get you started
+
 ```javascript
-require("japnaabot");
+const jbot = require("japnaabot");
+
+// Arguments are: 
+//   apiKey: string, token obtainable via Discord's developer site
+//   config: object, the bot's configuration, this overwrites any default config
+//   pathToMemory: a path to where the bot can store it's brain, if it doesn't exist, it will make one itself.
+jbot.start("<your api token>", {}, "./memory.json");
+
+// On CTRL-C
+process.on("SIGINT", () => 
+    // Stop the bot (async), with 1000 millisecond until timeout
+    jbot.stop(1000)
+        // then exit
+        .then(() => process.exit(0))
+);
+```
+This will connect your bot to Discord, and register a few built-in plugins: *"default"*, and *"japnaa"*. <br>
+These plugins contain commands that you can execute. <br>
+You can view all commands by messaging the bot `!help`.
+
+You can add your own simple command like this:
+```javascript
+japanaabot.getBot().registerCommand("hello world", function(bot, event, args) {
+    bot.send(event.channelId, "World: Hello!");
+});
+```
+Try it by sending the bot: `!hello world`
+
+You can configure the bot by editing the config. Replace the `japnaabot.start(...` line from the boilerplate with
+```javascript
+japnaabot.start("<your api token>", {
+    "bot.precommand": [
+        "my bot, do "
+    ]
+}, "./memory.json");
+```
+And now, the bot should no long respond to `!hello world`, and instead respond to `my bot, do hello world`
+
+There’s another built-in plugin that hasn't been loaded in, "japnaa_weird" <br>
+As the name suggests, this adds some weirder things to the bot.
+
+You can add it with
+```javascript
+japnaabot.loadBuiltinPlugin("japnaa_weird");
 ```
 
-## Installing (direct download)
-### Setting up
-First, you must create a Discord application, add a bot, and get the access token. <br>
-Rename .env\_sample to .env, and insert the access token into the file. <br>
-You can start the bot by using the command `node .` or `npm start`
+This plugin adds some weird features that I suspect not eceryone will want, (thats why its not auto-loaded)
+  - respond to different variants of "lol"
+  - add commands `jap`, `tetris`, and `your`
 
-### Customization
-All customization settings are in config.json.
 
-### Adding your own commands
-To add your own commands, you must create a .js file in the plugins directory.
-
-Start the file with the boilerplate code:
-```javascript
-const BotPlugin = require("../src/plugin.js");
-const BotCommandOptions = require("../src/botcommandOptions.js");
-const Logger = require("../src/logger.js");
-
-/**
- * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../src/bot.js")} Bot
- */
-
-/**
- * Example command
- */
-class MyPlugin extends BotPlugin {
-    constructor(bot) {
-        super(bot);
-        // initialize variables here
-    }
-
-    /**
-     * Example command
-     * @param {Bot} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args echos text back
-     */
-    mycommand(bot, event, args) {
-        bot.send(event.channelId, args);
-        Logger.log("mycommand was ran");
-    }
-
-    _start() {
-        this._registerCommand("mycommand", this.mycommand, new BotCommandOptions({
-            // command options
-        }));
-        // register more commands here
-    }
-}
-
-module.exports = MyPlugin;
-```
-
-Save the file as [Your plugin name].js, and add it to the config.json plugins list as [Your plugin name]
-
-### Updating the bot
-If you've only changed config.json, and the plugins directory, you can simply
-update the bot by re-downloading the repo and copy `config.json`, 
-`memory.json`, and `plugins/` to the new repo, replacing any existing files.
+For further information, see the [docs](docs/index.md)
