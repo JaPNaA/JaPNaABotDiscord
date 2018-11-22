@@ -10,7 +10,7 @@ npm install gitlab:JaPNaA/japnaabotdiscord --save
 ```
 As simple as that. (Just... don't forget about the creating the folder part, `npm init`, you know)
 
-This takes approx. 1.3MB as of writing.
+This takes approx. 2.4MB as of writing.
 
 ## Using the bot
 Here's a simple boilerplate to get you started
