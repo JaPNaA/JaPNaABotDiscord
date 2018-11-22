@@ -338,13 +338,12 @@ class Bot {
         // @ts-ignore
         let textChannel = this.getChannel(channelId);
 
-        if (textChannel.type !== "text") throw new TypeError("Channel is not an instanceof TextChannel");
+        if (textChannel.type == "voice") 
+            throw new TypeError("Cannot send to voice channel");
 
         this.dispatchEvent("send", message);
 
-        if (typeof message === "string") {
-            promise = textChannel.send(message);
-        } else if (typeof message === "object") {
+        if (typeof message === "string" || typeof message === "object") {
             promise = textChannel.send(message);
         } else {
             throw new TypeError("Message is not of valid type");
@@ -353,11 +352,19 @@ class Bot {
         return promise;
     }
 
+    /**
+     * Sends direct message
+     * @param {String} userId id of user
+     * @param {String | Object} message message to send
+     * @param {Function} [failCallback] callback if failed
+     * @returns {Promise} resolves when message sends, rejcts if fail
+     */
     sendDM(userId, message, failCallback) {
         Logger.log_message("D>", message);
 
-        let DMs = this.client.directMessages[this.userIdDMMap[userId]];
+        let user = this.getUser(userId);
         let messageObject = null;
+        let promise;
 
         if (typeof message === "string") {
             messageObject = {
@@ -372,29 +379,17 @@ class Bot {
         }
 
 
-        if (DMs) {
-            messageObject.to = DMs.id;
-            this.client.sendMessage(messageObject);
-        } else {
-            this.client.createDMChannel(userId,
-                /**
-                 * @this {Bot}
-                 */
-                function (err, DMs) {
-                    if (err) {
-                        Logger.warn("Failed to get DMs");
-                        if (failCallback) {
-                            failCallback();
-                        }
-                        return;
-                    }
-                    messageObject.to = DMs.id;
-                    this.userIdDMMap[userId] = DMs.id;
-                    this.client.sendMessage(messageObject);
-                }.bind(this));
+        if (user) {
+            promise = user.send(message.message, messageObject);
+        }
+
+        if (failCallback) {
+            promise.catch(() => failCallback());
         }
 
         this.dispatchEvent("senddm", this);
+
+        return promise;
     }
 
     /**
@@ -487,8 +482,11 @@ class Bot {
 
         const messageEvent = 
             new DiscordMessageEvent(
-                message.author.username, message.author.id, message.channel.id, 
-                message.guild.id, message.content, precommandUsed, message, isDM
+                message.author && message.author.username, 
+                message.author && message.author.id, 
+                message.channel && message.channel.id, 
+                message.guild && message.guild.id, 
+                message.content, precommandUsed, message, isDM
             );
 
         if (message.author.id === this.id) {
@@ -667,7 +665,6 @@ class Bot {
             roles = user.roles.array();
 
             for (let role of roles) {
-                // @ts-ignore
                 permissionsNum |= role.permissions;
             }
         }
@@ -702,7 +699,10 @@ class Bot {
      * @param {Boolean} value value of permission to write
      */
     editPermissions_user_channel(userId, channelId, permissionName, value) {
-        let serverId = this.getChannel(channelId).guild_id;
+        /** @type { TextChannel } */
+        // @ts-ignore
+        let channel = this.getChannel(channelId);
+        let serverId = channel.guild.id;
 
         let customPerms = this.recall(this.permissionsNamespace,
             this.createLocationKey_user_channel(serverId, userId, channelId)
@@ -769,9 +769,8 @@ class Bot {
         this.client.user.setPresence({
             game: {
                 name: name || null,
-                type: 0
-            },
-            idle_since: Date.now() - 1
+                type: "PLAYING"
+            }
         });
     }
 }

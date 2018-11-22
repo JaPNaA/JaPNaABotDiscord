@@ -76,7 +76,7 @@ class Default extends BotPlugin {
                 "\nId: " + user.id + 
                 "\nAvatar: [" + user.avatar + "](" + avatarUrl + ")" +
                 "\nBot: " + user.bot +
-                "\nGame: " + JSON.stringify(user.game);
+                "\nPresence: " + user.presence;
 
             response.push({
                 name: "User info",
@@ -86,20 +86,20 @@ class Default extends BotPlugin {
             if (!event.isDM) {
                 let userInServer = bot.getUser_server(userId, event.serverId);
                 let userInServerStr = 
-                    "Roles: " + (userInServer.roles.length >= 1 ? 
+                    "Roles: " + (userInServer.roles.size >= 1 ? 
                         userInServer.roles.map(
-                            roleId => 
-                                "**" + bot.getRole(roleId, event.serverId).name + 
-                                "** (" + roleId + ")"
+                            role => 
+                                "**" + role.name + 
+                                "** (" + role + ")"
                         ).join(", ") :
                         "none") + 
                     "\nIs mute: " + (userInServer.mute ? "Yes" : "No") +
                     "\nIs deaf: " + (userInServer.deaf ? "Yes" : "No") +
                     "\nId: " + userInServer.id + 
-                    "\nJoined: " + userInServer.joined_at +
-                    "\nStatus: " + userInServer.status +
-                    "\nNick: " + userInServer.nick +
-                    "\nVoice Channel Id: " + userInServer.voice_channel_id;
+                    "\nJoined: " + userInServer.joinedAt +
+                    "\nStatus: " + userInServer.user.presence.status +
+                    "\nNick: " + userInServer.nickname +
+                    "\nVoice Channel Id: " + userInServer.voiceChannelID;
 
                 response.push({
                     name: "User of server info",
@@ -306,7 +306,13 @@ class Default extends BotPlugin {
         let user = bot.getUser(userId);
         let message = args.slice(tagMatch[0].length);
 
-        bot.onmessage(user.username, user.id, event.channelId, message, event.wsevent);
+        bot.onmessage({
+            author: user,
+            // @ts-ignore
+            channel: bot.getChannel(event.channelId),
+            guild: bot.getServer(event.serverId),
+            content: message
+        });
     }
 
     /**

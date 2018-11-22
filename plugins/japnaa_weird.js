@@ -71,7 +71,9 @@ class JapnaaWeird extends BotPlugin {
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
 
-        this.bot.playGame("Beep boop. Boop beep... wait... this isn't a game!");
+        this.bot.addEventListener("start", function() {
+            this.bot.playGame("Beep boop. Boop beep... wait... this isn't a game!");
+        }.bind(this));
     }
 }
 
