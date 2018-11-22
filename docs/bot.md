@@ -171,12 +171,9 @@ The number of active asnyc requests running.
 ### `Bot.prototype.createLocationKey_user_global`
 ### `Bot.prototype.createLocationKey_user_server`
 ### `Bot.prototype.createLocationKey_user_channel`
-### `Bot.prototype.getRole_channel`
 ### `Bot.prototype.getRole`
-### `Bot.prototype.getUser_channel`
 ### `Bot.prototype.getUser_server`
 ### `Bot.prototype.getPermissions_global`
-### `Bot.prototype.getPermissions_channel`
 ### `Bot.prototype.getPermissions_server`
 ### `Bot.prototype.editPermissions_user_channel`
 ### `Bot.prototype.editPermissions_user_server`
