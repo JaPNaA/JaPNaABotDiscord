@@ -38,7 +38,7 @@ You can view all commands by messaging the bot `!help`.
 
 You can add your own simple command like this:
 ```javascript
-japanaabot.getBot().registerCommand("hello world", function(bot, event, args) {
+jbot.getBot().registerCommand("hello world", function(bot, event, args) {
     bot.send(event.channelId, "World: Hello!");
 });
 ```
@@ -46,7 +46,7 @@ Try it by sending the bot: `!hello world`
 
 You can configure the bot by editing the config. Replace the `japnaabot.start(...` line from the boilerplate with
 ```javascript
-japnaabot.start("<your api token>", {
+jbot.start("<your api token>", {
     "bot.precommand": [
         "my bot, do "
     ]
@@ -59,7 +59,7 @@ As the name suggests, this adds some weirder things to the bot.
 
 You can add it with
 ```javascript
-japnaabot.loadBuiltinPlugin("japnaa_weird");
+jbot.loadBuiltinPlugin("japnaa_weird");
 ```
 
 This plugin adds some weird features that I suspect not eceryone will want, (thats why its not auto-loaded)
