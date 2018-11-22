@@ -138,6 +138,7 @@ class Bot {
             "senddm": [],
             "sent": [],
             "start": [],
+            "stop": [],
             "beforememorywrite": [],
             "aftermemorywrite": [],
             "addasync": [],
@@ -262,6 +263,8 @@ class Bot {
         for (let plugin of this.registeredPlugins) {
             plugin._stop();
         }
+
+        this.dispatchEvent("stop", null);
 
         this.writeMemory();
 

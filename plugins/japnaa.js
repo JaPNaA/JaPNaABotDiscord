@@ -2,7 +2,7 @@ const BotPlugin = require("../src/plugin.js");
 const BotCommandOptions = require("../src/botcommandOptions.js");
 const BotCommandHelp = require("../src/botcommandHelp.js");
 const Logger = require("../src/logger.js");
-const { stringToArgs, random, toUserId } = require("../src/utils.js");
+const { stringToArgs, random, getSnowflakeNum } = require("../src/utils.js");
 
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
@@ -433,7 +433,7 @@ class Japnaa extends BotPlugin {
             return;
         }
 
-        let user = toUserId(tagMatch[0]);
+        let user = getSnowflakeNum(tagMatch[0]);
         let message = args.slice(tagMatch[0].length);
 
         bot.sendDM(user, {

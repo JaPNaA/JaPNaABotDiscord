@@ -59,7 +59,7 @@ module.exports = {
      * @param {String} id user id as argument
      * @returns {String|null} id
      */
-    toUserId(id) {
+    getSnowflakeNum(id) {
         let matches = id.match(/\d{7,}/);
         if (matches) {
             return matches[0];

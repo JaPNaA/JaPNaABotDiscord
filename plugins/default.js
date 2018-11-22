@@ -1,7 +1,7 @@
 const BotPlugin = require("../src/plugin.js");
 const BotCommandOptions = require("../src/botcommandOptions.js");
 const BotCommandHelp = require("../src/botcommandHelp.js");
-const { toUserId } = require("../src/utils.js");
+const { getSnowflakeNum } = require("../src/utils.js");
 const { inspect } = require("util");
 
 /**
@@ -56,7 +56,7 @@ class Default extends BotPlugin {
         let response = [];
 
         if (args) {
-            let newUserId = toUserId(args);
+            let newUserId = getSnowflakeNum(args);
             if (newUserId) {
                 userId = newUserId;
             } else {
@@ -85,14 +85,23 @@ class Default extends BotPlugin {
 
             if (!event.isDM) {
                 let userInServer = bot.getUser_server(userId, event.serverId);
-                let userInServerStr = 
-                    "Roles: " + (userInServer.roles.size >= 1 ? 
+
+                let rolesString = (
+                    userInServer.roles.size >= 1 ?
                         userInServer.roles.map(
-                            role => 
-                                "**" + role.name + 
-                                "** (" + role + ")"
+                            role =>
+                                "**" + role.name.replace(/@/g, "@\u200B") +
+                                "** (" + role.id + ")"
                         ).join(", ") :
-                        "none") + 
+                        "none"
+                );
+
+                if (rolesString.length > 750) {
+                    rolesString = rolesString.slice(0, 750) + "...";
+                }
+
+                let userInServerStr = 
+                    "Roles: " + rolesString + 
                     "\nIs mute: " + (userInServer.mute ? "Yes" : "No") +
                     "\nIs deaf: " + (userInServer.deaf ? "Yes" : "No") +
                     "\nId: " + userInServer.id + 
@@ -302,7 +311,7 @@ class Default extends BotPlugin {
             return;
         }
 
-        let userId = toUserId(tagMatch[0]);
+        let userId = getSnowflakeNum(tagMatch[0]);
         let user = bot.getUser(userId);
         let message = args.slice(tagMatch[0].length);
 

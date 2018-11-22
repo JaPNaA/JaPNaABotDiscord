@@ -17,6 +17,7 @@ function main() {
     let defaultConfig = JSON.parse(
         STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../data/config.jsonc").toString())
     );
+    let runtimeConfig = {};
     let memory = null;
     
     // configureables
@@ -48,6 +49,34 @@ function main() {
     }
 
     /**
+     * Concats objects, and arrays, if it comes across any
+     * @param {Object.<string, any>} x base
+     * @param {Object.<string, any>} y override
+     * @returns {Object.<string, any>} concated object
+     */
+    function _concatObject(x, y) {
+        let c = {};
+
+        let ykeys = Object.keys(y);
+
+        for (let ykey of ykeys) {
+            let xval = x[ykey];
+            let yval = y[ykey];
+            let cval = null;
+
+            if (Array.isArray(xval)) {
+                cval = xval.concat(yval);
+            } else {
+                cval = yval || xval;
+            }
+
+            c[ykey] = cval;
+        }
+        
+        return c;
+    }
+
+    /**
      * Sets the config to the contents of the config file
      */
     function _getConfigFromPath() {
@@ -56,10 +85,38 @@ function main() {
         let fileConfig = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(configPath).toString()));
         config = {
             ...defaultConfig,
-            ...fileConfig
+            ..._concatObject(fileConfig, runtimeConfig),
         };
     }
     
+    /**
+     * Registers a plugin to auto-load
+     * @param {String} path path to plugin
+     */
+    function registerAutoloadPlugin(path) {
+        if (runtimeConfig["externalPlugins"]) {
+            runtimeConfig["externalPlugins"].push(path);
+        } else {
+            runtimeConfig["externalPlugins"] = [path];
+        }
+
+        loadPlugin(path);
+    }
+
+    /**
+     * Registers a built-in plugin to auto-load
+     * @param {String} name name of built-in plugin
+     */
+    function registerAutoloadBuiltinPlugin(name) {
+        if (runtimeConfig["builtinPlugins"]) {
+            runtimeConfig["builtinPlugins"].push(name);
+        } else {
+            runtimeConfig["builtinPlugins"] = [name];
+        }
+
+        loadBuiltinPlugin(name);
+    }
+
     /**
      * loads/reloads plugin
      * @param {String} path path to plugin
@@ -209,7 +266,9 @@ function main() {
     }
 
     module.exports = {
-        loadPlugin, loadBuiltinPlugin, start, stop, 
+        loadPlugin, loadBuiltinPlugin, 
+        registerAutoloadPlugin, registerAutoloadBuiltinPlugin,
+        start, stop, 
         getBot, getDefaultConfig,
 
         Bot: require("./bot.js"),

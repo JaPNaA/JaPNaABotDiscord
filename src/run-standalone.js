@@ -8,7 +8,7 @@ const ENV_PATH = "./data/.env";
 const ENV = require("./readenv.js")(ENV_PATH);
 
 jbot.start(ENV.token, CONFIG_PATH, MEMORY_PATH);
-jbot.loadBuiltinPlugin("japnaa_weird");
+jbot.registerAutoloadBuiltinPlugin("japnaa_weird");
 
 // gacefully stop on ctrl-c
 process.on("SIGINT", function () {
