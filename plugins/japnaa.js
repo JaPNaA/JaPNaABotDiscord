@@ -228,19 +228,17 @@ class Japnaa extends BotPlugin {
      */
     _getSpamLimit(bot, event) {
         let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.defaultLimit"];
-
-        let server = bot.getServerFromChannel(event.channelId);
         
         let serverLimit = bot.recall(this.namespace, 
-            this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(server.id)
+            this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(event.serverId)
         );
 
         let channelLimit = bot.recall(this.namespace,
-            this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_channel(server.id, event.channelId)
+            this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_channel(event.serverId, event.channelId)
         );
 
         let userLimit = bot.recall(this.namespace,
-            this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_user_server(server.id, event.userId)
+            this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_user_server(event.serverId, event.userId)
         );
 
         return userLimit || channelLimit || serverLimit || defaultLimit;
@@ -254,7 +252,7 @@ class Japnaa extends BotPlugin {
     _getSpamQueLimit(bot, event) {
         let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.defaultQueLimit"];
         
-        let server = bot.getServerFromChannel(event.channelId);
+        let server = bot.getServer(event.serverId);
 
         let serverLimit = bot.recall(this.namespace,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(server.id)
@@ -267,11 +265,12 @@ class Japnaa extends BotPlugin {
      * Actual spam function
      * @param {Bot} bot bot
      * @param {String} channelId id of channel
+     * @param {String} serverId id of server
      * @param {Number} amount number of messages to spam
      * @param {Boolean} counter use counter?
      * @param {String} message spam message
      */
-    _spam(bot, channelId, amount, counter, message) {
+    _spam(bot, channelId, serverId, amount, counter, message) {
         let count = 0;
         const spamFunc = function () {
             if (counter) {
@@ -285,7 +284,6 @@ class Japnaa extends BotPlugin {
 
         // prevent empty message from being added to que
         if (message.trim()) {
-            let serverId = bot.getServerFromChannel(channelId).id;
             if (this.spamQue[serverId]) {
                 this.spamQue[serverId].push(spamFunc);
             } else {
@@ -310,7 +308,7 @@ class Japnaa extends BotPlugin {
         
         switch (cleanArgs) {
         case "stop":
-            this._stopSpam(bot.getServerFromChannel(event.channelId).id);
+            this._stopSpam(event.serverId);
             bot.send(event.channelId, "All spam on this server stopped");
             return;
         case "stop all":
@@ -389,7 +387,7 @@ class Japnaa extends BotPlugin {
             return;
         }
 
-        let server = bot.getServerFromChannel(event.channelId);
+        let server = bot.getServer(event.serverId);
         if (
             this.spamQue[server.id] &&
             this.spamQue[server.id].length > spamQueLimit
@@ -398,7 +396,7 @@ class Japnaa extends BotPlugin {
             return;
         }
 
-        this._spam(bot, event.channelId, amount, useCounter, message);
+        this._spam(bot, event.channelId, event.serverId, amount, useCounter, message);
     }
 
     /**

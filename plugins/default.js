@@ -23,9 +23,7 @@ class Default extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      */
     ping(bot, event) {
-        let now = new Date();
-        let then = new Date(event.wsevent.d.timestamp);
-        bot.send(event.channelId, "Pong! Took " + (now.getTime() - then.getTime()) + "ms");
+        bot.send(event.channelId, "Pong! Took " + bot.client.ping + "ms"); //* should be using abstraction
     }
 
     /**
@@ -86,12 +84,12 @@ class Default extends BotPlugin {
             });
 
             if (!event.isDM) {
-                let userInServer = bot.getUser_channel(userId, event.channelId);
+                let userInServer = bot.getUser_server(userId, event.serverId);
                 let userInServerStr = 
                     "Roles: " + (userInServer.roles.length >= 1 ? 
                         userInServer.roles.map(
                             roleId => 
-                                "**" + bot.getRole_channel(roleId, event.channelId).name + 
+                                "**" + bot.getRole(roleId, event.serverId).name + 
                                 "** (" + roleId + ")"
                         ).join(", ") :
                         "none") + 
@@ -108,7 +106,7 @@ class Default extends BotPlugin {
                     value: userInServerStr + "\n"
                 });
 
-                const permissions = bot.getPermissions_channel(userId, event.channelId);
+                const permissions = bot.getPermissions_channel(userId, event.serverId, event.channelId);
                 response.push({
                     name: "Permissions here",
                     value: permissions.toString() + "\n"
@@ -150,7 +148,7 @@ class Default extends BotPlugin {
 
             if (
                 command.requiredPermission !== undefined &&
-                !bot.getPermissions_channel(event.userId, event.channelId)
+                !bot.getPermissions_channel(event.userId, event.serverId, event.channelId)
                     .has(command.requiredPermission)
             ) {
                 canRun = false;

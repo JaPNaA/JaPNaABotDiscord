@@ -1,7 +1,7 @@
 function main() {
     const FS = require("fs");
     const PATH = require("path");
-    const DISCORD = require("discord.io");
+    const DISCORD = require("discord.js");
     const STRIP_JSON_COMMENTS = require("strip-json-comments");
     const Logger = require("./logger.js");
     const Bot = require("./bot.js");
@@ -12,7 +12,7 @@ function main() {
     /** @type {Bot} */
     let bot = null;
 
-    let shuttingDown = false;
+    // let shuttingDown = false;
 
     let defaultConfig = JSON.parse(
         STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../data/config.jsonc").toString())
@@ -130,19 +130,19 @@ function main() {
 
         memoryPath = pathToMemoryFile;
 
-        client = new DISCORD.Client({
-            token: token,
-            autorun: true
-        });
+        client = new DISCORD.Client();
+        client.login(token);
 
         client.on("ready", () => bot.onready());
-        client.on("message", (user, userId, channelId, message, event) =>
-            bot.onmessage(user, userId, channelId, message, event));
-        client.on("disconnect", function () {
-            if (!shuttingDown) {
-                client.connect();
-            }
-        });
+        client.on("message", event =>
+            bot.onmessage(event));
+        
+        // not required by discord.js
+        // client.on("disconnect", function () {
+        //     if (!shuttingDown) {
+        //         client.login(apiToken);
+        //     }
+        // });
 
         try { // in case the memory file doesn't exist
             memory = JSON.parse(FS.readFileSync(memoryPath).toString());
@@ -151,7 +151,7 @@ function main() {
             memory = {};
         }
 
-        shuttingDown = false;
+        // shuttingDown = false;
 
         _init();
     }
@@ -162,9 +162,9 @@ function main() {
      * @returns {Promise} resolves when the bot finishes stopping
      */
     function stop(timeout) {
-        shuttingDown = true;
+        // shuttingDown = true;
         bot.stop();
-        client.disconnect();
+        client.destroy();
         Logger.log("\nGracefully stoping...");
 
         let promise = new Promise(function (resolve) {

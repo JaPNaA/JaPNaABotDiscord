@@ -5,6 +5,8 @@
  * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */
 
+const Logger = require("./logger.js");
+
 class BotCommand {
     /**
      * BotCommand constructor
@@ -57,7 +59,7 @@ class BotCommand {
         let commandContentClean = commandContent.toLowerCase().trimLeft();
 
         if (commandContentClean.startsWith(this.commandName)) {
-            let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.channelId);
+            let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
             let argString = commandContent.slice(this.commandName.length);
             
             if (this.noDM && !this.bot.getChannel(commandEvent.channelId)) {
@@ -95,6 +97,8 @@ class BotCommand {
             this.bot.send(commandEvent.channelId,
                 "```An error occured\n" + msg + "```"
             );
+
+            Logger.warn(e);
         }
     }
 }

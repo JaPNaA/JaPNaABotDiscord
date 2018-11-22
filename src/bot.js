@@ -1,5 +1,8 @@
 /**
- * @typedef {import("discord.io").Client} Client
+ * @typedef {import("discord.js").Client} Client
+ * @typedef {import("discord.js").Channel} Channel
+ * @typedef {import("discord.js").TextChannel} TextChannel
+ * @typedef {import("discord.js").Message} Message
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  * @typedef {import("./plugin.js")} Plugin
  * @typedef {import("./botcommandHelp.js")} BotCommandHelp
@@ -247,7 +250,7 @@ class Bot {
 
         this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
 
-        if (this.client.connected) {
+        if (this.client.readyAt) {
             this.onready();
         }
     }
@@ -325,25 +328,29 @@ class Bot {
      * Send message
      * @param {String} channelId channel id
      * @param {String | Object} message message to send
+     * @returns {Promise} resolves when sent
      */
     send(channelId, message) {
         Logger.log_message(">>", message);
 
+        let promise;
+        /** @type {TextChannel} */
+        // @ts-ignore
+        let textChannel = this.getChannel(channelId);
+
+        if (textChannel.type !== "text") throw new TypeError("Channel is not an instanceof TextChannel");
+
         this.dispatchEvent("send", message);
 
         if (typeof message === "string") {
-            this.client.sendMessage({
-                message: message,
-                to: channelId,
-            });
+            promise = textChannel.send(message);
         } else if (typeof message === "object") {
-            this.client.sendMessage({
-                to: channelId,
-                ...message
-            });
+            promise = textChannel.send(message);
         } else {
             throw new TypeError("Message is not of valid type");
         }
+
+        return promise;
     }
 
     sendDM(userId, message, failCallback) {
@@ -463,7 +470,7 @@ class Bot {
      * ready callback
      */
     onready() {
-        this.id = this.client.id;
+        this.id = this.client.user.id;
 
         this.dispatchEvent("start", null);
 
@@ -472,23 +479,19 @@ class Bot {
 
     /**
      * onmessage callback
-     * @param {String} username of sender
-     * @param {String} userId of sender
-     * @param {String} channelId in
-     * @param {String} message sent
-     * @param {*} event websocket event
+     * @param {Message} message of sender
      */
-    onmessage(username, userId, channelId, message, event) {
-        let precommandUsed = UTILS.startsWithAny(message, this.precommand);
-        let isDM = this.getChannel(channelId) ? false : true;
+    onmessage(message) {
+        let precommandUsed = UTILS.startsWithAny(message.content, this.precommand);
+        let isDM = this.getChannel(message.channel.id) ? false : true;
 
         const messageEvent = 
             new DiscordMessageEvent(
-                username, userId, channelId, message, 
-                precommandUsed, event, isDM
+                message.author.username, message.author.id, message.channel.id, 
+                message.guild.id, message.content, precommandUsed, message, isDM
             );
 
-        if (userId === this.id) {
+        if (message.author.id === this.id) {
             this.dispatchEvent("sent", messageEvent);
             return;
         }
@@ -498,7 +501,7 @@ class Bot {
         this.dispatchEvent("message", messageEvent);
 
         if (precommandUsed) {
-            this.oncommand(messageEvent, precommandUsed, message.slice(precommandUsed.length));
+            this.oncommand(messageEvent, precommandUsed, message.content.slice(precommandUsed.length));
         }
     }
 
@@ -537,7 +540,7 @@ class Bot {
      * @param {String} channelId
      */
     getChannel(channelId) {
-        return this.client.channels[channelId];
+        return this.client.channels.get(channelId);
     }
 
     /**
@@ -545,9 +548,9 @@ class Bot {
      * @param {String} channelId id of channel
      */
     getServerFromChannel(channelId) {
-        let channel = this.client.channels[channelId];
+        let channel = this.getChannel(channelId);
         if (!channel) return null;
-        return this.getServer(channel.guild_id);
+        return ;
     }
 
     /**
@@ -555,7 +558,7 @@ class Bot {
      * @param {String} serverId id of server
      */
     getServer(serverId) {
-        return this.client.servers[serverId];
+        return this.client.guilds.get(serverId);
     }
 
     /**
@@ -563,7 +566,7 @@ class Bot {
      * @param {String} userId id of user
      */
     getUser(userId) {
-        return this.client.users[userId];
+        return this.client.users.get(userId);
     }
 
     /**
@@ -618,33 +621,13 @@ class Bot {
     }
 
     /**
-     * Gets a role in a channel
-     * @param {String} roleId id of role
-     * @param {String} channelId id of channel
-     */
-    getRole_channel(roleId, channelId) {
-        let server = this.getServerFromChannel(channelId);
-        if (!server) return null;
-        return this.getRole(roleId, server.id);
-    }
-
-    /**
      * Gets a role in a server
      * @param {String} roleId id of role
      * @param {String} serverId id of server
      */
     getRole(roleId, serverId) {
         let server = this.getServer(serverId);
-        return server.roles[roleId];
-    }
-
-    /**
-     * Gets user from channel
-     * @param {String} userId id of user
-     * @param {String} channelId id of server
-     */
-    getUser_channel(userId, channelId) {
-        return this.getServer(this.getChannel(channelId).guild_id).members[userId];
+        return server.roles.get(roleId);
     }
 
     /**
@@ -653,7 +636,7 @@ class Bot {
      * @param {String} serverId id of server
      */
     getUser_server(userId, serverId) {
-        return this.getServer(serverId).members[userId];
+        return this.getServer(serverId).members.get(userId);
     }
 
     /**
@@ -669,40 +652,23 @@ class Bot {
     }
 
     /**
-     * Gets the permissions of user from userId in channelId
-     * @param {String} userId id of user
-     * @param {String} channelId id of channel
-     */
-    getPermissions_channel(userId, channelId) {
-        const channel = this.getChannel(channelId);
-        let serverId;
-        if (channel) {
-            serverId = channel.guild_id;
-        } else {
-            serverId = null;
-        }
-
-        return this.getPermissions_server(userId, serverId, channelId);
-    }
-
-    /**
      * Gets the permissions of user from userId in serverId
      * @param {String} userId id of user
      * @param {String} [serverId] id of server
      * @param {String} [channelId] if of channel
      */
-    getPermissions_server(userId, serverId, channelId) {
+    getPermissions_channel(userId, serverId, channelId) {
         let server, user, roles;
         let permissionsNum = 0;
 
         if (serverId) {
             server = this.getServer(serverId);
-            user = server.members[userId];
-            roles = user.roles.concat([serverId]);
+            user = server.members.get(userId);
+            roles = user.roles.array();
 
             for (let role of roles) {
                 // @ts-ignore
-                permissionsNum |= server.roles[role]._permissions;
+                permissionsNum |= role.permissions;
             }
         }
 
@@ -800,7 +766,7 @@ class Bot {
      * @param {String} name of game
      */
     playGame(name) {
-        this.client.setPresence({
+        this.client.user.setPresence({
             game: {
                 name: name || null,
                 type: 0

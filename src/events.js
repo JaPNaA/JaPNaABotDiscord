@@ -8,7 +8,7 @@ class DiscordMessageEvent {
      * @param {String|null} precommand is message valid command? If so, what is precommand?
      * @param {*} event websocket event
      */
-    constructor(username, userId, channelId, message, precommand, event, isDM) {
+    constructor(username, userId, channelId, serverId, message, precommand, event, isDM) {
         /**
          * Username of sender
          * @type {String}
@@ -26,6 +26,11 @@ class DiscordMessageEvent {
          * @type {String}
          */
         this.channelId = channelId;
+
+        /**
+         * Id of server message was sent in
+         */
+        this.serverId = serverId;
 
         /**
          * Message that was sent
@@ -61,8 +66,8 @@ class DiscordCommandEvent extends DiscordMessageEvent {
         // inheirt all properties of DiscordMessageEvent
         super(
             messageEvent.username, messageEvent.userId, messageEvent.channelId, 
-            messageEvent.message, messageEvent.precommand, messageEvent.wsevent,
-            messageEvent.isDM
+            messageEvent.serverId, messageEvent.message, messageEvent.precommand, 
+            messageEvent.wsevent, messageEvent.isDM
         );
 
         /**
