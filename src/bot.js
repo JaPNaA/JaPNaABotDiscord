@@ -618,6 +618,27 @@ class Bot {
     }
 
     /**
+     * Gets a role in a channel
+     * @param {String} roleId id of role
+     * @param {String} channelId id of channel
+     */
+    getRole_channel(roleId, channelId) {
+        let server = this.getServerFromChannel(channelId);
+        if (!server) return null;
+        return this.getRole(roleId, server.id);
+    }
+
+    /**
+     * Gets a role in a server
+     * @param {String} roleId id of role
+     * @param {String} serverId id of server
+     */
+    getRole(roleId, serverId) {
+        let server = this.getServer(serverId);
+        return server.roles[roleId];
+    }
+
+    /**
      * Gets user from channel
      * @param {String} userId id of user
      * @param {String} channelId id of server

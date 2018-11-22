@@ -88,7 +88,13 @@ class Default extends BotPlugin {
             if (!event.isDM) {
                 let userInServer = bot.getUser_channel(userId, event.channelId);
                 let userInServerStr = 
-                    "Roles: " + (userInServer.roles.length >= 1 ? userInServer.roles.join(", ") : "none") + 
+                    "Roles: " + (userInServer.roles.length >= 1 ? 
+                        userInServer.roles.map(
+                            roleId => 
+                                "**" + bot.getRole_channel(roleId, event.channelId).name + 
+                                "** (" + roleId + ")"
+                        ).join(", ") :
+                        "none") + 
                     "\nIs mute: " + (userInServer.mute ? "Yes" : "No") +
                     "\nIs deaf: " + (userInServer.deaf ? "Yes" : "No") +
                     "\nId: " + userInServer.id + 
