@@ -1,7 +1,8 @@
 const BotPlugin = require("../src/plugin.js");
 const BotCommandOptions = require("../src/botcommandOptions.js");
 const BotCommandHelp = require("../src/botcommandHelp.js");
-const { getSnowflakeNum } = require("../src/utils.js");
+const Permissions = require("../src/permissions.js");
+const { getSnowflakeNum, stringToArgs } = require("../src/utils.js");
 const { inspect } = require("util");
 
 /**
@@ -49,7 +50,7 @@ class Default extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      * @param {String} args userId
      */
-    userinfo(bot, event, args) {
+    user_info(bot, event, args) {
         let userId = event.userId;
 
         /** @type {Object.<string, string>[]} */
@@ -76,7 +77,7 @@ class Default extends BotPlugin {
                 "\nId: " + user.id + 
                 "\nAvatar: [" + user.avatar + "](" + avatarUrl + ")" +
                 "\nBot: " + user.bot +
-                "\nPresence: " + user.presence;
+                "\nPresence: " + JSON.stringify(user.presence);
 
             response.push({
                 name: "User info",
@@ -303,11 +304,14 @@ class Default extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      * @param {String} args arguments
      */
-    pretendget(bot, event, args) {
+    pretend_get(bot, event, args) {
         let tagMatch = args.match(/^\s*<@\d+>\s*/);
 
         if (!tagMatch) {
-            bot.send(event.channelId, "<insert help message>");
+            bot.send(event.channelId,
+                "Invalid amount of arguments. See `" +
+                event.precommand + "help pretend get` for help"
+            );
             return;
         }
 
@@ -322,6 +326,128 @@ class Default extends BotPlugin {
             guild: bot.getServer(event.serverId),
             content: message
         });
+    }
+
+    /**
+     * Sends a message to a channel
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} argString arguments ns, type, action, id, permission
+     */
+    edit_permission(bot, event, argString) {
+        let args = stringToArgs(argString);
+
+        function sendHelp() {
+            bot.send(event.channelId,
+                "Invalid amount of arguments. See `" +
+                event.precommand + "help edit permission` for help"
+            );
+        }
+
+        if (args.length !== 5) {
+            sendHelp();
+            return;
+        }
+
+        /** Namespace (channel, server, global) */
+        let ns = args[0][0].toLowerCase();
+        /** Type (user, role) */
+        let type = args[1][0].toLowerCase();
+        /** Action (add, remove) */
+        let action = args[2][0].toLowerCase();
+        /** Id of user or role */
+        let id = getSnowflakeNum(args[3]);
+        /** Permission name */
+        let permission = args[4].trim().toUpperCase();
+
+        /** Permissions for assigner */
+        let assignerPermissions = this.bot.getPermissions_channel(event.userId, event.serverId, event.channelId);
+
+        // check if can assign permission
+        if (
+            Permissions.specialCustoms.includes(permission) && // if special permission
+            !assignerPermissions.has("BOT_ADMINISTRATOR") // and is not admin
+        ) {
+            bot.send(event.channelId, "Cannot assign special custom permission");
+            return;
+        } else if (Permissions.keys.includes(permission)) {
+            bot.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
+            return;
+        }
+
+        if (ns === "c") { // Channel namespace
+            if (type === "u") { // Assign to user
+                if (!bot.getUser_server(id, event.serverId)) {
+                    bot.send(event.channelId, "User not found");
+                    return;
+                }
+                if (action === "a") { // add
+                    bot.editPermissions_user_channel(id, event.channelId, permission, true);
+                    bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` in this channel");
+                } else if (action === "r") { // remove
+                    bot.editPermissions_user_channel(id, event.channelId, permission, false);
+                    bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this channel.");
+                }
+            } else if (type === "r") { // Assign to role
+                if (action === "a") { // add
+                    bot.editPermissions_role_channel(id, event.channelId, permission, true);
+                    bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this channel.");
+                } else if (action === "r") { // remove
+                    bot.editPermissions_role_channel(id, event.channelId, permission, false);
+                    bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this channel.");
+                }
+            } else {
+                sendHelp();
+            }
+        } else if (ns === "s") { // Server namespace
+            if (type === "u") { // Assign to user
+                if (!bot.getUser_server(id, event.serverId)) {
+                    bot.send(event.channelId, "User not found");
+                    return;
+                }
+                if (action === "a") { // add
+                    bot.editPermissions_user_server(id, event.serverId, permission, true);
+                    bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` in this server");
+                } else if (action === "r") { // remove
+                    bot.editPermissions_user_server(id, event.serverId, permission, false);
+                    bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this server.");
+                }
+            } else if (type === "r") { // Assign to role
+                if (action === "a") { // add
+                    bot.editPermissions_role_server(id, event.serverId, permission, true);
+                    bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this server.");
+                } else if (action === "r") { // remove
+                    bot.editPermissions_role_server(id, event.serverId, permission, false);
+                    bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this server.");
+                }
+            } else {
+                sendHelp();
+            }
+        } else if (ns === "g") { // Global namespace
+            if (!assignerPermissions.has("BOT_ADMINISTRATOR")) {
+                bot.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
+                return;
+            }
+            if (type === "u") { // Assign to user
+                if (!bot.getUser_server(id, event.serverId)) {
+                    bot.send(event.channelId, "User not found");
+                    return;
+                }
+                if (action === "a") { // add
+                    bot.editPermissions_user_global(id, permission, true);
+                    bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` everywhere");
+                } else if (action === "r") { // remove
+                    bot.editPermissions_user_global(id, permission, false);
+                    bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) everywhere.");
+                }
+            } else if (type === "r") { // Assign to role
+                bot.send(event.channelId, "Global roles are not a thing.");
+            } else {
+                sendHelp();
+            }
+        } else {
+            sendHelp();
+        }
     }
 
     /**
@@ -374,7 +500,7 @@ class Default extends BotPlugin {
             })
         }));
         
-        this._registerCommand("pretendget", this.pretendget, new BotCommandOptions({
+        this._registerCommand("pretend get", this.pretend_get, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
             help: new BotCommandHelp({
                 description: "The bot will pretend that it recieved a message.",
@@ -383,9 +509,13 @@ class Default extends BotPlugin {
                     "message": "The message that it will mention"
                 }],
                 examples: [
-                    ["pretendget <@207890448159735808> !userinfo", "Will make the bot pretend that the message actually came from <@207890448159735808>."]
+                    ["pretend get <@207890448159735808> !user info", "Will make the bot pretend that the message actually came from <@207890448159735808>."]
                 ]
             })
+        }));
+
+        this._registerCommand("edit permission", this.edit_permission, new BotCommandOptions({
+            requiredPermission: "ADMINISTRATOR"
         }));
 
         this._registerCommand("send", this.send, new BotCommandOptions({
@@ -410,7 +540,7 @@ class Default extends BotPlugin {
                 ]
             })
         }));
-        this._registerCommand("userinfo", this.userinfo, new BotCommandOptions({
+        this._registerCommand("user info", this.user_info, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Gives you information about the user. (Exposing)",
                 overloads: [{
@@ -419,8 +549,8 @@ class Default extends BotPlugin {
                     "userId": "From user by UserID raw or as a @metion. The bot will show user information about this user",
                 }],
                 examples: [
-                    ["userinfo", "Will cause the bot to expose you."],
-                    ["userinfo <@207890448159735808>", "Will cause the bot to expose <@207890448159735808>"]
+                    ["user info", "Will cause the bot to expose you."],
+                    ["user info <@207890448159735808>", "Will cause the bot to expose <@207890448159735808>"]
                 ]
             })
         }));

@@ -72,8 +72,21 @@ class Permissions {
         /** Allows management and editing of emojis */
         this.MANAGE_EMOJIS = getBit(this.num, 28);
 
+        if (this.ADMINISTRATOR) {
+            this.setAllPermissions();
+        }
+
         /** Custom Permissions */
         this.customPermissions = {};
+    }
+
+    /**
+     * Sets all permissions to true
+     */
+    setAllPermissions() {
+        for (let key of Permissions.keys) {
+            this[key] = true;
+        }
     }
 
     /**
@@ -202,6 +215,14 @@ Permissions.keys = [
     "USE_VAD", "PRIORITY_SPEAKER", "CHANGE_NICKNAME",
     "MANAGE_NICKNAMES", "MANAGE_ROLES",
     "MANAGE_WEBHOOKS", "MANAGE_EMOJIS"
+];
+
+/** 
+ * Special custom permissions
+ * @type {String[]}
+ */
+Permissions.specialCustoms = [
+    "BOT_ADMINISTRATOR"
 ];
 
 module.exports = Permissions;

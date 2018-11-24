@@ -416,7 +416,7 @@ class Japnaa extends BotPlugin {
      * @param {String} args string to set as play
      */
     play(bot, event, args) {
-        bot.playGame(args);
+        bot.presenceSetGame(args);
     }
 
     /**
@@ -429,7 +429,10 @@ class Japnaa extends BotPlugin {
         let tagMatch = args.match(/^\s*<@\d+>\s*/);
 
         if (!tagMatch) {
-            bot.send(event.channelId, "<insert help message>");
+            bot.send(event.channelId,
+                "Invalid amount of arguments. See `" +
+                event.precommand + "help tell` for help"
+            );
             return;
         }
 

@@ -190,6 +190,10 @@ class Bot {
          */
         this.helpData = {};
 
+        this.client.on("error", function(error) {
+            Logger.error(error);
+        });
+
         this.start();
     }
 
@@ -622,6 +626,33 @@ class Bot {
     }
 
     /**
+     * Creates the location key
+     * @param {String} roleId id of user
+     */
+    createLocationKey_role_global(roleId) {
+        return this.permissionsGlobal + this.memoryDelimiter + roleId;
+    }
+
+    /**
+     * Creates the location key
+     * @param {String} serverId id of server
+     * @param {String} roleId id of user
+     */
+    createLocationKey_role_server(serverId, roleId) {
+        return serverId + this.memoryDelimiter + roleId;
+    }
+
+    /**
+     * Creates the location key
+     * @param {String} serverId id of user
+     * @param {String} roleId id of user
+     * @param {String} channelId id of channel
+     */
+    createLocationKey_role_channel(serverId, roleId, channelId) {
+        return serverId + this.memoryDelimiter + roleId + this.memoryDelimiter + channelId;
+    }
+
+    /**
      * Gets a role in a server
      * @param {String} roleId id of role
      * @param {String} serverId id of server
@@ -638,6 +669,32 @@ class Bot {
      */
     getUser_server(userId, serverId) {
         return this.getServer(serverId).members.get(userId);
+    }
+
+    /**
+     * Gets the permissions of role
+     * @param {String} roleId id of role
+     * @param {String} serverId id of server
+     * @param {String} [channelId] id of channel
+     * @returns {Permissions} permissions of role
+     */
+    getPermissions_role_channel(roleId, serverId, channelId) {
+        let role = this.getRole(roleId, serverId);
+
+        let permissions = new Permissions(role.permissions);
+        if (channelId) {
+            permissions.importCustomPermissions(
+                this.recall(this.permissionsNamespace, 
+                    this.createLocationKey_role_channel(serverId, roleId, channelId)
+                ));
+        }
+
+        permissions.importCustomPermissions(
+            this.recall(this.permissionsNamespace,
+                this.createLocationKey_role_server(serverId, roleId)
+            ));
+        
+        return permissions;
     }
 
     /**
@@ -667,15 +724,21 @@ class Bot {
             user = server.members.get(userId);
             roles = user.roles.array();
 
-            for (let role of roles) {
-                permissionsNum |= role.permissions;
-            }
+            let permissions = user.permissions.bitfield;
+
+            permissionsNum |= permissions;
         }
 
         let permissions = new Permissions(permissionsNum);
         permissions.importCustomPermissions(
             this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
         );
+
+        for (let role of roles) {
+            permissions.importCustomPermissions(
+                this.getPermissions_role_channel(role.id, serverId, channelId).getCustomPermissions()
+            );
+        }
 
         if (serverId) {
             permissions.importCustomPermissions(
@@ -744,6 +807,55 @@ class Bot {
     }
 
     /**
+     * Sets the permissions of user in a channel
+     * @param {String} roleId user
+     * @param {String} channelId id of channel
+     * @param {String} permissionName name of permission
+     * @param {Boolean} value value of permission to write
+     */
+    editPermissions_role_channel(roleId, channelId, permissionName, value) {
+        /** @type { TextChannel } */
+        // @ts-ignore
+        let channel = this.getChannel(channelId);
+        let serverId = channel.guild.id;
+
+        let customPerms = this.recall(this.permissionsNamespace,
+            this.createLocationKey_role_channel(serverId, roleId, channelId)
+        );
+
+        let permissions = new Permissions();
+        permissions.importCustomPermissions(customPerms);
+        permissions.customWrite(permissionName, value);
+
+        this.remember(this.permissionsNamespace,
+            this.createLocationKey_role_channel(serverId, roleId, channelId),
+            permissions.getCustomPermissions(), true
+        );
+    }
+
+    /**
+     * Sets the permissions of user in a server
+     * @param {String} roleId id of user
+     * @param {String} serverId id of server
+     * @param {String} permissionName name of permission
+     * @param {Boolean} value value of permission to write
+     */
+    editPermissions_role_server(roleId, serverId, permissionName, value) {
+        let customPerms = this.recall(this.permissionsNamespace,
+            this.createLocationKey_role_server(serverId, roleId)
+        );
+
+        let permissions = new Permissions();
+        permissions.importCustomPermissions(customPerms);
+        permissions.customWrite(permissionName, value);
+
+        this.remember(this.permissionsNamespace,
+            this.createLocationKey_role_server(serverId, roleId),
+            permissions.getCustomPermissions(), true
+        );
+    }
+
+    /**
      * Sets the permissions of user everywhere
      * @param {String} userId id of user
      * @param {String} permissionName name of permission
@@ -765,14 +877,53 @@ class Bot {
     }
 
     /**
-     * Sets rich presence game
+     * Sets rich presence game to play
      * @param {String} name of game
      */
-    playGame(name) {
+    presenceSetGame(name) {
         this.client.user.setPresence({
             game: {
                 name: name || null,
                 type: "PLAYING"
+            }
+        });
+    }
+
+    /**
+     * Sets rich presence game to watch
+     * @param {String} name of game
+     */
+    presenceSetWatch(name) {
+        this.client.user.setPresence({
+            game: {
+                name: name || null,
+                type: "WATCHING"
+            }
+        });
+    }
+
+    /**
+     * Sets rich presence music to listen
+     * @param {String} name of game
+     */
+    presenceSetListen(name) {
+        this.client.user.setPresence({
+            game: {
+                name: name || null,
+                type: "LISTENING"
+            }
+        });
+    }
+
+    /**
+     * Sets rich presence game to stream
+     * @param {String} name of game
+     */
+    presenceSetStream(name) {
+        this.client.user.setPresence({
+            game: {
+                name: name || null,
+                type: "STREAMING"
             }
         });
     }
