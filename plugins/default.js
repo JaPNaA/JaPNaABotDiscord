@@ -245,15 +245,22 @@ class Default extends BotPlugin {
                 });
             }
 
-            // send message
-            bot.send(event.channelId, {
+            let embed = {
                 embed: {
                     color: bot.themeColor,
                     title: "**" + event.precommand + command + "**",
                     description: help.description ? help.description : "The " + command + " command",
                     fields: fields
                 }
-            });
+            };
+
+            if (event.isDM) {
+                bot.send(event.channelId, embed);
+            } else {
+                // is server
+                bot.send(event.channelId, "I've sent you some help!");
+                bot.sendDM(event.userId, embed);
+            }
         } else if (help === undefined) {
             bot.send(event.channelId, "Command `" + command + "` doesn't exist");            
         } else {
@@ -387,6 +394,8 @@ class Default extends BotPlugin {
                 } else if (action === "r") { // remove
                     bot.editPermissions_user_channel(id, event.channelId, permission, false);
                     bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this channel.");
+                } else {
+                    sendHelp();
                 }
             } else if (type === "r") { // Assign to role
                 if (action === "a") { // add
@@ -395,6 +404,8 @@ class Default extends BotPlugin {
                 } else if (action === "r") { // remove
                     bot.editPermissions_role_channel(id, event.channelId, permission, false);
                     bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this channel.");
+                } else {
+                    sendHelp();
                 }
             } else {
                 sendHelp();
@@ -411,6 +422,8 @@ class Default extends BotPlugin {
                 } else if (action === "r") { // remove
                     bot.editPermissions_user_server(id, event.serverId, permission, false);
                     bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this server.");
+                } else {
+                    sendHelp();
                 }
             } else if (type === "r") { // Assign to role
                 if (action === "a") { // add
@@ -419,6 +432,8 @@ class Default extends BotPlugin {
                 } else if (action === "r") { // remove
                     bot.editPermissions_role_server(id, event.serverId, permission, false);
                     bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this server.");
+                } else {
+                    sendHelp();
                 }
             } else {
                 sendHelp();
@@ -439,6 +454,8 @@ class Default extends BotPlugin {
                 } else if (action === "r") { // remove
                     bot.editPermissions_user_global(id, permission, false);
                     bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) everywhere.");
+                } else {
+                    sendHelp();
                 }
             } else if (type === "r") { // Assign to role
                 bot.send(event.channelId, "Global roles are not a thing.");
@@ -515,7 +532,21 @@ class Default extends BotPlugin {
         }));
 
         this._registerCommand("edit permission", this.edit_permission, new BotCommandOptions({
-            requiredPermission: "ADMINISTRATOR"
+            requiredPermission: "ADMINISTRATOR",
+            help: new BotCommandHelp({
+                description: "Edits the permissions of a person or role.",
+                overloads: [{
+                    "namespace": "Permissions in __c__hannel, __s__erver, or __g__lobal",
+                    "type": "For __u__ser or __r__ole",
+                    "action": "To __a__dd or __r__emove permission",
+                    "id": "Id of role or user",
+                    "permission": "Name of permission to add or remove to user or role"
+                }],
+                examples: [
+                    ["edit permission server user add <@207890448159735808> my_permission", "Will give <@207890448159735808> the permission `MY_PERMISSION` in the server."],
+                    ["edit permission s u r <@207890448159735808> my_permission", "Will remove my_permission from <@207890448159735808> in the server."]
+                ]
+            })
         }));
 
         this._registerCommand("send", this.send, new BotCommandOptions({

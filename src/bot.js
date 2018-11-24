@@ -485,7 +485,11 @@ class Bot {
      */
     onmessage(message) {
         let precommandUsed = UTILS.startsWithAny(message.content, this.precommand);
-        let isDM = this.getChannel(message.channel.id) ? false : true;
+
+        /** @type {TextChannel} */
+        // @ts-ignore
+        let channel = message.channel;
+        let isDM = channel.guild ? false : true;
 
         const messageEvent = 
             new DiscordMessageEvent(
@@ -734,10 +738,12 @@ class Bot {
             this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
         );
 
-        for (let role of roles) {
-            permissions.importCustomPermissions(
-                this.getPermissions_role_channel(role.id, serverId, channelId).getCustomPermissions()
-            );
+        if (roles) {
+            for (let role of roles) {
+                permissions.importCustomPermissions(
+                    this.getPermissions_role_channel(role.id, serverId, channelId).getCustomPermissions()
+                );
+            }
         }
 
         if (serverId) {
@@ -778,10 +784,17 @@ class Bot {
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
 
-        this.remember(this.permissionsNamespace,
-            this.createLocationKey_user_channel(serverId, userId, channelId),
-            permissions.getCustomPermissions(), true
-        );
+        customPerms = permissions.getCustomPermissions();
+        let locationKey = this.createLocationKey_user_channel(serverId, userId, channelId);
+        if (customPerms.length) {
+            this.remember(this.permissionsNamespace,
+                locationKey, customPerms, true
+            );
+        } else {
+            this.remember(this.permissionsNamespace,
+                locationKey, undefined, true
+            );
+        }
     }
 
     /**
@@ -800,10 +813,17 @@ class Bot {
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
 
-        this.remember(this.permissionsNamespace,
-            this.createLocationKey_user_server(serverId, userId),
-            permissions.getCustomPermissions(), true
-        );
+        customPerms = permissions.getCustomPermissions();
+        let locationKey = this.createLocationKey_user_server(serverId, userId);
+        if (customPerms.length) {
+            this.remember(this.permissionsNamespace,
+                locationKey, customPerms, true
+            );
+        } else {
+            this.remember(this.permissionsNamespace,
+                locationKey, undefined, true
+            );
+        }
     }
 
     /**
@@ -827,10 +847,17 @@ class Bot {
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
 
-        this.remember(this.permissionsNamespace,
-            this.createLocationKey_role_channel(serverId, roleId, channelId),
-            permissions.getCustomPermissions(), true
-        );
+        customPerms = permissions.getCustomPermissions();
+        let locationKey = this.createLocationKey_role_channel(serverId, roleId, channelId);
+        if (customPerms.length) {
+            this.remember(this.permissionsNamespace,
+                locationKey, customPerms, true
+            );
+        } else {
+            this.remember(this.permissionsNamespace,
+                locationKey, undefined, true
+            );
+        }
     }
 
     /**
@@ -849,10 +876,17 @@ class Bot {
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
 
-        this.remember(this.permissionsNamespace,
-            this.createLocationKey_role_server(serverId, roleId),
-            permissions.getCustomPermissions(), true
-        );
+        customPerms = permissions.getCustomPermissions();
+        let locationKey = this.createLocationKey_role_server(serverId, roleId);
+        if (customPerms.length) {
+            this.remember(this.permissionsNamespace,
+                locationKey, customPerms, true
+            );
+        } else {
+            this.remember(this.permissionsNamespace,
+                locationKey, undefined, true
+            );
+        }
     }
 
     /**
@@ -862,18 +896,25 @@ class Bot {
      * @param {Boolean} value of permission to write
      */
     editPermissions_user_global(userId, permissionName, value) {
-        let permString = this.recall(this.permissionsNamespace,
+        let customPerms = this.recall(this.permissionsNamespace,
             this.createLocationKey_user_global(userId)
         );
 
-        let permission = new Permissions();
-        permission.importCustomPermissions(permString);
-        permission.customWrite(permissionName, value);
+        let permissions = new Permissions();
+        permissions.importCustomPermissions(customPerms);
+        permissions.customWrite(permissionName, value);
 
-        this.remember(this.permissionsNamespace,
-            this.createLocationKey_user_global(userId),
-            permission.getCustomPermissions(), true
-        );
+        customPerms = permissions.getCustomPermissions();
+        let locationKey = this.createLocationKey_user_global(userId);
+        if (customPerms.length) {
+            this.remember(this.permissionsNamespace,
+                locationKey, customPerms, true
+            );
+        } else {
+            this.remember(this.permissionsNamespace,
+                locationKey, undefined, true
+            );
+        }
     }
 
     /**
