@@ -498,7 +498,8 @@ class Japnaa extends BotPlugin {
                     ["echo {\"embed\": {\"color\": 589253, \"title\": \"JSON!\", \"description\": \"JavaScript Object Notation\"}}", 
                         "Responds with an embed with a cyan-ish color, the title \"JSON\", and the description \"JavaScript Object Notation\""]
                 ]
-            })
+            }),
+            group: "Testing"
         }));
 
         this._registerCommand("count", this.count, new BotCommandOptions({
@@ -507,7 +508,8 @@ class Japnaa extends BotPlugin {
                 examples: [
                     ["count", "Will respond with a number bigger than what it reponded to the previous count count."]
                 ]
-            })
+            }),
+            group: "Testing"
         }));
 
         this._registerCommand("random", this.random, new BotCommandOptions({
@@ -528,7 +530,8 @@ class Japnaa extends BotPlugin {
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
                     ["random string", "A random string 128 characters long"]
                 ]
-            })
+            }),
+            group: "Utils"
         }));
 
         this._registerCommand("spam", this.spam_command, new BotCommandOptions({
@@ -557,7 +560,8 @@ class Japnaa extends BotPlugin {
                     ["spam limit", "Responds with the limit of the spam of the channel"],
                     ["spam que limit", "Responds with the que limit of the channel"]
                 ]
-            })
+            }),
+            group: "Communication"
         }));
 
         this._registerCommand("throw", this.throw, new BotCommandOptions({
@@ -570,7 +574,8 @@ class Japnaa extends BotPlugin {
                     ["throw", "The bot will throw a User-Throw Error"],
                     ["throw rocks", "The bot will throw the error \"rocks\""]
                 ]
-            })
+            }),
+            group: "Testing"
         }));
 
         this._registerCommand("play", this.play, new BotCommandOptions({
@@ -584,7 +589,7 @@ class Japnaa extends BotPlugin {
                     ["play nothing", "Sets the \"playing\" tag to \"nothing\"."]
                 ]
             }),
-            group: "rich presence"
+            group: "Rich Presence"
         }));
         this._registerCommand("watch", this.watch, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -597,7 +602,7 @@ class Japnaa extends BotPlugin {
                     ["watch nothing", "Sets the \"watching\" tag to \"nothing\"."]
                 ]
             }),
-            group: "rich presence"
+            group: "Rich Presence"
         }));
         this._registerCommand("listen to", this.listen_to, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -610,7 +615,7 @@ class Japnaa extends BotPlugin {
                     ["listen to nothing", "Sets the \"listening\" tag to \"nothing\"."]
                 ]
             }),
-            group: "rich presence"
+            group: "Rich Presence"
         }));
         this._registerCommand("stream", this.stream, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -623,7 +628,7 @@ class Japnaa extends BotPlugin {
                     ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
                 ]
             }),
-            group: "rich presence"
+            group: "Rich Presence"
         }));
 
         this._registerCommand("tell", this.tell, new BotCommandOptions({
@@ -636,7 +641,8 @@ class Japnaa extends BotPlugin {
                 examples: [
                     ["tell <@207890448159735808> hi", "The bot will send <@207890448159735808> a message, and include a not that you sent it."]
                 ]
-            })
+            }),
+            group: "Communication"
         }));
     }
 }

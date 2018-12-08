@@ -8,6 +8,7 @@ const { inspect } = require("util");
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
  * @typedef {import("../src/bot.js")} Bot
+ * @typedef {import("../src/botcommand.js")} BotCommand
  */
 
 /**
@@ -150,9 +151,10 @@ class Default extends BotPlugin {
      * Converts all commands to a readable format
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event data
+     * @param {BotCommand[]} commands
      */
-    _allCommandsToReadable(bot, event) {
-        return bot.registeredCommands.map(command => {
+    _commandsToReadable(bot, event, commands) {
+        return commands.map(command => {
             let name = command.commandName;
             let canRun = true;
 
@@ -183,19 +185,27 @@ class Default extends BotPlugin {
      */
     _sendGeneralHelp(bot, event) {
         /** @type {Object.<string, string>[]} */
-        let response = [];
+        let fields = [];
         let embed = {
             color: bot.themeColor,
-            title: "Help",
-            fields: response
+            title: "All Commands",
+            fields: fields
         };
 
-        response.push({
-            name: "Commands",
-            value: this._allCommandsToReadable(bot, event) + "\n" +
-                "*Any commands in bold are ones you can run " + (event.isDM ? "here" : "there") + "*\n" +
+        for (let [groupName, commands] of bot.commandGroups) {
+            fields.push({
+                name: groupName || "Other",
+                value: this._commandsToReadable(bot, event, commands)
+            });
+        }
+
+        fields.push({
+            name: "---",
+            value: "*Any commands in bold are ones you can run " + (event.isDM ? "here" : "there") + "*\n" +
                 "*You can type " + event.precommand + "help [commandName] to get more information on a command.*"
         });
+
+        console.log(embed);
 
         if (event.isDM) {
             bot.send(event.channelId, { embed });
@@ -337,7 +347,7 @@ class Default extends BotPlugin {
      */
     i_am_the_bot_admin(bot, event) {
         if (bot.recall(bot.permissionsNamespace, bot.permissionsAdmin)) {
-            if (bot.recall(bot.permissionsNamespace, bot.permissionsAdmin) === event.userId) {
+            if (bot.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
                 bot.send(event.channelId, "Yes. You are the bot admin.");
             } else {
                 bot.send(event.channelId, "You are not the bot admin.");
@@ -560,7 +570,8 @@ class Default extends BotPlugin {
                     ["eval 1 + 1", "Will give you the result of 1 + 1 (2)"],
                     ["eval bot", "Will give you the entire bot object in JS"]
                 ]
-            })
+            }),
+            group: "Testing"
         }));
         
         this._registerCommand("pretend get", this.pretend_get, new BotCommandOptions({
@@ -574,7 +585,8 @@ class Default extends BotPlugin {
                 examples: [
                     ["pretend get <@207890448159735808> !user info", "Will make the bot pretend that the message actually came from <@207890448159735808>."]
                 ]
-            })
+            }),
+            group: "Testing"
         }));
 
         this._registerCommand("edit permission", this.edit_permission, new BotCommandOptions({
@@ -606,7 +618,8 @@ class Default extends BotPlugin {
                 examples: [
                     ["send 501917691565572118 hi", "Will send a message to the channel with the ID 501917691565572118 a friendly \"hi\""]
                 ]
-            })
+            }),
+            group: "Testing"
         }));
 
         this._registerCommand("ping", this.ping, new BotCommandOptions({
@@ -615,7 +628,8 @@ class Default extends BotPlugin {
                 examples: [
                     ["ping", "Do you *really* need an example?"]
                 ]
-            })
+            }),
+            group: "Testing"
         }));
         this._registerCommand("user info", this.user_info, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -629,7 +643,8 @@ class Default extends BotPlugin {
                     ["user info", "Will cause the bot to expose you."],
                     ["user info <@207890448159735808>", "Will cause the bot to expose <@207890448159735808>"]
                 ]
-            })
+            }),
+            group: "Utils"
         }));
         this._registerCommand("help", this.help, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -643,7 +658,8 @@ class Default extends BotPlugin {
                     ["help", "Replies with all the commands"],
                     ["help help", "Will give you help for the command help. Which you did, just now."]
                 ]
-            })
+            }),
+            group: "Utils"
         }));
         
         this._registerCommand("i am the bot admin", this.i_am_the_bot_admin, new BotCommandOptions({
@@ -661,7 +677,8 @@ class Default extends BotPlugin {
                 examples: [
                     ["invite", "Sends the invite link in the current channel. Wait! I just said that!"]
                 ]
-            })
+            }),
+            group: "Promotional"
         }));
         this._registerCommand("link", this.link, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -669,7 +686,8 @@ class Default extends BotPlugin {
                 examples: [
                     ["invite", "Sends the invite link in the current channel. Wait! I just said that!"]
                 ]
-            })
+            }),
+            group: "Promotional"
         }));
         this._registerCommand("code", this.code, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -677,7 +695,8 @@ class Default extends BotPlugin {
                 examples: [
                     ["code", "Sends the link of the code in the current channel."]
                 ]
-            })
+            }),
+            group: "Promotional"
         }));
     }
 }

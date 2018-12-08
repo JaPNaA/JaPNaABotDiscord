@@ -333,7 +333,7 @@ class Bot {
 
     /**
      * Adds a command to a group
-     * @param {String} groupName name of group
+     * @param {String | undefined} groupName name of group
      * @param {BotCommand} command command
      */
     addCommandToGroup(groupName, command) {
