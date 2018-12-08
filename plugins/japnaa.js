@@ -583,7 +583,8 @@ class Japnaa extends BotPlugin {
                     ["play", "Removes the \"playing\" tag"],
                     ["play nothing", "Sets the \"playing\" tag to \"nothing\"."]
                 ]
-            })
+            }),
+            group: "rich presence"
         }));
         this._registerCommand("watch", this.watch, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -595,7 +596,8 @@ class Japnaa extends BotPlugin {
                     ["watch", "Removes the \"watching\" tag"],
                     ["watch nothing", "Sets the \"watching\" tag to \"nothing\"."]
                 ]
-            })
+            }),
+            group: "rich presence"
         }));
         this._registerCommand("listen to", this.listen_to, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -607,7 +609,8 @@ class Japnaa extends BotPlugin {
                     ["listen to", "Removes the \"listen\" tag"],
                     ["listen to nothing", "Sets the \"listening\" tag to \"nothing\"."]
                 ]
-            })
+            }),
+            group: "rich presence"
         }));
         this._registerCommand("stream", this.stream, new BotCommandOptions({
             help: new BotCommandHelp({
@@ -619,7 +622,8 @@ class Japnaa extends BotPlugin {
                     ["stream", "Removes the \"streaming\" tag"],
                     ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
                 ]
-            })
+            }),
+            group: "rich presence"
         }));
 
         this._registerCommand("tell", this.tell, new BotCommandOptions({

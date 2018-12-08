@@ -42,7 +42,13 @@ class BotCommand {
          * Help for the command
          * @type {BotCommandHelp | undefined}
          */
-        this.help = (options && options.help);
+        this.help = options && options.help;
+
+        /**
+         * Group the command belongs to
+         * @type {String | undefined}
+         */
+        this.group = options && options.group;
 
         /**
          * The word that triggers the command
@@ -94,7 +100,10 @@ class BotCommand {
 
         if (
             cleanCommandContent.commandContent.startsWith(this.commandName) && 
-            this.whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)
+            (
+                !cleanCommandContent.nextCharAfterCommand ||
+                this.whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)
+            )
         ) {
             let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
 

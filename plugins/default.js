@@ -207,60 +207,106 @@ class Default extends BotPlugin {
     }
 
     /**
+     * Appends the overloads for help
+     * @param {Object[]} fields feilds in embed
+     * @param {BotCommandHelp} help help
+     * @param {DiscordMessageEvent} event event
+     * @param {String} command command
+     */
+    _appendHelpOverloads(fields, help, event, command) {
+        if (!help.overloads) return;
+
+        for (let overload of help.overloads) {
+            let value = [];
+            let args = Object.keys(overload);
+
+            for (let argument of args) {
+                value.push("**" + argument + "** - " + overload[argument]);
+            }
+
+            fields.push({
+                name: event.precommand + command + " *" + args.join(" ") + "*",
+                value: value.join("\n")
+            });
+        }
+    }
+
+    /**
+     * Appends the overloads for help
+     * @param {Object[]} fields feilds in embed
+     * @param {BotCommandHelp} help help
+     * @param {DiscordMessageEvent} event event
+     */
+    _appendHelpExamples(fields, help, event) {
+        if (!help.examples) return;
+
+        fields.push({
+            name: "**Examples**",
+            value: help.examples.map(e =>
+                "`" + event.precommand + e[0] + "` - " + e[1] + ""
+            ).join("\n")
+        });
+    }
+
+    /**
+     * Creates an help embed object
+     * @param {Object[]} fields feilds in embed
+     * @param {BotCommandHelp} help help
+     * @param {DiscordMessageEvent} event event
+     * @param {String} command help of command
+     * @param {Bot} bot bot
+     */
+    _createHelpEmbedObject(fields, help, event, command, bot) {
+        let title = "**" + event.precommand + command + "**";
+
+        if (help.group) {
+            title += " (" + help.group + ")";
+        }
+
+        return {
+            embed: {
+                color: bot.themeColor,
+                title: title,
+                description: help.description || "The " + command + " command",
+                fields: fields
+            }
+        };
+    }
+
+    /**
+     * Sends a help embed about a command
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} command command to get help about
+     * @param {BotCommandHelp} help help
+     */
+    _sendHelpAboutCommand(bot, event, command, help) {
+        let fields = [];
+
+        this._appendHelpOverloads(fields, help, event, command);
+        this._appendHelpExamples(fields, help, event);
+        let embed = this._createHelpEmbedObject(fields, help, event, command, bot);
+
+        if (event.isDM) {
+            bot.send(event.channelId, embed);
+        } else {
+            // is server
+            bot.send(event.channelId, "I've sent you some help!");
+            bot.sendDM(event.userId, embed);
+        }
+    }
+
+    /**
      * Sends help about a single command
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} command name of command to send help of
      */
-    _sendHelpAbout(bot, event, command) {
+    _sendSpecificHelp(bot, event, command) {
         let help = bot.getHelp(command);
 
         if (help) {
-            let fields = [];
-
-            // overloads and arguments
-            if (help.overloads) {
-                for (let overload of help.overloads) {
-                    let value = [];
-                    let args = Object.keys(overload);
-    
-                    for (let argument of args) {
-                        value.push("**" + argument + "** - " + overload[argument]);
-                    }
-    
-                    fields.push({
-                        name: event.precommand + command + " *" + args.join(" ") + "*",
-                        value: value.join("\n")
-                    });
-                }
-            }
-
-            // examples
-            if (help.examples) {
-                fields.push({
-                    name: "**Examples**",
-                    value: help.examples.map(e => 
-                        "`" + event.precommand + e[0] + "` - " + e[1] + ""
-                    ).join("\n")
-                });
-            }
-
-            let embed = {
-                embed: {
-                    color: bot.themeColor,
-                    title: "**" + event.precommand + command + "**",
-                    description: help.description ? help.description : "The " + command + " command",
-                    fields: fields
-                }
-            };
-
-            if (event.isDM) {
-                bot.send(event.channelId, embed);
-            } else {
-                // is server
-                bot.send(event.channelId, "I've sent you some help!");
-                bot.sendDM(event.userId, embed);
-            }
+            this._sendHelpAboutCommand(bot, event, command, help);
         } else if (help === undefined) {
             bot.send(event.channelId, "Command `" + command + "` doesn't exist");            
         } else {
@@ -278,7 +324,7 @@ class Default extends BotPlugin {
         let cleanArgs = args.toLowerCase().trim();
         
         if (cleanArgs) {
-            this._sendHelpAbout(bot, event, cleanArgs);
+            this._sendSpecificHelp(bot, event, cleanArgs);
         } else {
             this._sendGeneralHelp(bot, event);
         }

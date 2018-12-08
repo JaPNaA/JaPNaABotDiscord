@@ -1,3 +1,7 @@
+/**
+ * @typedef {import("./botcommand.js")} BotCommand
+ */
+
 class BotCommandHelp {
     /**
      * Bot Command Help constructor
@@ -24,6 +28,34 @@ class BotCommandHelp {
          * @type {String[][]}
          */
         this.examples = data.examples;
+
+        /**
+         * The group that the command is in
+         * @type {String | undefined}
+         */
+        this.group = undefined;
+
+        /**
+         * Can the command be ran in Direct Messages?
+         * @type {Boolean}
+         */
+        this.noDM = false;
+
+        /**
+         * The required permission to run this command
+         * @type {String | undefined}
+         */
+        this.requiredPermission = undefined;
+    }
+
+    /**
+     * Gathers some information about command
+     * @param {BotCommand} command
+     */
+    gatherInfoAboutCommand(command) {
+        this.group = command.group;
+        this.noDM = command.noDM;
+        this.requiredPermission = command.requiredPermission;
     }
 }
 

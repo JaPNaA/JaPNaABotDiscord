@@ -122,6 +122,11 @@ class Bot {
         this.registeredCommands = [];
 
         /**
+         * @type {Map<string, BotCommand[]>} groups of commands
+         */
+        this.commandGroups = new Map();
+
+        /**
          * @type {Plugin[]} list of plugins registered
          * @private
          */
@@ -319,7 +324,25 @@ class Bot {
         let command = new BotCommand(this, triggerWord, func, options);
 
         this.registeredCommands.push(command);
+        this.addCommandToGroup(command.group, command);
         this.registerHelp(command.commandName, command.help || null);
+
+        if (command.help) // if help is available
+            command.help.gatherInfoAboutCommand(command);
+    }
+
+    /**
+     * Adds a command to a group
+     * @param {String} groupName name of group
+     * @param {BotCommand} command command
+     */
+    addCommandToGroup(groupName, command) {
+        if (this.commandGroups.has(groupName)) {
+            this.commandGroups.get(groupName)
+                .push(command);
+        } else {
+            this.commandGroups.set(groupName, [command]);
+        }
     }
 
     /**
