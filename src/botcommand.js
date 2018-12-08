@@ -115,7 +115,7 @@ class BotCommand {
         ) {
             let permissions = this.bot.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
 
-            if (this.noDM && !this.bot.getChannel(commandEvent.channelId)) {
+            if (this.noDM && commandEvent.isDM) {
                 return {
                     canRun: false,
                     reasonCannotRun: "You cannot run this command in Direct Messages"
