@@ -25,7 +25,7 @@ class Default extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      */
     ping(bot, event) {
-        bot.send(event.channelId, "Pong! Took " + bot.client.ping + "ms"); //* should be using abstraction
+        bot.send(event.channelId, "Pong! Took " + Math.round(bot.client.ping) + "ms"); //* should be using abstraction
     }
 
     /**
