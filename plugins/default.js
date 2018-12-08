@@ -290,6 +290,26 @@ class Default extends BotPlugin {
     }
 
     /**
+     * Appends the permissions for a command in help
+     * @param {Object[]} fields fields in embed, to append to
+     * @param {BotCommandHelp} help help data
+     */
+    _appendHelpPermissions(fields, help) {
+        let requiredPermissionMarkdownStr = 
+            help.requiredPermission ? "**" + help.requiredPermission + "**" : "none";
+        let runInDMMarkdownStr = help.noDM ? "**no**" : "allowed";
+
+        let value = 
+            "Required permission: " + requiredPermissionMarkdownStr +
+            "\nRun in DMs: " + runInDMMarkdownStr;
+
+        fields.push({
+            name: "**Permissions**",
+            value: value
+        });
+    }
+
+    /**
      * Sends a help embed about a command
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
@@ -301,6 +321,7 @@ class Default extends BotPlugin {
 
         this._appendHelpOverloads(fields, help, event, command);
         this._appendHelpExamples(fields, help, event);
+        this._appendHelpPermissions(fields, help);
         let embed = this._createHelpEmbedObject(fields, help, event, command, bot);
 
         if (event.isDM) {
