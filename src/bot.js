@@ -337,11 +337,13 @@ class Bot {
      * @param {BotCommand} command command
      */
     addCommandToGroup(groupName, command) {
-        if (this.commandGroups.has(groupName)) {
-            this.commandGroups.get(groupName)
+        let groupNameStr = groupName || "Other";
+
+        if (this.commandGroups.has(groupNameStr)) {
+            this.commandGroups.get(groupNameStr)
                 .push(command);
         } else {
-            this.commandGroups.set(groupName, [command]);
+            this.commandGroups.set(groupNameStr, [command]);
         }
     }
 
