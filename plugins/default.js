@@ -269,16 +269,21 @@ class Default extends BotPlugin {
      */
     _createHelpEmbedObject(fields, help, event, command, bot) {
         let title = "**" + event.precommand + command + "**";
+        let description = help.description || "The " + command + " command";
 
         if (help.group) {
             title += " (" + help.group + ")";
+        }
+
+        if (help.fromPlugin) {
+            description = "_From plugin '" + help.fromPlugin + "'_\n" + description;
         }
 
         return {
             embed: {
                 color: bot.themeColor,
                 title: title,
-                description: help.description || "The " + command + " command",
+                description: description,
                 fields: fields
             }
         };

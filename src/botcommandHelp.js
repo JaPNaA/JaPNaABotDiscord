@@ -46,6 +46,11 @@ class BotCommandHelp {
          * @type {String | undefined}
          */
         this.requiredPermission = undefined;
+
+        /**
+         * The plugin where command came from
+         */
+        this.fromPlugin = undefined;
     }
 
     /**
@@ -56,6 +61,7 @@ class BotCommandHelp {
         this.group = command.group;
         this.noDM = command.noDM;
         this.requiredPermission = command.requiredPermission;
+        this.fromPlugin = command.pluginName;
     }
 }
 
