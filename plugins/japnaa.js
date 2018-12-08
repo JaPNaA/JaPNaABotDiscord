@@ -410,13 +410,43 @@ class Japnaa extends BotPlugin {
     }
 
     /**
-     * Changes rich presence
+     * Changes rich presence to play a game
      * @param {Bot} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args string to set as play
      */
     play(bot, event, args) {
         bot.presenceSetGame(args);
+    }
+
+    /**
+     * Changes rich presence to play a game
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args string to set as play
+     */
+    watch(bot, event, args) {
+        bot.presenceSetWatch(args);
+    }
+
+    /**
+     * Changes rich presence to play a game
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args string to set as play
+     */
+    listen_to(bot, event, args) {
+        bot.presenceSetListen(args);
+    }
+
+    /**
+     * Changes rich presence to play a game
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args string to set as play
+     */
+    stream(bot, event, args) {
+        bot.presenceSetStream(args);
     }
 
     /**
@@ -529,6 +559,7 @@ class Japnaa extends BotPlugin {
                 ]
             })
         }));
+
         this._registerCommand("throw", this.throw, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Throws an error.",
@@ -541,6 +572,7 @@ class Japnaa extends BotPlugin {
                 ]
             })
         }));
+
         this._registerCommand("play", this.play, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sets the \"playing\" value",
@@ -553,6 +585,43 @@ class Japnaa extends BotPlugin {
                 ]
             })
         }));
+        this._registerCommand("watch", this.watch, new BotCommandOptions({
+            help: new BotCommandHelp({
+                description: "Sets the \"watching\" value",
+                overloads: [{
+                    "value": "The \"game\" to \"watch\""
+                }],
+                examples: [
+                    ["watch", "Removes the \"watching\" tag"],
+                    ["watch nothing", "Sets the \"watching\" tag to \"nothing\"."]
+                ]
+            })
+        }));
+        this._registerCommand("listen to", this.listen_to, new BotCommandOptions({
+            help: new BotCommandHelp({
+                description: "Sets the \"listening\" value",
+                overloads: [{
+                    "value": "The \"thing\" to \"listen\" to"
+                }],
+                examples: [
+                    ["listen to", "Removes the \"listen\" tag"],
+                    ["listen to nothing", "Sets the \"listening\" tag to \"nothing\"."]
+                ]
+            })
+        }));
+        this._registerCommand("stream", this.stream, new BotCommandOptions({
+            help: new BotCommandHelp({
+                description: "Sets the \"stream\" value",
+                overloads: [{
+                    "value": "The \"thing\" to \"stream\""
+                }],
+                examples: [
+                    ["stream", "Removes the \"streaming\" tag"],
+                    ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
+                ]
+            })
+        }));
+
         this._registerCommand("tell", this.tell, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "The bot sends a direct message to the user, telling the user that you told them something.",
