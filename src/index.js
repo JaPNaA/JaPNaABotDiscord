@@ -50,27 +50,27 @@ function main() {
 
     /**
      * Concats objects, and arrays, if it comes across any
-     * @param {Object.<string, any>} x base
-     * @param {Object.<string, any>} y override
+     * @param {Object.<string, any>} base base
+     * @param {Object.<string, any>} override override
      * @returns {Object.<string, any>} concated object
      */
-    function _concatObject(x, y) {
-        let c = {};
+    function _concatObject(base, override) {
+        let c = {... base};
 
-        let ykeys = Object.keys(y);
+        let overrideKey = Object.keys(override);
 
-        for (let ykey of ykeys) {
-            let xval = x[ykey];
-            let yval = y[ykey];
+        for (let key of overrideKey) {
+            let baseVal = base[key];
+            let overrideVal = override[key];
             let cval = null;
 
-            if (Array.isArray(xval)) {
-                cval = xval.concat(yval);
+            if (Array.isArray(baseVal)) {
+                cval = baseVal.concat(overrideVal);
             } else {
-                cval = yval || xval;
+                cval = overrideVal || baseVal;
             }
 
-            c[ykey] = cval;
+            c[key] = cval;
         }
         
         return c;
@@ -85,7 +85,7 @@ function main() {
         let fileConfig = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(configPath).toString()));
         config = {
             ...defaultConfig,
-            ..._concatObject(fileConfig, runtimeConfig),
+            ..._concatObject(fileConfig, runtimeConfig)
         };
     }
     

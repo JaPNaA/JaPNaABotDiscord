@@ -3,6 +3,7 @@
  * @typedef {import("discord.js").Channel} Channel
  * @typedef {import("discord.js").TextChannel} TextChannel
  * @typedef {import("discord.js").Message} Message
+ * @typedef {import("discord.js").User} User
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  * @typedef {import("./plugin.js")} Plugin
  * @typedef {import("./botcommandHelp.js")} BotCommandHelp
@@ -244,6 +245,14 @@ class Bot {
     }
 
     /**
+     * Check if an author is itself
+     * @param {User} author author
+     */
+    isSelf(author) {
+        return author.id === this.id;
+    }
+
+    /**
      * Starts the bot
      */
     start() {
@@ -360,18 +369,11 @@ class Bot {
     }
 
     /**
-     * Sends direct message
-     * @param {String} userId id of user
-     * @param {String | Object} message message to send
-     * @param {Function} [failCallback] callback if failed
-     * @returns {Promise} resolves when message sends, rejcts if fail
+     * Converts a message (string | object) into an object
+     * @param {String | Object} message Message
      */
-    sendDM(userId, message, failCallback) {
-        Logger.log_message("D>", message);
-
-        let user = this.getUser(userId);
-        let messageObject = null;
-        let promise;
+    _createMessageObject(message) {
+        let messageObject;
 
         if (typeof message === "string") {
             messageObject = {
@@ -385,14 +387,28 @@ class Bot {
             throw new TypeError("Message is not of valid type");
         }
 
+        return messageObject;
+    }
 
-        if (user) {
+    /**
+     * Sends direct message
+     * @param {String} userId id of user
+     * @param {String | Object} message message to send
+     * @param {Function} [failCallback] callback if failed
+     * @returns {Promise} resolves when message sends, rejcts if fail
+     */
+    sendDM(userId, message, failCallback) {
+        Logger.log_message("D>", message);
+
+        let user = this.getUser(userId);
+        let messageObject = this._createMessageObject(message);
+        let promise;
+
+        if (user)
             promise = user.send(message.message, messageObject);
-        }
 
-        if (failCallback) {
+        if (failCallback)
             promise.catch(() => failCallback());
-        }
 
         this.dispatchEvent("senddm", this);
 
@@ -444,27 +460,27 @@ class Bot {
     }
 
     /**
+     * 
+     * @param {NodeJS.ErrnoException} error error, if any
+     */
+    _doneWriteMemory(error) {
+        this.doneAsyncRequest();
+        if (error) {
+            Logger.error("Failed to write to memory", error);
+            return;
+        }
+        Logger.log("Written to memory");
+    }
+
+    /**
      * Writes memory to disk
      * @param {Boolean} [isAuto=false] is the save automatic?
      */
     writeMemory(isAuto) {
         if (isAuto && !this.memoryChanged) return;
         this.newAsyncRequest();
-
         this.dispatchEvent("beforememorywrite", null);
-
-        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), 
-            /** @this {Bot} */
-            function (e) {
-                this.doneAsyncRequest();
-
-                if (e) {
-                    Logger.error("Failed to write to memory", e);
-                    return;
-                }
-                Logger.log("Written to memory");
-            }.bind(this));
-
+        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
         this.memoryChanged = false;
     }
 
@@ -473,9 +489,7 @@ class Bot {
      */
     onready() {
         this.id = this.client.user.id;
-
         this.dispatchEvent("start", null);
-
         Logger.log("Started");
     }
 
@@ -484,7 +498,7 @@ class Bot {
      * @param {Message} message of sender
      */
     onmessage(message) {
-        let precommandUsed = UTILS.startsWithAny(message.content, this.precommand);
+        let precommandUsedInMessage = UTILS.startsWithAny(message.content, this.precommand);
 
         /** @type {TextChannel} */
         // @ts-ignore
@@ -497,10 +511,10 @@ class Bot {
                 message.author && message.author.id, 
                 message.channel && message.channel.id, 
                 message.guild && message.guild.id, 
-                message.content, precommandUsed, message, isDM
+                message.content, precommandUsedInMessage, message, isDM
             );
 
-        if (message.author.id === this.id) {
+        if (this.isSelf(message.author)) {
             this.dispatchEvent("sent", messageEvent);
             return;
         }
@@ -509,8 +523,8 @@ class Bot {
 
         this.dispatchEvent("message", messageEvent);
 
-        if (precommandUsed) {
-            this.oncommand(messageEvent, precommandUsed, message.content.slice(precommandUsed.length));
+        if (precommandUsedInMessage) {
+            this.oncommand(messageEvent, precommandUsedInMessage, message.content.slice(precommandUsedInMessage.length));
         }
     }
 
