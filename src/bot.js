@@ -81,7 +81,13 @@ class Bot {
          * Tell the user that th bot doesn't know command?
          * @type {Boolean}
          */
-        this.doAlertCommandDoesNotExist = this.config["bot.alertCommandDoesNotExist"];
+        this.doAlertCommandDoesNotExist = this.config["bot.alertCommandDoesNotExist"] || false;
+
+        /**
+         * Overrides for bot commands
+         * @type {Object.<string, Object.<string, string>>}
+         */
+        this.commandRequiredPermissionOverrides = this.config["bot.commandRequiredPermissionOverrides"] || {};
 
         /** 
          * Path to memory
@@ -263,7 +269,7 @@ class Bot {
     start() {
         Logger.log("Bot starting...");
 
-        this.registerCommand("restart", this.restart, new BotCommandOptions({
+        this.registerCommand("restart", "bot", this.restart, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR"
         }));
 
@@ -317,18 +323,36 @@ class Bot {
     /**
      * Register a command
      * @param {String} triggerWord word that triggers command
+     * @param {String} pluginName name of plugin
      * @param {Function} func function to call
      * @param {BotCommandOptions} [options] permissions required to call function
      */
-    registerCommand(triggerWord, func, options) {
-        let command = new BotCommand(this, triggerWord, func, options);
+    registerCommand(triggerWord, pluginName, func, options) {
+        let command = new BotCommand(this, triggerWord, pluginName, func, options);
 
         this.registeredCommands.push(command);
+        this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
         this.registerHelp(command.commandName, command.help || null);
 
         if (command.help) // if help is available
             command.help.gatherInfoAboutCommand(command);
+    }
+
+    /**
+     * Apply config from bot.config to adjust command
+     * @param {BotCommand} command command to apply config to
+     */
+    applyConfigToCommand(command) {
+        let pluginOverrides = this.commandRequiredPermissionOverrides[
+            this.createLocationKey_plugin(command.pluginName)
+        ];
+        let overridingRequiredPermission = 
+            pluginOverrides && pluginOverrides[command.commandName];
+
+        if (overridingRequiredPermission) {
+            command.requiredPermission = overridingRequiredPermission;
+        }
     }
 
     /**
@@ -481,7 +505,7 @@ class Bot {
      * @param {String} namespace namespace of config
      */
     getConfig_plugin(namespace) {
-        return this.config["plugin" + this.memoryDelimiter + namespace];
+        return this.config[this.createLocationKey_plugin(namespace)];
     }
 
     /**
@@ -693,6 +717,22 @@ class Bot {
      */
     createLocationKey_role_channel(serverId, roleId, channelId) {
         return serverId + this.memoryDelimiter + roleId + this.memoryDelimiter + channelId;
+    }
+
+    /**
+     * Creates the location key
+     * @param {String} pluginName name of plugin
+     */
+    createLocationKey_plugin(pluginName) {
+        return "plugin" + this.memoryDelimiter + pluginName;
+    }
+
+    /**
+     * Creates the location key
+     * @param {String} groupName name of group of plugins
+     */
+    createLocationKey_pluginGroup(groupName) {
+        return groupName;
     }
 
     /**

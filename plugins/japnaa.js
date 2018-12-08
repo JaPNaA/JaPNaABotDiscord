@@ -16,13 +16,13 @@ class Japnaa extends BotPlugin {
     constructor(bot) {
         super(bot);
 
-        this.namespace = "japnaa";
+        this._pluginName = "japnaa";
         this.memorySpamLimit = "spamLimit";
 
         /**
          * Counter for this.count()
          */
-        this.counter = bot.recall(this.namespace, "counter") || 0;
+        this.counter = bot.recall(this._pluginName, "counter") || 0;
         
         
         /**
@@ -52,7 +52,7 @@ class Japnaa extends BotPlugin {
     count(bot, event) {
         this.counter++;
 
-        this.bot.remember(this.namespace, "counter", this.counter);
+        this.bot.remember(this._pluginName, "counter", this.counter);
 
         bot.send(event.channelId, this.counter.toString() + "!");
     }
@@ -227,17 +227,17 @@ class Japnaa extends BotPlugin {
      * @returns {Number} spam limit
      */
     _getSpamLimit(bot, event) {
-        let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.defaultLimit"];
+        let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultLimit"];
         
-        let serverLimit = bot.recall(this.namespace, 
+        let serverLimit = bot.recall(this._pluginName, 
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(event.serverId)
         );
 
-        let channelLimit = bot.recall(this.namespace,
+        let channelLimit = bot.recall(this._pluginName,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_channel(event.serverId, event.channelId)
         );
 
-        let userLimit = bot.recall(this.namespace,
+        let userLimit = bot.recall(this._pluginName,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_user_server(event.serverId, event.userId)
         );
 
@@ -250,11 +250,11 @@ class Japnaa extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      */
     _getSpamQueLimit(bot, event) {
-        let defaultLimit = bot.getConfig_plugin(this.namespace)["spam.defaultQueLimit"];
+        let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultQueLimit"];
         
         let server = bot.getServer(event.serverId);
 
-        let serverLimit = bot.recall(this.namespace,
+        let serverLimit = bot.recall(this._pluginName,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(server.id)
         );
 

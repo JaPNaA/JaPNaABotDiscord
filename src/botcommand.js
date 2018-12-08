@@ -16,7 +16,7 @@ class BotCommand {
      * @param {Function} func function to call
      * @param {BotCommandOptions} [options] command triggering options
      */
-    constructor(bot, commandName, func, options) {
+    constructor(bot, commandName, pluginName, func, options) {
         /** @type {Bot} */
         this.bot = bot;
 
@@ -52,11 +52,19 @@ class BotCommand {
 
         /**
          * The word that triggers the command
+         * @type {String}
          */
         this.commandName = commandName.toLowerCase();
 
         /**
+         * Name of plugin that registered this command
+         * @type {String}
+         */
+        this.pluginName = pluginName;
+
+        /**
          * Regex matches 1 whitespace
+         * @type {RegExp}
          */
         this.whitespaceRegex = /\s/;
     }

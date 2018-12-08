@@ -17,6 +17,7 @@ const { inspect } = require("util");
 class Default extends BotPlugin {
     constructor(bot) {
         super(bot);
+        this._pluginName = "default";
     }
 
     /**

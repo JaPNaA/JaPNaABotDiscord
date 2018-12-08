@@ -11,6 +11,7 @@ const BotPlugin = require("../src/plugin.js");
 class JapnaaWeird extends BotPlugin {
     constructor(bot) {
         super(bot);
+        this._pluginName = "japnaaweird";
 
         this.lolRegexp = /(.*\s)?[l|\\/]+h?\W*(h|w)*[aeiouy0.]+(h|w)*w?\W*[l|\\/]+/i;
     }

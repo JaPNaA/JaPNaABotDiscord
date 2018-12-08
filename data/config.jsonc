@@ -44,5 +44,15 @@
   "plugin.japnaa": {
     "spam.defaultLimit": 25,
     "spam.defaultQueLimit": 5
+  },
+
+  // Change the required permissions for a command or group
+  "bot.commandRequiredPermissionOverrides": {
+    // "plugin.[pluginName]": {
+    //    "[command]": "[PERMISSION_NAME]"
+    // }
+    // "plugin.japnaa": {
+    //   "spam": "SPAMMER"
+    // }
   }
 }

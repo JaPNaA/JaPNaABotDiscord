@@ -11,6 +11,7 @@ class BotPlugin {
     constructor(bot) {
         /** @type {Bot} */
         this.bot = bot;
+        this._pluginName = this.constructor.name.toLowerCase();
     }
 
     /**
@@ -30,7 +31,7 @@ class BotPlugin {
      * @param {BotCommandOptions} [options] permission that is required to run command
      */
     _registerCommand(name, func, options) {
-        this.bot.registerCommand(name, func.bind(this), options);
+        this.bot.registerCommand(name, this._pluginName, func.bind(this), options);
     }
 
     /**
