@@ -2,6 +2,7 @@ const BotPlugin = require("../src/plugin.js");
 const BotCommandOptions = require("../src/botcommandOptions.js");
 const BotCommandHelp = require("../src/botcommandHelp.js");
 const Permissions = require("../src/permissions.js");
+const Logger = require("../src/logger.js");
 const { getSnowflakeNum, stringToArgs } = require("../src/utils.js");
 const { inspect } = require("util");
 
@@ -44,6 +45,16 @@ class Default extends BotPlugin {
         }
 
         bot.send(event.channelId, "```" + str + "```");
+    }
+
+    /**
+     * Logs a message to the console with a logging level of "log"
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args message to log
+     */
+    log_message(bot, event, args) {
+        Logger.log(args);
     }
 
     /**
@@ -407,7 +418,12 @@ class Default extends BotPlugin {
 
         let userId = getSnowflakeNum(tagMatch[0]);
         let user = bot.getUser(userId);
-        let message = args.slice(tagMatch[0].length);
+        let message = args.slice(tagMatch[0].length).trim();
+
+        if (!user) {
+            bot.send(event.channelId, "Could not find user <@" + userId + ">");
+            return;
+        }
 
         bot.onmessage({
             author: user,
@@ -416,6 +432,39 @@ class Default extends BotPlugin {
             guild: bot.getServer(event.serverId),
             content: message
         });
+    }
+
+    /**
+     * Pretends to recieve a message from soneone else
+     * @param {Bot} bot bot
+     * @param {DiscordMessageEvent} event message event
+     * @param {String} args arguments
+     */
+    forward_to(bot, event, args) {
+        let tagMatch = args.slice(0, args.match(/\s/).index);
+
+        let channelId = getSnowflakeNum(tagMatch);
+        let channel = bot.getChannel(channelId);
+        let message = args.slice(tagMatch.length).trim();
+
+        if (!channel) {
+            bot.send(event.channelId, "Could not find channel " + channelId);
+            return;
+        }
+
+        bot.startRecordingMessagesSentToChannel(event.channelId);
+        bot.onmessage({
+            author: bot.getUser(event.userId),
+            // @ts-ignore
+            channel: bot.getChannel(event.channelId),
+            guild: bot.getServer(event.serverId),
+            content: message
+        });
+        
+        let sentMessages = bot.stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
+        for (let message of sentMessages) {
+            bot.send(channelId, message);
+        }
     }
 
     /**
@@ -600,6 +649,19 @@ class Default extends BotPlugin {
             }),
             group: "Testing"
         }));
+
+        this._registerCommand("log message", this.log_message, new BotCommandOptions({
+            help: new BotCommandHelp({
+                description: "Logs the message to the console of the bot's owner's computer with a \"log\" logging level.",
+                overloads: [{
+                    "message": "Message to log"
+                }],
+                examples: [
+                    ["log something", "\"something\" will be logged"]
+                ]
+            }),
+            group: "Testing"
+        }));
         
         this._registerCommand("pretend get", this.pretend_get, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
@@ -614,6 +676,21 @@ class Default extends BotPlugin {
                 ]
             }),
             group: "Testing"
+        }));
+
+        this._registerCommand("forward to", this.forward_to, new BotCommandOptions({
+            requiredPermission: "BOT_ADMINISTRATOR",
+            help: new BotCommandHelp({
+                description: "The bot will forward any message from a command to a different channel.",
+                overloads: [{
+                    "channelId": "ID of channel to forward to",
+                    "message": "The bot will pretend to recieve this message, and if it responds, it will forward the message to the channel."
+                }],
+                examples: [
+                    ["forward to 513789011081297921 !echo a", "Will run the command and send the results to the channel with the ID 513789011081297921"]
+                ]
+            }),
+            group: "Communication"
         }));
 
         this._registerCommand("edit permission", this.edit_permission, new BotCommandOptions({

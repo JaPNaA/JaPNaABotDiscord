@@ -202,6 +202,12 @@ class Bot {
          */
         this.helpData = {};
 
+        /**
+         * The recorded sent messages
+         * @type {Object.<string, object[]>}
+         */
+        this.recordedSentMessages = {};
+
         this.client.on("error", function(error) {
             Logger.error(error);
         });
@@ -414,7 +420,42 @@ class Bot {
             throw new TypeError("Message is not of valid type");
         }
 
+        this.recordSentMessage(channelId, message);
+
         return promise;
+    }
+
+    /**
+     * Records a sent message
+     * @param {String} channelId id of channel
+     * @param {Object | String} message the message to be recorded
+     */
+    recordSentMessage(channelId, message) {
+        if (!this.recordedSentMessages[channelId])
+            return;
+        
+        this.recordedSentMessages[channelId].push(message);
+    }
+
+    /**
+     * Starts recording message sent to a channel
+     * @param {String} channelId id of channel
+     */
+    startRecordingMessagesSentToChannel(channelId) {
+        this.recordedSentMessages[channelId] = [];
+    }
+
+    /**
+     * Stops recording messages sent to a channel, 
+     * and flushes (clear and returns) the sent messages
+     * that were recorded
+     * @param {String} channelId id of channel
+     * @returns {object[]} recorded sent messages
+     */
+    stopAndFlushSentMessagesRecordedFromChannel(channelId) {
+        let sentMessages = this.recordedSentMessages[channelId];
+        this.recordedSentMessages[channelId] = null;
+        return sentMessages;
     }
 
     /**

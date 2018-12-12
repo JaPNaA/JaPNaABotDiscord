@@ -13,7 +13,7 @@ class JapnaaWeird extends BotPlugin {
         super(bot);
         this._pluginName = "japnaaweird";
 
-        this.lolRegexp = /(.*\s)?[l|\\/]+h?\W*(h|w)*[aeiouy0.]+(h|w)*w?\W*[l|\\/]+/i;
+        this.lolRegexp = /(\s*[l|\\/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\/]+/i;
     }
 
     /**
