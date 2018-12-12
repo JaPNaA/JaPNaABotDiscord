@@ -62,7 +62,7 @@ You can add it with
 jbot.loadBuiltinPlugin("japnaa_weird");
 ```
 
-This plugin adds some weird features that I suspect not eceryone will want, (thats why its not auto-loaded)
+This plugin adds some weirder features that I suspect not everyone will want, (that's why its not auto-loaded)
   - respond to different variants of "lol"
   - add commands `jap`, `tetris`, and `your`
 
