@@ -44,7 +44,7 @@ class Config {
          * How often to auto-write to disk?
          * @type {Number}
          */
-        this.autoWriteInterval = config["memory.autoWriteInterval"] || 60 * 1000; // every minute
+        this.autoWriteTimeInterval = config["memory.autoWriteInterval"] || 60 * 1000; // every minute
     }
 
     get(key) {

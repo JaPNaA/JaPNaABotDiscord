@@ -13,6 +13,9 @@ const { stringToArgs, random, getSnowflakeNum } = require("../src/utils.js");
  * Commonly used commands made by me
  */
 class Japnaa extends BotPlugin {
+    /**
+     * @param {Bot} bot 
+     */
     constructor(bot) {
         super(bot);
 
@@ -22,7 +25,7 @@ class Japnaa extends BotPlugin {
         /**
          * Counter for this.count()
          */
-        this.counter = bot.recall(this._pluginName, "counter") || 0;
+        this.counter = bot.memory.get(this._pluginName, "counter") || 0;
         
         
         /**
@@ -52,7 +55,7 @@ class Japnaa extends BotPlugin {
     count(bot, event) {
         this.counter++;
 
-        this.bot.remember(this._pluginName, "counter", this.counter);
+        this.bot.memory.write(this._pluginName, "counter", this.counter);
 
         bot.send(event.channelId, this.counter.toString() + "!");
     }
@@ -229,15 +232,15 @@ class Japnaa extends BotPlugin {
     _getSpamLimit(bot, event) {
         let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultLimit"];
         
-        let serverLimit = bot.recall(this._pluginName, 
+        let serverLimit = bot.memory.get(this._pluginName, 
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(event.serverId)
         );
 
-        let channelLimit = bot.recall(this._pluginName,
+        let channelLimit = bot.memory.get(this._pluginName,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_channel(event.serverId, event.channelId)
         );
 
-        let userLimit = bot.recall(this._pluginName,
+        let userLimit = bot.memory.get(this._pluginName,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_user_server(event.serverId, event.userId)
         );
 
@@ -254,7 +257,7 @@ class Japnaa extends BotPlugin {
         
         let server = bot.getServer(event.serverId);
 
-        let serverLimit = bot.recall(this._pluginName,
+        let serverLimit = bot.memory.get(this._pluginName,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(server.id)
         );
 

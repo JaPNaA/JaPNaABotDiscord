@@ -9,7 +9,6 @@
  * @typedef {import("../botcommandHelp.js")} BotCommandHelp
  */
 
-const FS = require("fs");
 const Permissions = require("../permissions.js");
 const Logger = require("../logger.js");
 
@@ -19,6 +18,8 @@ const BotCommandOptions = require("../botcommandOptions.js");
 const Precommand = require("../precommand.js");
 
 const Config = require("./config.js");
+const Memory = require("./memory.js");
+const BotHooks = require("./botHooks.js");
 
 class Bot {
     /**
@@ -51,45 +52,31 @@ class Bot {
          */
         this.restartFunc = restartFunc;
 
+        /**
+         * Hooks that can be sent to objects
+         * @type {BotHooks}
+         */
+        this.hooks = new BotHooks(this);
+
         /** 
          * config.json data
          * @type {Object}
-         * @private
          */
         this.config = new Config(config);
+        this.hooks.attachConfig(this.config);
+
+        /**
+         * Bot memory
+         * @type {Memory}
+         */
+        this.memory = new Memory(this.hooks, memoryPath, memory);
+        this.hooks.attachMemory(memory);
 
         /**
          * Precommands that trigger the bot, with callbacks
          * @type {Precommand[]}
          */
         this.registeredPrecommands = [];
-
-        /** 
-         * Path to memory
-         * @type {String} 
-         * @private
-         */
-        this.memoryPath = memoryPath;
-        /**
-         * Bot memory
-         * @type {Object}
-         * @private
-         */
-        this.memory = memory;
-
-        /**
-         * Timeout that writes memory to disk every once in a while
-         * @type {NodeJS.Timeout}
-         * @private
-         */
-        this.autoWriteSI = null;
-        
-        /**
-         * Has the memory changed since last write?
-         * @type {Boolean}
-         * @private
-         */
-        this.memoryChanged = false;
 
         /**
          * @type {BotCommand[]} list of commands registered
@@ -209,7 +196,6 @@ class Bot {
      * Call all event handlers for event
      * @param {String} name of event
      * @param {*} event Event data sent with dispatch
-     * @private
      */
     dispatchEvent(name, event) {
         for (let handler of this.events[name]) {
@@ -257,8 +243,7 @@ class Bot {
 
         this.registerCommandsAndPrecommands();
         Logger.setLevel(this.config.loggingLevel);
-
-        this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.config.autoWriteInterval);
+        this.memory.startAutoWrite();
 
         if (this.client.readyAt) {
             this.onready();
@@ -285,9 +270,7 @@ class Bot {
 
         this.dispatchEvent("stop", null);
 
-        this.writeMemory();
-
-        clearInterval(this.autoWriteSI);
+        this.memory.writeOut();
 
         this.registeredCommands.length = 0;
         this.registeredPlugins.length = 0;
@@ -499,72 +482,11 @@ class Bot {
     }
 
     /**
-     * Stores something in memory
-     * @param {String} namespace namespace of thing to remember
-     * @param {String} key key
-     * @param {String|Number|Object} value value to remember
-     * @param {Boolean} [important=false] write after remember?
-     */
-    remember(namespace, key, value, important) {
-        if (!this.memory[namespace]) {
-            this.memory[namespace] = {};
-        }
-
-        this.memory[namespace][key] = value;
-        this.memoryChanged = true;
-
-        if (important) {
-            this.writeMemory();
-        }
-    }
-
-    /**
-     * Recalls something from memory
-     * @param {String} namespace namespace of thing
-     * @param {String} key key
-     */
-    recall(namespace, key) {
-        if (!this.memory[namespace]) {
-            return null;
-        }
-        if (this.memory[namespace].hasOwnProperty(key)) {
-            return this.memory[namespace][key];
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Gets the config for a plugin
      * @param {String} namespace namespace of config
      */
     getConfig_plugin(namespace) {
         return this.config.get(this.createLocationKey_plugin(namespace));
-    }
-
-    /**
-     * 
-     * @param {NodeJS.ErrnoException} error error, if any
-     */
-    _doneWriteMemory(error) {
-        this.doneAsyncRequest();
-        if (error) {
-            Logger.error("Failed to write to memory", error);
-            return;
-        }
-        Logger.log("Written to memory");
-    }
-
-    /**
-     * Writes memory to disk
-     * @param {Boolean} [isAuto=false] is the save automatic?
-     */
-    writeMemory(isAuto) {
-        if (isAuto && !this.memoryChanged) return;
-        this.newAsyncRequest();
-        this.dispatchEvent("beforememorywrite", null);
-        FS.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
-        this.memoryChanged = false;
     }
 
     /**
@@ -821,13 +743,13 @@ class Bot {
         let permissions = new Permissions(role.permissions);
         if (channelId) {
             permissions.importCustomPermissions(
-                this.recall(this.permissionsNamespace, 
+                this.memory.get(this.permissionsNamespace, 
                     this.createLocationKey_role_channel(serverId, roleId, channelId)
                 ));
         }
 
         permissions.importCustomPermissions(
-            this.recall(this.permissionsNamespace,
+            this.memory.get(this.permissionsNamespace,
                 this.createLocationKey_role_server(serverId, roleId)
             ));
         
@@ -841,7 +763,7 @@ class Bot {
     getPermissions_global(userId) {
         let permissions = new Permissions();
         permissions.importCustomPermissions(
-            this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
+            this.memory.get(this.permissionsNamespace, this.createLocationKey_user_global(userId))
         );
         return permissions;
     }
@@ -868,7 +790,7 @@ class Bot {
 
         let permissions = new Permissions(permissionsNum);
         permissions.importCustomPermissions(
-            this.recall(this.permissionsNamespace, this.createLocationKey_user_global(userId))
+            this.memory.get(this.permissionsNamespace, this.createLocationKey_user_global(userId))
         );
 
         if (roles) {
@@ -881,13 +803,13 @@ class Bot {
 
         if (serverId) {
             permissions.importCustomPermissions(
-                this.recall(this.permissionsNamespace, this.createLocationKey_user_server(serverId, userId))
+                this.memory.get(this.permissionsNamespace, this.createLocationKey_user_server(serverId, userId))
             );
         }
 
         if (channelId) {
             permissions.importCustomPermissions(
-                this.recall(this.permissionsNamespace,
+                this.memory.get(this.permissionsNamespace,
                     this.createLocationKey_user_channel(serverId, userId, channelId)
                 )
             );
@@ -909,7 +831,7 @@ class Bot {
         let channel = this.getChannel(channelId);
         let serverId = channel.guild.id;
 
-        let customPerms = this.recall(this.permissionsNamespace,
+        let customPerms = this.memory.get(this.permissionsNamespace,
             this.createLocationKey_user_channel(serverId, userId, channelId)
         );
 
@@ -920,11 +842,11 @@ class Bot {
         customPerms = permissions.getCustomPermissions();
         let locationKey = this.createLocationKey_user_channel(serverId, userId, channelId);
         if (customPerms.length) {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, customPerms, true
             );
         } else {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, undefined, true
             );
         }
@@ -938,7 +860,7 @@ class Bot {
      * @param {Boolean} value value of permission to write
      */
     editPermissions_user_server(userId, serverId, permissionName, value) {
-        let customPerms = this.recall(this.permissionsNamespace,
+        let customPerms = this.memory.get(this.permissionsNamespace,
             this.createLocationKey_user_server(serverId, userId)
         );
 
@@ -949,11 +871,11 @@ class Bot {
         customPerms = permissions.getCustomPermissions();
         let locationKey = this.createLocationKey_user_server(serverId, userId);
         if (customPerms.length) {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, customPerms, true
             );
         } else {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, undefined, true
             );
         }
@@ -972,7 +894,7 @@ class Bot {
         let channel = this.getChannel(channelId);
         let serverId = channel.guild.id;
 
-        let customPerms = this.recall(this.permissionsNamespace,
+        let customPerms = this.memory.get(this.permissionsNamespace,
             this.createLocationKey_role_channel(serverId, roleId, channelId)
         );
 
@@ -983,11 +905,11 @@ class Bot {
         customPerms = permissions.getCustomPermissions();
         let locationKey = this.createLocationKey_role_channel(serverId, roleId, channelId);
         if (customPerms.length) {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, customPerms, true
             );
         } else {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, undefined, true
             );
         }
@@ -1001,7 +923,7 @@ class Bot {
      * @param {Boolean} value value of permission to write
      */
     editPermissions_role_server(roleId, serverId, permissionName, value) {
-        let customPerms = this.recall(this.permissionsNamespace,
+        let customPerms = this.memory.get(this.permissionsNamespace,
             this.createLocationKey_role_server(serverId, roleId)
         );
 
@@ -1012,11 +934,11 @@ class Bot {
         customPerms = permissions.getCustomPermissions();
         let locationKey = this.createLocationKey_role_server(serverId, roleId);
         if (customPerms.length) {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, customPerms, true
             );
         } else {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, undefined, true
             );
         }
@@ -1029,7 +951,7 @@ class Bot {
      * @param {Boolean} value of permission to write
      */
     editPermissions_user_global(userId, permissionName, value) {
-        let customPerms = this.recall(this.permissionsNamespace,
+        let customPerms = this.memory.get(this.permissionsNamespace,
             this.createLocationKey_user_global(userId)
         );
 
@@ -1040,11 +962,11 @@ class Bot {
         customPerms = permissions.getCustomPermissions();
         let locationKey = this.createLocationKey_user_global(userId);
         if (customPerms.length) {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, customPerms, true
             );
         } else {
-            this.remember(this.permissionsNamespace,
+            this.memory.write(this.permissionsNamespace,
                 locationKey, undefined, true
             );
         }
