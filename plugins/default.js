@@ -8,7 +8,7 @@ const { inspect } = require("util");
 
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../src/bot.js")} Bot
+ * @typedef {import("../src/bot/bot.js")} Bot
  * @typedef {import("../src/botcommand.js")} BotCommand
  */
 
@@ -145,7 +145,7 @@ class Default extends BotPlugin {
 
             bot.send(event.channelId, {
                 embed: {
-                    color: bot.themeColor,
+                    color: bot.config.themeColor,
                     author: {
                         name: "Information for " + user.username,
                         icon_url: avatarUrl + "?size=128"
@@ -199,7 +199,7 @@ class Default extends BotPlugin {
         /** @type {Object.<string, string>[]} */
         let fields = [];
         let embed = {
-            color: bot.themeColor,
+            color: bot.config.themeColor,
             title: "All Commands",
             fields: fields
         };
@@ -292,7 +292,7 @@ class Default extends BotPlugin {
 
         return {
             embed: {
-                color: bot.themeColor,
+                color: bot.config.themeColor,
                 title: title,
                 description: description,
                 fields: fields
@@ -619,7 +619,7 @@ class Default extends BotPlugin {
     link(bot, event) {
         bot.send(event.channelId, {
             embed: {
-                color: bot.themeColor,
+                color: bot.config.themeColor,
                 description: "You can add me to another server with this link:\n" + bot.config.addLink
             }
         });

@@ -403,9 +403,11 @@ class Bot {
 
         this.dispatchEvent("send", message);
 
-        if (typeof message === "string" || typeof message === "object") {
+        if (typeof message === "string") {
             if (message.trim().length === 0) 
                 message = "_This message is empty_";
+            promise = textChannel.send(message);
+        } else if (typeof message === "object") {
             promise = textChannel.send(message);
         } else {
             throw new TypeError("Message is not of valid type");

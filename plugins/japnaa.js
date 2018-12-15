@@ -6,7 +6,7 @@ const { stringToArgs, random, getSnowflakeNum } = require("../src/utils.js");
 
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../src/bot.js")} Bot
+ * @typedef {import("../src/bot/bot.js")} Bot
  */
 
 /**
@@ -472,7 +472,7 @@ class Japnaa extends BotPlugin {
         bot.sendDM(user, {
             message: "<@" + event.userId + "> told you",
             embed: {
-                color: bot.themeColor,
+                color: bot.config.themeColor,
                 description: message
             }
         }, function() {

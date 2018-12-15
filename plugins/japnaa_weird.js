@@ -2,7 +2,7 @@ const BotPlugin = require("../src/plugin.js");
 
 /**
  * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../src/bot.js")} Bot
+ * @typedef {import("../src/bot/bot.js")} Bot
  */
 
 /**
@@ -35,7 +35,7 @@ class JapnaaWeird extends BotPlugin {
     jap(bot, event, args) {
         bot.send(event.channelId, {
             embed: {
-                color: bot.themeColor,
+                color: bot.config.themeColor,
                 description: "**JaP is " + (args || "kewl") + "**"
             }
         });
