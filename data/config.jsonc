@@ -37,7 +37,7 @@
     "japnaa"
   ],
 
-  // Plugins running in bot ( external )
+  // Plugins running in bot (external)
   "externalPlugins": [],
 
   // JaPNaA plugin config

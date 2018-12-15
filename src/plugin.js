@@ -42,6 +42,15 @@ class BotPlugin {
     _registerEventHandler(name, func) {
         this.bot.addEventListener(name, func.bind(this));
     }
+
+    /**
+     * Adds a handler function to a precommand
+     * @param {String} precommand precommmand to handle
+     * @param {Function} func function to call when precommand is triggered
+     */
+    _registerPrecommandHander(precommand, func) {
+        this.bot.registerPrecommand(precommand, func.bind(this));
+    }
 }
 
 module.exports = BotPlugin;

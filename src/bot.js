@@ -61,13 +61,13 @@ class Bot {
          * @type {String[]}
          * @private
          */
-        this.configPrecommand = this.config["bot.precommand"] || ["!"];
+        this.configPrecommands = this.config["bot.precommand"] || ["!"];
 
         /**
          * Precommands that trigger the bot, with callbacks
          * @type {Precommand[]}
          */
-        this.precommands = this._createPrecommandArray();
+        this.registeredPrecommands = [];
 
         /**
          * The theme color used for general embeds
@@ -222,19 +222,13 @@ class Bot {
     }
 
     /**
-     * create the map for precommand
-     * @returns {Precommand[]}
+     * Registers a precommand with callback
+     * @param {String} precommandStr precommand to register
+     * @param {Function} callback callback on precommand
      */
-    _createPrecommandArray() {
-        /** @type {Precommand[]} */
-        let arr = [];
-        let BotPrecommandCommandHandler = this.onBotPrecommandCommand.bind(this);
-
-        for (let precommandStr of this.configPrecommand) {
-            arr.push(new Precommand(precommandStr, BotPrecommandCommandHandler));
-        }
-
-        return arr;
+    registerPrecommand(precommandStr, callback) {
+        let precommand = new Precommand(precommandStr, callback);
+        this.registeredPrecommands.push(precommand);
     }
 
     /**
@@ -297,14 +291,22 @@ class Bot {
     start() {
         Logger.log("Bot starting...");
 
-        this.registerCommand("restart", "bot", this.restart, new BotCommandOptions({
-            requiredPermission: "BOT_ADMINISTRATOR"
-        }));
+        this.registerCommandsAndPrecommands();
 
         this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
 
         if (this.client.readyAt) {
             this.onready();
+        }
+    }
+
+    registerCommandsAndPrecommands() {
+        this.registerCommand("restart", "bot", this.restart, new BotCommandOptions({
+            requiredPermission: "BOT_ADMINISTRATOR"
+        }));
+
+        for (let precommand of this.configPrecommands) {
+            this.registerPrecommand(precommand, this.onBotPrecommandCommand.bind(this));
         }
     }
 
@@ -651,7 +653,7 @@ class Bot {
      * @returns {Precommand}
      */
     getFirstPrecommand(message) {
-        for (let precommand of this.precommands) {
+        for (let precommand of this.registeredPrecommands) {
             let startsWithPrecommand = message.startsWith(precommand.precommandStr);
 
             if (startsWithPrecommand) {
