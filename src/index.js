@@ -192,7 +192,7 @@ function main() {
 
         client.on("ready", () => bot.onready());
         client.on("message", event =>
-            bot.onmessage(event));
+            bot.onMessage(event));
         
         // not required by discord.js
         // client.on("disconnect", function () {

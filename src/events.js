@@ -1,3 +1,7 @@
+/**
+ * @typedef {import("./precommand")} Precommand
+ */
+
 class DiscordMessageEvent {
     /**
      * DiscordMessageEvent contructor
@@ -5,7 +9,7 @@ class DiscordMessageEvent {
      * @param {String} userId of sender
      * @param {String} channelId in
      * @param {String} message sent
-     * @param {String|null} precommand is message valid command? If so, what is precommand?
+     * @param {Precommand|null} precommand is message valid command? If so, what is precommand?
      * @param {*} event websocket event
      */
     constructor(username, userId, channelId, serverId, message, precommand, event, isDM) {
@@ -40,7 +44,7 @@ class DiscordMessageEvent {
 
         /**
          * Precommand used, if any
-         * @type {String|null}
+         * @type {Precommand|null}
          */
         this.precommand = precommand;
 
@@ -59,7 +63,7 @@ class DiscordCommandEvent extends DiscordMessageEvent {
     /**
      * DiscordCommandEvent constructor
      * @param {DiscordMessageEvent} messageEvent messageEvent to extend
-     * @param {String} pre precommand used
+     * @param {Precommand} pre precomxmand used
      * @param {String} content after precommand
      */
     constructor(messageEvent, pre, content) {
@@ -72,7 +76,7 @@ class DiscordCommandEvent extends DiscordMessageEvent {
 
         /**
          * Precommand used
-         * @type {String}
+         * @type {Precommand}
          */
         this.precommand = pre;
 

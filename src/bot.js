@@ -9,7 +9,6 @@
  * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */
 
-const UTILS = require("./utils.js");
 const FS = require("fs");
 const Permissions = require("./permissions.js");
 const Logger = require("../src/logger.js");
@@ -17,6 +16,7 @@ const Logger = require("../src/logger.js");
 const { DiscordCommandEvent, DiscordMessageEvent } = require("./events.js");
 const BotCommand = require("./botcommand.js");
 const BotCommandOptions = require("./botcommandOptions.js");
+const Precommand = require("./precommand.js");
 
 class Bot {
     /**
@@ -57,11 +57,17 @@ class Bot {
         this.config = config;
 
         /**
-         * Precommands that trigger the bot
+         * *raw* precommands that trigger the bot, from config
          * @type {String[]}
          * @private
          */
-        this.precommand = this.config["bot.precommand"] || ["!"];
+        this.configPrecommand = this.config["bot.precommand"] || ["!"];
+
+        /**
+         * Precommands that trigger the bot, with callbacks
+         * @type {Precommand[]}
+         */
+        this.precommands = this._createPrecommandArray();
 
         /**
          * The theme color used for general embeds
@@ -213,6 +219,22 @@ class Bot {
         });
 
         this.start();
+    }
+
+    /**
+     * create the map for precommand
+     * @returns {Precommand[]}
+     */
+    _createPrecommandArray() {
+        /** @type {Precommand[]} */
+        let arr = [];
+        let BotPrecommandCommandHandler = this.onBotPrecommandCommand.bind(this);
+
+        for (let precommandStr of this.configPrecommand) {
+            arr.push(new Precommand(precommandStr, BotPrecommandCommandHandler));
+        }
+
+        return arr;
     }
 
     /**
@@ -415,6 +437,8 @@ class Bot {
         this.dispatchEvent("send", message);
 
         if (typeof message === "string" || typeof message === "object") {
+            if (message.trim().length === 0) 
+                message = "_This message is empty_";
             promise = textChannel.send(message);
         } else {
             throw new TypeError("Message is not of valid type");
@@ -587,8 +611,8 @@ class Bot {
      * onmessage callback
      * @param {Message} message of sender
      */
-    onmessage(message) {
-        let precommandUsedInMessage = UTILS.startsWithAny(message.content, this.precommand);
+    onMessage(message) {
+        let precommandUsedInMessage = this.getFirstPrecommand(message.content);
 
         /** @type {TextChannel} */
         // @ts-ignore
@@ -614,17 +638,37 @@ class Bot {
         this.dispatchEvent("message", messageEvent);
 
         if (precommandUsedInMessage) {
-            this.oncommand(messageEvent, precommandUsedInMessage, message.content.slice(precommandUsedInMessage.length));
+            this.onBotPrecommandCommand(
+                messageEvent, precommandUsedInMessage, 
+                message.content.slice(precommandUsedInMessage.precommandStr.length)
+            );
         }
+    }
+
+    /**
+     * checks if message starts with a precommand
+     * @param {String} message
+     * @returns {Precommand}
+     */
+    getFirstPrecommand(message) {
+        for (let precommand of this.precommands) {
+            let startsWithPrecommand = message.startsWith(precommand.precommandStr);
+
+            if (startsWithPrecommand) {
+                return precommand;
+            }
+        }
+
+        return null;
     }
 
     /**
      * called on command by onmessage
      * @param {DiscordMessageEvent} messageEvent message information
-     * @param {String} pre what bot.precommand was used
+     * @param {Precommand} pre what bot.precommand was used
      * @param {String} commandStr message, without precommand
      */
-    oncommand(messageEvent, pre, commandStr) {
+    onBotPrecommandCommand(messageEvent, pre, commandStr) {
         const commandEvent = new DiscordCommandEvent(messageEvent, pre, commandStr);
 
         this.dispatchEvent("command", commandEvent);
