@@ -1,6 +1,6 @@
 /**
  * @typedef {import("../src/events.js").DiscordCommandEvent} DiscordCommandEvent
- * @typedef {import("./bot.js")} Bot
+ * @typedef {import("./bot/bot.js")} Bot
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */

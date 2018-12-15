@@ -1,5 +1,5 @@
 /**
- * @typedef {import("./bot.js")} Bot
+ * @typedef {import("./bot/bot.js")} Bot
  * @typedef {import("./botcommandOptions.js")} BotCommandOptions
  */
 

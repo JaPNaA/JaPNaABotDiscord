@@ -4,19 +4,21 @@
  * @typedef {import("discord.js").TextChannel} TextChannel
  * @typedef {import("discord.js").Message} Message
  * @typedef {import("discord.js").User} User
- * @typedef {import("./botcommandOptions.js")} BotCommandOptions
- * @typedef {import("./plugin.js")} Plugin
- * @typedef {import("./botcommandHelp.js")} BotCommandHelp
+ * @typedef {import("../botcommandOptions.js")} BotCommandOptions
+ * @typedef {import("../plugin.js")} Plugin
+ * @typedef {import("../botcommandHelp.js")} BotCommandHelp
  */
 
 const FS = require("fs");
-const Permissions = require("./permissions.js");
-const Logger = require("../src/logger.js");
+const Permissions = require("../permissions.js");
+const Logger = require("../logger.js");
 
-const { DiscordCommandEvent, DiscordMessageEvent } = require("./events.js");
-const BotCommand = require("./botcommand.js");
-const BotCommandOptions = require("./botcommandOptions.js");
-const Precommand = require("./precommand.js");
+const { DiscordCommandEvent, DiscordMessageEvent } = require("../events.js");
+const BotCommand = require("../botcommand.js");
+const BotCommandOptions = require("../botcommandOptions.js");
+const Precommand = require("../precommand.js");
+
+const Config = require("./config.js");
 
 class Bot {
     /**
@@ -54,46 +56,13 @@ class Bot {
          * @type {Object}
          * @private
          */
-        this.config = config;
-
-        /**
-         * *raw* precommands that trigger the bot, from config
-         * @type {String[]}
-         * @private
-         */
-        this.configPrecommands = this.config["bot.precommand"] || ["!"];
+        this.config = new Config(config);
 
         /**
          * Precommands that trigger the bot, with callbacks
          * @type {Precommand[]}
          */
         this.registeredPrecommands = [];
-
-        /**
-         * The theme color used for general embeds
-         * @type {Number}
-         */
-        this.themeColor = parseInt(this.config["bot.themeColor"], 16);
-
-        /**
-         * Bot logging level
-         * @type {Number}
-         * @private
-         */
-        this.loggingLevel = this.config["bot.logging"] || 3;
-        Logger.setLevel(this.loggingLevel);
-
-        /**
-         * Tell the user that th bot doesn't know command?
-         * @type {Boolean}
-         */
-        this.doAlertCommandDoesNotExist = this.config["bot.alertCommandDoesNotExist"] || false;
-
-        /**
-         * Overrides for bot commands
-         * @type {Object.<string, Object.<string, string>>}
-         */
-        this.commandRequiredPermissionOverrides = this.config["bot.commandRequiredPermissionOverrides"] || {};
 
         /** 
          * Path to memory
@@ -114,12 +83,7 @@ class Bot {
          * @private
          */
         this.autoWriteSI = null;
-        /** 
-         * How often to auto-write to disk?
-         * @type {Number}
-         * @private
-         */
-        this.autoWriteInterval = this.config["memory.autoWriteInterval"] || 60 * 1000; // every minute
+        
         /**
          * Has the memory changed since last write?
          * @type {Boolean}
@@ -292,8 +256,9 @@ class Bot {
         Logger.log("Bot starting...");
 
         this.registerCommandsAndPrecommands();
+        Logger.setLevel(this.config.loggingLevel);
 
-        this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.autoWriteInterval);
+        this.autoWriteSI = setInterval(this.writeMemory.bind(this, true), this.config.autoWriteInterval);
 
         if (this.client.readyAt) {
             this.onready();
@@ -305,7 +270,7 @@ class Bot {
             requiredPermission: "BOT_ADMINISTRATOR"
         }));
 
-        for (let precommand of this.configPrecommands) {
+        for (let precommand of this.config.precommands) {
             this.registerPrecommand(precommand, this.onBotPrecommandCommand.bind(this));
         }
     }
@@ -322,7 +287,7 @@ class Bot {
 
         this.writeMemory();
 
-        clearInterval(this.autoWriteInterval);
+        clearInterval(this.autoWriteSI);
 
         this.registeredCommands.length = 0;
         this.registeredPlugins.length = 0;
@@ -374,7 +339,7 @@ class Bot {
      * @param {BotCommand} command command to apply config to
      */
     applyConfigToCommand(command) {
-        let pluginOverrides = this.commandRequiredPermissionOverrides[
+        let pluginOverrides = this.config.commandRequiredPermissionOverrides[
             this.createLocationKey_plugin(command.pluginName)
         ];
         let overridingRequiredPermission = 
@@ -572,7 +537,7 @@ class Bot {
      * @param {String} namespace namespace of config
      */
     getConfig_plugin(namespace) {
-        return this.config[this.createLocationKey_plugin(namespace)];
+        return this.config.get(this.createLocationKey_plugin(namespace));
     }
 
     /**
@@ -688,7 +653,7 @@ class Bot {
 
         if (!someCommandRan) {
             // command doesn't exist
-            if (this.doAlertCommandDoesNotExist) {
+            if (this.config.doAlertCommandDoesNotExist) {
                 this.send(messageEvent.channelId, "<@" + messageEvent.userId + ">, that command doesn't exist");
             }
         }

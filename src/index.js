@@ -4,7 +4,7 @@ function main() {
     const DISCORD = require("discord.js");
     const STRIP_JSON_COMMENTS = require("strip-json-comments");
     const Logger = require("./logger.js");
-    const Bot = require("./bot.js");
+    const Bot = require("./bot/bot.js");
 
     /** @type {DISCORD.Client} */
     let client = null;
@@ -271,7 +271,7 @@ function main() {
         start, stop, 
         getBot, getDefaultConfig,
 
-        Bot: require("./bot.js"),
+        Bot: require("./bot/bot.js"),
         BotCommand: require("./botcommand.js"),
         BotCommandOptions: require("./botcommandOptions.js"),
         BotCommandHelp: require("./botcommandHelp.js"),
