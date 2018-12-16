@@ -85,17 +85,27 @@ class Memory {
 
     /**
      * Writes memory to disk
-     * @param {Boolean} [isAuto=false] is the save automatic?
      */
-    writeOut(isAuto) {
-        if (isAuto && !this.memoryChanged) return;
+    writeOut() {
+        
         this.botHook.newAsyncRequest();
         this.botHook.dispatchEvent("beforememorywrite", null);
+        
         FS.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
+
         this.memoryChanged = false;
     }
+
     /**
-     * When 
+     * Autowrite interval callback
+     */
+    writeOut_auto() {
+        if (!this.memoryChanged) return;
+        this.writeOut();
+    }
+
+    /**
+     * Callback when memory is written
      * @param {NodeJS.ErrnoException} error error, if any
      */
     _doneWriteMemory(error) {
@@ -108,7 +118,7 @@ class Memory {
     }
 
     startAutoWrite() {
-        this.autoWriteIntervalId = setInterval(this.writeOut.bind(this), this.botHook.config.autoWriteTimeInterval);
+        this.autoWriteIntervalId = setInterval(this.writeOut_auto.bind(this), this.botHook.config.autoWriteTimeInterval);
     }
 
     stopAutoWrite() {

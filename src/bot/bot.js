@@ -270,7 +270,7 @@ class Bot {
 
         this.dispatchEvent("stop", null);
 
-        this.memory.writeOut();
+        this.memory.writeOut_auto();
 
         this.registeredCommands.length = 0;
         this.registeredPlugins.length = 0;
