@@ -129,13 +129,13 @@ class Default extends BotPlugin {
                     value: userInServerStr + "\n"
                 });
 
-                const permissions = bot.permission.getPermissions_channel(userId, event.serverId, event.channelId);
+                const permissions = bot.permissions.getPermissions_channel(userId, event.serverId, event.channelId);
                 response.push({
                     name: "Permissions here",
                     value: permissions.toString() + "\n"
                 });
             } else {
-                const permissions = bot.permission.getPermissions_global(userId);
+                const permissions = bot.permissions.getPermissions_global(userId);
                 response.push({
                     name: "Global permissions",
                     value: permissions.customToString() + "\n"
@@ -172,7 +172,7 @@ class Default extends BotPlugin {
 
             if (
                 command.requiredPermission !== undefined &&
-                !bot.permission.getPermissions_channel(event.userId, event.serverId, event.channelId)
+                !bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId)
                     .has(command.requiredPermission)
             ) {
                 canRun = false;
@@ -204,7 +204,7 @@ class Default extends BotPlugin {
             fields: fields
         };
 
-        for (let [groupName, commands] of bot.commandGroups) {
+        for (let [groupName, commands] of bot.commandManager.commandGroups) {
             fields.push({
                 name: groupName || "Other",
                 value: this._commandsToReadable(bot, event, commands)
@@ -351,7 +351,7 @@ class Default extends BotPlugin {
      * @param {String} command name of command to send help of
      */
     _sendSpecificHelp(bot, event, command) {
-        let help = bot.getHelp(command);
+        let help = bot.commandManager.getHelp(command);
 
         if (help) {
             this._sendHelpAboutCommand(bot, event, command, help);
@@ -385,7 +385,7 @@ class Default extends BotPlugin {
      */
     i_am_the_bot_admin(bot, event) {
         if (bot.memory.get(bot.memory.createKey.permissions(), bot.memory.createKey.firstAdmin())) {
-            if (bot.permission.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
+            if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
                 bot.send(event.channelId, "Yes. You are the bot admin.");
             } else {
                 bot.send(event.channelId, "You are not the bot admin.");
@@ -395,7 +395,7 @@ class Default extends BotPlugin {
             bot.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
             bot.memory.write(bot.memory.createKey.permissions(), bot.memory.createKey.firstAdmin(), event.userId, true);
 
-            bot.permission.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
+            bot.permissions.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
         }
     }
 
@@ -500,7 +500,7 @@ class Default extends BotPlugin {
         let permission = args[4].trim().toUpperCase();
 
         /** Permissions for assigner */
-        let assignerPermissions = this.bot.permission.getPermissions_channel(event.userId, event.serverId, event.channelId);
+        let assignerPermissions = this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
 
         // check if can assign permission
         if (
@@ -521,20 +521,20 @@ class Default extends BotPlugin {
                     return;
                 }
                 if (action === "a") { // add
-                    bot.permission.editPermissions_user_channel(id, event.channelId, permission, true);
+                    bot.permissions.editPermissions_user_channel(id, event.channelId, permission, true);
                     bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` in this channel");
                 } else if (action === "r") { // remove
-                    bot.permission.editPermissions_user_channel(id, event.channelId, permission, false);
+                    bot.permissions.editPermissions_user_channel(id, event.channelId, permission, false);
                     bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this channel.");
                 } else {
                     sendHelp();
                 }
             } else if (type === "r") { // Assign to role
                 if (action === "a") { // add
-                    bot.permission.editPermissions_role_channel(id, event.channelId, permission, true);
+                    bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
                     bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this channel.");
                 } else if (action === "r") { // remove
-                    bot.permission.editPermissions_role_channel(id, event.channelId, permission, false);
+                    bot.permissions.editPermissions_role_channel(id, event.channelId, permission, false);
                     bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this channel.");
                 } else {
                     sendHelp();
@@ -549,20 +549,20 @@ class Default extends BotPlugin {
                     return;
                 }
                 if (action === "a") { // add
-                    bot.permission.editPermissions_user_server(id, event.serverId, permission, true);
+                    bot.permissions.editPermissions_user_server(id, event.serverId, permission, true);
                     bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` in this server");
                 } else if (action === "r") { // remove
-                    bot.permission.editPermissions_user_server(id, event.serverId, permission, false);
+                    bot.permissions.editPermissions_user_server(id, event.serverId, permission, false);
                     bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this server.");
                 } else {
                     sendHelp();
                 }
             } else if (type === "r") { // Assign to role
                 if (action === "a") { // add
-                    bot.permission.editPermissions_role_server(id, event.serverId, permission, true);
+                    bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
                     bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this server.");
                 } else if (action === "r") { // remove
-                    bot.permission.editPermissions_role_server(id, event.serverId, permission, false);
+                    bot.permissions.editPermissions_role_server(id, event.serverId, permission, false);
                     bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this server.");
                 } else {
                     sendHelp();
@@ -581,10 +581,10 @@ class Default extends BotPlugin {
                     return;
                 }
                 if (action === "a") { // add
-                    bot.permission.editPermissions_user_global(id, permission, true);
+                    bot.permissions.editPermissions_user_global(id, permission, true);
                     bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` everywhere");
                 } else if (action === "r") { // remove
-                    bot.permission.editPermissions_user_global(id, permission, false);
+                    bot.permissions.editPermissions_user_global(id, permission, false);
                     bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) everywhere.");
                 } else {
                     sendHelp();
