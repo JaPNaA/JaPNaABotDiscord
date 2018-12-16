@@ -247,7 +247,7 @@ class Default extends BotPlugin {
             }
 
             fields.push({
-                name: event.precommand + command + " *" + args.join(" ") + "*",
+                name: event.precommand.precommandStr + command + " *" + args.join(" ") + "*",
                 value: value.join("\n")
             });
         }
@@ -265,7 +265,7 @@ class Default extends BotPlugin {
         fields.push({
             name: "**Examples**",
             value: help.examples.map(e =>
-                "`" + event.precommand + e[0] + "` - " + e[1] + ""
+                "`" + event.precommand.precommandStr + e[0] + "` - " + e[1] + ""
             ).join("\n")
         });
     }
@@ -279,7 +279,7 @@ class Default extends BotPlugin {
      * @param {Bot} bot bot
      */
     _createHelpEmbedObject(fields, help, event, command, bot) {
-        let title = "**" + event.precommand + command + "**";
+        let title = "**" + event.precommand.precommandStr + command + "**";
         let description = help.description || "The " + command + " command";
 
         if (help.group) {
@@ -411,7 +411,7 @@ class Default extends BotPlugin {
         if (!tagMatch) {
             bot.send(event.channelId,
                 "Invalid amount of arguments. See `" +
-                event.precommand + "help pretend get` for help"
+                event.precommand.precommandStr + "help pretend get` for help"
             );
             return;
         }
@@ -479,7 +479,7 @@ class Default extends BotPlugin {
         function sendHelp() {
             bot.send(event.channelId,
                 "Invalid amount of arguments. See `" +
-                event.precommand + "help edit permission` for help"
+                event.precommand.precommandStr + "help edit permission` for help"
             );
         }
 
