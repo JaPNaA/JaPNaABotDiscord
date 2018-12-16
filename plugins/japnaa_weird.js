@@ -9,6 +9,9 @@ const BotPlugin = require("../lib/plugin.js");
  * The weirder side of JaPNaABot
  */
 class JapnaaWeird extends BotPlugin {
+    /**
+     * @param {Bot} bot 
+     */
     constructor(bot) {
         super(bot);
         this._pluginName = "japnaaweird";
@@ -72,7 +75,7 @@ class JapnaaWeird extends BotPlugin {
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
 
-        this.bot.events.addEventListener("start",
+        this.bot.events.on("start",
             /** @this {JapnaaWeird} */
             function () {
                 this.bot.presenceSetWatch("you");
