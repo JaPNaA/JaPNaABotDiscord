@@ -2,7 +2,7 @@ const BotPlugin = require("../lib/plugin.js");
 
 /**
  * @typedef {import("../lib/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../lib/bot/bot.js")} Bot
+ * @typedef {import("../lib/bot/botHooks.js")} BotHooks
  */
 
 /**
@@ -10,7 +10,7 @@ const BotPlugin = require("../lib/plugin.js");
  */
 class JapnaaWeird extends BotPlugin {
     /**
-     * @param {Bot} bot 
+     * @param {BotHooks} bot 
      */
     constructor(bot) {
         super(bot);
@@ -21,7 +21,7 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * Tetris is a racing game.
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args What type of game is Tetris?
      */
@@ -31,7 +31,7 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * JaP is kewl
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args What is JaP?
      */
@@ -46,7 +46,7 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * ebola your parabola
-     * @param {Bot} bot
+     * @param {BotHooks} bot
      * @param {DiscordMessageEvent} event message event
      */
     your(bot, event) {
@@ -55,7 +55,7 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * Listens for messages with 'lol' and deviations
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     onmessageHandler_lol(bot, event) {
@@ -78,7 +78,7 @@ class JapnaaWeird extends BotPlugin {
         this.bot.events.on("start",
             /** @this {JapnaaWeird} */
             function () {
-                this.bot.presenceSetWatch("you");
+                this.bot.client.presence.setWatch("you");
             }.bind(this));
     }
 }

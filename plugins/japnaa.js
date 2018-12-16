@@ -2,11 +2,14 @@ const BotPlugin = require("../lib/plugin.js");
 const BotCommandOptions = require("../lib/botcommandOptions.js");
 const BotCommandHelp = require("../lib/botcommandHelp.js");
 const Logger = require("../lib/logger.js");
+
 const { stringToArgs, random, getSnowflakeNum } = require("../lib/utils.js");
+
+const createKey = require("../lib/bot/locationKeyCreator.js");
 
 /**
  * @typedef {import("../lib/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../lib/bot/bot.js")} Bot
+ * @typedef {import("../lib/bot/botHooks.js")} BotHooks
  */
 
 /**
@@ -14,7 +17,7 @@ const { stringToArgs, random, getSnowflakeNum } = require("../lib/utils.js");
  */
 class Japnaa extends BotPlugin {
     /**
-     * @param {Bot} bot 
+     * @param {BotHooks} bot 
      */
     constructor(bot) {
         super(bot);
@@ -48,7 +51,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * makes the bot count
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     count(bot, event) {
@@ -61,7 +64,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * says whatever you say
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args what to echo back
      */
@@ -94,7 +97,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * Generates random stuff
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} argString arguments [min, max, step] | "String"
      */
@@ -224,23 +227,23 @@ class Japnaa extends BotPlugin {
 
     /**
      * Gets the spam limit for channel and user
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @returns {Number} spam limit
      */
     _getSpamLimit(bot, event) {
-        let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultLimit"];
+        let defaultLimit = bot.config.getPlugin(this._pluginName)["spam.defaultLimit"];
 
         let serverLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.server(event.serverId)
+            this.memorySpamLimit + createKey.delimiter() + createKey.server(event.serverId)
         );
 
         let channelLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.channel(event.serverId, event.channelId)
+            this.memorySpamLimit + createKey.delimiter() + createKey.channel(event.serverId, event.channelId)
         );
 
         let userLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.user_server(event.serverId, event.userId)
+            this.memorySpamLimit + createKey.delimiter() + createKey.user_server(event.serverId, event.userId)
         );
 
         return userLimit || channelLimit || serverLimit || defaultLimit;
@@ -248,16 +251,16 @@ class Japnaa extends BotPlugin {
 
     /**
      * Gets the spam limit que for server and user
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     _getSpamQueLimit(bot, event) {
-        let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultQueLimit"];
+        let defaultLimit = bot.config.getPlugin(this._pluginName)["spam.defaultQueLimit"];
 
         let server = bot.getServer(event.serverId);
 
         let serverLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.server(server.id)
+            this.memorySpamLimit + createKey.delimiter() + createKey.server(server.id)
         );
 
         return serverLimit || defaultLimit;
@@ -265,7 +268,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * Actual spam function
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {String} channelId id of channel
      * @param {String} serverId id of server
      * @param {Number} amount number of messages to spam
@@ -297,7 +300,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * Makes the bot spam stuff
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args "stop" | [amount, [counter], ...message]
      */
@@ -403,7 +406,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * Throws an error
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args Error message
      */
@@ -413,47 +416,47 @@ class Japnaa extends BotPlugin {
 
     /**
      * Changes rich presence to play a game
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args string to set as play
      */
     play(bot, event, args) {
-        bot.presenceSetGame(args);
+        bot.client.presence.setGame(args);
     }
 
     /**
      * Changes rich presence to play a game
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args string to set as play
      */
     watch(bot, event, args) {
-        bot.presenceSetWatch(args);
+        bot.client.presence.setWatch(args);
     }
 
     /**
      * Changes rich presence to play a game
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args string to set as play
      */
     listen_to(bot, event, args) {
-        bot.presenceSetListen(args);
+        bot.client.presence.setListen(args);
     }
 
     /**
      * Changes rich presence to play a game
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args string to set as play
      */
     stream(bot, event, args) {
-        bot.presenceSetStream(args);
+        bot.client.presence.setStream(args);
     }
 
     /**
      * Tell someone something through DMs
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args message to send
      */

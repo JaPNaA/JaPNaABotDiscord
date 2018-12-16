@@ -2,7 +2,7 @@ const BotPlugin = require("../lib/plugin.js");
 
 /**
  * @typedef {import("../lib/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../lib/bot/bot.js")} Bot
+ * @typedef {import("../lib/bot/botHooks.js")} BotHooks
  */
 
 /**

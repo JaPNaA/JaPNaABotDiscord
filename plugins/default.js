@@ -3,12 +3,15 @@ const BotCommandOptions = require("../lib/botcommandOptions.js");
 const BotCommandHelp = require("../lib/botcommandHelp.js");
 const Permissions = require("../lib/permissions.js");
 const Logger = require("../lib/logger.js");
+
 const { getSnowflakeNum, stringToArgs } = require("../lib/utils.js");
 const { inspect } = require("util");
 
+const createKey = require("../lib/bot/locationKeyCreator.js");
+
 /**
  * @typedef {import("../lib/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../lib/bot/bot.js")} Bot
+ * @typedef {import("../lib/bot/botHooks.js")} BotHooks
  * @typedef {import("../lib/botcommand.js")} BotCommand
  */
 
@@ -23,16 +26,16 @@ class Default extends BotPlugin {
 
     /**
      * ping bot
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     ping(bot, event) {
-        bot.send(event.channelId, "Pong! Took " + Math.round(bot.client.ping) + "ms"); //* should be using abstraction
+        bot.send(event.channelId, "Pong! Took " + Math.round(bot.getPing()) + "ms"); //* should be using abstraction
     }
 
     /**
      * 
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args args string
      */
@@ -49,7 +52,7 @@ class Default extends BotPlugin {
 
     /**
      * Logs a message to the console with a logging level of "log"
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args message to log
      */
@@ -59,7 +62,7 @@ class Default extends BotPlugin {
 
     /**
      * get user info
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args userId
      */
@@ -98,7 +101,7 @@ class Default extends BotPlugin {
             });
 
             if (!event.isDM) {
-                let userInServer = bot.getUser_server(userId, event.serverId);
+                let userInServer = bot.getMemberFromServer(userId, event.serverId);
 
                 let rolesString = (
                     userInServer.roles.size >= 1 ?
@@ -161,7 +164,7 @@ class Default extends BotPlugin {
 
     /**
      * Converts all commands to a readable format
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event data
      * @param {BotCommand[]} commands
      */
@@ -192,7 +195,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends general help information
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     _sendGeneralHelp(bot, event) {
@@ -216,8 +219,6 @@ class Default extends BotPlugin {
             value: "*Any commands in bold are ones you can run " + (event.isDM ? "here" : "there") + "*\n" +
                 "*You can type " + event.precommand + "help [commandName] to get more information on a command.*"
         });
-
-        console.log(embed);
 
         if (event.isDM) {
             bot.send(event.channelId, { embed });
@@ -276,7 +277,7 @@ class Default extends BotPlugin {
      * @param {BotCommandHelp} help help
      * @param {DiscordMessageEvent} event event
      * @param {String} command help of command
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      */
     _createHelpEmbedObject(fields, help, event, command, bot) {
         let title = "**" + event.precommand.precommandStr + command + "**";
@@ -322,7 +323,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends a help embed about a command
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} command command to get help about
      * @param {BotCommandHelp} help help
@@ -346,7 +347,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends help about a single command
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} command name of command to send help of
      */
@@ -364,7 +365,7 @@ class Default extends BotPlugin {
 
     /**
      * Pretends to recieve a message from soneone else
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args arguments
      */
@@ -380,11 +381,11 @@ class Default extends BotPlugin {
 
     /**
      * Sets the bot admin
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     i_am_the_bot_admin(bot, event) {
-        if (bot.memory.get(bot.memory.createKey.permissions(), bot.memory.createKey.firstAdmin())) {
+        if (bot.memory.get(createKey.permissions(), createKey.firstAdmin())) {
             if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
                 bot.send(event.channelId, "Yes. You are the bot admin.");
             } else {
@@ -393,7 +394,7 @@ class Default extends BotPlugin {
             return;
         } else {
             bot.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
-            bot.memory.write(bot.memory.createKey.permissions(), bot.memory.createKey.firstAdmin(), event.userId, true);
+            bot.memory.write(createKey.permissions(), createKey.firstAdmin(), event.userId, true);
 
             bot.permissions.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
         }
@@ -401,7 +402,7 @@ class Default extends BotPlugin {
 
     /**
      * Pretends to recieve a message from soneone else
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args arguments
      */
@@ -425,7 +426,7 @@ class Default extends BotPlugin {
             return;
         }
 
-        bot.onMessage({
+        bot.events.dispatch("message", {
             author: user,
             // @ts-ignore
             channel: bot.getChannel(event.channelId),
@@ -436,7 +437,7 @@ class Default extends BotPlugin {
 
     /**
      * Pretends to recieve a message from soneone else
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args arguments
      */
@@ -452,8 +453,8 @@ class Default extends BotPlugin {
             return;
         }
 
-        bot.startRecordingMessagesSentToChannel(event.channelId);
-        bot.onMessage({
+        bot.client.sentMessageRecorder.startRecordingMessagesSentToChannel(event.channelId);
+        bot.events.dispatch("message", {
             author: bot.getUser(event.userId),
             // @ts-ignore
             channel: bot.getChannel(event.channelId),
@@ -461,7 +462,8 @@ class Default extends BotPlugin {
             content: message
         });
 
-        let sentMessages = bot.stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
+        let sentMessages = bot.client.sentMessageRecorder
+            .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {
             bot.send(channelId, message);
         }
@@ -469,7 +471,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends a message to a channel
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} argString arguments ns, type, action, id, permission
      */
@@ -516,7 +518,7 @@ class Default extends BotPlugin {
 
         if (ns === "c") { // Channel namespace
             if (type === "u") { // Assign to user
-                if (!bot.getUser_server(id, event.serverId)) {
+                if (!bot.getMemberFromServer(id, event.serverId)) {
                     bot.send(event.channelId, "User not found");
                     return;
                 }
@@ -544,7 +546,7 @@ class Default extends BotPlugin {
             }
         } else if (ns === "s") { // Server namespace
             if (type === "u") { // Assign to user
-                if (!bot.getUser_server(id, event.serverId)) {
+                if (!bot.getMemberFromServer(id, event.serverId)) {
                     bot.send(event.channelId, "User not found");
                     return;
                 }
@@ -576,7 +578,7 @@ class Default extends BotPlugin {
                 return;
             }
             if (type === "u") { // Assign to user
-                if (!bot.getUser_server(id, event.serverId)) {
+                if (!bot.getMemberFromServer(id, event.serverId)) {
                     bot.send(event.channelId, "User not found");
                     return;
                 }
@@ -601,7 +603,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends a message to a channel
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      * @param {String} args arguments [channelId, ...message]
      */
@@ -613,7 +615,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends link to add bot to server
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     link(bot, event) {
@@ -627,7 +629,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends link to view code of bot (like what you're doing right now!)
-     * @param {Bot} bot bot
+     * @param {BotHooks} bot bot
      * @param {DiscordMessageEvent} event message event
      */
     code(bot, event) {
