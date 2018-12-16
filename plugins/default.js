@@ -384,7 +384,7 @@ class Default extends BotPlugin {
      * @param {DiscordMessageEvent} event message event
      */
     i_am_the_bot_admin(bot, event) {
-        if (bot.memory.get(bot.memory.createKey.strings.permissionsNamespace, bot.memory.createKey.strings.permissionsAdmin)) {
+        if (bot.memory.get(bot.memory.createKey.permissions(), bot.memory.createKey.firstAdmin())) {
             if (bot.permission.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
                 bot.send(event.channelId, "Yes. You are the bot admin.");
             } else {
@@ -393,7 +393,7 @@ class Default extends BotPlugin {
             return;
         } else {
             bot.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
-            bot.memory.write(bot.memory.createKey.strings.permissionsNamespace, bot.memory.createKey.strings.permissionsAdmin, event.userId, true);
+            bot.memory.write(bot.memory.createKey.permissions(), bot.memory.createKey.firstAdmin(), event.userId, true);
 
             bot.permission.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
         }

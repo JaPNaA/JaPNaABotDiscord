@@ -232,15 +232,15 @@ class Japnaa extends BotPlugin {
         let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultLimit"];
 
         let serverLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.strings.memoryDelimiter + bot.memory.createKey.server(event.serverId)
+            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.server(event.serverId)
         );
 
         let channelLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.strings.memoryDelimiter + bot.memory.createKey.channel(event.serverId, event.channelId)
+            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.channel(event.serverId, event.channelId)
         );
 
         let userLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.strings.memoryDelimiter + bot.memory.createKey.user_server(event.serverId, event.userId)
+            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.user_server(event.serverId, event.userId)
         );
 
         return userLimit || channelLimit || serverLimit || defaultLimit;
@@ -257,7 +257,7 @@ class Japnaa extends BotPlugin {
         let server = bot.getServer(event.serverId);
 
         let serverLimit = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + bot.memory.createKey.strings.memoryDelimiter + bot.memory.createKey.server(server.id)
+            this.memorySpamLimit + bot.memory.createKey.delimiter() + bot.memory.createKey.server(server.id)
         );
 
         return serverLimit || defaultLimit;
