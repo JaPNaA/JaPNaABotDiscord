@@ -72,7 +72,7 @@ class JapnaaWeird extends BotPlugin {
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
 
-        this.bot.addEventListener("start",
+        this.bot.events.addEventListener("start",
             /** @this {JapnaaWeird} */
             function () {
                 this.bot.presenceSetWatch("you");
