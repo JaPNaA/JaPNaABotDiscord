@@ -1,12 +1,12 @@
-const BotPlugin = require("../src/plugin.js");
-const BotCommandOptions = require("../src/botcommandOptions.js");
-const BotCommandHelp = require("../src/botcommandHelp.js");
-const Logger = require("../src/logger.js");
-const { stringToArgs, random, getSnowflakeNum } = require("../src/utils.js");
+const BotPlugin = require("../lib/plugin.js");
+const BotCommandOptions = require("../lib/botcommandOptions.js");
+const BotCommandHelp = require("../lib/botcommandHelp.js");
+const Logger = require("../lib/logger.js");
+const { stringToArgs, random, getSnowflakeNum } = require("../lib/utils.js");
 
 /**
- * @typedef {import("../src/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../src/bot/bot.js")} Bot
+ * @typedef {import("../lib/events.js").DiscordMessageEvent} DiscordMessageEvent
+ * @typedef {import("../lib/bot/bot.js")} Bot
  */
 
 /**
