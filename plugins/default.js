@@ -426,7 +426,7 @@ class Default extends BotPlugin {
             return;
         }
 
-        bot.events.dispatch("message", {
+        bot.rawEventAdapter.onMessage({
             author: user,
             // @ts-ignore
             channel: bot.getChannel(event.channelId),
@@ -454,7 +454,8 @@ class Default extends BotPlugin {
         }
 
         bot.client.sentMessageRecorder.startRecordingMessagesSentToChannel(event.channelId);
-        bot.events.dispatch("message", {
+        
+        bot.rawEventAdapter.onMessage({
             author: bot.getUser(event.userId),
             // @ts-ignore
             channel: bot.getChannel(event.channelId),
