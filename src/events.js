@@ -69,8 +69,8 @@ class DiscordCommandEvent extends DiscordMessageEvent {
     constructor(messageEvent, pre, content) {
         // inheirt all properties of DiscordMessageEvent
         super(
-            messageEvent.username, messageEvent.userId, messageEvent.channelId, 
-            messageEvent.serverId, messageEvent.message, messageEvent.precommand, 
+            messageEvent.username, messageEvent.userId, messageEvent.channelId,
+            messageEvent.serverId, messageEvent.message, messageEvent.precommand,
             messageEvent.wsevent, messageEvent.isDM
         );
 

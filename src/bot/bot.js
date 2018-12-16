@@ -165,7 +165,7 @@ class Bot {
          */
         this.recordedSentMessages = {};
 
-        this.client.on("error", function(error) {
+        this.client.on("error", function (error) {
             Logger.error(error);
         });
 
@@ -325,7 +325,7 @@ class Bot {
         let pluginOverrides = this.config.commandRequiredPermissionOverrides[
             this.createLocationKey_plugin(command.pluginName)
         ];
-        let overridingRequiredPermission = 
+        let overridingRequiredPermission =
             pluginOverrides && pluginOverrides[command.commandName];
 
         if (overridingRequiredPermission) {
@@ -381,13 +381,13 @@ class Bot {
         // @ts-ignore
         let textChannel = this.getChannel(channelId);
 
-        if (textChannel.type == "voice") 
+        if (textChannel.type == "voice")
             throw new TypeError("Cannot send to voice channel");
 
         this.dispatchEvent("send", message);
 
         if (typeof message === "string") {
-            if (message.trim().length === 0) 
+            if (message.trim().length === 0)
                 message = "_This message is empty_";
             promise = textChannel.send(message);
         } else if (typeof message === "object") {
@@ -409,7 +409,7 @@ class Bot {
     recordSentMessage(channelId, message) {
         if (!this.recordedSentMessages[channelId])
             return;
-        
+
         this.recordedSentMessages[channelId].push(message);
     }
 
@@ -510,12 +510,12 @@ class Bot {
         let channel = message.channel;
         let isDM = channel.guild ? false : true;
 
-        const messageEvent = 
+        const messageEvent =
             new DiscordMessageEvent(
-                message.author && message.author.username, 
-                message.author && message.author.id, 
-                message.channel && message.channel.id, 
-                message.guild && message.guild.id, 
+                message.author && message.author.username,
+                message.author && message.author.id,
+                message.channel && message.channel.id,
+                message.guild && message.guild.id,
                 message.content, precommandUsedInMessage, message, isDM
             );
 
@@ -530,7 +530,7 @@ class Bot {
 
         if (precommandUsedInMessage) {
             this.onBotPrecommandCommand(
-                messageEvent, precommandUsedInMessage, 
+                messageEvent, precommandUsedInMessage,
                 message.content.slice(precommandUsedInMessage.precommandStr.length)
             );
         }
@@ -598,7 +598,7 @@ class Bot {
     getServerFromChannel(channelId) {
         let channel = this.getChannel(channelId);
         if (!channel) return null;
-        return ;
+        return;
     }
 
     /**
@@ -743,7 +743,7 @@ class Bot {
         let permissions = new Permissions(role.permissions);
         if (channelId) {
             permissions.importCustomPermissions(
-                this.memory.get(this.permissionsNamespace, 
+                this.memory.get(this.permissionsNamespace,
                     this.createLocationKey_role_channel(serverId, roleId, channelId)
                 ));
         }
@@ -752,7 +752,7 @@ class Bot {
             this.memory.get(this.permissionsNamespace,
                 this.createLocationKey_role_server(serverId, roleId)
             ));
-        
+
         return permissions;
     }
 

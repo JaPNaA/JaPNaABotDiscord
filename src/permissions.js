@@ -182,7 +182,7 @@ class Permissions {
         if (typeof keys === "string") { // jic someone still has old method
             keys = JSON.parse(keys);
         }
-        
+
         for (let key of keys) {
             this.customPermissions[key] = true;
         }

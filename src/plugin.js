@@ -17,12 +17,12 @@ class BotPlugin {
     /**
      * Starts the plugin
      */
-    _start() {}
+    _start() { }
 
     /**
      * Stops the plugin
      */
-    _stop() {}
+    _stop() { }
 
     /**
      * Registers an command handler

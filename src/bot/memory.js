@@ -66,7 +66,6 @@ class Memory {
         }
     }
 
-
     /**
      * Recalls something from memory
      * @param {String} namespace namespace of thing
@@ -87,10 +86,10 @@ class Memory {
      * Writes memory to disk
      */
     writeOut() {
-        
+
         this.botHook.newAsyncRequest();
         this.botHook.dispatchEvent("beforememorywrite", null);
-        
+
         FS.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
 
         this.memoryChanged = false;

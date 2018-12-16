@@ -19,25 +19,25 @@ function main() {
     );
     let runtimeConfig = {};
     let memory = null;
-    
+
     // configureables
     // ----------------------------------------------------------------------------------------
     let memoryPath = "../data/memory.json";
-    
+
     /** @type {String} */
     let token = null;
     /** @type {Object} */
     let config = null;
     /** @type {String|null} */
     let configPath = null;
-    
+
     /**
      * Initializes the bot
      */
     function _init() {
         _getConfigFromPath();
         bot = new Bot(config, memory, memoryPath, client, _init);
-        
+
         if (config["autoloadPlugins"]) {
             for (let pluginName of config["builtinPlugins"]) {
                 loadBuiltinPlugin(pluginName);
@@ -55,7 +55,7 @@ function main() {
      * @returns {Object.<string, any>} concated object
      */
     function _concatObject(base, override) {
-        let c = {... base};
+        let c = { ...base };
 
         let overrideKey = Object.keys(override);
 
@@ -72,7 +72,7 @@ function main() {
 
             c[key] = cval;
         }
-        
+
         return c;
     }
 
@@ -88,7 +88,7 @@ function main() {
             ..._concatObject(fileConfig, runtimeConfig)
         };
     }
-    
+
     /**
      * Registers a plugin to auto-load
      * @param {String} path path to plugin
@@ -154,7 +154,7 @@ function main() {
         try {
             let plugin = new (require(npath))(bot);
             bot.registerPlugin(plugin);
-            
+
             Logger.log("Successfully loaded built-in plugin", name);
             return null;
         } catch (e) {
@@ -193,7 +193,7 @@ function main() {
         client.on("ready", () => bot.onready());
         client.on("message", event =>
             bot.onMessage(event));
-        
+
         // not required by discord.js
         // client.on("disconnect", function () {
         //     if (!shuttingDown) {
@@ -266,9 +266,9 @@ function main() {
     }
 
     module.exports = {
-        loadPlugin, loadBuiltinPlugin, 
+        loadPlugin, loadBuiltinPlugin,
         registerAutoloadPlugin, registerAutoloadBuiltinPlugin,
-        start, stop, 
+        start, stop,
         getBot, getDefaultConfig,
 
         Bot: require("./bot/bot.js"),

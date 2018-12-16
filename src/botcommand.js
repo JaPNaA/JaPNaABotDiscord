@@ -107,7 +107,7 @@ class BotCommand {
         let cleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
 
         if (
-            cleanCommandContent.commandContent.startsWith(this.commandName) && 
+            cleanCommandContent.commandContent.startsWith(this.commandName) &&
             (
                 !cleanCommandContent.nextCharAfterCommand ||
                 this.whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)

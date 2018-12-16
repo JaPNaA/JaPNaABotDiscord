@@ -10,13 +10,13 @@ class Logger {
             console.log(...args);
         }
     }
-    
+
     static warn(...args) {
         if (Logger.level >= 2) {
             console.warn(...args);
         }
     }
-    
+
     static error(...args) {
         if (Logger.level >= 1) {
             console.error(...args);

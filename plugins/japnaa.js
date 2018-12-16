@@ -26,8 +26,7 @@ class Japnaa extends BotPlugin {
          * Counter for this.count()
          */
         this.counter = bot.memory.get(this._pluginName, "counter") || 0;
-        
-        
+
         /**
          * Que of spam functions
          * @type {Object.<string, Function[]>}
@@ -104,8 +103,8 @@ class Japnaa extends BotPlugin {
 
         // !random string
         if (args[0] && args[0].toLowerCase() == "string") {
-            bot.send(event.channelId, 
-                "```" + 
+            bot.send(event.channelId,
+                "```" +
                 this._randomString()
                     .replace(/`$/g, "` ") // because discord markup
                 + "```"
@@ -164,7 +163,7 @@ class Japnaa extends BotPlugin {
         this.spamInterval = setInterval(this._sendSpam.bind(this), 1000);
         this.spamIntervalActive = true;
     }
-    
+
     /**
      * Checks if the spam interval should be running or not
      */
@@ -231,8 +230,8 @@ class Japnaa extends BotPlugin {
      */
     _getSpamLimit(bot, event) {
         let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultLimit"];
-        
-        let serverLimit = bot.memory.get(this._pluginName, 
+
+        let serverLimit = bot.memory.get(this._pluginName,
             this.memorySpamLimit + bot.memoryDelimiter + bot.createLocationKey_server(event.serverId)
         );
 
@@ -254,7 +253,7 @@ class Japnaa extends BotPlugin {
      */
     _getSpamQueLimit(bot, event) {
         let defaultLimit = bot.getConfig_plugin(this._pluginName)["spam.defaultQueLimit"];
-        
+
         let server = bot.getServer(event.serverId);
 
         let serverLimit = bot.memory.get(this._pluginName,
@@ -295,7 +294,7 @@ class Japnaa extends BotPlugin {
             this._startSpam();
         }
     }
-    
+
     /**
      * Makes the bot spam stuff
      * @param {Bot} bot bot
@@ -308,7 +307,7 @@ class Japnaa extends BotPlugin {
          * @type {String}
          */
         const cleanArgs = args.trim().toLowerCase();
-        
+
         switch (cleanArgs) {
         case "stop":
             this._stopSpam(event.serverId);
@@ -478,7 +477,7 @@ class Japnaa extends BotPlugin {
                 color: bot.config.themeColor,
                 description: message
             }
-        }, function() {
+        }, function () {
             bot.send(event.channelId, "Failed to tell <@" + user + ">");
         });
     }
@@ -498,7 +497,7 @@ class Japnaa extends BotPlugin {
                 }],
                 examples: [
                     ["echo hi", "The bot will respond with \"hi\", so you're not left hanging."],
-                    ["echo {\"embed\": {\"color\": 589253, \"title\": \"JSON!\", \"description\": \"JavaScript Object Notation\"}}", 
+                    ["echo {\"embed\": {\"color\": 589253, \"title\": \"JSON!\", \"description\": \"JavaScript Object Notation\"}}",
                         "Responds with an embed with a cyan-ish color, the title \"JSON\", and the description \"JavaScript Object Notation\""]
                 ]
             }),

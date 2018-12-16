@@ -84,10 +84,10 @@ class Default extends BotPlugin {
         if (user) {
             let avatarUrl = "https://cdn.discordapp.com/avatars/" + userId + "/" + user.avatar + ".png?size=1024";
 
-            let userStr = 
+            let userStr =
                 "Username: " + user.username +
                 "\nDiscriminator: " + user.discriminator +
-                "\nId: " + user.id + 
+                "\nId: " + user.id +
                 "\nAvatar: [" + user.avatar + "](" + avatarUrl + ")" +
                 "\nBot: " + user.bot +
                 "\nPresence: " + JSON.stringify(user.presence);
@@ -114,11 +114,11 @@ class Default extends BotPlugin {
                     rolesString = rolesString.slice(0, 750) + "...";
                 }
 
-                let userInServerStr = 
-                    "Roles: " + rolesString + 
+                let userInServerStr =
+                    "Roles: " + rolesString +
                     "\nIs mute: " + (userInServer.mute ? "Yes" : "No") +
                     "\nIs deaf: " + (userInServer.deaf ? "Yes" : "No") +
-                    "\nId: " + userInServer.id + 
+                    "\nId: " + userInServer.id +
                     "\nJoined: " + userInServer.joinedAt +
                     "\nStatus: " + userInServer.user.presence.status +
                     "\nNick: " + userInServer.nickname +
@@ -141,7 +141,7 @@ class Default extends BotPlugin {
                     value: permissions.customToString() + "\n"
                 });
             }
-            
+
 
             bot.send(event.channelId, {
                 embed: {
@@ -306,11 +306,11 @@ class Default extends BotPlugin {
      * @param {BotCommandHelp} help help data
      */
     _appendHelpPermissions(fields, help) {
-        let requiredPermissionMarkdownStr = 
+        let requiredPermissionMarkdownStr =
             help.requiredPermission ? "**" + help.requiredPermission + "**" : "none";
         let runInDMMarkdownStr = help.noDM ? "**no**" : "allowed";
 
-        let value = 
+        let value =
             "Required permission: " + requiredPermissionMarkdownStr +
             "\nRun in DMs: " + runInDMMarkdownStr;
 
@@ -356,7 +356,7 @@ class Default extends BotPlugin {
         if (help) {
             this._sendHelpAboutCommand(bot, event, command, help);
         } else if (help === undefined) {
-            bot.send(event.channelId, "Command `" + command + "` doesn't exist");            
+            bot.send(event.channelId, "Command `" + command + "` doesn't exist");
         } else {
             bot.send(event.channelId, "Help for command `" + command + "` doesn't exist");
         }
@@ -370,7 +370,7 @@ class Default extends BotPlugin {
      */
     help(bot, event, args) {
         let cleanArgs = args.toLowerCase().trim();
-        
+
         if (cleanArgs) {
             this._sendSpecificHelp(bot, event, cleanArgs);
         } else {
@@ -460,7 +460,7 @@ class Default extends BotPlugin {
             guild: bot.getServer(event.serverId),
             content: message
         });
-        
+
         let sentMessages = bot.stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {
             bot.send(channelId, message);
@@ -662,7 +662,7 @@ class Default extends BotPlugin {
             }),
             group: "Testing"
         }));
-        
+
         this._registerCommand("pretend get", this.pretend_get, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
             help: new BotCommandHelp({
@@ -765,7 +765,7 @@ class Default extends BotPlugin {
             }),
             group: "Utils"
         }));
-        
+
         this._registerCommand("i am the bot admin", this.i_am_the_bot_admin, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "The first person to run this command will become the bot admin. No one afterwards can become the bot admin.",
@@ -774,7 +774,7 @@ class Default extends BotPlugin {
                 ]
             })
         }));
-        
+
         this._registerCommand("invite", this.link, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sends the invite link in current channel.",

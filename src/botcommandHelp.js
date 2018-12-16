@@ -16,7 +16,7 @@ class BotCommandHelp {
          * @type {String}
          */
         this.description = data.description;
-        
+
         /**
          * Contains all available types of arguments
          * @type {Object<string, string>[]}
