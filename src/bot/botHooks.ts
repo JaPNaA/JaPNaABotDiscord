@@ -1,36 +1,27 @@
 import Memory from "./botMemory";
+import Config from "./botConfig";
+import BotEvent from "./botEvents";
+import BotPermissions from "./botPermissions";
+import CommandManager from "./command/commandManager";
+import BotClient from "./botClient";
+import Bot from "./bot";
+import RawEventAdapter from "../adapters/rawEventAdapter";
+import { Channel, Guild, Role } from "discord.js";
+import BotEvents from "./botEvents.js";
+import EventName from "./eventName";
 
-/**
- * @typedef {import("../bot/botEvents.js").EventName} EventName
-
- * @typedef {import("./bot.js")} Bot
- * @typedef {import("./botMemory.js")} Memory
- * @typedef {import("./botConfig.js")} Config
- * @typedef {import("./botEvents.js")} Events
- * @typedef {import("./botPermissions.js")} Permissions
- * @typedef {import("./command/commandManager")} CommandManager
- * @typedef {import("./botClient.js")} BotClient
-
- * @typedef {import("../adapters/rawEventAdapter.js")} RawEventAdapter
-
- * @typedef {import("discord.js").Client} Client
- * @typedef {import("discord.js").Channel} Channel
- * @typedef {import("discord.js").TextChannel} TextChannel
- * @typedef {import("discord.js").Message} Message
- * @typedef {import("discord.js").User} User
- * @typedef {import("discord.js").Role} Role
- * @typedef {import("discord.js").Guild} Guild
- */
 
 class BotHooks {
-    memory?: Memory;
-    config?: Config;
-    events?: BotEvent;
-    permissions?: BotPermissions;
-    commandManager?: CommandManager;
-    client?: BotClient;
+    // Workaround and hacks below.
+    memory: Memory = null as any as Memory;
+    config: Config = null as any as Config;
+    events: BotEvent = null as any as BotEvent;
+    permissions: BotPermissions = null as any as BotPermissions;
+    commandManager: CommandManager = null as any as CommandManager;
+    client: BotClient = null as any as BotClient;
+    rawEventAdapter: RawEventAdapter = null as any as RawEventAdapter;
+
     bot: Bot;
-    rawEventAdapter?: RawEventAdapter;
 
     /**
      * @param {Bot} bot

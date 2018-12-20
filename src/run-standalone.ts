@@ -5,7 +5,8 @@ const CONFIG_PATH = "./data/config.jsonc";
 const ENV_PATH = "./data/.env";
 
 /** get environment variables */
-const ENV = require("./readenv.js")(ENV_PATH);
+import ENVFunc from "./readenv.js";
+const ENV = ENVFunc(ENV_PATH);
 
 jbot.start(ENV.token, CONFIG_PATH, MEMORY_PATH);
 jbot.registerAutoloadBuiltinPlugin("japnaa_weird");

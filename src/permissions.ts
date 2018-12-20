@@ -2,7 +2,7 @@ import { getBit } from "./utils.js";
 
 class Permissions {
     [x: string]: any;
-    
+
     num: number;
 
     CREATE_INSTANT_INVITE: boolean;
@@ -44,10 +44,10 @@ class Permissions {
 
     /**
      * Permissions Constructor
-     * @param permissionsNumber=0 permission number
+     * @param permissionsNumber permission number
      * @param extendsPermissions extends other permissions
      */
-    constructor(permissionsNumber: number, extendsPermissions: Permissions) {
+    constructor(permissionsNumber?: number, extendsPermissions?: Permissions) {
         this.num = permissionsNumber || 0;
 
         if (extendsPermissions) {
@@ -266,4 +266,4 @@ Permissions.specialCustoms = [
     "BOT_ADMINISTRATOR"
 ];
 
-module.exports = Permissions;
+export default Permissions;

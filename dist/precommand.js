@@ -1,11 +1,5 @@
 "use strict";
-/**
- * @typedef {import("./events.js").DiscordCommandEvent} DiscordCommandEvent
- */
-/**
- * @callback PrecommandCallback
- * @param {DiscordCommandEvent} commandEvent
- */
+Object.defineProperty(exports, "__esModule", { value: true });
 class Precommand {
     /**
      * Precommand constructor
@@ -20,4 +14,4 @@ class Precommand {
         return this.precommandStr;
     }
 }
-module.exports = Precommand;
+exports.default = Precommand;

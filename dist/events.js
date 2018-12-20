@@ -1,16 +1,17 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @typedef {import("./precommand")} Precommand
  */
 class DiscordMessageEvent {
     /**
      * DiscordMessageEvent contructor
-     * @param {String} username of sender
-     * @param {String} userId of sender
-     * @param {String} channelId in
-     * @param {String} message sent
-     * @param {Precommand|null} precommand is message valid command? If so, what is precommand?
-     * @param {*} event websocket event
+     * @param username of sender
+     * @param userId of sender
+     * @param channelId in
+     * @param message sent
+     * @param precommand is message valid command? If so, what is precommand?
+     * @param event websocket event
      */
     constructor(username, userId, channelId, serverId, message, precommand, event, isDM) {
         /**
@@ -28,28 +29,19 @@ class DiscordMessageEvent {
          * @type {String}
          */
         this.channelId = channelId;
-        /**
-         * Id of server message was sent in
-         */
+        /** Id of server message was sent in */
         this.serverId = serverId;
-        /**
-         * Message that was sent
-         * @type {String}
-         */
+        /** Message that was sent */
         this.message = message;
-        /**
-         * Precommand used, if any
-         * @type {Precommand|null}
-         */
+        /** Precommand used, if any */
         this.precommand = precommand;
-        /**
-         * WebSocket event data
-         */
+        /** WebSocket event data */
         this.wsevent = event;
+        /** Is the message from Direct Messages? */
         this.isDM = isDM;
     }
 }
-module.exports.DiscordMessageEvent = DiscordMessageEvent;
+exports.DiscordMessageEvent = DiscordMessageEvent;
 class DiscordCommandEvent extends DiscordMessageEvent {
     /**
      * DiscordCommandEvent constructor
@@ -72,4 +64,4 @@ class DiscordCommandEvent extends DiscordMessageEvent {
         this.commandContent = content;
     }
 }
-module.exports.DiscordCommandEvent = DiscordCommandEvent;
+exports.DiscordCommandEvent = DiscordCommandEvent;

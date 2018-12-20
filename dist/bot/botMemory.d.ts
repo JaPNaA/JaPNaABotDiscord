@@ -1,30 +1,26 @@
-/**
- * @typedef {import("./botHooks.js")} BotHooks
- */
-declare const FS: any;
-declare const Logger: any;
+/// <reference types="node" />
+import BotHooks from "./botHooks.js";
 declare class Memory {
+    memoryPath: string;
+    memory: {
+        [x: string]: any;
+    };
+    autoWriteIntervalId?: NodeJS.Timeout;
+    memoryChanged: boolean;
+    botHook: BotHooks;
     /**
      * Memory constructor
      * @param {BotHooks} botHooks hooks can attach to
      * @param {String} memoryPath path to memory
-     * @param {Object} memory the memory object
+     * @param {{[x: string]: any}} memory the memory object
      */
-    constructor(botHooks: any, memoryPath: any, memory: any);
+    constructor(botHooks: BotHooks, memoryPath: string, memory: object);
     /**
      * Stores something in memory
-     * @param {String} namespace namespace of thing to remember
-     * @param {String} key key
-     * @param {String|Number|Object} value value to remember
-     * @param {Boolean} [important=false] write after remember?
+     * @param important write after remember?
      */
-    write(namespace: any, key: any, value: any, important: any): void;
-    /**
-     * Recalls something from memory
-     * @param {String} namespace namespace of thing
-     * @param {String} key key
-     */
-    get(namespace: any, key: any): any;
+    write(namespace: string, key: string, value: string | number | object | undefined, important?: boolean): void;
+    get(namespace: string, key: string): any;
     /**
      * Writes memory to disk
      */
@@ -35,9 +31,9 @@ declare class Memory {
     writeOut_auto(): void;
     /**
      * Callback when memory is written
-     * @param {NodeJS.ErrnoException} error error, if any
+     * @param error, if any
      */
-    _doneWriteMemory(error: any): void;
+    _doneWriteMemory(error: NodeJS.ErrnoException): void;
     /**
      * Starts automatically writing out
      */
@@ -47,3 +43,4 @@ declare class Memory {
      */
     stopAutoWrite(): void;
 }
+export default Memory;

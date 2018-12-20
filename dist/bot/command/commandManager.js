@@ -1,18 +1,14 @@
 "use strict";
-/**
- * @typedef {import("../botHooks.js")} BotHooks
- * @typedef {import("../../botcommandOptions")} BotCommandOptions
- * @typedef {import("../../botcommandHelp.js")} BotCommandHelp
- * @typedef {import("../../botcommand.js")} BotCommand
- * @typedef {import("../../precommand")} Precommand
- * @typedef {import("../../plugin.js")} Plugin
- */
-const CommandRegistar = require("./commandRegistar.js");
-const CommandDispatcher = require("./commandDispatcher.js");
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const commandDispatcher_js_1 = __importDefault(require("./commandDispatcher.js"));
+const commandRegistar_js_1 = __importDefault(require("./commandRegistar.js"));
 class CommandManager {
     constructor(botHooks) {
-        this.register = new CommandRegistar(botHooks, this);
-        this.dispatch = new CommandDispatcher(botHooks, this);
+        this.register = new commandRegistar_js_1.default(botHooks, this);
+        this.dispatch = new commandDispatcher_js_1.default(botHooks, this);
         /**
          * @type {Precommand[]} Precommands that trigger the bot, with callbacks
          */
@@ -35,10 +31,6 @@ class CommandManager {
          */
         this.helpData = {};
     }
-    /**
-     * Gets help for command
-     * @param {String} command command name
-     */
     getHelp(command) {
         return this.helpData[command];
     }
@@ -57,4 +49,4 @@ class CommandManager {
         return null;
     }
 }
-module.exports = CommandManager;
+exports.default = CommandManager;

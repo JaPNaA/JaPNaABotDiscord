@@ -1,3 +1,5 @@
+import BotCommandHelp from "./botcommandHelp";
+
 /**
  * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */

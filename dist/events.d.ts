@@ -1,24 +1,37 @@
+import Precommand from "./precommand";
+import { WSEventType } from "discord.js";
 /**
  * @typedef {import("./precommand")} Precommand
  */
 declare class DiscordMessageEvent {
+    username: string;
+    userId: string;
+    channelId: string;
+    serverId: string;
+    message: string;
+    precommand: Precommand | null;
+    wsevent: WSEventType;
+    isDM: boolean;
     /**
      * DiscordMessageEvent contructor
-     * @param {String} username of sender
-     * @param {String} userId of sender
-     * @param {String} channelId in
-     * @param {String} message sent
-     * @param {Precommand|null} precommand is message valid command? If so, what is precommand?
-     * @param {*} event websocket event
+     * @param username of sender
+     * @param userId of sender
+     * @param channelId in
+     * @param message sent
+     * @param precommand is message valid command? If so, what is precommand?
+     * @param event websocket event
      */
-    constructor(username: any, userId: any, channelId: any, serverId: any, message: any, precommand: any, event: any, isDM: any);
+    constructor(username: string, userId: string, channelId: string, serverId: string, message: string, precommand: Precommand | null, event: WSEventType, isDM: boolean);
 }
+export { DiscordMessageEvent };
 declare class DiscordCommandEvent extends DiscordMessageEvent {
+    commandContent: string;
     /**
      * DiscordCommandEvent constructor
      * @param {DiscordMessageEvent} messageEvent messageEvent to extend
      * @param {Precommand} pre precomxmand used
      * @param {String} content after precommand
      */
-    constructor(messageEvent: any, pre: any, content: any);
+    constructor(messageEvent: DiscordMessageEvent, pre: Precommand, content: string);
 }
+export { DiscordCommandEvent };

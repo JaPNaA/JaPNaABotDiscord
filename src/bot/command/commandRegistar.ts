@@ -1,16 +1,13 @@
-/**
- * @typedef {import("../botHooks.js")} BotHooks
- * @typedef {import("../../botcommandOptions")} BotCommandOptions
- * @typedef {import("../../botcommandHelp.js")} BotCommandHelp
- * @typedef {import("../../events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../../precommand").PrecommandCallback} PrecommandCallback
- * @typedef {import("./commandManager.js")} CommandManager
- * @typedef {import("../../botcommand.js").BotCommandCallback} BotCommandCallback
- */
-
-const Precommand = require("../../precommand.js");
-const BotCommand = require("../../botcommand.js"); 
-const createKey = require("../locationKeyCreator.js");
+import BotHooks from "../botHooks.js";
+import CommandManager from "./commandManager.js";
+import BotPlugin from "../../plugin.js";
+import BotCommandOptions from "../../botcommandOptions.js";
+import BotCommand from "../../botcommand.js";
+import BotCommandHelp from "../../botcommandHelp.js";
+import createKey from "../locationKeyCreator.js";
+import Precommand from "../../precommand.js";
+import PrecommandCallback from "../../precommandCallback.js";
+import BotCommandCallback from "../../botcommandCallback.js";
 
 // TODO: Separate this class into registering and dispatching
 class CommandRegistar {
@@ -27,83 +24,31 @@ class CommandRegistar {
         this.manager = manager;
     }
 
-    /**
-     * Registers a precommand with callback
-     * @param {String} precommandStr precommand to register
-     * @param {PrecommandCallback} callback callback on precommand
-     */
-    precommand(precommandStr, callback) {
+    precommand(precommandStr: string, callback: PrecommandCallback) {
         let precommand = new Precommand(precommandStr, callback);
         this.manager.precommands.push(precommand);
     }
 
-    /**
-     * register bot plugin
-     * @param {*} plugin plugin
-     */
-    plugin(plugin) {
+    plugin(plugin: BotPlugin) {
         plugin._start();
 
         this.manager.plugins.push(plugin);
     }
 
-    /**
-     * Register a command
-     * @param {String} triggerWord word that triggers command
-     * @param {String} pluginName name of plugin
-     * @param {BotCommandCallback} func function to call
-     * @param {BotCommandOptions} [options] permissions required to call function
-     */
-    command(triggerWord, pluginName, func, options) {
+    command(triggerWord: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions) {
         let command = new BotCommand(this.botHooks, triggerWord, pluginName, func, options);
 
         this.manager.commands.push(command);
-        this._applyConfigToCommand(command);
-        this._addCommandToGroup(command.group, command);
+        this.applyConfigToCommand(command);
+        this.addCommandToGroup(command.group, command);
         this.help(command.commandName, command.help || null);
 
         if (command.help) // if help is available
             command.help.gatherInfoAboutCommand(command);
     }
 
-    /**
-     * Apply config from bot.config to adjust command
-     * @param {BotCommand} command command to apply config to
-     */
-    _applyConfigToCommand(command) {
-        let pluginOverrides = this.botHooks.config.commandRequiredPermissionOverrides[
-            createKey.plugin(command.pluginName)
-        ];
-        let overridingRequiredPermission =
-            pluginOverrides && pluginOverrides[command.commandName];
-
-        if (overridingRequiredPermission) {
-            command.requiredPermission = overridingRequiredPermission;
-        }
-    }
-
-    /**
-     * Adds a command to a group
-     * @param {String | undefined} groupName name of group
-     * @param {BotCommand} command command
-     */
-    _addCommandToGroup(groupName, command) {
-        let groupNameStr = groupName || "Other";
-
-        if (this.manager.commandGroups.has(groupNameStr)) {
-            this.manager.commandGroups.get(groupNameStr)
-                .push(command);
-        } else {
-            this.manager.commandGroups.set(groupNameStr, [command]);
-        }
-    }
-
-    /**
-     * Add help information
-     * @param {String} command name of command for help
-     * @param {BotCommandHelp} data command help data
-     */
-    help(command, data) {
+    /** Add help information */
+    help(command: string, data: BotCommandHelp | null) {
         this.manager.helpData[command] = data;
     }
 
@@ -115,6 +60,33 @@ class CommandRegistar {
         this.manager.commands.length = 0;
         this.manager.plugins.length = 0;
     }
+
+    /** Apply config from bot.config to adjust command */
+    private applyConfigToCommand(command: BotCommand) {
+        if (!command.pluginName) return;
+
+        let pluginOverrides = this.botHooks.config.commandRequiredPermissionOverrides[
+            createKey.plugin(command.pluginName)
+        ];
+        let overridingRequiredPermission =
+            pluginOverrides && pluginOverrides[command.commandName];
+
+        if (overridingRequiredPermission) {
+            command.requiredPermission = overridingRequiredPermission;
+        }
+    }
+
+    private addCommandToGroup(groupName: string | undefined, command: BotCommand) {
+        let groupNameStr = groupName || "Other";
+
+        if (this.manager.commandGroups.has(groupNameStr)) {
+            this.manager.commandGroups.get(groupNameStr)
+                .push(command);
+        } else {
+            this.manager.commandGroups.set(groupNameStr, [command]);
+        }
+    }
+
 }
 
-module.exports = CommandRegistar;
+export default CommandRegistar;

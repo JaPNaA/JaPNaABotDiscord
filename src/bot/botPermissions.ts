@@ -7,6 +7,7 @@
 import Permissions from "../permissions.js"; 
 import createKey from "./locationKeyCreator.js";
 import Memory from "./botMemory.js";
+import BotHooks from "./botHooks.js";
 
 class BotPermissions {
     botHooks: BotHooks;
@@ -14,7 +15,7 @@ class BotPermissions {
 
     constructor(botHooks: BotHooks) {
         this.botHooks = botHooks;
-        this.memory = this.botHooks.memory;
+        this.memory = this.botHooks.memory as Memory;
     }
 
     getPermissions_role_channel(roleId: string, serverId: string, channelId: string): Permissions {
@@ -44,13 +45,15 @@ class BotPermissions {
         return permissions;
     }
 
-    getPermissions_channel(userId: string, serverId: string, channelId: string) {
+    getPermissions_channel(userId: string, serverId: string, channelId: string): Permissions {
         let server, user, roles;
         let permissionsNum = 0;
 
         if (serverId) {
             server = this.botHooks.getServer(serverId);
             user = server.members.get(userId);
+            if (!user) return new Permissions();
+            
             roles = user.roles.array();
 
             let permissions = user.permissions.bitfield;
@@ -209,4 +212,4 @@ class BotPermissions {
     }
 }
 
-module.exports = BotPermissions;
+export default BotPermissions;

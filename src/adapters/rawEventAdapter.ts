@@ -1,3 +1,6 @@
+import BotHooks from "../bot/botHooks.js";
+import { Message, TextChannel } from "discord.js";
+
 /**
  * @typedef {import("discord.js").TextChannel} TextChannel
  * @typedef {import("discord.js").Message} Message
@@ -20,12 +23,10 @@ class RawEventAdapter {
      * When receiving raw messages
      * @param {Message} message of sender
      */
-    onMessage(message) {
+    onMessage(message: Message) {
         let precommandUsedInMessage = this.botHooks.commandManager.getFirstPrecommand(message.content);
 
-        /** @type {TextChannel} */
-        // @ts-ignore
-        let channel = message.channel;
+        let channel = message.channel as TextChannel;
         let isDM = channel.guild ? false : true;
 
         const messageEvent =

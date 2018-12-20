@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 class Logger {
     static log_message(...args) {
         if (Logger.level >= 4) {
@@ -22,11 +23,11 @@ class Logger {
     }
     /**
      * Sets the logging level
-     * @param {Number} level 0 -> 4 logging level
+     * @param level 0 -> 4 logging level
      */
     static setLevel(level) {
         Logger.level = level;
     }
 }
 Logger.level = 0;
-module.exports = Logger;
+exports.default = Logger;

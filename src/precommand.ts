@@ -1,6 +1,4 @@
-import events from "./events.js";
-
-type PrecommandCallback = (commandEvent: events.DiscordCommandEvent) => any;
+import PrecommandCallback from "./precommandCallback.js";
 
 class Precommand {
     precommandStr: string;

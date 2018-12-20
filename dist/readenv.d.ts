@@ -1,6 +1,8 @@
-declare const FS: any;
 /**
  * Read ENV file
- * @param {String} path to env file
+ * @param path to env file
  */
-declare function readEnv(path: any): {};
+declare function readEnv(path: string): {
+    [x: string]: string;
+};
+export default readEnv;

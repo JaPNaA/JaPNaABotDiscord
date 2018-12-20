@@ -4,17 +4,16 @@ import BotHooks from "./botHooks.js";
 const Logger = require("../logger.js");
 
 class PresenceSetter {
-    client: BotClient;
+    client: Client;
 
-    constructor(client: BotClient) {
-        /** @type {Client} */
+    constructor(client: Client) {
         this.client = client;
     }
 
     setGame(name: string) {
         this.client.user.setPresence({
             game: {
-                name: name || null,
+                name: name || undefined,
                 type: "PLAYING"
             }
         });
@@ -23,7 +22,7 @@ class PresenceSetter {
     setWatch(name: string) {
         this.client.user.setPresence({
             game: {
-                name: name || null,
+                name: name || undefined,
                 type: "WATCHING"
             }
         });
@@ -32,7 +31,7 @@ class PresenceSetter {
     setListen(name: string) {
         this.client.user.setPresence({
             game: {
-                name: name || null,
+                name: name || undefined,
                 type: "LISTENING"
             }
         });
@@ -41,7 +40,7 @@ class PresenceSetter {
     setStream(name: string) {
         this.client.user.setPresence({
             game: {
-                name: name || null,
+                name: name || undefined,
                 type: "STREAMING"
             }
         });
@@ -198,7 +197,7 @@ class BotClient {
         let promise;
 
         if (user)
-            promise = user.send(message.message, messageObject);
+            promise = user.send(message, messageObject);
 
         if (failCallback)
             promise.catch(() => failCallback());

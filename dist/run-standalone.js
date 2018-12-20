@@ -8,7 +8,8 @@ const MEMORY_PATH = "./data/memory.json";
 const CONFIG_PATH = "./data/config.jsonc";
 const ENV_PATH = "./data/.env";
 /** get environment variables */
-const ENV = require("./readenv.js")(ENV_PATH);
+const readenv_js_1 = __importDefault(require("./readenv.js"));
+const ENV = readenv_js_1.default(ENV_PATH);
 index_js_1.default.start(ENV.token, CONFIG_PATH, MEMORY_PATH);
 index_js_1.default.registerAutoloadBuiltinPlugin("japnaa_weird");
 // gacefully stop on ctrl-c

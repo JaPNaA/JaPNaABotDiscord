@@ -1,45 +1,26 @@
 import { Client } from "discord.js";
 import BotHooks from "./botHooks.js";
-import Memory from "./botMemory.js";
-
-/**
- * @typedef {import("discord.js").Client} Client
- * @typedef {import("discord.js").Channel} Channel
- * @typedef {import("discord.js").TextChannel} TextChannel
- * @typedef {import("discord.js").Message} Message
- * @typedef {import("discord.js").User} User
- * @typedef {import("../botcommandOptions.js")} BotCommandOptions
- * @typedef {import("../plugin.js")} Plugin
- * @typedef {import("../botcommandHelp.js")} BotCommandHelp
- * @typedef {import("../precommand.js")} Precommand
- * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../events.js").DiscordCommandEvent} DiscordCommandEvent
- */
-
-const Logger = require("../logger.js");
-
-const BotCommandOptions = require("../botcommandOptions.js");
-
-const RawEventAdapter = require("../adapters/rawEventAdapter.js");
-
-const BotHooks = require("./botHooks.js");
-const BotConfig = require("./botConfig.js");
-const BotMemory = require("./botMemory.js");
-const BotPermissions = require("./botPermissions.js");
-const BotEvents = require("./botEvents.js");
-const CommandManager = require("./command/commandManager.js");
-const BotClient = require("./botClient.js");
+import BotMemory from "./botMemory.js";
+import RawEventAdapter from "../adapters/rawEventAdapter.js";
+import BotConfig from "./botConfig.js";
+import BotPermissions from "./botPermissions.js";
+import BotEvents from "./botEvents.js";
+import CommandManager from "./command/commandManager.js";
+import BotClient from "./botClient.js";
+import Logger from "../logger.js";
+import BotCommandOptions from "../botcommandOptions.js";
+import { DiscordCommandEvent } from "../events.js";
 
 class Bot {
     restartFunc: Function;
     hooks: BotHooks;
     rawEventAdapter: RawEventAdapter;
-    config: Config;
-    memory: Memory;
+    config: BotConfig;
+    memory: BotMemory;
     permissions: BotPermissions;
     events: BotEvents;
     commandManager: CommandManager;
-    client: Client;
+    client: BotClient;
     activeAsnycRequests: number;
     id: undefined | string;
     
@@ -171,7 +152,7 @@ class Bot {
      * @param {BotHooks} bot this
      * @param {DiscordMessageEvent} event data
      */
-    restart(bot, event) {
+    restart(bot: BotHooks, event: DiscordCommandEvent) {
         bot.client.send(event.channelId, "**Restarting**");
         Logger.log("Restarting");
         this.stop();
@@ -191,7 +172,7 @@ class Bot {
      * called on command by onmessage
      * @param {DiscordCommandEvent} commandEvent message information
      */
-    onBotPrecommandCommand(commandEvent) {
+    onBotPrecommandCommand(commandEvent: DiscordCommandEvent) {
         this.events.dispatch("command", commandEvent);
 
         let someCommandRan = false;

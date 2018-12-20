@@ -1,5 +1,6 @@
 import FS from "fs";
 import Logger from "../logger.js";
+import BotHooks from "./botHooks.js";
 
 class Memory {
     memoryPath: string;
@@ -24,7 +25,7 @@ class Memory {
      * Stores something in memory
      * @param important write after remember?
      */
-    write(namespace: string, key: string, value: string | number | object, important: boolean = false) {
+    write(namespace: string, key: string, value: string | number | object | undefined, important: boolean = false) {
         if (!this.memory[namespace]) {
             this.memory[namespace] = {};
         }

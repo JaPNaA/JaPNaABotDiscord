@@ -1,36 +1,26 @@
-/**
- * @typedef {import("discord.js").Client} Client
- * @typedef {import("discord.js").Channel} Channel
- * @typedef {import("discord.js").TextChannel} TextChannel
- * @typedef {import("discord.js").Message} Message
- * @typedef {import("discord.js").User} User
- * @typedef {import("../botcommandOptions.js")} BotCommandOptions
- * @typedef {import("../plugin.js")} Plugin
- * @typedef {import("../botcommandHelp.js")} BotCommandHelp
- * @typedef {import("../precommand.js")} Precommand
- * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../events.js").DiscordCommandEvent} DiscordCommandEvent
- */
-declare const Logger: any;
-declare const BotCommandOptions: any;
-declare const RawEventAdapter: any;
-declare const BotHooks: any;
-declare const BotConfig: any;
-declare const BotMemory: any;
-declare const BotPermissions: any;
-declare const BotEvents: any;
-declare const CommandManager: any;
-declare const BotClient: any;
+import { Client } from "discord.js";
+import BotHooks from "./botHooks.js";
+import BotMemory from "./botMemory.js";
+import RawEventAdapter from "../adapters/rawEventAdapter.js";
+import BotConfig from "./botConfig.js";
+import BotPermissions from "./botPermissions.js";
+import BotEvents from "./botEvents.js";
+import CommandManager from "./command/commandManager.js";
+import BotClient from "./botClient.js";
+import { DiscordCommandEvent } from "../events.js";
 declare class Bot {
-    /**
-     * Bot constructor
-     * @param {Object} config bot config
-     * @param {Object} memory bot memory
-     * @param {String} memoryPath path to memory
-     * @param {Client} client client
-     * @param {Function} restartFunc restarting function
-     */
-    constructor(config: any, memory: any, memoryPath: any, client: any, restartFunc: any);
+    restartFunc: Function;
+    hooks: BotHooks;
+    rawEventAdapter: RawEventAdapter;
+    config: BotConfig;
+    memory: BotMemory;
+    permissions: BotPermissions;
+    events: BotEvents;
+    commandManager: CommandManager;
+    client: BotClient;
+    activeAsnycRequests: number;
+    id: undefined | string;
+    constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function);
     /**
      * Add new asnyc request to wait for
      */
@@ -58,7 +48,7 @@ declare class Bot {
      * @param {BotHooks} bot this
      * @param {DiscordMessageEvent} event data
      */
-    restart(bot: any, event: any): void;
+    restart(bot: BotHooks, event: DiscordCommandEvent): void;
     /**
      * ready callback
      */
@@ -67,5 +57,6 @@ declare class Bot {
      * called on command by onmessage
      * @param {DiscordCommandEvent} commandEvent message information
      */
-    onBotPrecommandCommand(commandEvent: any): void;
+    onBotPrecommandCommand(commandEvent: DiscordCommandEvent): void;
 }
+export default Bot;

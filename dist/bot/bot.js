@@ -1,92 +1,65 @@
 "use strict";
-/**
- * @typedef {import("discord.js").Client} Client
- * @typedef {import("discord.js").Channel} Channel
- * @typedef {import("discord.js").TextChannel} TextChannel
- * @typedef {import("discord.js").Message} Message
- * @typedef {import("discord.js").User} User
- * @typedef {import("../botcommandOptions.js")} BotCommandOptions
- * @typedef {import("../plugin.js")} Plugin
- * @typedef {import("../botcommandHelp.js")} BotCommandHelp
- * @typedef {import("../precommand.js")} Precommand
- * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../events.js").DiscordCommandEvent} DiscordCommandEvent
- */
-const Logger = require("../logger.js");
-const BotCommandOptions = require("../botcommandOptions.js");
-const RawEventAdapter = require("../adapters/rawEventAdapter.js");
-const BotHooks = require("./botHooks.js");
-const BotConfig = require("./botConfig.js");
-const BotMemory = require("./botMemory.js");
-const BotPermissions = require("./botPermissions.js");
-const BotEvents = require("./botEvents.js");
-const CommandManager = require("./command/commandManager.js");
-const BotClient = require("./botClient.js");
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const botHooks_js_1 = __importDefault(require("./botHooks.js"));
+const botMemory_js_1 = __importDefault(require("./botMemory.js"));
+const rawEventAdapter_js_1 = __importDefault(require("../adapters/rawEventAdapter.js"));
+const botConfig_js_1 = __importDefault(require("./botConfig.js"));
+const botPermissions_js_1 = __importDefault(require("./botPermissions.js"));
+const botEvents_js_1 = __importDefault(require("./botEvents.js"));
+const commandManager_js_1 = __importDefault(require("./command/commandManager.js"));
+const botClient_js_1 = __importDefault(require("./botClient.js"));
+const logger_js_1 = __importDefault(require("../logger.js"));
+const botcommandOptions_js_1 = __importDefault(require("../botcommandOptions.js"));
 class Bot {
-    /**
-     * Bot constructor
-     * @param {Object} config bot config
-     * @param {Object} memory bot memory
-     * @param {String} memoryPath path to memory
-     * @param {Client} client client
-     * @param {Function} restartFunc restarting function
-     */
     constructor(config, memory, memoryPath, client, restartFunc) {
         /**
          * Function to call to restart itself
-         * @type {Function}
          */
         this.restartFunc = restartFunc;
         /**
          * Hooks that can be sent to objects
-         * @type {BotHooks}
          */
-        this.hooks = new BotHooks(this);
+        this.hooks = new botHooks_js_1.default(this);
         /**
          * Adapts raw discord.js events to our own
-         * @type {RawEventAdapter}
          */
-        this.rawEventAdapter = new RawEventAdapter(this.hooks);
+        this.rawEventAdapter = new rawEventAdapter_js_1.default(this.hooks);
         this.hooks.attachRawEventAdapter(this.rawEventAdapter);
         /**
          * Bot config - gets configuration settings
-         * @type {BotConfig}
          */
-        this.config = new BotConfig(this.hooks, config);
+        this.config = new botConfig_js_1.default(this.hooks, config);
         this.hooks.attachConfig(this.config);
         /**
          * Bot memory - handles remembering things
-         * @type {BotMemory}
          */
-        this.memory = new BotMemory(this.hooks, memoryPath, memory);
+        this.memory = new botMemory_js_1.default(this.hooks, memoryPath, memory);
         this.hooks.attachMemory(this.memory);
         /**
          * Bot permission - handles getting and setting permissions
-         * @type {BotPermissions}
          */
-        this.permissions = new BotPermissions(this.hooks);
+        this.permissions = new botPermissions_js_1.default(this.hooks);
         this.hooks.attachPermissions(this.permissions);
         /**
          * Bot events - handles handling events
-         * @type {BotEvents}
          */
-        this.events = new BotEvents(this.hooks);
+        this.events = new botEvents_js_1.default(this.hooks);
         this.hooks.attachEvents(this.events);
         /**
          * Bot command manager - manages registering commands and dispatching
-         * @type {CommandManager}
          */
-        this.commandManager = new CommandManager(this.hooks);
+        this.commandManager = new commandManager_js_1.default(this.hooks);
         this.hooks.attachCommandManager(this.commandManager);
         /**
          * Bot client - handles sending and receiving messages
-         * @type {BotClient}
          */
-        this.client = new BotClient(this.hooks, client);
+        this.client = new botClient_js_1.default(this.hooks, client);
         this.hooks.attachClient(this.client);
         /**
          * How many active asnyc requests are running
-         * @type {Number}
          */
         this.activeAsnycRequests = 0;
         this.start();
@@ -116,9 +89,9 @@ class Bot {
      * Starts the bot
      */
     start() {
-        Logger.log("Bot starting...");
+        logger_js_1.default.log("Bot starting...");
         this.registerCommandsAndPrecommands();
-        Logger.setLevel(this.config.loggingLevel);
+        logger_js_1.default.setLevel(this.config.loggingLevel);
         this.memory.startAutoWrite();
         if (this.client.isReady()) {
             this.onReady();
@@ -128,7 +101,7 @@ class Bot {
         }
     }
     registerCommandsAndPrecommands() {
-        this.commandManager.register.command("restart", "bot", this.restart.bind(this), new BotCommandOptions({
+        this.commandManager.register.command("restart", "bot", this.restart.bind(this), new botcommandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR"
         }));
         for (let precommand of this.config.precommands) {
@@ -150,7 +123,7 @@ class Bot {
      */
     restart(bot, event) {
         bot.client.send(event.channelId, "**Restarting**");
-        Logger.log("Restarting");
+        logger_js_1.default.log("Restarting");
         this.stop();
         this.restartFunc();
     }
@@ -160,7 +133,7 @@ class Bot {
     onReady() {
         this.id = this.client.id;
         this.events.dispatch("start", null);
-        Logger.log("Started");
+        logger_js_1.default.log("Started");
     }
     /**
      * called on command by onmessage
@@ -185,4 +158,4 @@ class Bot {
         }
     }
 }
-module.exports = Bot;
+exports.default = Bot;

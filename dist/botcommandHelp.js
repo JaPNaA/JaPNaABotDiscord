@@ -1,16 +1,13 @@
 "use strict";
-/**
- * @typedef {import("./botcommand.js")} BotCommand
- */
+Object.defineProperty(exports, "__esModule", { value: true });
 class BotCommandHelp {
     /**
      * Bot Command Help constructor
      * @param {Object} data data of help
-     * @param {String} data.description description of what the command does
-     * @param {Object<string, string>[]} [data.overloads] possible arguments of the command
-     * @param {String[][]} [data.examples] examples of the command being used [command, explanation]
      */
     constructor(data) {
+        /** Disallow the use of the command in Direct Messages? */
+        this.noDM = false;
         /**
          * Description of what the command does
          * @type {String}
@@ -26,29 +23,9 @@ class BotCommandHelp {
          * @type {String[][]}
          */
         this.examples = data.examples;
-        /**
-         * The group that the command is in
-         * @type {String | undefined}
-         */
-        this.group = undefined;
-        /**
-         * Can the command be ran in Direct Messages?
-         * @type {Boolean}
-         */
-        this.noDM = false;
-        /**
-         * The required permission to run this command
-         * @type {String | undefined}
-         */
-        this.requiredPermission = undefined;
-        /**
-         * The plugin where command came from
-         */
-        this.fromPlugin = undefined;
     }
     /**
      * Gathers some information about command
-     * @param {BotCommand} command
      */
     gatherInfoAboutCommand(command) {
         this.group = command.group;
@@ -57,4 +34,4 @@ class BotCommandHelp {
         this.fromPlugin = command.pluginName;
     }
 }
-module.exports = BotCommandHelp;
+exports.default = BotCommandHelp;

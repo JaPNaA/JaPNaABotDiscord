@@ -1,3 +1,7 @@
+import BotHooks from "../botHooks.js";
+import { DiscordMessageEvent } from "../../events.js";
+import CommandManager from "./commandManager.js";
+
 /**
  * @typedef {import("../../events.js").DiscordMessageEvent} DiscordMessageEvent
  * @typedef {import("../botHooks.js")} BotHooks
@@ -8,17 +12,14 @@ const Logger = require("../../logger.js");
 const { DiscordCommandEvent } = require("../../events.js");
 
 class CommandDispatcher {
-    botHooks: any;
-    manager: any;
+    botHooks: BotHooks;
+    manager: CommandManager;
     /**
      * @param {BotHooks} botHooks 
      * @param {CommandManager} manager 
      */
     constructor(botHooks: BotHooks, manager: CommandManager) {
-        /** @type {BotHooks} */
         this.botHooks = botHooks;
-
-        /** @type {CommandManager} */
         this.manager = manager;
     }
 
@@ -26,7 +27,7 @@ class CommandDispatcher {
      * Handles message event
      * @param {DiscordMessageEvent} message 
      */
-    onMessage(message) {
+    onMessage(message: DiscordMessageEvent) {
         Logger.log_message("<<", message);
         this.dispatchIfIsCommand(message);
     }
@@ -34,7 +35,7 @@ class CommandDispatcher {
     /**
      * @param {DiscordMessageEvent} messageEvent
      */
-    dispatchIfIsCommand(messageEvent) {
+    dispatchIfIsCommand(messageEvent: DiscordMessageEvent) {
         if (!messageEvent.precommand) return;
         const commandEvent = this._createDiscordCommandEvent(messageEvent);
         this.botHooks.events.dispatch("command", commandEvent);
@@ -44,9 +45,9 @@ class CommandDispatcher {
     /**
      * @param {DiscordMessageEvent} messageEvent
      */
-    _createDiscordCommandEvent(messageEvent) {
+    _createDiscordCommandEvent(messageEvent: DiscordMessageEvent) {
         const pre = messageEvent.precommand;
-        const content = messageEvent.message.slice(pre.precommandStr.length);
+        const content = pre && messageEvent.message.slice(pre.precommandStr.length);
         return new DiscordCommandEvent(messageEvent, pre, content);
     }
 }

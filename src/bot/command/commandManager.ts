@@ -1,25 +1,18 @@
 import BotHooks from "../botHooks.js";
-
-/**
- * @typedef {import("../botHooks.js")} BotHooks
- * @typedef {import("../../botcommandOptions")} BotCommandOptions
- * @typedef {import("../../botcommandHelp.js")} BotCommandHelp
- * @typedef {import("../../botcommand.js")} BotCommand
- * @typedef {import("../../precommand")} Precommand
- * @typedef {import("../../plugin.js")} Plugin
- */
-
-const CommandRegistar = require("./commandRegistar.js");
-const CommandDispatcher = require("./commandDispatcher.js");
+import CommandDispatcher from "./commandDispatcher.js";
+import BotCommandHelp from "../../botcommandHelp.js";
+import Precommand from "../../precommand.js";
+import BotCommand from "../../botcommand.js";
+import CommandRegistar from "./commandRegistar.js";
 
 class CommandManager {
     register: CommandRegistar;
     dispatch: CommandDispatcher;
-    precommands: never[];
-    commands: never[];
+    precommands: Precommand[];
+    commands: BotCommand[];
     commandGroups: Map<any, any>;
     plugins: never[];
-    helpData: {};
+    helpData: {[x: string]: BotCommandHelp};
     constructor(botHooks: BotHooks) {
         this.register = new CommandRegistar(botHooks, this);
         this.dispatch = new CommandDispatcher(botHooks, this);
@@ -51,11 +44,7 @@ class CommandManager {
         this.helpData = {};
     }
 
-    /**
-     * Gets help for command
-     * @param {String} command command name
-     */
-    getHelp(command) {
+    getHelp(command: string): BotCommandHelp {
         return this.helpData[command];
     }
 
@@ -64,7 +53,7 @@ class CommandManager {
      * @param {String} message
      * @returns {Precommand}
      */
-    getFirstPrecommand(message) {
+    getFirstPrecommand(message: string) {
         for (let precommand of this.precommands) {
             let startsWithPrecommand = message.startsWith(precommand.precommandStr);
 
@@ -77,4 +66,4 @@ class CommandManager {
     }
 }
 
-module.exports = CommandManager;
+export default CommandManager;

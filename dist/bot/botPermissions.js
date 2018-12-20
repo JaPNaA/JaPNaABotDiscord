@@ -4,183 +4,135 @@
  * @typedef {import("./botHooks.js")} BotHooks
  * @typedef {import("discord.js").TextChannel} TextChannel
  */
-const Permissions = require("../permissions.js");
-const createKey = require("./locationKeyCreator.js");
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const permissions_js_1 = __importDefault(require("../permissions.js"));
+const locationKeyCreator_js_1 = __importDefault(require("./locationKeyCreator.js"));
 class BotPermissions {
-    /**
-     * @param {BotHooks} botHooks
-     */
     constructor(botHooks) {
         this.botHooks = botHooks;
         this.memory = this.botHooks.memory;
     }
-    /**
-     * Gets the permissions of role
-     * @param {String} roleId id of role
-     * @param {String} serverId id of server
-     * @param {String} [channelId] id of channel
-     * @returns {Permissions} permissions of role
-     */
     getPermissions_role_channel(roleId, serverId, channelId) {
         let role = this.botHooks.getRole(roleId, serverId);
-        let permissions = new Permissions(role.permissions);
+        let permissions = new permissions_js_1.default(role.permissions);
         if (channelId) {
-            permissions.importCustomPermissions(this.memory.get(createKey.permissions(), createKey.role_channel(serverId, roleId, channelId)));
+            permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId)));
         }
-        permissions.importCustomPermissions(this.memory.get(createKey.permissions(), createKey.role_server(serverId, roleId)));
+        permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_server(serverId, roleId)));
         return permissions;
     }
-    /**
-     * Gets the global permissions of user
-     * @param {String} userId id of user
-     */
     getPermissions_global(userId) {
-        let permissions = new Permissions();
-        permissions.importCustomPermissions(this.memory.get(createKey.permissions(), createKey.user_global(userId)));
+        let permissions = new permissions_js_1.default();
+        permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId)));
         return permissions;
     }
-    /**
-     * Gets the permissions of user from userId in serverId
-     * @param {String} userId id of user
-     * @param {String} [serverId] id of server
-     * @param {String} [channelId] if of channel
-     */
     getPermissions_channel(userId, serverId, channelId) {
         let server, user, roles;
         let permissionsNum = 0;
         if (serverId) {
             server = this.botHooks.getServer(serverId);
             user = server.members.get(userId);
+            if (!user)
+                return new permissions_js_1.default();
             roles = user.roles.array();
             let permissions = user.permissions.bitfield;
             permissionsNum |= permissions;
         }
-        let permissions = new Permissions(permissionsNum);
-        permissions.importCustomPermissions(this.memory.get(createKey.permissions(), createKey.user_global(userId)));
+        let permissions = new permissions_js_1.default(permissionsNum);
+        permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId)));
         if (roles) {
             for (let role of roles) {
                 permissions.importCustomPermissions(this.getPermissions_role_channel(role.id, serverId, channelId).getCustomPermissions());
             }
         }
         if (serverId) {
-            permissions.importCustomPermissions(this.memory.get(createKey.permissions(), createKey.user_server(serverId, userId)));
+            permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_server(serverId, userId)));
         }
         if (channelId) {
-            permissions.importCustomPermissions(this.memory.get(createKey.permissions(), createKey.user_channel(serverId, userId, channelId)));
+            permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_channel(serverId, userId, channelId)));
         }
         return permissions;
     }
-    /**
-     * Sets the permissions of user in a channel
-     * @param {String} userId user
-     * @param {String} channelId id of channel
-     * @param {String} permissionName name of permission
-     * @param {Boolean} value value of permission to write
-     */
     editPermissions_user_channel(userId, channelId, permissionName, value) {
         /** @type { TextChannel } */
         // @ts-ignore
         let channel = this.botHooks.getChannel(channelId);
         let serverId = channel.guild.id;
-        let customPerms = this.memory.get(createKey.permissions(), createKey.user_channel(serverId, userId, channelId));
-        let permissions = new Permissions();
+        let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_channel(serverId, userId, channelId));
+        let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
         customPerms = permissions.getCustomPermissions();
-        let locationKey = createKey.user_channel(serverId, userId, channelId);
+        let locationKey = locationKeyCreator_js_1.default.user_channel(serverId, userId, channelId);
         if (customPerms.length) {
-            this.memory.write(createKey.permissions(), locationKey, customPerms, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, customPerms, true);
         }
         else {
-            this.memory.write(createKey.permissions(), locationKey, undefined, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, undefined, true);
         }
     }
-    /**
-     * Sets the permissions of user in a server
-     * @param {String} userId id of user
-     * @param {String} serverId id of server
-     * @param {String} permissionName name of permission
-     * @param {Boolean} value value of permission to write
-     */
     editPermissions_user_server(userId, serverId, permissionName, value) {
-        let customPerms = this.memory.get(createKey.permissions(), createKey.user_server(serverId, userId));
-        let permissions = new Permissions();
+        let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_server(serverId, userId));
+        let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
         customPerms = permissions.getCustomPermissions();
-        let locationKey = createKey.user_server(serverId, userId);
+        let locationKey = locationKeyCreator_js_1.default.user_server(serverId, userId);
         if (customPerms.length) {
-            this.memory.write(createKey.permissions(), locationKey, customPerms, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, customPerms, true);
         }
         else {
-            this.memory.write(createKey.permissions(), locationKey, undefined, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, undefined, true);
         }
     }
-    /**
-     * Sets the permissions of user in a channel
-     * @param {String} roleId user
-     * @param {String} channelId id of channel
-     * @param {String} permissionName name of permission
-     * @param {Boolean} value value of permission to write
-     */
     editPermissions_role_channel(roleId, channelId, permissionName, value) {
         /** @type { TextChannel } */
         // @ts-ignore
         let channel = this.botHooks.getChannel(channelId);
         let serverId = channel.guild.id;
-        let customPerms = this.memory.get(createKey.permissions(), createKey.role_channel(serverId, roleId, channelId));
-        let permissions = new Permissions();
+        let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId));
+        let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
         customPerms = permissions.getCustomPermissions();
-        let locationKey = createKey.role_channel(serverId, roleId, channelId);
+        let locationKey = locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId);
         if (customPerms.length) {
-            this.memory.write(createKey.permissions(), locationKey, customPerms, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, customPerms, true);
         }
         else {
-            this.memory.write(createKey.permissions(), locationKey, undefined, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, undefined, true);
         }
     }
-    /**
-     * Sets the permissions of user in a server
-     * @param {String} roleId id of user
-     * @param {String} serverId id of server
-     * @param {String} permissionName name of permission
-     * @param {Boolean} value value of permission to write
-     */
     editPermissions_role_server(roleId, serverId, permissionName, value) {
-        let customPerms = this.memory.get(createKey.permissions(), createKey.role_server(serverId, roleId));
-        let permissions = new Permissions();
+        let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_server(serverId, roleId));
+        let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
         customPerms = permissions.getCustomPermissions();
-        let locationKey = createKey.role_server(serverId, roleId);
+        let locationKey = locationKeyCreator_js_1.default.role_server(serverId, roleId);
         if (customPerms.length) {
-            this.memory.write(createKey.permissions(), locationKey, customPerms, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, customPerms, true);
         }
         else {
-            this.memory.write(createKey.permissions(), locationKey, undefined, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, undefined, true);
         }
     }
-    /**
-     * Sets the permissions of user everywhere
-     * @param {String} userId id of user
-     * @param {String} permissionName name of permission
-     * @param {Boolean} value of permission to write
-     */
     editPermissions_user_global(userId, permissionName, value) {
-        let customPerms = this.memory.get(createKey.permissions(), createKey.user_global(userId));
-        let permissions = new Permissions();
+        let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId));
+        let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
         permissions.customWrite(permissionName, value);
         customPerms = permissions.getCustomPermissions();
-        let locationKey = createKey.user_global(userId);
+        let locationKey = locationKeyCreator_js_1.default.user_global(userId);
         if (customPerms.length) {
-            this.memory.write(createKey.permissions(), locationKey, customPerms, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, customPerms, true);
         }
         else {
-            this.memory.write(createKey.permissions(), locationKey, undefined, true);
+            this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, undefined, true);
         }
     }
 }
-module.exports = BotPermissions;
+exports.default = BotPermissions;

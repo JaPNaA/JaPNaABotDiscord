@@ -1,15 +1,10 @@
-/**
- * @typedef {import("../dist/bot/botEvents.js").EventName} EventName
-
- * @typedef {import("./bot/botHooks.js")} BotHooks
- * @typedef {import("./botcommandOptions.js")} BotCommandOptions
- */
+import BotHooks from "./bot/botHooks";
+import BotCommandOptions from "./botcommandOptions";
+import EventName from "./bot/eventName";
 declare class BotPlugin {
-    /**
-     * BotPlugin constrcutor
-     * @param {BotHooks} bot parent bot
-     */
-    constructor(bot: any);
+    private bot;
+    private _pluginName;
+    constructor(bot: BotHooks);
     /**
      * Starts the plugin
      */
@@ -24,17 +19,18 @@ declare class BotPlugin {
      * @param {Function} func function to run when called
      * @param {BotCommandOptions} [options] permission that is required to run command
      */
-    _registerCommand(name: any, func: any, options: any): void;
+    _registerCommand(name: string, func: Function, options: BotCommandOptions): void;
     /**
      * Adds a handler function to an event
-     * @param {EventName} name of event to register to
-     * @param {Function} func handler/callback function
+     * @param name of event to register to
+     * @param func handler/callback function
      */
-    _registerEventHandler(name: any, func: any): void;
+    _registerEventHandler(name: EventName, func: Function): void;
     /**
      * Adds a handler function to a precommand
-     * @param {String} precommand precommmand to handle
-     * @param {Function} func function to call when precommand is triggered
+     * @param precommand precommmand to handle
+     * @param func function to call when precommand is triggered
      */
-    _registerPrecommandHander(precommand: any, func: any): void;
+    _registerPrecommandHander(precommand: string, func: Function): void;
 }
+export default BotPlugin;

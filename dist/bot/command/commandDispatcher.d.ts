@@ -1,27 +1,26 @@
-/**
- * @typedef {import("../../events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../botHooks.js")} BotHooks
- * @typedef {import("./commandManager.js")} CommandManager
- */
-declare const Logger: any;
-declare const DiscordCommandEvent: any;
+import BotHooks from "../botHooks.js";
+import { DiscordMessageEvent } from "../../events.js";
+import CommandManager from "./commandManager.js";
 declare class CommandDispatcher {
+    botHooks: BotHooks;
+    manager: CommandManager;
     /**
      * @param {BotHooks} botHooks
      * @param {CommandManager} manager
      */
-    constructor(botHooks: any, manager: any);
+    constructor(botHooks: BotHooks, manager: CommandManager);
     /**
      * Handles message event
      * @param {DiscordMessageEvent} message
      */
-    onMessage(message: any): void;
+    onMessage(message: DiscordMessageEvent): void;
     /**
      * @param {DiscordMessageEvent} messageEvent
      */
-    dispatchIfIsCommand(messageEvent: any): void;
+    dispatchIfIsCommand(messageEvent: DiscordMessageEvent): void;
     /**
      * @param {DiscordMessageEvent} messageEvent
      */
-    _createDiscordCommandEvent(messageEvent: any): DiscordCommandEvent;
+    _createDiscordCommandEvent(messageEvent: DiscordMessageEvent): any;
 }
+export default CommandDispatcher;

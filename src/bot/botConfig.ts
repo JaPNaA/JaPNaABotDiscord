@@ -15,7 +15,7 @@ type NestedObject = {
 
 class Config {
     /** Original config */
-    _config: JSONObject;
+    private config: JSONObject;
     /** *raw* precommands that trigger the bot, from config */
     precommands: string[];
     /** The theme color used for general embeds */
@@ -33,21 +33,21 @@ class Config {
     /** Link to add bot to server */
     addLink: string;
     
-    constructor(botHooks: BotHooks, config: JSONObject) {
-        this._config = config as JSONObject;
+    constructor(botHooks: BotHooks, config: object) {
+        this.config = config as JSONObject;
 
-        this.precommands = (config["bot.precommand"] || ["!"]) as string[];
-        this.themeColor = parseInt((config["bot.themeColor"] as string), 16);
-        this.loggingLevel = (config["bot.logging"] || 3) as number;
-        this.doAlertCommandDoesNotExist = (config["bot.alertCommandDoesNotExist"] || false) as boolean;
-        this.commandRequiredPermissionOverrides = (config["bot.commandRequiredPermissionOverrides"] || {}) as NestedObject;
-        this.autoWriteTimeInterval = (config["memory.autoWriteInterval"] || 60 * 1000 /* Every minute */) as number;
-        this.gitlabLink = (config["gitlabLink"] || "... oh wait hold on I don't have it...") as string;
-        this.addLink = (config["addLink"] || "... oh wait I don't know how to...") as string;
+        this.precommands = (this.config["bot.precommand"] || ["!"]) as string[];
+        this.themeColor = parseInt((this.config["bot.themeColor"] as string), 16);
+        this.loggingLevel = (this.config["bot.logging"] || 3) as number;
+        this.doAlertCommandDoesNotExist = (this.config["bot.alertCommandDoesNotExist"] || false) as boolean;
+        this.commandRequiredPermissionOverrides = (this.config["bot.commandRequiredPermissionOverrides"] || {}) as NestedObject;
+        this.autoWriteTimeInterval = (this.config["memory.autoWriteInterval"] || 60 * 1000 /* Every minute */) as number;
+        this.gitlabLink = (this.config["gitlabLink"] || "... oh wait hold on I don't have it...") as string;
+        this.addLink = (this.config["addLink"] || "... oh wait I don't know how to...") as string;
     }
 
     get(key: string) {
-        return this._config[key];
+        return this.config[key];
     }
 
     /** Gets config for plugin */
@@ -56,4 +56,4 @@ class Config {
     }
 }
 
-module.exports = Config;
+export default Config;

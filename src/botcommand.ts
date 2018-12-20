@@ -3,8 +3,10 @@ import { createErrorString } from "./utils.js";
 import { inspect } from "util";
 import BotCommandHelp from "./botcommandHelp.js";
 import BotCommandOptions from "./botcommandOptions.js";
+import BotHooks from "./bot/botHooks.js";
+import { DiscordCommandEvent } from "./events.js";
+import BotCommandCallback from "./botcommandCallback.js";
 
-type BotCommandCallback = (bot: BotHooks, event: DiscordCommandEvent, args: string) => any;
 type CleanCommandContent = {
     /** The cleaned message */
     commandContent: string,
@@ -32,7 +34,7 @@ class BotCommand {
     /** Is using this command in Direct Messages disallowed? */
     noDM: boolean;
     /** Help for the command */
-    help: BotCommandHelp;
+    help: BotCommandHelp | undefined;
     /** Group the command belongs to */
     group: string | undefined;
     /** The string that triggers the command */
@@ -47,7 +49,7 @@ class BotCommand {
      * @param {BotCommandCallback} func function to call
      * @param {BotCommandOptions} [options] command triggering options
      */
-    constructor(bot: BotHooks, commandName: string, pluginName: string, func: BotCommandCallback, options: BotCommandOptions) {
+    constructor(bot: BotHooks, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions) {
         this.bot = bot;
         this.func = func;
         this.requiredPermission = options && options.requiredPermission;
@@ -171,4 +173,4 @@ class BotCommand {
     }
 }
 
-module.exports = BotCommand;
+export default BotCommand;

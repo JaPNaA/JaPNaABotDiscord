@@ -1,15 +1,12 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @typedef {import("./botcommandHelp.js")} BotCommandHelp
  */
 class BotCommandOptions {
     /**
      * BotCommandOptions
-     * @param {Object} options command triggering options
-     * @param {String} [options.requiredPermission] required permission to run command
-     * @param {Boolean} [options.noDM] prevent use of command in DMs
-     * @param {BotCommandHelp} [options.help] help for the command
-     * @param {String} [options.group] command group
+     * @param options command triggering options
      */
     constructor(options) {
         this.requiredPermission = options.requiredPermission;
@@ -18,4 +15,4 @@ class BotCommandOptions {
         this.group = options.group;
     }
 }
-module.exports = BotCommandOptions;
+exports.default = BotCommandOptions;

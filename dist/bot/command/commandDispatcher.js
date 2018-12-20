@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @typedef {import("../../events.js").DiscordMessageEvent} DiscordMessageEvent
  * @typedef {import("../botHooks.js")} BotHooks
@@ -12,9 +13,7 @@ class CommandDispatcher {
      * @param {CommandManager} manager
      */
     constructor(botHooks, manager) {
-        /** @type {BotHooks} */
         this.botHooks = botHooks;
-        /** @type {CommandManager} */
         this.manager = manager;
     }
     /**
@@ -40,8 +39,8 @@ class CommandDispatcher {
      */
     _createDiscordCommandEvent(messageEvent) {
         const pre = messageEvent.precommand;
-        const content = messageEvent.message.slice(pre.precommandStr.length);
+        const content = pre && messageEvent.message.slice(pre.precommandStr.length);
         return new DiscordCommandEvent(messageEvent, pre, content);
     }
 }
-module.exports = CommandDispatcher;
+exports.default = CommandDispatcher;

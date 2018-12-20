@@ -1,17 +1,7 @@
 "use strict";
-/**
- * @typedef {import("../dist/bot/botEvents.js").EventName} EventName
-
- * @typedef {import("./bot/botHooks.js")} BotHooks
- * @typedef {import("./botcommandOptions.js")} BotCommandOptions
- */
+Object.defineProperty(exports, "__esModule", { value: true });
 class BotPlugin {
-    /**
-     * BotPlugin constrcutor
-     * @param {BotHooks} bot parent bot
-     */
     constructor(bot) {
-        /** @type {BotHooks} */
         this.bot = bot;
         this._pluginName = this.constructor.name.toLowerCase();
     }
@@ -34,19 +24,19 @@ class BotPlugin {
     }
     /**
      * Adds a handler function to an event
-     * @param {EventName} name of event to register to
-     * @param {Function} func handler/callback function
+     * @param name of event to register to
+     * @param func handler/callback function
      */
     _registerEventHandler(name, func) {
         this.bot.events.on(name, func.bind(this));
     }
     /**
      * Adds a handler function to a precommand
-     * @param {String} precommand precommmand to handle
-     * @param {Function} func function to call when precommand is triggered
+     * @param precommand precommmand to handle
+     * @param func function to call when precommand is triggered
      */
     _registerPrecommandHander(precommand, func) {
         this.bot.commandManager.register.precommand(precommand, func.bind(this));
     }
 }
-module.exports = BotPlugin;
+exports.default = BotPlugin;

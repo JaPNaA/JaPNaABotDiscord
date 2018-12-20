@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @typedef {import("discord.js").TextChannel} TextChannel
  * @typedef {import("discord.js").Message} Message
@@ -19,8 +20,6 @@ class RawEventAdapter {
      */
     onMessage(message) {
         let precommandUsedInMessage = this.botHooks.commandManager.getFirstPrecommand(message.content);
-        /** @type {TextChannel} */
-        // @ts-ignore
         let channel = message.channel;
         let isDM = channel.guild ? false : true;
         const messageEvent = new DiscordMessageEvent(message.author && message.author.username, message.author && message.author.id, message.channel && message.channel.id, message.guild && message.guild.id, message.content, precommandUsedInMessage, message, isDM);
@@ -35,4 +34,4 @@ class RawEventAdapter {
         this.botHooks.events.dispatch("ready", null);
     }
 }
-module.exports = RawEventAdapter;
+exports.default = RawEventAdapter;

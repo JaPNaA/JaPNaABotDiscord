@@ -1,3 +1,5 @@
+import BotCommand from "./botcommand.js";
+
 class BotCommandHelp {
     /** Description of what the command does */
     description: string;

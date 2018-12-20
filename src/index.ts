@@ -1,39 +1,30 @@
-/**
- * @typedef {import("./bot/botHooks.js")} BotHooks
- */
-
 import FS from "fs";
 import PATH from "path";
 import DISCORD from "discord.js";
 import STRIP_JSON_COMMENTS from "strip-json-comments";
 import Logger from "./logger.js";
 import Bot from "./bot/bot.js";
+import BotHooks from "./bot/botHooks.js";
 
-/** @type {DISCORD.Client} */
-let client: DISCORD.Client = null;
+let client: DISCORD.Client;
 
-/** @type {Bot} */
-let bot: Bot = null;
-/** @type {BotHooks} */
-let botHooks: BotHooks = null;
+let bot: Bot;
+let botHooks: BotHooks;
 
 // let shuttingDown = false;
 
 let defaultConfig = JSON.parse(
     STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../data/config.jsonc").toString())
 );
-let runtimeConfig = {};
-let memory = null;
+let runtimeConfig: { [x: string]: any } = {};
+let memory: { [x: string]: any };
 
 // configureables
 // ----------------------------------------------------------------------------------------
 let memoryPath = "../data/memory.json";
 
-/** @type {String} */
-let token: string = null;
-/** @type {Object} */
-let config: object = null;
-/** @type {String|null} */
+let token: string;
+let config: { [x: string]: any };
 let configPath: string | null = null;
 
 /**
@@ -63,9 +54,9 @@ function _init() {
 function _concatObject(base: { [s: string]: any; }, override: { [s: string]: any; }): { [s: string]: any; } {
     let c = { ...base };
 
-    let overrideKey = Object.keys(override);
+    let overrideKeys = Object.keys(override);
 
-    for (let key of overrideKey) {
+    for (let key of overrideKeys) {
         let baseVal = base[key];
         let overrideVal = override[key];
         let cval = null;
@@ -128,8 +119,14 @@ function registerAutoloadBuiltinPlugin(name: string) {
  * @param {String} path path to plugin
  * @returns {Error} any errors that may have occured while loading plugin
  */
-function loadPlugin(path: string): Error {
-    let npath = PATH.join(PATH.dirname(require.main.filename), path);
+function loadPlugin(path: string): Error | null {
+    let npath: string;
+
+    if (require.main) {
+        npath = PATH.join(PATH.dirname(require.main.filename), path);
+    } else {
+        npath = PATH.join(PATH.dirname(__filename), path);
+    }
 
     // delete old plugin cache
     delete require.cache[require.resolve(npath)];
@@ -151,7 +148,7 @@ function loadPlugin(path: string): Error {
  * @param {String} name name of builtin plugin
  * @returns {Error} any errors that may have occured while loading plugin
  */
-function loadBuiltinPlugin(name: string): Error {
+function loadBuiltinPlugin(name: string): Error | null {
     let npath = "../plugins/" + name + ".js";
 
     // delete old plugin cache
@@ -196,7 +193,7 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
     client = new DISCORD.Client();
     client.login(token);
 
-    client.on("ready", () => 
+    client.on("ready", () =>
         botHooks.rawEventAdapter.onReady()
     );
     client.on("message", event =>

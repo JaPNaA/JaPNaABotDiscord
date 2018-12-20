@@ -1,11 +1,13 @@
 declare class Logger {
-    static log_message(...args: {}): void;
-    static log(...args: {}): void;
-    static warn(...args: {}): void;
-    static error(...args: {}): void;
+    static level: number;
+    static log_message(...args: any[]): void;
+    static log(...args: any[]): void;
+    static warn(...args: any[]): void;
+    static error(...args: any[]): void;
     /**
      * Sets the logging level
-     * @param {Number} level 0 -> 4 logging level
+     * @param level 0 -> 4 logging level
      */
-    static setLevel(level: any): void;
+    static setLevel(level: number): void;
 }
+export default Logger;
