@@ -34,7 +34,8 @@
   // Plugins running in bot ( ./plugins/{}.js )
   "builtinPlugins": [
     "default",
-    "japnaa"
+    "japnaa",
+    "games"
   ],
 
   // Plugins running in bot (external)

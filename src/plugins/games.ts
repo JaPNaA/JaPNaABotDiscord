@@ -1,5 +1,6 @@
 import BotPlugin from "../plugin.js";
 import BotHooks from "../bot/botHooks.js";
+import { DiscordCommandEvent, DiscordMessageEvent } from "../events.js";
 
 /**
  * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
@@ -15,18 +16,17 @@ class Game extends BotPlugin {
         this._pluginName = "game";
     }
 
-    gPrecommandHandler() {
-        //
+    gPrecommandHandler(event: DiscordMessageEvent) {
+        this.bot.send(event.channelId, event.message);
     }
 
-    game() {
-        //
+    game(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+        bot.send(event.channelId, "game");
     }
 
     _start() {
         this._registerCommand("game", this.game);
-
-        // this._registerEventHandler("message", this.onmessageHandler_lol);
+        this._registerPrecommandHander("g!", this.gPrecommandHandler);
     }
 }
 

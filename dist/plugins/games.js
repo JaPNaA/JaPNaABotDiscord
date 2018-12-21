@@ -16,15 +16,15 @@ class Game extends plugin_js_1.default {
         super(bot);
         this._pluginName = "game";
     }
-    gPrecommandHandler() {
-        //
+    gPrecommandHandler(event) {
+        this.bot.send(event.channelId, event.message);
     }
-    game() {
-        //
+    game(bot, event, args) {
+        bot.send(event.channelId, "game");
     }
     _start() {
         this._registerCommand("game", this.game);
-        // this._registerEventHandler("message", this.onmessageHandler_lol);
+        this._registerPrecommandHander("g!", this.gPrecommandHandler);
     }
 }
 exports.default = Game;

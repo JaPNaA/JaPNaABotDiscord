@@ -112,7 +112,7 @@ function loadPlugin(path) {
     // delete old plugin cache
     delete require.cache[require.resolve(npath)];
     try {
-        let plugin = new (require(npath).default)(bot);
+        let plugin = new (require(npath).default)(bot.hooks);
         bot.commandManager.register.plugin(plugin);
         logger_js_1.default.log("Successfully loaded external plugin", path);
         return null;
@@ -132,7 +132,7 @@ function loadBuiltinPlugin(name) {
     // delete old plugin cache
     delete require.cache[require.resolve(npath)];
     try {
-        let plugin = new (require(npath).default)(bot);
+        let plugin = new (require(npath).default)(bot.hooks);
         bot.commandManager.register.plugin(plugin);
         logger_js_1.default.log("Successfully loaded built-in plugin", name);
         return null;

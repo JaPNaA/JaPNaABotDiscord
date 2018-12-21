@@ -1,5 +1,6 @@
 import BotPlugin from "../plugin.js";
 import BotHooks from "../bot/botHooks.js";
+import { DiscordCommandEvent, DiscordMessageEvent } from "../events.js";
 /**
  * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
  * @typedef {import("../bot/botHooks.js")} BotHooks
@@ -9,8 +10,8 @@ import BotHooks from "../bot/botHooks.js";
  */
 declare class Game extends BotPlugin {
     constructor(bot: BotHooks);
-    gPrecommandHandler(): void;
-    game(): void;
+    gPrecommandHandler(event: DiscordMessageEvent): void;
+    game(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     _start(): void;
 }
 export default Game;
