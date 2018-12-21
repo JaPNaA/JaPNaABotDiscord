@@ -19,7 +19,6 @@ declare class Bot {
     commandManager: CommandManager;
     client: BotClient;
     activeAsnycRequests: number;
-    id: undefined | string;
     constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function);
     /**
      * Add new asnyc request to wait for

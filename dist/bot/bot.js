@@ -131,7 +131,6 @@ class Bot {
      * ready callback
      */
     onReady() {
-        this.id = this.client.id;
         this.events.dispatch("start", null);
         logger_js_1.default.log("Started");
     }

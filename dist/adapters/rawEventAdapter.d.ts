@@ -1,10 +1,13 @@
 import BotHooks from "../bot/botHooks.js";
 import { Message } from "discord.js";
+/**
+ * @typedef {import("discord.js").TextChannel} TextChannel
+ * @typedef {import("discord.js").Message} Message
+ *
+ * @typedef {import("../bot/botHooks.js")} BotHooks
+ */
 declare class RawEventAdapter {
-    [x: string]: any;
-    /**
-     * @param {BotHooks} botHooks
-     */
+    botHooks: BotHooks;
     constructor(botHooks: BotHooks);
     /**
      * When receiving raw messages

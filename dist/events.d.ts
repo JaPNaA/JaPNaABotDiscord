@@ -1,5 +1,5 @@
 import Precommand from "./precommand";
-import { WSEventType } from "discord.js";
+import { Message } from "discord.js";
 /**
  * @typedef {import("./precommand")} Precommand
  */
@@ -10,7 +10,7 @@ declare class DiscordMessageEvent {
     serverId: string;
     message: string;
     precommand: Precommand | null;
-    wsevent: WSEventType;
+    originalEvent: Message;
     isDM: boolean;
     /**
      * DiscordMessageEvent contructor
@@ -21,7 +21,7 @@ declare class DiscordMessageEvent {
      * @param precommand is message valid command? If so, what is precommand?
      * @param event websocket event
      */
-    constructor(username: string, userId: string, channelId: string, serverId: string, message: string, precommand: Precommand | null, event: WSEventType, isDM: boolean);
+    constructor(username: string, userId: string, channelId: string, serverId: string, message: string, precommand: Precommand | null, event: Message, isDM: boolean);
 }
 export { DiscordMessageEvent };
 declare class DiscordCommandEvent extends DiscordMessageEvent {

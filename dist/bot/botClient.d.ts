@@ -43,9 +43,10 @@ declare class BotClient {
     presence: PresenceSetter;
     sentMessageRecorder: SentMessageRecorder;
     constructor(botHooks: BotHooks, client: Client);
+    onReady(): void;
     init(): void;
     isReady(): Boolean;
-    isSelf(author: User): boolean;
+    isSelf(authorId: string): boolean;
     /**
      * Send message
      * @returns A promise that resolves when sent

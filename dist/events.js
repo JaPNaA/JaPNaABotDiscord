@@ -36,7 +36,7 @@ class DiscordMessageEvent {
         /** Precommand used, if any */
         this.precommand = precommand;
         /** WebSocket event data */
-        this.wsevent = event;
+        this.originalEvent = event;
         /** Is the message from Direct Messages? */
         this.isDM = isDM;
     }
@@ -51,7 +51,7 @@ class DiscordCommandEvent extends DiscordMessageEvent {
      */
     constructor(messageEvent, pre, content) {
         // inheirt all properties of DiscordMessageEvent
-        super(messageEvent.username, messageEvent.userId, messageEvent.channelId, messageEvent.serverId, messageEvent.message, messageEvent.precommand, messageEvent.wsevent, messageEvent.isDM);
+        super(messageEvent.username, messageEvent.userId, messageEvent.channelId, messageEvent.serverId, messageEvent.message, messageEvent.precommand, messageEvent.originalEvent, messageEvent.isDM);
         /**
          * Precommand used
          * @type {Precommand}

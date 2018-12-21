@@ -113,6 +113,12 @@ class BotClient {
         this.client.on("error", function (error: any) {
             Logger.error(error);
         });
+
+        this.botHooks.events.on("ready", this.onReady.bind(this));
+    }
+
+    onReady() {
+        this.id = this.client.user.id;
     }
 
     init() {
@@ -123,8 +129,8 @@ class BotClient {
         return new Boolean(this.client.readyAt);
     }
 
-    isSelf(author: User) {
-        return author.id === this.id;
+    isSelf(authorId: string) {
+        return authorId === this.id;
     }
 
     /**
