@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const plugin_js_1 = __importDefault(require("../plugin.js"));
-const botcommandOptions_js_1 = __importDefault(require("../botcommandOptions.js"));
-const botcommandHelp_js_1 = __importDefault(require("../botcommandHelp.js"));
-const logger_js_1 = __importDefault(require("../logger.js"));
-const utils_js_1 = require("../utils.js");
-const locationKeyCreator_js_1 = __importDefault(require("../bot/locationKeyCreator.js"));
+const plugin_js_1 = __importDefault(require("../main/plugin.js"));
+const botcommandOptions_js_1 = __importDefault(require("../main/botcommandOptions.js"));
+const botcommandHelp_js_1 = __importDefault(require("../main/botcommandHelp.js"));
+const logger_js_1 = __importDefault(require("../main/logger.js"));
+const utils_js_1 = require("../main/utils.js");
+const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -23,12 +23,10 @@ class Japnaa extends plugin_js_1.default {
         this.counter = bot.memory.get(this._pluginName, "counter") || 0;
         this.spamQue = {};
         this.spamInterval = null;
-        this.config = bot.config.getPlugin(this._pluginName);
+        this.config = bot.config.getPlugin(this._pluginName); // assume config is correct
     }
     /**
      * makes the bot count
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     count(bot, event) {
         this.counter++;
@@ -37,9 +35,6 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * says whatever you say
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args what to echo back
      */
     echo(bot, event, args) {
         let json = null;
@@ -69,9 +64,6 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * Generates random stuff
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} argString arguments [min, max, step] | "String"
      */
     random(bot, event, argString) {
         const args = utils_js_1.stringToArgs(argString);
@@ -147,7 +139,6 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * Stops spamming
-     * @param {String} serverId
      */
     _stopSpam(serverId) {
         if (this.spamQue[serverId]) {
@@ -187,9 +178,6 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * Gets the spam limit for channel and user
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @returns {Number} spam limit
      */
     _getSpamLimit(bot, event) {
         let defaultLimit = this.config["spam.defaultLimit"];
@@ -200,8 +188,6 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * Gets the spam limit que for server and user
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     _getSpamQueLimit(bot, event) {
         let defaultLimit = this.config["spam.defaultQueLimit"];
@@ -213,12 +199,6 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * Actual spam function
-     * @param {BotHooks} bot bot
-     * @param {String} channelId id of channel
-     * @param {String} serverId id of server
-     * @param {Number} amount number of messages to spam
-     * @param {Boolean} counter use counter?
-     * @param {String} message spam message
      */
     _spam(bot, channelId, serverId, amount, counter, message) {
         let count = 0;
@@ -245,15 +225,9 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * Makes the bot spam stuff
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args "stop" | [amount, [counter], ...message]
+     * @param args "stop" | [amount, [counter], ...message]
      */
     spam_command(bot, event, args) {
-        /**
-         * Arguments, cleaned
-         * @type {String}
-         */
         const cleanArgs = args.trim().toLowerCase();
         switch (cleanArgs) {
             case "stop":
@@ -276,21 +250,17 @@ class Japnaa extends plugin_js_1.default {
                 bot.send(event.channelId, "Server que limit: " + this._getSpamQueLimit(bot, event));
                 return;
         }
-        /** @type {String[]} */
         let [amountArg, counterArg, ...messageArg] = utils_js_1.stringToArgs(args);
         /**
          * Amount of spam
-         * @type {Number}
          */
         let amount = 0;
         /**
          * Use counter in message?
-         * @type {Boolean}
          */
         let useCounter = false;
         /**
          * Message to spam
-         * @type {String}
          */
         let message = "";
         // parse amount argument (0)
@@ -337,54 +307,42 @@ class Japnaa extends plugin_js_1.default {
     }
     /**
      * Throws an error
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args Error message
+     * @param args error message
      */
     throw(bot, event, args) {
         throw new Error(args || "User-Thrown Error");
     }
     /**
      * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * @param args string to set as play
      */
     play(bot, event, args) {
         bot.client.presence.setGame(args);
     }
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to watch a game
+     * @param args string to set as watch
      */
     watch(bot, event, args) {
         bot.client.presence.setWatch(args);
     }
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to listen to a music
+     * @param args string to set as music
      */
     listen_to(bot, event, args) {
         bot.client.presence.setListen(args);
     }
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to stream a game
+     * @param args string to set as stream
      */
     stream(bot, event, args) {
         bot.client.presence.setStream(args);
     }
     /**
      * Tell someone something through DMs
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args message to send
+     * @param args message to send
      */
     tell(bot, event, args) {
         let tagMatch = args.match(/^\s*<@\d+>\s*/);

@@ -1,10 +1,6 @@
-import BotPlugin from "../plugin.js";
-import BotHooks from "../bot/botHooks.js";
-import { DiscordCommandEvent, DiscordMessageEvent } from "../events.js";
-/**
- * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../bot/botHooks.js")} BotHooks
- */
+import BotPlugin from "../main/plugin.js";
+import BotHooks from "../main/bot/botHooks.js";
+import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 /**
  * The weirder side of JaPNaABot
  */
