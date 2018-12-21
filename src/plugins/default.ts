@@ -386,7 +386,7 @@ class Default extends BotPlugin {
             channel: channel as TextChannel,
             guild: guild,
             content: message
-        } as Message);
+        });
     }
 
     /**
@@ -421,7 +421,7 @@ class Default extends BotPlugin {
             channel: channel,
             guild: guild,
             content: message
-        } as Message);
+        });
 
         let sentMessages = bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);

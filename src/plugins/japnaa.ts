@@ -35,7 +35,7 @@ class Japnaa extends BotPlugin {
         this.spamQue = {};
         this.spamInterval = null;
 
-        this.config = bot.config.getPlugin(this._pluginName) as JSONObject;
+        this.config = bot.config.getPlugin(this._pluginName) as JSONObject; // assume config is correct
     }
 
     /**

@@ -1,5 +1,5 @@
 import BotHooks from "../bot/botHooks.js";
-import { Message } from "discord.js";
+import IMessage from "./IMessage.js";
 declare class RawEventAdapter {
     botHooks: BotHooks;
     constructor(botHooks: BotHooks);
@@ -7,7 +7,7 @@ declare class RawEventAdapter {
      * When receiving raw messages
      * @param message of sender
      */
-    onMessage(message: Message): void;
+    onMessage(message: IMessage): void;
     onReady(): void;
 }
 export default RawEventAdapter;

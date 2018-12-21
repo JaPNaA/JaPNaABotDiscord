@@ -23,7 +23,7 @@ class Japnaa extends plugin_js_1.default {
         this.counter = bot.memory.get(this._pluginName, "counter") || 0;
         this.spamQue = {};
         this.spamInterval = null;
-        this.config = bot.config.getPlugin(this._pluginName);
+        this.config = bot.config.getPlugin(this._pluginName); // assume config is correct
     }
     /**
      * makes the bot count

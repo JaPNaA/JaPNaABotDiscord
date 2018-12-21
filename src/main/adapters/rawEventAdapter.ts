@@ -1,6 +1,7 @@
 import BotHooks from "../bot/botHooks.js";
-import { Message, TextChannel } from "discord.js";
+import { Message, TextChannel, DMChannel } from "discord.js";
 import { DiscordMessageEvent } from "../events.js";
+import IMessage from "./IMessage.js";
 
 class RawEventAdapter {
     botHooks: BotHooks;
@@ -12,11 +13,17 @@ class RawEventAdapter {
      * When receiving raw messages
      * @param message of sender
      */
-    onMessage(message: Message) {
+    onMessage(message: IMessage) {
         let precommandUsedInMessage = this.botHooks.commandManager.getFirstPrecommand(message.content);
 
-        let channel = message.channel as TextChannel;
-        let isDM = channel.guild ? false : true;
+        let channel = message.channel as TextChannel | DMChannel;
+        let isDM = false;
+
+        if (channel instanceof DMChannel) {
+            isDM = true;
+        } else {
+            isDM = false;
+        }
 
         const messageEvent: DiscordMessageEvent =
             new DiscordMessageEvent(
