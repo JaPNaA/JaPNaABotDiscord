@@ -1,6 +1,6 @@
-import BotHooks from "../bot/botHooks.js";
-import { DiscordMessageEvent } from "../events.js";
-import BotPlugin from "../plugin.js";
+import BotHooks from "../main/bot/botHooks.js";
+import { DiscordMessageEvent } from "../main/events.js";
+import BotPlugin from "../main/plugin.js";
 /**
  * The weirder side of JaPNaABot
  */

@@ -3,12 +3,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const plugin_js_1 = __importDefault(require("../plugin.js"));
-const botcommandOptions_js_1 = __importDefault(require("../botcommandOptions.js"));
-const botcommandHelp_js_1 = __importDefault(require("../botcommandHelp.js"));
-const logger_js_1 = __importDefault(require("../logger.js"));
-const utils_js_1 = require("../utils.js");
-const locationKeyCreator_js_1 = __importDefault(require("../bot/locationKeyCreator.js"));
+const plugin_js_1 = __importDefault(require("../main/plugin.js"));
+const botcommandOptions_js_1 = __importDefault(require("../main/botcommandOptions.js"));
+const botcommandHelp_js_1 = __importDefault(require("../main/botcommandHelp.js"));
+const logger_js_1 = __importDefault(require("../main/logger.js"));
+const utils_js_1 = require("../main/utils.js");
+const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
 /**
  * Commonly used commands made by me, JaPNaA
  */

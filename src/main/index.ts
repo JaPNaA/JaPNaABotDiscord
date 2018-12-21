@@ -14,14 +14,14 @@ let botHooks: BotHooks;
 // let shuttingDown = false;
 
 let defaultConfig = JSON.parse(
-    STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../data/config.jsonc").toString())
+    STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../../data/config.jsonc").toString())
 );
 let runtimeConfig: { [x: string]: any } = {};
 let memory: { [x: string]: any };
 
 // configureables
 // ----------------------------------------------------------------------------------------
-let memoryPath = "../data/memory.json";
+let memoryPath = "../../data/memory.json";
 
 let token: string;
 let config: { [x: string]: any };
@@ -149,7 +149,7 @@ function loadPlugin(path: string): Error | null {
  * @returns {Error} any errors that may have occured while loading plugin
  */
 function loadBuiltinPlugin(name: string): Error | null {
-    let npath = "./plugins/" + name + ".js";
+    let npath = "../plugins/" + name + ".js";
 
     // delete old plugin cache
     delete require.cache[require.resolve(npath)];

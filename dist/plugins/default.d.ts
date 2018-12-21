@@ -1,8 +1,8 @@
-import BotPlugin from "../plugin.js";
-import BotCommandHelp from "../botcommandHelp.js";
-import BotHooks from "../bot/botHooks.js";
-import { DiscordCommandEvent } from "../events.js";
-import BotCommand from "../botcommand.js";
+import BotPlugin from "../main/plugin.js";
+import BotCommandHelp from "../main/botcommandHelp.js";
+import BotHooks from "../main/bot/botHooks.js";
+import { DiscordCommandEvent } from "../main/events.js";
+import BotCommand from "../main/botcommand.js";
 /**
  * @typedef {import("../events.js").DiscordCommandEvent} DiscordCommandEvent
  * @typedef {import("../bot/botHooks.js").default} BotHooks

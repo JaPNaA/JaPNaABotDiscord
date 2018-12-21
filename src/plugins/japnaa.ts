@@ -1,16 +1,16 @@
-import BotHooks from "../bot/botHooks.js";
+import BotHooks from "../main/bot/botHooks.js";
 
-import { DiscordMessageEvent } from "../events.js";
+import { DiscordMessageEvent } from "../main/events.js";
 
-import BotPlugin from "../plugin.js";
-import BotCommandOptions from "../botcommandOptions.js";
-import BotCommandHelp from "../botcommandHelp.js";
-import Logger from "../logger.js";
+import BotPlugin from "../main/plugin.js";
+import BotCommandOptions from "../main/botcommandOptions.js";
+import BotCommandHelp from "../main/botcommandHelp.js";
+import Logger from "../main/logger.js";
 
-import { stringToArgs, random, getSnowflakeNum } from "../utils.js";
+import { stringToArgs, random, getSnowflakeNum } from "../main/utils.js";
 
-import createKey from "../bot/locationKeyCreator.js";
-import { JSONObject } from "../jsonObject.js";
+import createKey from "../main/bot/locationKeyCreator.js";
+import { JSONObject } from "../main/jsonObject.js";
 
 /**
  * Commonly used commands made by me, JaPNaA
