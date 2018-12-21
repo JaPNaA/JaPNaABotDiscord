@@ -1,4 +1,4 @@
-import Permissions from "../permissions.js"; 
+import Permissions from "../permissions.js";
 import createKey from "./locationKeyCreator.js";
 import Memory from "./botMemory.js";
 import BotHooks from "./botHooks.js";
@@ -50,7 +50,7 @@ class BotPermissions {
             if (!server) return new Permissions();
             user = server.members.get(userId);
             if (!user) return new Permissions();
-            
+
             roles = user.roles.array();
 
             let permissions = user.permissions.bitfield;

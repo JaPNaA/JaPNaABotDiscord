@@ -3,10 +3,10 @@ import BotCommandOptions from "./botcommandOptions";
 import EventName from "./bot/eventName";
 
 class BotPlugin {
-     // Not private due to compatability issues with JS
+    // Not private due to compatability issues with JS
     public bot: BotHooks;
     public _pluginName: string;
-    
+
     constructor(bot: BotHooks) {
         this.bot = bot;
         this._pluginName = this.constructor.name.toLowerCase();

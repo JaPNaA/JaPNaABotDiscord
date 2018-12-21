@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const botcommand_js_1 = __importDefault(require("../../botcommand.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../locationKeyCreator.js"));
 const precommand_js_1 = __importDefault(require("../../precommand.js"));
-// TODO: Separate this class into registering and dispatching
 class CommandRegistar {
     constructor(botHooks, manager) {
         this.botHooks = botHooks;

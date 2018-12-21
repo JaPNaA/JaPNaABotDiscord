@@ -53,7 +53,7 @@ class PresenceSetter {
 }
 
 class SentMessageRecorder {
-    recordedSentMessages: {[x: string]: any[] | null};
+    recordedSentMessages: { [x: string]: any[] | null };
     constructor() {
         /** The recorded sent messages */
         this.recordedSentMessages = {};
@@ -98,10 +98,10 @@ class BotClient {
     botHooks: BotHooks;
     id: undefined | string;
     client: Client;
-    userIdDMMap: {[x: string]: string};
+    userIdDMMap: { [x: string]: string };
     presence: PresenceSetter;
     sentMessageRecorder: SentMessageRecorder;
-    
+
     constructor(botHooks: BotHooks, client: Client) {
         this.botHooks = botHooks;
 
@@ -231,7 +231,7 @@ class BotClient {
         return channel.guild;
     }
 
-    getServer(serverId: string) : Guild | undefined {
+    getServer(serverId: string): Guild | undefined {
         return this.client.guilds.get(serverId);
     }
 

@@ -32,7 +32,7 @@ class BotEvent {
     on(name: EventName, func: Function): void {
         this.events[name].push(func);
     }
-    
+
     dispatch(name: EventName, event: any): string[] {
         let errors: string[] = [];
 

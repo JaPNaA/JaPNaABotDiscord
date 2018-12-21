@@ -4,7 +4,7 @@ import BotHooks from "./botHooks.js";
 
 class Memory {
     memoryPath: string;
-    memory: {[x: string]: any};
+    memory: { [x: string]: any };
     autoWriteIntervalId?: NodeJS.Timeout;
     memoryChanged: boolean;
     botHook: BotHooks;

@@ -1,5 +1,4 @@
 import Precommand from "./precommand";
-import { Message } from "discord.js";
 import IMessage from "./adapters/IMessage";
 
 class DiscordMessageEvent {
@@ -52,7 +51,7 @@ export { DiscordMessageEvent };
 class DiscordCommandEvent extends DiscordMessageEvent {
     commandContent: string;
     precommand: Precommand;
-    
+
     constructor(messageEvent: DiscordMessageEvent, pre: Precommand, content: string) {
         // inheirt all properties of DiscordMessageEvent
         super(

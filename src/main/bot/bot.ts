@@ -22,7 +22,7 @@ class Bot {
     commandManager: CommandManager;
     client: BotClient;
     activeAsnycRequests: number;
-    
+
     constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function) {
         /**
          * Function to call to restart itself

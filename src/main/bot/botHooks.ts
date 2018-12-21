@@ -143,7 +143,7 @@ class BotHooks {
         this.bot.doneAsyncRequest();
     }
 
-    
+
     dispatchEvent(name: EventName, event: any) {
         this.bot.events.dispatch(name, event);
     }

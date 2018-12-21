@@ -1,5 +1,5 @@
 import BotHooks from "../bot/botHooks.js";
-import { Message, TextChannel, DMChannel } from "discord.js";
+import { TextChannel, DMChannel } from "discord.js";
 import { DiscordMessageEvent } from "../events.js";
 import IMessage from "./IMessage.js";
 

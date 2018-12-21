@@ -17,7 +17,7 @@ type CleanCommandContent = {
 };
 type TestResults = {
     /** If the command can run or not */
-    canRun: boolean, 
+    canRun: boolean,
     /** Why it cannot run */
     reasonCannotRun?: string
 };

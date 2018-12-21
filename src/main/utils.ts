@@ -68,7 +68,7 @@ export { getBit };
  * @param id user id as argument
  * @returns id
  */
-function getSnowflakeNum(id: string) : string | null {
+function getSnowflakeNum(id: string): string | null {
     let matches = id.match(/\d{7,}/);
     if (matches) {
         return matches[0];
@@ -91,7 +91,7 @@ function createErrorString(error: Error): string {
     } else {
         str = "Error generating error string. How ironic."
     }
-    
+
     return str;
 }
 

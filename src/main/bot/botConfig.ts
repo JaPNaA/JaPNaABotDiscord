@@ -28,7 +28,7 @@ class Config {
     gitlabLink: string;
     /** Link to add bot to server */
     addLink: string;
-    
+
     constructor(botHooks: BotHooks, config: object) {
         this.config = config as JSONObject;
 

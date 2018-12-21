@@ -13,7 +13,7 @@ class Precommand {
         this.callback = callback;
     }
 
-    public toString(): string{
+    public toString(): string {
         return this.precommandStr;
     }
 }

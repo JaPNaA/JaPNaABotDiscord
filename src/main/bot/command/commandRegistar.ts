@@ -9,7 +9,6 @@ import Precommand from "../../precommand.js";
 import PrecommandCallback from "../../precommandCallback.js";
 import BotCommandCallback from "../../botcommandCallback.js";
 
-// TODO: Separate this class into registering and dispatching
 class CommandRegistar {
     botHooks: BotHooks;
     manager: CommandManager;
