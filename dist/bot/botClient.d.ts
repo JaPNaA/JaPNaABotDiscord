@@ -56,11 +56,7 @@ declare class BotClient {
      * Converts a message (string | object) into an object
      * @param message Message
      */
-    _createMessageObject(message: string | object): {
-        message: string;
-    } | {
-        message?: undefined;
-    };
+    _createMessageObject(message: string | object): object;
     /**
      * Sends direct message
      * @param userId id of user

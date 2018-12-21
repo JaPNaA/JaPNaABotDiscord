@@ -3,6 +3,11 @@ import BotHooks from "./botHooks.js";
 
 import Logger from "../logger.js";
 
+interface MessageObject {
+    message?: string,
+    nonce?: string
+};
+
 class PresenceSetter {
     client: Client;
 
@@ -167,8 +172,8 @@ class BotClient {
      * Converts a message (string | object) into an object
      * @param message Message
      */
-    _createMessageObject(message: string | object) {
-        let messageObject;
+    _createMessageObject(message: string | object): object {
+        let messageObject: MessageObject;
 
         if (typeof message === "string") {
             messageObject = {
@@ -181,6 +186,8 @@ class BotClient {
         } else {
             throw new TypeError("Message is not of valid type");
         }
+
+        messageObject.nonce = Math.random().toString().replace(".", "");
 
         return messageObject;
     }
@@ -200,10 +207,7 @@ class BotClient {
         let promise;
 
         if (user) {
-            promise = user.send(message, {
-                ...messageObject,
-                nonce: Math.random().toString(),
-            });
+            promise = user.send(message, messageObject);
         } else {
             return Promise.reject();
         }

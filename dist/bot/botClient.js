@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const logger_js_1 = __importDefault(require("../logger.js"));
+;
 class PresenceSetter {
     constructor(client) {
         this.client = client;
@@ -147,6 +148,7 @@ class BotClient {
         else {
             throw new TypeError("Message is not of valid type");
         }
+        messageObject.nonce = Math.random().toString().replace(".", "");
         return messageObject;
     }
     /**
@@ -162,7 +164,7 @@ class BotClient {
         let messageObject = this._createMessageObject(message);
         let promise;
         if (user) {
-            promise = user.send(message, Object.assign({}, messageObject, { nonce: Math.random().toString() }));
+            promise = user.send(message, messageObject);
         }
         else {
             return Promise.reject();
