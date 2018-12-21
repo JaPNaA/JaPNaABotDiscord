@@ -1,5 +1,6 @@
 import BotHooks from "../bot/botHooks.js";
 import { Message, TextChannel } from "discord.js";
+import { DiscordMessageEvent } from "../events.js";
 
 /**
  * @typedef {import("discord.js").TextChannel} TextChannel
@@ -8,13 +9,8 @@ import { Message, TextChannel } from "discord.js";
  * @typedef {import("../bot/botHooks.js")} BotHooks
  */
 
-const { DiscordMessageEvent } = require("../events.js");
-
 class RawEventAdapter {
-    [x: string]: any;
-    /**
-     * @param {BotHooks} botHooks 
-     */
+    botHooks: BotHooks;
     constructor(botHooks: BotHooks) {
         this.botHooks = botHooks;
     }
@@ -29,7 +25,7 @@ class RawEventAdapter {
         let channel = message.channel as TextChannel;
         let isDM = channel.guild ? false : true;
 
-        const messageEvent =
+        const messageEvent: DiscordMessageEvent =
             new DiscordMessageEvent(
                 message.author && message.author.username,
                 message.author && message.author.id,
@@ -38,7 +34,7 @@ class RawEventAdapter {
                 message.content, precommandUsedInMessage, message, isDM
             );
 
-        if (this.botHooks.client.isSelf(message.author)) {
+        if (this.botHooks.client.isSelf(messageEvent.userId)) {
             this.botHooks.events.dispatch("sent", messageEvent);
             return;
         }

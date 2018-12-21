@@ -22,7 +22,6 @@ class Bot {
     commandManager: CommandManager;
     client: BotClient;
     activeAsnycRequests: number;
-    id: undefined | string;
     
     constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function) {
         /**
@@ -163,7 +162,6 @@ class Bot {
      * ready callback
      */
     onReady() {
-        this.id = this.client.id;
         this.events.dispatch("start", null);
         Logger.log("Started");
     }
