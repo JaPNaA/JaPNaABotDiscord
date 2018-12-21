@@ -1,13 +1,8 @@
-/**
- * @typedef {import("./botMemory.js")} Memory
- * @typedef {import("./botHooks.js")} BotHooks
- * @typedef {import("discord.js").TextChannel} TextChannel
- */
-
 import Permissions from "../permissions.js"; 
 import createKey from "./locationKeyCreator.js";
 import Memory from "./botMemory.js";
 import BotHooks from "./botHooks.js";
+import { TextChannel } from "discord.js";
 
 class BotPermissions {
     botHooks: BotHooks;
@@ -94,9 +89,7 @@ class BotPermissions {
     }
 
     editPermissions_user_channel(userId: string, channelId: string, permissionName: string, value: boolean) {
-        /** @type { TextChannel } */
-        // @ts-ignore
-        let channel: TextChannel = this.botHooks.getChannel(channelId);
+        let channel: TextChannel = this.botHooks.getChannel(channelId) as TextChannel;
         let serverId = channel.guild.id;
 
         let customPerms = this.memory.get(createKey.permissions(),
@@ -105,7 +98,7 @@ class BotPermissions {
 
         let permissions = new Permissions();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
 
         customPerms = permissions.getCustomPermissions();
         let locationKey = createKey.user_channel(serverId, userId, channelId);
@@ -127,7 +120,7 @@ class BotPermissions {
 
         let permissions = new Permissions();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
 
         customPerms = permissions.getCustomPermissions();
         let locationKey = createKey.user_server(serverId, userId);
@@ -143,9 +136,7 @@ class BotPermissions {
     }
 
     editPermissions_role_channel(roleId: string, channelId: string, permissionName: string, value: boolean) {
-        /** @type { TextChannel } */
-        // @ts-ignore
-        let channel: TextChannel = this.botHooks.getChannel(channelId);
+        let channel: TextChannel = this.botHooks.getChannel(channelId) as TextChannel;
         let serverId = channel.guild.id;
 
         let customPerms = this.memory.get(createKey.permissions(),
@@ -154,7 +145,7 @@ class BotPermissions {
 
         let permissions = new Permissions();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
 
         customPerms = permissions.getCustomPermissions();
         let locationKey = createKey.role_channel(serverId, roleId, channelId);
@@ -176,7 +167,7 @@ class BotPermissions {
 
         let permissions = new Permissions();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
 
         customPerms = permissions.getCustomPermissions();
         let locationKey = createKey.role_server(serverId, roleId);
@@ -198,7 +189,7 @@ class BotPermissions {
 
         let permissions = new Permissions();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
 
         customPerms = permissions.getCustomPermissions();
         let locationKey = createKey.user_global(userId);

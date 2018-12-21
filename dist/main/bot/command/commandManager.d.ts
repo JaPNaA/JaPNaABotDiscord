@@ -4,22 +4,26 @@ import BotCommandHelp from "../../botcommandHelp.js";
 import Precommand from "../../precommand.js";
 import BotCommand from "../../botcommand.js";
 import CommandRegistar from "./commandRegistar.js";
+import BotPlugin from "../../plugin.js";
 declare class CommandManager {
     register: CommandRegistar;
     dispatch: CommandDispatcher;
+    /** Precommands that trigger the bot, with callbacks */
     precommands: Precommand[];
+    /** list of commands registered */
     commands: BotCommand[];
-    commandGroups: Map<any, any>;
-    plugins: never[];
+    /** groups of commands */
+    commandGroups: Map<string | undefined, BotCommand[]>;
+    /** list of plugins registered*/
+    plugins: BotPlugin[];
+    /** Data for help */
     helpData: {
-        [x: string]: BotCommandHelp;
+        [x: string]: BotCommandHelp | null | undefined;
     };
     constructor(botHooks: BotHooks);
-    getHelp(command: string): BotCommandHelp;
+    getHelp(command: string): BotCommandHelp | null | undefined;
     /**
      * checks if message starts with a precommand
-     * @param {String} message
-     * @returns {Precommand}
      */
     getFirstPrecommand(message: string): Precommand | null;
 }

@@ -47,9 +47,9 @@ function _init() {
 
 /**
  * Concats objects, and arrays, if it comes across any
- * @param {Object.<string, any>} base base
- * @param {Object.<string, any>} override override
- * @returns {Object.<string, any>} concated object
+ * @param base base
+ * @param override override
+ * @returns concated object
  */
 function _concatObject(base: { [s: string]: any; }, override: { [s: string]: any; }): { [s: string]: any; } {
     let c = { ...base };
@@ -88,7 +88,7 @@ function _getConfigFromPath() {
 
 /**
  * Registers a plugin to auto-load
- * @param {String} path path to plugin
+ * @param path path to plugin
  */
 function registerAutoloadPlugin(path: string) {
     if (runtimeConfig["externalPlugins"]) {
@@ -102,7 +102,7 @@ function registerAutoloadPlugin(path: string) {
 
 /**
  * Registers a built-in plugin to auto-load
- * @param {String} name name of built-in plugin
+ * @param name name of built-in plugin
  */
 function registerAutoloadBuiltinPlugin(name: string) {
     if (runtimeConfig["builtinPlugins"]) {
@@ -116,8 +116,8 @@ function registerAutoloadBuiltinPlugin(name: string) {
 
 /**
  * loads/reloads plugin
- * @param {String} path path to plugin
- * @returns {Error} any errors that may have occured while loading plugin
+ * @param path path to plugin
+ * @returns any errors that may have occured while loading plugin
  */
 function loadPlugin(path: string): Error | null {
     let npath: string;
@@ -145,8 +145,8 @@ function loadPlugin(path: string): Error | null {
 
 /**
  * loads/reloads a builtin plugin
- * @param {String} name name of builtin plugin
- * @returns {Error} any errors that may have occured while loading plugin
+ * @param name name of builtin plugin
+ * @returns any errors that may have occured while loading plugin
  */
 function loadBuiltinPlugin(name: string): Error | null {
     let npath = "../plugins/" + name + ".js";
@@ -168,13 +168,13 @@ function loadBuiltinPlugin(name: string): Error | null {
 
 /**
  * Starts the bot
- * @param {String} apiToken The Discord API token
- * @param {String | Object} botConfig The bot's config, overriding default config, 
+ * @param apiToken The Discord API token
+ * @param botConfig The bot's config, overriding default config, 
  * or path to json/jsonc config.
  * 
  * Choosing a path will allow the bot to reload the config when you call the `!reload` command
  * 
- * @param {String} pathToMemoryFile the path to the memory file for the bot
+ * @param pathToMemoryFile the path to the memory file for the bot
  */
 function start(apiToken: string, botConfig: string | object, pathToMemoryFile: string) {
     token = apiToken;
@@ -221,8 +221,8 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
 
 /**
  * Stop the bot
- * @param {Number} [timeout] time until the stop is forced. Null for no timeout
- * @returns {Promise} resolves when the bot finishes stopping
+ * @param [timeout] time until the stop is forced. Null for no timeout
+ * @returns resolves when the bot finishes stopping
  */
 function stop(timeout: number): Promise<any> {
     // shuttingDown = true;
@@ -257,7 +257,7 @@ function stop(timeout: number): Promise<any> {
 
 /**
  * Gets the local variable, bot
- * @returns {Bot} bot
+ * @returns bot
  */
 function getBot(): Bot {
     return bot;
@@ -265,7 +265,7 @@ function getBot(): Bot {
 
 /**
  * Gets the default config
- * @returns {Object} default bot config
+ * @returns default bot config
  */
 function getDefaultConfig(): object {
     return defaultConfig;

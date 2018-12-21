@@ -1,8 +1,3 @@
-/**
- * @typedef {import("./botMemory.js")} Memory
- * @typedef {import("./botHooks.js")} BotHooks
- * @typedef {import("discord.js").TextChannel} TextChannel
- */
 import Permissions from "../permissions.js";
 import Memory from "./botMemory.js";
 import BotHooks from "./botHooks.js";

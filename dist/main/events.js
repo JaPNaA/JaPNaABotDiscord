@@ -1,8 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @typedef {import("./precommand")} Precommand
- */
 class DiscordMessageEvent {
     /**
      * DiscordMessageEvent contructor
@@ -14,20 +11,11 @@ class DiscordMessageEvent {
      * @param event websocket event
      */
     constructor(username, userId, channelId, serverId, message, precommand, event, isDM) {
-        /**
-         * Username of sender
-         * @type {String}
-         */
+        /** Username of sender */
         this.username = username;
-        /**
-         * Id of sender
-         * @type {String}
-         */
+        /** Id of sender */
         this.userId = userId;
-        /**
-         * Id of channel message was sent in
-         * @type {String}
-         */
+        /** Id of channel message was sent in */
         this.channelId = channelId;
         /** Id of server message was sent in */
         this.serverId = serverId;
@@ -43,24 +31,12 @@ class DiscordMessageEvent {
 }
 exports.DiscordMessageEvent = DiscordMessageEvent;
 class DiscordCommandEvent extends DiscordMessageEvent {
-    /**
-     * DiscordCommandEvent constructor
-     * @param {DiscordMessageEvent} messageEvent messageEvent to extend
-     * @param {Precommand} pre precomxmand used
-     * @param {String} content after precommand
-     */
     constructor(messageEvent, pre, content) {
         // inheirt all properties of DiscordMessageEvent
         super(messageEvent.username, messageEvent.userId, messageEvent.channelId, messageEvent.serverId, messageEvent.message, messageEvent.precommand, messageEvent.originalEvent, messageEvent.isDM);
-        /**
-         * Precommand used
-         * @type {Precommand}
-         */
+        /** Precommand used */
         this.precommand = pre;
-        /**
-         * What came after the precommand
-         * @type {String}
-         */
+        /** What came after the precommand */
         this.commandContent = content;
     }
 }

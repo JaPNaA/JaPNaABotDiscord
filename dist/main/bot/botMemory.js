@@ -8,9 +8,9 @@ const logger_js_1 = __importDefault(require("../logger.js"));
 class Memory {
     /**
      * Memory constructor
-     * @param {BotHooks} botHooks hooks can attach to
-     * @param {String} memoryPath path to memory
-     * @param {{[x: string]: any}} memory the memory object
+     * @param botHooks hooks can attach to
+     * @param memoryPath path to memory
+     * @param memory the memory object
      */
     constructor(botHooks, memoryPath, memory) {
         this.memoryPath = memoryPath;

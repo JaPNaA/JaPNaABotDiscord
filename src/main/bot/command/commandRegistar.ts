@@ -11,16 +11,11 @@ import BotCommandCallback from "../../botcommandCallback.js";
 
 // TODO: Separate this class into registering and dispatching
 class CommandRegistar {
-    botHooks: any;
-    manager: any;
-    /**
-     * @param {BotHooks} botHooks 
-     */
+    botHooks: BotHooks;
+    manager: CommandManager;
+    
     constructor(botHooks: BotHooks, manager: CommandManager) {
-        /** @type {BotHooks} */
         this.botHooks = botHooks;
-
-        /** @type {CommandManager} */
         this.manager = manager;
     }
 
@@ -78,15 +73,14 @@ class CommandRegistar {
 
     private addCommandToGroup(groupName: string | undefined, command: BotCommand) {
         let groupNameStr = groupName || "Other";
+        let commandGroup = this.manager.commandGroups.get(groupNameStr);
 
-        if (this.manager.commandGroups.has(groupNameStr)) {
-            this.manager.commandGroups.get(groupNameStr)
-                .push(command);
+        if (commandGroup) {
+            commandGroup.push(command);
         } else {
             this.manager.commandGroups.set(groupNameStr, [command]);
         }
     }
-
 }
 
 export default CommandRegistar;

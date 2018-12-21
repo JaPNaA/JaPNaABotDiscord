@@ -1,7 +1,4 @@
 import BotCommandHelp from "./botcommandHelp";
-/**
- * @typedef {import("./botcommandHelp.js")} BotCommandHelp
- */
 declare class BotCommandOptions {
     requiredPermission: string | undefined;
     noDM: boolean | undefined;

@@ -14,12 +14,6 @@ import BotCommand from "../main/botcommand.js";
 import { TextChannel, Message } from "discord.js";
 
 /**
- * @typedef {import("../events.js").DiscordCommandEvent} DiscordCommandEvent
- * @typedef {import("../bot/botHooks.js").default} BotHooks
- * @typedef {import("../botcommand.js").default} BotCommand
- */
-
-/**
  * Normal commands every bot shoud have
  */
 class Default extends BotPlugin {
@@ -53,7 +47,6 @@ class Default extends BotPlugin {
     user_info(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let userId = event.userId;
 
-        /** @type {Object.<string, string>[]} */
         let response: { [s: string]: string; }[] = [];
 
         if (args) {
@@ -149,9 +142,9 @@ class Default extends BotPlugin {
 
     /**
      * Converts all commands to a readable format
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event data
-     * @param {BotCommand[]} commands
+     * @param bot bot
+     * @param event message event data
+     * @param commands
      */
     _commandsToReadable(bot: BotHooks, event: DiscordCommandEvent, commands: BotCommand[]) {
         return commands.map(command => {
@@ -179,12 +172,9 @@ class Default extends BotPlugin {
     }
 
     /**
-     * Sends general help information
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
+     * Sends general help information (all commands)
      */
     _sendGeneralHelp(bot: BotHooks, event: DiscordCommandEvent) {
-        /** @type {Object.<string, string>[]} */
         let fields: { [s: string]: string; }[] = [];
         let embed = {
             color: bot.config.themeColor,
@@ -215,11 +205,7 @@ class Default extends BotPlugin {
     }
 
     /**
-     * Appends the overloads for help
-     * @param {Object[]} fields feilds in embed
-     * @param {BotCommandHelp} help help
-     * @param {DiscordCommandEvent} event event
-     * @param {String} command command
+     * Appends the overloads for help in embed
      */
     _appendHelpOverloads(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string) {
         if (!help.overloads) return;
@@ -240,10 +226,7 @@ class Default extends BotPlugin {
     }
 
     /**
-     * Appends the overloads for help
-     * @param {Object[]} fields feilds in embed
-     * @param {BotCommandHelp} help help
-     * @param {DiscordCommandEvent} event event
+     * Appends the overloads for help in embed
      */
     _appendHelpExamples(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent) {
         if (!help.examples) return;
@@ -257,12 +240,7 @@ class Default extends BotPlugin {
     }
 
     /**
-     * Creates an help embed object
-     * @param {Object[]} fields feilds in embed
-     * @param {BotCommandHelp} help help
-     * @param {DiscordCommandEvent} event event
-     * @param {String} command help of command
-     * @param {BotHooks} bot bot
+     * Creates an help embed object in embed
      */
     _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: BotHooks) {
         let title = "**" + event.precommand.precommandStr + command + "**";
@@ -287,9 +265,7 @@ class Default extends BotPlugin {
     }
 
     /**
-     * Appends the permissions for a command in help
-     * @param {Object[]} fields fields in embed, to append to
-     * @param {BotCommandHelp} help help data
+     * Appends the permissions for a command in help in embed
      */
     _appendHelpPermissions(fields: object[], help: BotCommandHelp) {
         let requiredPermissionMarkdownStr =
@@ -308,10 +284,6 @@ class Default extends BotPlugin {
 
     /**
      * Sends a help embed about a command
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} command command to get help about
-     * @param {BotCommandHelp} help help
      */
     _sendHelpAboutCommand(bot: BotHooks, event: DiscordCommandEvent, command: string, help: BotCommandHelp) {
         let fields: object[] = [];
@@ -331,10 +303,7 @@ class Default extends BotPlugin {
     }
 
     /**
-     * Sends help about a single command
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} command name of command to send help of
+     * Sends help about a command, checks if the command and command help exists
      */
     _sendSpecificHelp(bot: BotHooks, event: DiscordCommandEvent, command: string) {
         let help = bot.commandManager.getHelp(command);
@@ -350,9 +319,6 @@ class Default extends BotPlugin {
 
     /**
      * Pretends to recieve a message from soneone else
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments
      */
     help(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let cleanArgs = args.toLowerCase().trim();
@@ -366,8 +332,6 @@ class Default extends BotPlugin {
 
     /**
      * Sets the bot admin
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
      */
     i_am_the_bot_admin(bot: BotHooks, event: DiscordCommandEvent) {
         if (bot.memory.get(createKey.permissions(), createKey.firstAdmin())) {
@@ -387,9 +351,6 @@ class Default extends BotPlugin {
 
     /**
      * Pretends to recieve a message from soneone else
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments
      */
     pretend_get(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let tagMatch = args.match(/^\s*<@\d+>\s*/);
@@ -429,10 +390,7 @@ class Default extends BotPlugin {
     }
 
     /**
-     * Pretends to recieve a message from soneone else
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments
+     * Pretends to recieve a message from someone else
      */
     forward_to(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let firstWhitespaceMatch = args.match(/\s/);
@@ -441,7 +399,7 @@ class Default extends BotPlugin {
 
         let channelId = getSnowflakeNum(tagMatch);
         if (!channelId) return; // TODO: Tell invalid, get help
-        let channel = bot.getChannel(channelId);
+        let channel = bot.getChannel(channelId) as TextChannel;
         let message = args.slice(tagMatch.length).trim();
 
         if (!channel) {
@@ -460,11 +418,10 @@ class Default extends BotPlugin {
 
         bot.rawEventAdapter.onMessage({
             author: author,
-            // @ts-ignore
             channel: channel,
             guild: guild,
             content: message
-        });
+        } as Message);
 
         let sentMessages = bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
@@ -475,9 +432,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends a message to a channel
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} argString arguments ns, type, action, id, permission
+     * @param argString arguments ns, type, action, id, permission
      */
     edit_permission(bot: BotHooks, event: DiscordCommandEvent, argString: string) {
         let args = stringToArgs(argString);
@@ -608,9 +563,7 @@ class Default extends BotPlugin {
 
     /**
      * Sends a message to a channel
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments [channelId, ...message]
+     * @param args arguments [channelId, ...message]
      */
     send(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let whitespaceMatch: RegExpMatchArray | null = args.match(/\s/);
@@ -623,8 +576,6 @@ class Default extends BotPlugin {
 
     /**
      * Sends link to add bot to server
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
      */
     link(bot: BotHooks, event: DiscordCommandEvent) {
         bot.send(event.channelId, {
@@ -637,8 +588,6 @@ class Default extends BotPlugin {
 
     /**
      * Sends link to view code of bot (like what you're doing right now!)
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
      */
     code(bot: BotHooks, event: DiscordCommandEvent) {
         bot.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);

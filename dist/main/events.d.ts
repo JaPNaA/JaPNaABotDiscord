@@ -1,8 +1,5 @@
 import Precommand from "./precommand";
 import { Message } from "discord.js";
-/**
- * @typedef {import("./precommand")} Precommand
- */
 declare class DiscordMessageEvent {
     username: string;
     userId: string;
@@ -27,12 +24,6 @@ export { DiscordMessageEvent };
 declare class DiscordCommandEvent extends DiscordMessageEvent {
     commandContent: string;
     precommand: Precommand;
-    /**
-     * DiscordCommandEvent constructor
-     * @param {DiscordMessageEvent} messageEvent messageEvent to extend
-     * @param {Precommand} pre precomxmand used
-     * @param {String} content after precommand
-     */
     constructor(messageEvent: DiscordMessageEvent, pre: Precommand, content: string);
 }
 export { DiscordCommandEvent };

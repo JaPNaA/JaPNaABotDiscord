@@ -46,8 +46,8 @@ declare function createErrorString(error: Error): string;
 export { createErrorString };
 /**
  * Tries to run a function
- * @param {Function} func function to try to run
- * @returns {String | null} error message, if any
+ * @param func function to try to run
+ * @returns error message, if any
  */
 declare function tryRun(func: Function): string | null;
 export { tryRun };

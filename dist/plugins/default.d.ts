@@ -4,11 +4,6 @@ import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent } from "../main/events.js";
 import BotCommand from "../main/botcommand.js";
 /**
- * @typedef {import("../events.js").DiscordCommandEvent} DiscordCommandEvent
- * @typedef {import("../bot/botHooks.js").default} BotHooks
- * @typedef {import("../botcommand.js").default} BotCommand
- */
-/**
  * Normal commands every bot shoud have
  */
 declare class Default extends BotPlugin {
@@ -22,39 +17,25 @@ declare class Default extends BotPlugin {
     user_info(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     /**
      * Converts all commands to a readable format
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event data
-     * @param {BotCommand[]} commands
+     * @param bot bot
+     * @param event message event data
+     * @param commands
      */
     _commandsToReadable(bot: BotHooks, event: DiscordCommandEvent, commands: BotCommand[]): string;
     /**
-     * Sends general help information
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
+     * Sends general help information (all commands)
      */
     _sendGeneralHelp(bot: BotHooks, event: DiscordCommandEvent): void;
     /**
-     * Appends the overloads for help
-     * @param {Object[]} fields feilds in embed
-     * @param {BotCommandHelp} help help
-     * @param {DiscordCommandEvent} event event
-     * @param {String} command command
+     * Appends the overloads for help in embed
      */
     _appendHelpOverloads(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string): void;
     /**
-     * Appends the overloads for help
-     * @param {Object[]} fields feilds in embed
-     * @param {BotCommandHelp} help help
-     * @param {DiscordCommandEvent} event event
+     * Appends the overloads for help in embed
      */
     _appendHelpExamples(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent): void;
     /**
-     * Creates an help embed object
-     * @param {Object[]} fields feilds in embed
-     * @param {BotCommandHelp} help help
-     * @param {DiscordCommandEvent} event event
-     * @param {String} command help of command
-     * @param {BotHooks} bot bot
+     * Creates an help embed object in embed
      */
     _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: BotHooks): {
         embed: {
@@ -65,77 +46,49 @@ declare class Default extends BotPlugin {
         };
     };
     /**
-     * Appends the permissions for a command in help
-     * @param {Object[]} fields fields in embed, to append to
-     * @param {BotCommandHelp} help help data
+     * Appends the permissions for a command in help in embed
      */
     _appendHelpPermissions(fields: object[], help: BotCommandHelp): void;
     /**
      * Sends a help embed about a command
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} command command to get help about
-     * @param {BotCommandHelp} help help
      */
     _sendHelpAboutCommand(bot: BotHooks, event: DiscordCommandEvent, command: string, help: BotCommandHelp): void;
     /**
-     * Sends help about a single command
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} command name of command to send help of
+     * Sends help about a command, checks if the command and command help exists
      */
     _sendSpecificHelp(bot: BotHooks, event: DiscordCommandEvent, command: string): void;
     /**
      * Pretends to recieve a message from soneone else
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments
      */
     help(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     /**
      * Sets the bot admin
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
      */
     i_am_the_bot_admin(bot: BotHooks, event: DiscordCommandEvent): void;
     /**
      * Pretends to recieve a message from soneone else
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments
      */
     pretend_get(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     /**
-     * Pretends to recieve a message from soneone else
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments
+     * Pretends to recieve a message from someone else
      */
     forward_to(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     /**
      * Sends a message to a channel
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} argString arguments ns, type, action, id, permission
+     * @param argString arguments ns, type, action, id, permission
      */
     edit_permission(bot: BotHooks, event: DiscordCommandEvent, argString: string): void;
     /**
      * Sends a message to a channel
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
-     * @param {String} args arguments [channelId, ...message]
+     * @param args arguments [channelId, ...message]
      */
     send(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     /**
      * Sends link to add bot to server
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
      */
     link(bot: BotHooks, event: DiscordCommandEvent): void;
     /**
      * Sends link to view code of bot (like what you're doing right now!)
-     * @param {BotHooks} bot bot
-     * @param {DiscordCommandEvent} event message event
      */
     code(bot: BotHooks, event: DiscordCommandEvent): void;
     _start(): void;

@@ -25,9 +25,6 @@ class BotEvent {
     };
     botHooks: BotHooks;
 
-    /**
-     * @param {BotHooks} botHooks 
-     */
     constructor(botHooks: BotHooks) {
         this.botHooks = botHooks;
     }
@@ -37,7 +34,6 @@ class BotEvent {
     }
     
     dispatch(name: EventName, event: any): string[] {
-        /** @type {String[]} */
         let errors: string[] = [];
 
         for (let handler of this.events[name]) {

@@ -1,6 +1,25 @@
 import { getBit } from "./utils.js";
 
 class Permissions {
+    static keys: string[] = [
+        "CREATE_INSTANT_INVITE", "KICK_MEMBERS",
+        "BAN_MEMBERS", "ADMINISTRATOR", "MANAGE_CHANNELS",
+        "MANAGE_GUILD", "ADD_REACTIONS", "VIEW_AUDIT_LOG",
+        "VIEW_CHANNEL", "SEND_MESSAGES",
+        "SEND_TTS_MESSAGES", "MANAGE_MESSAGES",
+        "EMBED_LINKS", "ATTACH_FILES",
+        "READ_MESSAGE_HISTORY", "MENTION_EVERYONE",
+        "USE_EXTERNAL_EMOJIS", "CONNECT", "SPEAK",
+        "MUTE_MEMBERS", "DEAFEN_MEMBERS", "MOVE_MEMBERS",
+        "USE_VAD", "PRIORITY_SPEAKER", "CHANGE_NICKNAME",
+        "MANAGE_NICKNAMES", "MANAGE_ROLES",
+        "MANAGE_WEBHOOKS", "MANAGE_EMOJIS"
+    ];
+
+    static specialCustoms: string[] = [
+        "BOT_ADMINISTRATOR"
+    ];
+
     [x: string]: any;
 
     num: number;
@@ -39,8 +58,6 @@ class Permissions {
         [x: string]: boolean;
     };
 
-    static keys: any;
-    static specialCustoms: string[];
 
     /**
      * Permissions Constructor
@@ -130,28 +147,16 @@ class Permissions {
         }
     }
 
-    /**
-     * Check if has permission
-     * @param {String} permission string
-     * @returns {Boolean} has permission?
-     */
     has(permission: string): boolean {
         return Boolean(this[permission]) || Boolean(this.customPermissions[permission]);
     }
 
-    /**
-     * Converts capital to lowercase, replace underscores with spaces
-     * @param {String} str input string
-     * @returns {String} readable string
-     */
+    /** Converts capital to lowercase, replace underscores with spaces */
     toReadable(str: string): string {
         return str.toLowerCase().replace(/_/g, " ");
     }
 
-    /**
-     * Converts this.* to markdown string, with true being bold
-     * @returns {String}
-     */
+    /** Converts this.* to markdown string, with true being bold */
     discordPermToString(): string {
         let str = [];
         for (let key of Permissions.keys) {
@@ -167,7 +172,6 @@ class Permissions {
 
     /**
      * Converts this.customPermissions to markdown string, with true being bold
-     * @returns {String}
      */
     customToString(): string {
         let str = [];
@@ -187,20 +191,12 @@ class Permissions {
         }
     }
 
-    /**
-     * Converts this to a markdown string, with true being bold
-     * @returns {String}
-     */
+    /** Converts this to a markdown string, with true being bold */
     toString(): string {
         return this.discordPermToString() + "\n" + this.customToString();
     }
 
-    /**
-     * lists custom permissions has
-     * @returns {String[]} custom permissions
-     */
     getCustomPermissions(): string[] {
-        /** @type {String[]} */
         let keys: string[] = [];
         let okeys = Object.keys(this.customPermissions);
 
@@ -213,10 +209,6 @@ class Permissions {
         return keys;
     }
 
-    /**
-     * Imports custom permissions
-     * @param {String[]} keys custom permissions
-     */
     importCustomPermissions(keys: string[]) {
         if (!keys) return;
 
@@ -229,41 +221,10 @@ class Permissions {
         }
     }
 
-    /**
-     * Writes a custom permission
-     * @param {String} permission permission to write
-     * @param {Boolean} value value of permission
-     */
-    customWrite(permission: string, value: boolean) {
+    /** Writes a custom permission */
+    writeCustomPermission(permission: string, value: boolean) {
         this.customPermissions[permission] = value;
     }
 }
-
-/**
- * List of every permission
- * @type {String[]}
- */
-Permissions.keys = [
-    "CREATE_INSTANT_INVITE", "KICK_MEMBERS",
-    "BAN_MEMBERS", "ADMINISTRATOR", "MANAGE_CHANNELS",
-    "MANAGE_GUILD", "ADD_REACTIONS", "VIEW_AUDIT_LOG",
-    "VIEW_CHANNEL", "SEND_MESSAGES",
-    "SEND_TTS_MESSAGES", "MANAGE_MESSAGES",
-    "EMBED_LINKS", "ATTACH_FILES",
-    "READ_MESSAGE_HISTORY", "MENTION_EVERYONE",
-    "USE_EXTERNAL_EMOJIS", "CONNECT", "SPEAK",
-    "MUTE_MEMBERS", "DEAFEN_MEMBERS", "MOVE_MEMBERS",
-    "USE_VAD", "PRIORITY_SPEAKER", "CHANGE_NICKNAME",
-    "MANAGE_NICKNAMES", "MANAGE_ROLES",
-    "MANAGE_WEBHOOKS", "MANAGE_EMOJIS"
-];
-
-/** 
- * Special custom permissions
- * @type {String[]}
- */
-Permissions.specialCustoms = [
-    "BOT_ADMINISTRATOR"
-];
 
 export default Permissions;

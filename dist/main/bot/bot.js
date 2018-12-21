@@ -78,16 +78,11 @@ class Bot {
         this.activeAsnycRequests--;
         this.events.dispatch("doneasync", this.activeAsnycRequests);
     }
-    /**
-     * Checks if there're more active asnyc requests
-     * @returns {Boolean}
-     */
+    /** Checks if there're more active asnyc requests */
     hasActiveAsyncRequests() {
         return this.activeAsnycRequests > 0;
     }
-    /**
-     * Starts the bot
-     */
+    /** Starts the bot */
     start() {
         logger_js_1.default.log("Bot starting...");
         this.registerCommandsAndPrecommands();
@@ -116,11 +111,7 @@ class Bot {
         this.events.dispatch("stop", null);
         this.memory.writeOut_auto();
     }
-    /**
-     * Restarts bot on command
-     * @param {BotHooks} bot this
-     * @param {DiscordMessageEvent} event data
-     */
+    /** Restarts bot on command */
     restart(bot, event) {
         bot.client.send(event.channelId, "**Restarting**");
         logger_js_1.default.log("Restarting");
@@ -134,10 +125,7 @@ class Bot {
         this.events.dispatch("start", null);
         logger_js_1.default.log("Started");
     }
-    /**
-     * called on command by onmessage
-     * @param {DiscordCommandEvent} commandEvent message information
-     */
+    /** called on command by onmessage */
     onBotPrecommandCommand(commandEvent) {
         this.events.dispatch("command", commandEvent);
         let someCommandRan = false;

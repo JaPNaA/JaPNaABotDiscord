@@ -2,13 +2,6 @@ import BotHooks from "../bot/botHooks.js";
 import { Message, TextChannel } from "discord.js";
 import { DiscordMessageEvent } from "../events.js";
 
-/**
- * @typedef {import("discord.js").TextChannel} TextChannel
- * @typedef {import("discord.js").Message} Message
- * 
- * @typedef {import("../bot/botHooks.js")} BotHooks
- */
-
 class RawEventAdapter {
     botHooks: BotHooks;
     constructor(botHooks: BotHooks) {
@@ -17,7 +10,7 @@ class RawEventAdapter {
 
     /**
      * When receiving raw messages
-     * @param {Message} message of sender
+     * @param message of sender
      */
     onMessage(message: Message) {
         let precommandUsedInMessage = this.botHooks.commandManager.getFirstPrecommand(message.content);

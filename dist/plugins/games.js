@@ -5,10 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/plugin.js"));
 /**
- * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../bot/botHooks.js")} BotHooks
- */
-/**
  * The weirder side of JaPNaABot
  */
 class Game extends plugin_js_1.default {

@@ -16,9 +16,6 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * Tetris is a racing game.
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args What type of game is Tetris?
      */
     tetris(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         bot.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
@@ -26,9 +23,6 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * JaP is kewl
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args What is JaP?
      */
     jap(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         bot.send(event.channelId, {
@@ -41,8 +35,6 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * ebola your parabola
-     * @param {BotHooks} bot
-     * @param {DiscordMessageEvent} event message event
      */
     your(bot: BotHooks, event: DiscordMessageEvent) {
         bot.send(event.channelId, "parabola");
@@ -50,8 +42,6 @@ class JapnaaWeird extends BotPlugin {
 
     /**
      * Listens for messages with 'lol' and deviations
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent) {
         const user = bot.getUser(event.userId);

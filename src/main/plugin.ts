@@ -22,32 +22,19 @@ class BotPlugin {
      */
     public _stop() { }
 
-    /**
-     * Registers an command handler
-     * @param {String} name of command, called by [precommand][name]
-     * @param {Function} func function to run when called
-     * @param {BotCommandOptions} [options] permission that is required to run command
-     */
-    public _registerCommand(name: string, func: Function, options?: BotCommandOptions) {
-        this.bot.commandManager.register.command(name, this._pluginName, func.bind(this), options);
+    /** Registers a command handler */
+    public _registerCommand(name: string, callback: Function, options?: BotCommandOptions) {
+        this.bot.commandManager.register.command(name, this._pluginName, callback.bind(this), options);
     }
 
-    /**
-     * Adds a handler function to an event
-     * @param name of event to register to
-     * @param func handler/callback function
-     */
-    _registerEventHandler(name: EventName, func: Function) {
-        this.bot.events.on(name, func.bind(this));
+    /** Adds a handler function to an event */
+    _registerEventHandler(name: EventName, callback: Function) {
+        this.bot.events.on(name, callback.bind(this));
     }
 
-    /**
-     * Adds a handler function to a precommand
-     * @param precommand precommmand to handle
-     * @param func function to call when precommand is triggered
-     */
-    _registerPrecommandHander(precommand: string, func: Function) {
-        this.bot.commandManager.register.precommand(precommand, func.bind(this));
+    /** Adds a handler function to a precommand */
+    _registerPrecommandHander(precommand: string, callback: Function) {
+        this.bot.commandManager.register.precommand(precommand, callback.bind(this));
     }
 }
 

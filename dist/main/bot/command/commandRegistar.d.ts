@@ -6,11 +6,8 @@ import BotCommandHelp from "../../botcommandHelp.js";
 import PrecommandCallback from "../../precommandCallback.js";
 import BotCommandCallback from "../../botcommandCallback.js";
 declare class CommandRegistar {
-    botHooks: any;
-    manager: any;
-    /**
-     * @param {BotHooks} botHooks
-     */
+    botHooks: BotHooks;
+    manager: CommandManager;
     constructor(botHooks: BotHooks, manager: CommandManager);
     precommand(precommandStr: string, callback: PrecommandCallback): void;
     plugin(plugin: BotPlugin): void;

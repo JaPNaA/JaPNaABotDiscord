@@ -4,56 +4,40 @@ import BotCommandHelp from "../../botcommandHelp.js";
 import Precommand from "../../precommand.js";
 import BotCommand from "../../botcommand.js";
 import CommandRegistar from "./commandRegistar.js";
+import BotPlugin from "../../plugin.js";
 
 class CommandManager {
     register: CommandRegistar;
     dispatch: CommandDispatcher;
+    /** Precommands that trigger the bot, with callbacks */
     precommands: Precommand[];
+    /** list of commands registered */
     commands: BotCommand[];
-    commandGroups: Map<any, any>;
-    plugins: never[];
-    helpData: {[x: string]: BotCommandHelp};
+    /** groups of commands */
+    commandGroups: Map<string | undefined, BotCommand[]>;
+    /** list of plugins registered*/
+    plugins: BotPlugin[];
+    /** Data for help */
+    helpData: { [x: string]: BotCommandHelp | null | undefined };
     constructor(botHooks: BotHooks) {
         this.register = new CommandRegistar(botHooks, this);
         this.dispatch = new CommandDispatcher(botHooks, this);
-
-        /**
-         * @type {Precommand[]} Precommands that trigger the bot, with callbacks
-         */
-        this.precommands = [];
-
-        /**
-         * @type {BotCommand[]} list of commands registered
-         */
-        this.commands = [];
-
-        /**
-         * @type {Map<string, BotCommand[]>} groups of commands
-         */
         this.commandGroups = new Map();
 
-        /**
-         * @type {Plugin[]} list of plugins registered
-         */
+        this.precommands = [];
+        this.commands = [];
         this.plugins = [];
-
-        /**
-         * Data for help
-         * @type {Object.<string, BotCommandHelp>}
-         */
         this.helpData = {};
     }
 
-    getHelp(command: string): BotCommandHelp {
+    getHelp(command: string): BotCommandHelp | null | undefined {
         return this.helpData[command];
     }
 
     /**
      * checks if message starts with a precommand
-     * @param {String} message
-     * @returns {Precommand}
      */
-    getFirstPrecommand(message: string) {
+    getFirstPrecommand(message: string): Precommand | null {
         for (let precommand of this.precommands) {
             let startsWithPrecommand = message.startsWith(precommand.precommandStr);
 

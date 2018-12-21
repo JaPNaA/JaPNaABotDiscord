@@ -1,10 +1,6 @@
 import BotHooks from "./botHooks.js";
 import { JSONObject, JSONType } from "../jsonObject.js";
 
-/**
- * @typedef {import("./botHooks.js")} BotHooks
- */
-
 import createKey from "./locationKeyCreator.js";
 
 type NestedObject = {

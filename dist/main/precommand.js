@@ -2,9 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class Precommand {
     /**
-     * Precommand constructor
-     * @param {String} precommand text which comes before a command
-     * @param {PrecommandCallback} callback function to call to handle precommand
+     * @param precommand text which comes before a command
+     * @param callback function to call to handle precommand
      */
     constructor(precommand, callback) {
         this.precommandStr = precommand;

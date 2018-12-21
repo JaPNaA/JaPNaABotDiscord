@@ -40,8 +40,6 @@ class Japnaa extends BotPlugin {
 
     /**
      * makes the bot count
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     count(bot: BotHooks, event: DiscordMessageEvent) {
         this.counter++;
@@ -53,9 +51,6 @@ class Japnaa extends BotPlugin {
 
     /**
      * says whatever you say
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args what to echo back
      */
     echo(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         let json = null;
@@ -86,9 +81,6 @@ class Japnaa extends BotPlugin {
 
     /**
      * Generates random stuff
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} argString arguments [min, max, step] | "String"
      */
     random(bot: BotHooks, event: DiscordMessageEvent, argString: string) {
         const args = stringToArgs(argString);
@@ -177,7 +169,6 @@ class Japnaa extends BotPlugin {
 
     /**
      * Stops spamming
-     * @param {String} serverId
      */
     _stopSpam(serverId: string) {
         if (this.spamQue[serverId]) {
@@ -222,9 +213,6 @@ class Japnaa extends BotPlugin {
 
     /**
      * Gets the spam limit for channel and user
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @returns {Number} spam limit
      */
     _getSpamLimit(bot: BotHooks, event: DiscordMessageEvent): number {
         let defaultLimit = this.config["spam.defaultLimit"];
@@ -246,8 +234,6 @@ class Japnaa extends BotPlugin {
 
     /**
      * Gets the spam limit que for server and user
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent) {
         let defaultLimit = this.config["spam.defaultQueLimit"];
@@ -264,12 +250,6 @@ class Japnaa extends BotPlugin {
 
     /**
      * Actual spam function
-     * @param {BotHooks} bot bot
-     * @param {String} channelId id of channel
-     * @param {String} serverId id of server
-     * @param {Number} amount number of messages to spam
-     * @param {Boolean} counter use counter?
-     * @param {String} message spam message
      */
     _spam(bot: BotHooks, channelId: string, serverId: string, amount: number, counter: boolean, message: string) {
         let count = 0;
@@ -296,15 +276,9 @@ class Japnaa extends BotPlugin {
 
     /**
      * Makes the bot spam stuff
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args "stop" | [amount, [counter], ...message]
+     * @param args "stop" | [amount, [counter], ...message]
      */
     spam_command(bot: BotHooks, event: DiscordMessageEvent, args: string) {
-        /**
-         * Arguments, cleaned
-         * @type {String}
-         */
         const cleanArgs: string = args.trim().toLowerCase();
 
         switch (cleanArgs) {
@@ -332,24 +306,20 @@ class Japnaa extends BotPlugin {
             return;
         }
 
-        /** @type {String[]} */
         let [amountArg, counterArg, ...messageArg] = stringToArgs(args);
 
         /**
          * Amount of spam
-         * @type {Number}
          */
         let amount: number = 0;
 
         /**
          * Use counter in message?
-         * @type {Boolean}
          */
         let useCounter: boolean = false;
 
         /**
          * Message to spam
-         * @type {String}
          */
         let message: string = "";
 
@@ -403,9 +373,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * Throws an error
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args Error message
+     * @param args error message
      */
     throw(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         throw new Error(args || "User-Thrown Error");
@@ -413,39 +381,31 @@ class Japnaa extends BotPlugin {
 
     /**
      * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * @param args string to set as play
      */
     play(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         bot.client.presence.setGame(args);
     }
 
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to watch a game
+     * @param args string to set as watch
      */
     watch(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         bot.client.presence.setWatch(args);
     }
 
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to listen to a music
+     * @param args string to set as music
      */
     listen_to(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         bot.client.presence.setListen(args);
     }
 
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to stream a game
+     * @param args string to set as stream
      */
     stream(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         bot.client.presence.setStream(args);
@@ -453,9 +413,7 @@ class Japnaa extends BotPlugin {
 
     /**
      * Tell someone something through DMs
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args message to send
+     * @param args message to send
      */
     tell(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         let tagMatch = args.match(/^\s*<@\d+>\s*/);

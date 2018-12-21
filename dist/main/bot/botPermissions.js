@@ -1,9 +1,4 @@
 "use strict";
-/**
- * @typedef {import("./botMemory.js")} Memory
- * @typedef {import("./botHooks.js")} BotHooks
- * @typedef {import("discord.js").TextChannel} TextChannel
- */
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -61,14 +56,12 @@ class BotPermissions {
         return permissions;
     }
     editPermissions_user_channel(userId, channelId, permissionName, value) {
-        /** @type { TextChannel } */
-        // @ts-ignore
         let channel = this.botHooks.getChannel(channelId);
         let serverId = channel.guild.id;
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_channel(serverId, userId, channelId));
         let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
         customPerms = permissions.getCustomPermissions();
         let locationKey = locationKeyCreator_js_1.default.user_channel(serverId, userId, channelId);
         if (customPerms.length) {
@@ -82,7 +75,7 @@ class BotPermissions {
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_server(serverId, userId));
         let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
         customPerms = permissions.getCustomPermissions();
         let locationKey = locationKeyCreator_js_1.default.user_server(serverId, userId);
         if (customPerms.length) {
@@ -93,14 +86,12 @@ class BotPermissions {
         }
     }
     editPermissions_role_channel(roleId, channelId, permissionName, value) {
-        /** @type { TextChannel } */
-        // @ts-ignore
         let channel = this.botHooks.getChannel(channelId);
         let serverId = channel.guild.id;
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId));
         let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
         customPerms = permissions.getCustomPermissions();
         let locationKey = locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId);
         if (customPerms.length) {
@@ -114,7 +105,7 @@ class BotPermissions {
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_server(serverId, roleId));
         let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
         customPerms = permissions.getCustomPermissions();
         let locationKey = locationKeyCreator_js_1.default.role_server(serverId, roleId);
         if (customPerms.length) {
@@ -128,7 +119,7 @@ class BotPermissions {
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId));
         let permissions = new permissions_js_1.default();
         permissions.importCustomPermissions(customPerms);
-        permissions.customWrite(permissionName, value);
+        permissions.writeCustomPermission(permissionName, value);
         customPerms = permissions.getCustomPermissions();
         let locationKey = locationKeyCreator_js_1.default.user_global(userId);
         if (customPerms.length) {

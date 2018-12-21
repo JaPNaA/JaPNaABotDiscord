@@ -5,9 +5,8 @@ class Precommand {
     callback: PrecommandCallback;
 
     /**
-     * Precommand constructor
-     * @param {String} precommand text which comes before a command
-     * @param {PrecommandCallback} callback function to call to handle precommand
+     * @param precommand text which comes before a command
+     * @param callback function to call to handle precommand
      */
     constructor(precommand: string, callback: PrecommandCallback) {
         this.precommandStr = precommand;

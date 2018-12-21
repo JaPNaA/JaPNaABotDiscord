@@ -1,8 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @typedef {import("./botcommandHelp.js")} BotCommandHelp
- */
 class BotCommandOptions {
     /**
      * BotCommandOptions

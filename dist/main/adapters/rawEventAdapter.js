@@ -1,19 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const events_js_1 = require("../events.js");
-/**
- * @typedef {import("discord.js").TextChannel} TextChannel
- * @typedef {import("discord.js").Message} Message
- *
- * @typedef {import("../bot/botHooks.js")} BotHooks
- */
 class RawEventAdapter {
     constructor(botHooks) {
         this.botHooks = botHooks;
     }
     /**
      * When receiving raw messages
-     * @param {Message} message of sender
+     * @param message of sender
      */
     onMessage(message) {
         let precommandUsedInMessage = this.botHooks.commandManager.getFirstPrecommand(message.content);

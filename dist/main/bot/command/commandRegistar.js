@@ -8,13 +8,8 @@ const locationKeyCreator_js_1 = __importDefault(require("../locationKeyCreator.j
 const precommand_js_1 = __importDefault(require("../../precommand.js"));
 // TODO: Separate this class into registering and dispatching
 class CommandRegistar {
-    /**
-     * @param {BotHooks} botHooks
-     */
     constructor(botHooks, manager) {
-        /** @type {BotHooks} */
         this.botHooks = botHooks;
-        /** @type {CommandManager} */
         this.manager = manager;
     }
     precommand(precommandStr, callback) {
@@ -57,9 +52,9 @@ class CommandRegistar {
     }
     addCommandToGroup(groupName, command) {
         let groupNameStr = groupName || "Other";
-        if (this.manager.commandGroups.has(groupNameStr)) {
-            this.manager.commandGroups.get(groupNameStr)
-                .push(command);
+        let commandGroup = this.manager.commandGroups.get(groupNameStr);
+        if (commandGroup) {
+            commandGroup.push(command);
         }
         else {
             this.manager.commandGroups.set(groupNameStr, [command]);

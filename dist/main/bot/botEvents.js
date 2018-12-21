@@ -6,9 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const utils_js_1 = require("../utils.js");
 const logger_js_1 = __importDefault(require("../logger.js"));
 class BotEvent {
-    /**
-     * @param {BotHooks} botHooks
-     */
     constructor(botHooks) {
         this.events = {
             "ready": [],
@@ -30,7 +27,6 @@ class BotEvent {
         this.events[name].push(func);
     }
     dispatch(name, event) {
-        /** @type {String[]} */
         let errors = [];
         for (let handler of this.events[name]) {
             let error = utils_js_1.tryRun(() => handler(this.botHooks, event));

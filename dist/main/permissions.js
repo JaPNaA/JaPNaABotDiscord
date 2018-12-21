@@ -84,26 +84,14 @@ class Permissions {
             this[key] = true;
         }
     }
-    /**
-     * Check if has permission
-     * @param {String} permission string
-     * @returns {Boolean} has permission?
-     */
     has(permission) {
         return Boolean(this[permission]) || Boolean(this.customPermissions[permission]);
     }
-    /**
-     * Converts capital to lowercase, replace underscores with spaces
-     * @param {String} str input string
-     * @returns {String} readable string
-     */
+    /** Converts capital to lowercase, replace underscores with spaces */
     toReadable(str) {
         return str.toLowerCase().replace(/_/g, " ");
     }
-    /**
-     * Converts this.* to markdown string, with true being bold
-     * @returns {String}
-     */
+    /** Converts this.* to markdown string, with true being bold */
     discordPermToString() {
         let str = [];
         for (let key of Permissions.keys) {
@@ -118,7 +106,6 @@ class Permissions {
     }
     /**
      * Converts this.customPermissions to markdown string, with true being bold
-     * @returns {String}
      */
     customToString() {
         let str = [];
@@ -138,19 +125,11 @@ class Permissions {
             return "Custom: none";
         }
     }
-    /**
-     * Converts this to a markdown string, with true being bold
-     * @returns {String}
-     */
+    /** Converts this to a markdown string, with true being bold */
     toString() {
         return this.discordPermToString() + "\n" + this.customToString();
     }
-    /**
-     * lists custom permissions has
-     * @returns {String[]} custom permissions
-     */
     getCustomPermissions() {
-        /** @type {String[]} */
         let keys = [];
         let okeys = Object.keys(this.customPermissions);
         for (let okey of okeys) {
@@ -160,10 +139,6 @@ class Permissions {
         }
         return keys;
     }
-    /**
-     * Imports custom permissions
-     * @param {String[]} keys custom permissions
-     */
     importCustomPermissions(keys) {
         if (!keys)
             return;
@@ -174,19 +149,11 @@ class Permissions {
             this.customPermissions[key] = true;
         }
     }
-    /**
-     * Writes a custom permission
-     * @param {String} permission permission to write
-     * @param {Boolean} value value of permission
-     */
-    customWrite(permission, value) {
+    /** Writes a custom permission */
+    writeCustomPermission(permission, value) {
         this.customPermissions[permission] = value;
     }
 }
-/**
- * List of every permission
- * @type {String[]}
- */
 Permissions.keys = [
     "CREATE_INSTANT_INVITE", "KICK_MEMBERS",
     "BAN_MEMBERS", "ADMINISTRATOR", "MANAGE_CHANNELS",
@@ -201,10 +168,6 @@ Permissions.keys = [
     "MANAGE_NICKNAMES", "MANAGE_ROLES",
     "MANAGE_WEBHOOKS", "MANAGE_EMOJIS"
 ];
-/**
- * Special custom permissions
- * @type {String[]}
- */
 Permissions.specialCustoms = [
     "BOT_ADMINISTRATOR"
 ];

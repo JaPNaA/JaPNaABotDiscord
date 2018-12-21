@@ -15,18 +15,12 @@ class JapnaaWeird extends plugin_js_1.default {
     }
     /**
      * Tetris is a racing game.
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args What type of game is Tetris?
      */
     tetris(bot, event, args) {
         bot.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
     }
     /**
      * JaP is kewl
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args What is JaP?
      */
     jap(bot, event, args) {
         bot.send(event.channelId, {
@@ -38,16 +32,12 @@ class JapnaaWeird extends plugin_js_1.default {
     }
     /**
      * ebola your parabola
-     * @param {BotHooks} bot
-     * @param {DiscordMessageEvent} event message event
      */
     your(bot, event) {
         bot.send(event.channelId, "parabola");
     }
     /**
      * Listens for messages with 'lol' and deviations
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     onmessageHandler_lol(bot, event) {
         const user = bot.getUser(event.userId);

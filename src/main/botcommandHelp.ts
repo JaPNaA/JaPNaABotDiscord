@@ -15,10 +15,7 @@ class BotCommandHelp {
     requiredPermission: string | undefined;
     /** The plugin where the command in from */
     fromPlugin: string | undefined;
-    /**
-     * Bot Command Help constructor
-     * @param {Object} data data of help
-     */
+    
     constructor(data: {
         /** Description of what the command does */
         description: string,

@@ -3,9 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-/**
- * @typedef {import("./botHooks.js")} BotHooks
- */
 const locationKeyCreator_js_1 = __importDefault(require("./locationKeyCreator.js"));
 class Config {
     constructor(botHooks, config) {

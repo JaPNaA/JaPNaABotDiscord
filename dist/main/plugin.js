@@ -13,30 +13,17 @@ class BotPlugin {
      * Stops the plugin
      */
     _stop() { }
-    /**
-     * Registers an command handler
-     * @param {String} name of command, called by [precommand][name]
-     * @param {Function} func function to run when called
-     * @param {BotCommandOptions} [options] permission that is required to run command
-     */
-    _registerCommand(name, func, options) {
-        this.bot.commandManager.register.command(name, this._pluginName, func.bind(this), options);
+    /** Registers a command handler */
+    _registerCommand(name, callback, options) {
+        this.bot.commandManager.register.command(name, this._pluginName, callback.bind(this), options);
     }
-    /**
-     * Adds a handler function to an event
-     * @param name of event to register to
-     * @param func handler/callback function
-     */
-    _registerEventHandler(name, func) {
-        this.bot.events.on(name, func.bind(this));
+    /** Adds a handler function to an event */
+    _registerEventHandler(name, callback) {
+        this.bot.events.on(name, callback.bind(this));
     }
-    /**
-     * Adds a handler function to a precommand
-     * @param precommand precommmand to handle
-     * @param func function to call when precommand is triggered
-     */
-    _registerPrecommandHander(precommand, func) {
-        this.bot.commandManager.register.precommand(precommand, func.bind(this));
+    /** Adds a handler function to a precommand */
+    _registerPrecommandHander(precommand, callback) {
+        this.bot.commandManager.register.precommand(precommand, callback.bind(this));
     }
 }
 exports.default = BotPlugin;

@@ -28,34 +28,22 @@ declare class Bot {
      * Remove asnyc request to wait for
      */
     doneAsyncRequest(): void;
-    /**
-     * Checks if there're more active asnyc requests
-     * @returns {Boolean}
-     */
-    hasActiveAsyncRequests(): boolean;
-    /**
-     * Starts the bot
-     */
+    /** Checks if there're more active asnyc requests */
+    hasActiveAsyncRequests(): Boolean;
+    /** Starts the bot */
     start(): void;
     registerCommandsAndPrecommands(): void;
     /**
      * Stops the bot (async)
      */
     stop(): void;
-    /**
-     * Restarts bot on command
-     * @param {BotHooks} bot this
-     * @param {DiscordMessageEvent} event data
-     */
+    /** Restarts bot on command */
     restart(bot: BotHooks, event: DiscordCommandEvent): void;
     /**
      * ready callback
      */
     onReady(): void;
-    /**
-     * called on command by onmessage
-     * @param {DiscordCommandEvent} commandEvent message information
-     */
+    /** called on command by onmessage */
     onBotPrecommandCommand(commandEvent: DiscordCommandEvent): void;
 }
 export default Bot;

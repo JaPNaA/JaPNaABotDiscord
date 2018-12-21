@@ -29,7 +29,7 @@ declare class SentMessageRecorder {
      * and flushes (clear and returns) the sent messages
      * that were recorded
      * @param channelId id of channel
-     * @returns {any[]} recorded sent messages
+     * @returns recorded sent messages
      */
     stopAndFlushSentMessagesRecordedFromChannel(channelId: string): any[];
 }

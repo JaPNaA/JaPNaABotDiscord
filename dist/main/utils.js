@@ -92,8 +92,8 @@ function createErrorString(error) {
 exports.createErrorString = createErrorString;
 /**
  * Tries to run a function
- * @param {Function} func function to try to run
- * @returns {String | null} error message, if any
+ * @param func function to try to run
+ * @returns error message, if any
  */
 function tryRun(func) {
     try {

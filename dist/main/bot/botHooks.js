@@ -1,9 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class BotHooks {
-    /**
-     * @param {Bot} bot
-     */
     constructor(bot) {
         // Workaround and hacks below.
         this.memory = null;
@@ -23,7 +20,7 @@ class BotHooks {
     }
     /**
      * Send direct message to user
-     * @param {Function} [failCallback] callback called if fails to send
+     * @param [failCallback] callback called if fails to send
      */
     sendDM(userId, message, failCallback) {
         return this.bot.client.sendDM(userId, message, failCallback);
@@ -36,52 +33,50 @@ class BotHooks {
     }
     /**
      * Gets server from channelId
-     * @param {String} channelId id of channel
+     * @param channelId id of channel
      */
     getServerFromChannel(channelId) {
         return this.bot.client.getServerFromChannel(channelId);
     }
     /**
      * Gets the server with serverId
-     * @param {String} serverId id of server
-     * @returns {Guild}
+     * @param serverId id of server
      */
     getServer(serverId) {
         return this.bot.client.getServer(serverId);
     }
     /**
      * Gets user
-     * @param {String} userId id of user
+     * @param userId id of user
      */
     getUser(userId) {
         return this.bot.client.getUser(userId);
     }
     /**
      * Gets a role in a server
-     * @param {String} roleId id of role
-     * @param {String} serverId id of server
-     * @returns {Role}
+     * @param roleId id of role
+     * @param serverId id of server
      */
     getRole(roleId, serverId) {
         return this.bot.client.getRole(roleId, serverId);
     }
     /**
      * Gets user from server
-     * @param {String} userId id of user
-     * @param {String} serverId id of server
+     * @param userId id of user
+     * @param serverId id of server
      */
     getMemberFromServer(userId, serverId) {
         return this.bot.client.getMemberFromServer(userId, serverId);
     }
     /**
-     * @returns {Number} ping
+     * @returns ping
      */
     getPing() {
         return this.bot.client.getPing();
     }
     /**
      * Attaches raw event adapter to hook
-     * @param {RawEventAdapter} rawEventAdapter
+     * @param rawEventAdapter
      */
     attachRawEventAdapter(rawEventAdapter) {
         this.rawEventAdapter = rawEventAdapter;

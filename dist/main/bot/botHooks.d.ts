@@ -18,9 +18,6 @@ declare class BotHooks {
     client: BotClient;
     rawEventAdapter: RawEventAdapter;
     bot: Bot;
-    /**
-     * @param {Bot} bot
-     */
     constructor(bot: Bot);
     /**
      * Sends message to channel
@@ -28,7 +25,7 @@ declare class BotHooks {
     send(channelId: string, message: string | object): Promise<any>;
     /**
      * Send direct message to user
-     * @param {Function} [failCallback] callback called if fails to send
+     * @param [failCallback] callback called if fails to send
      */
     sendDM(userId: string, message: string | object, failCallback?: Function): Promise<any>;
     /**
@@ -37,40 +34,38 @@ declare class BotHooks {
     getChannel(channelId: string): Channel | undefined;
     /**
      * Gets server from channelId
-     * @param {String} channelId id of channel
+     * @param channelId id of channel
      */
     getServerFromChannel(channelId: string): Guild | undefined;
     /**
      * Gets the server with serverId
-     * @param {String} serverId id of server
-     * @returns {Guild}
+     * @param serverId id of server
      */
     getServer(serverId: string): Guild | undefined;
     /**
      * Gets user
-     * @param {String} userId id of user
+     * @param userId id of user
      */
     getUser(userId: string): User | undefined;
     /**
      * Gets a role in a server
-     * @param {String} roleId id of role
-     * @param {String} serverId id of server
-     * @returns {Role}
+     * @param roleId id of role
+     * @param serverId id of server
      */
     getRole(roleId: string, serverId: string): Role | undefined;
     /**
      * Gets user from server
-     * @param {String} userId id of user
-     * @param {String} serverId id of server
+     * @param userId id of user
+     * @param serverId id of server
      */
     getMemberFromServer(userId: string, serverId: string): import("discord.js").GuildMember | undefined;
     /**
-     * @returns {Number} ping
+     * @returns ping
      */
     getPing(): number;
     /**
      * Attaches raw event adapter to hook
-     * @param {RawEventAdapter} rawEventAdapter
+     * @param rawEventAdapter
      */
     attachRawEventAdapter(rawEventAdapter: RawEventAdapter): void;
     attachMemory(memory: Memory): void;

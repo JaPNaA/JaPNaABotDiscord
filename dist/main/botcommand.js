@@ -8,13 +8,6 @@ const utils_js_1 = require("./utils.js");
 const util_1 = require("util");
 const whitespaceRegex = /\s/;
 class BotCommand {
-    /**
-     * BotCommand constructor
-     * @param {BotHooks} bot bot
-     * @param {String} commandName command name
-     * @param {BotCommandCallback} func function to call
-     * @param {BotCommandOptions} [options] command triggering options
-     */
     constructor(bot, commandName, pluginName, func, options) {
         this.bot = bot;
         this.func = func;
@@ -89,12 +82,6 @@ class BotCommand {
             return false;
         }
     }
-    /**
-     * Sends an error message
-     * @param {DiscordCommandEvent} commandEvent command event
-     * @param {String} argString arguments as string
-     * @param {Error} error error to send
-     */
     sendError(commandEvent, argString, error) {
         let errorStr = utils_js_1.createErrorString(error);
         let message = "```An error occured\n" + errorStr +
@@ -106,11 +93,7 @@ class BotCommand {
         this.bot.send(commandEvent.channelId, message);
         logger_js_1.default.warn(message);
     }
-    /**
-     * Tries to run command, and sends an error message if fails
-     * @param {DiscordCommandEvent} commandEvent command event
-     * @param {String} argString arguments as string
-     */
+    /** Tries to run command, and sends an error message if fails */
     tryRunCommand(commandEvent, argString) {
         try {
             this.func(this.bot, commandEvent, argString);

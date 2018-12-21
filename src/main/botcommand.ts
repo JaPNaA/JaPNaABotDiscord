@@ -42,13 +42,6 @@ class BotCommand {
     /** Name of the plugin that registered this command */
     pluginName: string | undefined;
 
-    /**
-     * BotCommand constructor
-     * @param {BotHooks} bot bot
-     * @param {String} commandName command name
-     * @param {BotCommandCallback} func function to call
-     * @param {BotCommandOptions} [options] command triggering options
-     */
     constructor(bot: BotHooks, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions) {
         this.bot = bot;
         this.func = func;
@@ -137,12 +130,6 @@ class BotCommand {
         }
     }
 
-    /**
-     * Sends an error message
-     * @param {DiscordCommandEvent} commandEvent command event
-     * @param {String} argString arguments as string
-     * @param {Error} error error to send
-     */
     sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error) {
         let errorStr = createErrorString(error);
         let message =
@@ -159,11 +146,7 @@ class BotCommand {
         Logger.warn(message);
     }
 
-    /**
-     * Tries to run command, and sends an error message if fails
-     * @param {DiscordCommandEvent} commandEvent command event
-     * @param {String} argString arguments as string
-     */
+    /** Tries to run command, and sends an error message if fails */
     tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
         try {
             this.func(this.bot, commandEvent, argString);

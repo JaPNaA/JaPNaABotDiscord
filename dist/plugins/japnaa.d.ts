@@ -21,15 +21,10 @@ declare class Japnaa extends BotPlugin {
     constructor(bot: BotHooks);
     /**
      * makes the bot count
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     count(bot: BotHooks, event: DiscordMessageEvent): void;
     /**
      * says whatever you say
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args what to echo back
      */
     echo(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
@@ -38,9 +33,6 @@ declare class Japnaa extends BotPlugin {
     _randomString(): string;
     /**
      * Generates random stuff
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} argString arguments [min, max, step] | "String"
      */
     random(bot: BotHooks, event: DiscordMessageEvent, argString: string): void;
     /**
@@ -53,7 +45,6 @@ declare class Japnaa extends BotPlugin {
     _checkSpamInterval(): void;
     /**
      * Stops spamming
-     * @param {String} serverId
      */
     _stopSpam(serverId: string): void;
     /**
@@ -66,74 +57,49 @@ declare class Japnaa extends BotPlugin {
     _sendSpam(): void;
     /**
      * Gets the spam limit for channel and user
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @returns {Number} spam limit
      */
     _getSpamLimit(bot: BotHooks, event: DiscordMessageEvent): number;
     /**
      * Gets the spam limit que for server and user
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
      */
     _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): any;
     /**
      * Actual spam function
-     * @param {BotHooks} bot bot
-     * @param {String} channelId id of channel
-     * @param {String} serverId id of server
-     * @param {Number} amount number of messages to spam
-     * @param {Boolean} counter use counter?
-     * @param {String} message spam message
      */
     _spam(bot: BotHooks, channelId: string, serverId: string, amount: number, counter: boolean, message: string): void;
     /**
      * Makes the bot spam stuff
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args "stop" | [amount, [counter], ...message]
+     * @param args "stop" | [amount, [counter], ...message]
      */
     spam_command(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
      * Throws an error
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args Error message
+     * @param args error message
      */
     throw(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
      * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * @param args string to set as play
      */
     play(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to watch a game
+     * @param args string to set as watch
      */
     watch(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to listen to a music
+     * @param args string to set as music
      */
     listen_to(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
-     * Changes rich presence to play a game
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args string to set as play
+     * Changes rich presence to stream a game
+     * @param args string to set as stream
      */
     stream(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
      * Tell someone something through DMs
-     * @param {BotHooks} bot bot
-     * @param {DiscordMessageEvent} event message event
-     * @param {String} args message to send
+     * @param args message to send
      */
     tell(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     _stop(): void;

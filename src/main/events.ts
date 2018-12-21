@@ -1,10 +1,6 @@
 import Precommand from "./precommand";
 import { Message } from "discord.js";
 
-/**
- * @typedef {import("./precommand")} Precommand
- */
-
 class DiscordMessageEvent {
     username: string;
     userId: string;
@@ -24,22 +20,13 @@ class DiscordMessageEvent {
      * @param event websocket event
      */
     constructor(username: string, userId: string, channelId: string, serverId: string, message: string, precommand: Precommand | null, event: Message, isDM: boolean) {
-        /**
-         * Username of sender
-         * @type {String}
-         */
+        /** Username of sender */
         this.username = username;
 
-        /**
-         * Id of sender
-         * @type {String}
-         */
+        /** Id of sender */
         this.userId = userId;
 
-        /**
-         * Id of channel message was sent in
-         * @type {String}
-         */
+        /** Id of channel message was sent in */
         this.channelId = channelId;
 
         /** Id of server message was sent in */
@@ -64,12 +51,7 @@ export { DiscordMessageEvent };
 class DiscordCommandEvent extends DiscordMessageEvent {
     commandContent: string;
     precommand: Precommand;
-    /**
-     * DiscordCommandEvent constructor
-     * @param {DiscordMessageEvent} messageEvent messageEvent to extend
-     * @param {Precommand} pre precomxmand used
-     * @param {String} content after precommand
-     */
+    
     constructor(messageEvent: DiscordMessageEvent, pre: Precommand, content: string) {
         // inheirt all properties of DiscordMessageEvent
         super(
@@ -78,16 +60,10 @@ class DiscordCommandEvent extends DiscordMessageEvent {
             messageEvent.originalEvent, messageEvent.isDM
         );
 
-        /**
-         * Precommand used
-         * @type {Precommand}
-         */
+        /** Precommand used */
         this.precommand = pre;
 
-        /**
-         * What came after the precommand
-         * @type {String}
-         */
+        /** What came after the precommand */
         this.commandContent = content;
     }
 }

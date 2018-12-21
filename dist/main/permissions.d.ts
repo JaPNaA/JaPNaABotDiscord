@@ -1,4 +1,6 @@
 declare class Permissions {
+    static keys: string[];
+    static specialCustoms: string[];
     [x: string]: any;
     num: number;
     CREATE_INSTANT_INVITE: boolean;
@@ -33,8 +35,6 @@ declare class Permissions {
     customPermissions: {
         [x: string]: boolean;
     };
-    static keys: any;
-    static specialCustoms: string[];
     /**
      * Permissions Constructor
      * @param permissionsNumber permission number
@@ -45,48 +45,20 @@ declare class Permissions {
      * Sets all permissions to true
      */
     setAllPermissionsTrue(): void;
-    /**
-     * Check if has permission
-     * @param {String} permission string
-     * @returns {Boolean} has permission?
-     */
     has(permission: string): boolean;
-    /**
-     * Converts capital to lowercase, replace underscores with spaces
-     * @param {String} str input string
-     * @returns {String} readable string
-     */
+    /** Converts capital to lowercase, replace underscores with spaces */
     toReadable(str: string): string;
-    /**
-     * Converts this.* to markdown string, with true being bold
-     * @returns {String}
-     */
+    /** Converts this.* to markdown string, with true being bold */
     discordPermToString(): string;
     /**
      * Converts this.customPermissions to markdown string, with true being bold
-     * @returns {String}
      */
     customToString(): string;
-    /**
-     * Converts this to a markdown string, with true being bold
-     * @returns {String}
-     */
+    /** Converts this to a markdown string, with true being bold */
     toString(): string;
-    /**
-     * lists custom permissions has
-     * @returns {String[]} custom permissions
-     */
     getCustomPermissions(): string[];
-    /**
-     * Imports custom permissions
-     * @param {String[]} keys custom permissions
-     */
     importCustomPermissions(keys: string[]): void;
-    /**
-     * Writes a custom permission
-     * @param {String} permission permission to write
-     * @param {Boolean} value value of permission
-     */
-    customWrite(permission: string, value: boolean): void;
+    /** Writes a custom permission */
+    writeCustomPermission(permission: string, value: boolean): void;
 }
 export default Permissions;

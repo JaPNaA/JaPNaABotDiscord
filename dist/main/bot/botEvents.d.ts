@@ -5,9 +5,6 @@ declare class BotEvent {
         [x: string]: Function[];
     };
     botHooks: BotHooks;
-    /**
-     * @param {BotHooks} botHooks
-     */
     constructor(botHooks: BotHooks);
     on(name: EventName, func: Function): void;
     dispatch(name: EventName, event: any): string[];

@@ -33,13 +33,6 @@ declare class BotCommand {
     commandName: string;
     /** Name of the plugin that registered this command */
     pluginName: string | undefined;
-    /**
-     * BotCommand constructor
-     * @param {BotHooks} bot bot
-     * @param {String} commandName command name
-     * @param {BotCommandCallback} func function to call
-     * @param {BotCommandOptions} [options] command triggering options
-     */
     constructor(bot: BotHooks, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions);
     /**
      * Returns cleaned command content
@@ -59,18 +52,8 @@ declare class BotCommand {
      * @returns Did the command run OR not have enough permissions to run
      */
     testAndRun(commandEvent: DiscordCommandEvent): boolean;
-    /**
-     * Sends an error message
-     * @param {DiscordCommandEvent} commandEvent command event
-     * @param {String} argString arguments as string
-     * @param {Error} error error to send
-     */
     sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error): void;
-    /**
-     * Tries to run command, and sends an error message if fails
-     * @param {DiscordCommandEvent} commandEvent command event
-     * @param {String} argString arguments as string
-     */
+    /** Tries to run command, and sends an error message if fails */
     tryRunCommand(commandEvent: DiscordCommandEvent, argString: string): void;
 }
 export default BotCommand;

@@ -10,9 +10,9 @@ class Memory {
     botHook: BotHooks;
     /**
      * Memory constructor
-     * @param {BotHooks} botHooks hooks can attach to
-     * @param {String} memoryPath path to memory
-     * @param {{[x: string]: any}} memory the memory object
+     * @param botHooks hooks can attach to
+     * @param memoryPath path to memory
+     * @param memory the memory object
      */
     constructor(botHooks: BotHooks, memoryPath: string, memory: object) {
         this.memoryPath = memoryPath;
