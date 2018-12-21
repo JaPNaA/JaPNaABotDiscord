@@ -1,12 +1,15 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @typedef {import("../../events.js").DiscordMessageEvent} DiscordMessageEvent
  * @typedef {import("../botHooks.js")} BotHooks
  * @typedef {import("./commandManager.js")} CommandManager
  */
-const Logger = require("../../logger.js");
-const { DiscordCommandEvent } = require("../../events.js");
+const logger_js_1 = __importDefault(require("../../logger.js"));
+const events_js_1 = require("../../events.js");
 class CommandDispatcher {
     /**
      * @param {BotHooks} botHooks
@@ -21,7 +24,7 @@ class CommandDispatcher {
      * @param {DiscordMessageEvent} message
      */
     onMessage(message) {
-        Logger.log_message("<<", message);
+        logger_js_1.default.log_message("<<", message);
         this.dispatchIfIsCommand(message);
     }
     /**
@@ -39,8 +42,10 @@ class CommandDispatcher {
      */
     _createDiscordCommandEvent(messageEvent) {
         const pre = messageEvent.precommand;
+        if (!pre)
+            throw new Error("Unknown error");
         const content = pre && messageEvent.message.slice(pre.precommandStr.length);
-        return new DiscordCommandEvent(messageEvent, pre, content);
+        return new events_js_1.DiscordCommandEvent(messageEvent, pre, content);
     }
 }
 exports.default = CommandDispatcher;

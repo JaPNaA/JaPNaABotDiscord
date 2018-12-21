@@ -5,7 +5,7 @@ declare class BotCommandHelp {
     /** Contains all the available types of arguments */
     overloads: {
         [x: string]: string;
-    } | undefined;
+    }[] | undefined;
     /** Examples of the use of the command */
     examples: string[][] | undefined;
     /** The group that the command is in */
@@ -26,7 +26,7 @@ declare class BotCommandHelp {
         /** All possible arguments of the command */
         overloads?: {
             [x: string]: string;
-        };
+        }[];
         /** Examples of the command being used, [command, explanation] */
         examples?: string[][];
     });

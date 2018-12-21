@@ -8,8 +8,9 @@ import CommandManager from "./commandManager.js";
  * @typedef {import("./commandManager.js")} CommandManager
  */
 
-const Logger = require("../../logger.js");
-const { DiscordCommandEvent } = require("../../events.js");
+import Logger from "../../logger.js";
+import { DiscordCommandEvent } from "../../events.js";
+import Precommand from "../../precommand.js";
 
 class CommandDispatcher {
     botHooks: BotHooks;
@@ -47,6 +48,8 @@ class CommandDispatcher {
      */
     _createDiscordCommandEvent(messageEvent: DiscordMessageEvent) {
         const pre = messageEvent.precommand;
+        if (!pre) throw new Error("Unknown error");
+        
         const content = pre && messageEvent.message.slice(pre.precommandStr.length);
         return new DiscordCommandEvent(messageEvent, pre, content);
     }

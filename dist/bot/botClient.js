@@ -1,6 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const Logger = require("../logger.js");
+const discord_js_1 = require("discord.js");
+const logger_js_1 = __importDefault(require("../logger.js"));
 class PresenceSetter {
     constructor(client) {
         this.client = client;
@@ -75,10 +79,6 @@ class SentMessageRecorder {
     }
 }
 class BotClient {
-    /**
-     * @param {BotHooks} botHooks
-     * @param {Client} client
-     */
     constructor(botHooks, client) {
         this.botHooks = botHooks;
         /** Discord.io Client */
@@ -89,7 +89,7 @@ class BotClient {
         this.sentMessageRecorder = new SentMessageRecorder();
         // Catch error, and logs them
         this.client.on("error", function (error) {
-            Logger.error(error);
+            logger_js_1.default.error(error);
         });
     }
     init() {
@@ -106,7 +106,7 @@ class BotClient {
      * @returns A promise that resolves when sent
      */
     send(channelId, message) {
-        Logger.log_message(">>", message);
+        logger_js_1.default.log_message(">>", message);
         let promise;
         let textChannel = this.getChannel(channelId);
         if (textChannel.type == "voice")
@@ -153,12 +153,16 @@ class BotClient {
      * @returns A promise that resolves when message sends, rejcts if fail
      */
     sendDM(userId, message, failCallback) {
-        Logger.log_message("D>", message);
+        logger_js_1.default.log_message("D>", message);
         let user = this.getUser(userId);
         let messageObject = this._createMessageObject(message);
         let promise;
-        if (user)
-            promise = user.send(message, messageObject);
+        if (user) {
+            promise = user.send(message, Object.assign({}, messageObject, { nonce: Math.random().toString() }));
+        }
+        else {
+            return Promise.reject();
+        }
         if (failCallback)
             promise.catch(() => failCallback());
         this.botHooks.events.dispatch("senddm", this);
@@ -169,9 +173,9 @@ class BotClient {
     }
     getServerFromChannel(channelId) {
         let channel = this.getChannel(channelId);
-        if (!channel)
-            return null;
-        return;
+        if (!channel || !(channel instanceof discord_js_1.TextChannel))
+            return;
+        return channel.guild;
     }
     getServer(serverId) {
         return this.client.guilds.get(serverId);
@@ -181,10 +185,15 @@ class BotClient {
     }
     getRole(roleId, serverId) {
         let server = this.getServer(serverId);
+        if (!server)
+            return;
         return server.roles.get(roleId);
     }
     getMemberFromServer(userId, serverId) {
-        return this.getServer(serverId).members.get(userId);
+        let server = this.getServer(serverId);
+        if (!server)
+            return;
+        return server.members.get(userId);
     }
     getPing() {
         return this.client.ping;

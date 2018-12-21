@@ -1,7 +1,5 @@
 import BotHooks from "./botHooks.js";
-declare type JSONObject = {
-    [x: string]: string | string[] | number | number[] | boolean | boolean[] | JSONObject | JSONObject[];
-};
+import { JSONType } from "../jsonObject.js";
 declare type NestedObject = {
     [x: string]: {
         [x: string]: string;
@@ -27,8 +25,8 @@ declare class Config {
     /** Link to add bot to server */
     addLink: string;
     constructor(botHooks: BotHooks, config: object);
-    get(key: string): string | number | boolean | string[] | JSONObject | number[] | boolean[] | JSONObject[];
+    get(key: string): JSONType | undefined;
     /** Gets config for plugin */
-    getPlugin(pluginName: string): string | number | boolean | string[] | JSONObject | number[] | boolean[] | JSONObject[];
+    getPlugin(pluginName: string): JSONType | undefined;
 }
 export default Config;

@@ -1,4 +1,4 @@
-import { User, Client } from "discord.js";
+import { User, Client, Channel, Guild, Role, GuildMember } from "discord.js";
 import BotHooks from "./botHooks.js";
 declare class PresenceSetter {
     client: Client;
@@ -36,16 +36,12 @@ declare class SentMessageRecorder {
 declare class BotClient {
     botHooks: BotHooks;
     id: undefined | string;
-    client: any;
+    client: Client;
     userIdDMMap: {
         [x: string]: string;
     };
     presence: PresenceSetter;
     sentMessageRecorder: SentMessageRecorder;
-    /**
-     * @param {BotHooks} botHooks
-     * @param {Client} client
-     */
     constructor(botHooks: BotHooks, client: Client);
     init(): void;
     isReady(): Boolean;
@@ -72,12 +68,12 @@ declare class BotClient {
      * @returns A promise that resolves when message sends, rejcts if fail
      */
     sendDM(userId: string, message: string | object, failCallback?: Function): Promise<any>;
-    getChannel(channelId: string): any;
-    getServerFromChannel(channelId: string): null | undefined;
-    getServer(serverId: string): any;
-    getUser(userId: string): any;
-    getRole(roleId: string, serverId: string): any;
-    getMemberFromServer(userId: string, serverId: string): any;
-    getPing(): any;
+    getChannel(channelId: string): Channel | undefined;
+    getServerFromChannel(channelId: string): Guild | undefined;
+    getServer(serverId: string): Guild | undefined;
+    getUser(userId: string): User | undefined;
+    getRole(roleId: string, serverId: string): Role | undefined;
+    getMemberFromServer(userId: string, serverId: string): GuildMember | undefined;
+    getPing(): number;
 }
 export default BotClient;

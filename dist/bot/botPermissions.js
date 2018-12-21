@@ -17,6 +17,8 @@ class BotPermissions {
     }
     getPermissions_role_channel(roleId, serverId, channelId) {
         let role = this.botHooks.getRole(roleId, serverId);
+        if (!role)
+            return new permissions_js_1.default();
         let permissions = new permissions_js_1.default(role.permissions);
         if (channelId) {
             permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId)));
@@ -34,6 +36,8 @@ class BotPermissions {
         let permissionsNum = 0;
         if (serverId) {
             server = this.botHooks.getServer(serverId);
+            if (!server)
+                return new permissions_js_1.default();
             user = server.members.get(userId);
             if (!user)
                 return new permissions_js_1.default();

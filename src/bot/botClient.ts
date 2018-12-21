@@ -1,7 +1,7 @@
-import { User, Client, TextChannel } from "discord.js";
+import { User, Client, TextChannel, Channel, Guild, Role, GuildMember } from "discord.js";
 import BotHooks from "./botHooks.js";
 
-const Logger = require("../logger.js");
+import Logger from "../logger.js";
 
 class PresenceSetter {
     client: Client;
@@ -92,14 +92,11 @@ class SentMessageRecorder {
 class BotClient {
     botHooks: BotHooks;
     id: undefined | string;
-    client: any;
+    client: Client;
     userIdDMMap: {[x: string]: string};
     presence: PresenceSetter;
     sentMessageRecorder: SentMessageRecorder;
-    /**
-     * @param {BotHooks} botHooks 
-     * @param {Client} client 
-     */
+    
     constructor(botHooks: BotHooks, client: Client) {
         this.botHooks = botHooks;
 
@@ -196,8 +193,14 @@ class BotClient {
         let messageObject = this._createMessageObject(message);
         let promise;
 
-        if (user)
-            promise = user.send(message, messageObject);
+        if (user) {
+            promise = user.send(message, {
+                ...messageObject,
+                nonce: Math.random().toString(),
+            });
+        } else {
+            return Promise.reject();
+        }
 
         if (failCallback)
             promise.catch(() => failCallback());
@@ -208,17 +211,17 @@ class BotClient {
     }
 
 
-    getChannel(channelId: string) {
+    getChannel(channelId: string): Channel | undefined {
         return this.client.channels.get(channelId);
     }
 
-    getServerFromChannel(channelId: string) {
+    getServerFromChannel(channelId: string): Guild | undefined {
         let channel = this.getChannel(channelId);
-        if (!channel) return null;
-        return;
+        if (!channel || !(channel instanceof TextChannel)) return;
+        return channel.guild;
     }
 
-    getServer(serverId: string) {
+    getServer(serverId: string) : Guild | undefined {
         return this.client.guilds.get(serverId);
     }
 
@@ -226,13 +229,16 @@ class BotClient {
         return this.client.users.get(userId);
     }
 
-    getRole(roleId: string, serverId: string) {
+    getRole(roleId: string, serverId: string): Role | undefined {
         let server = this.getServer(serverId);
+        if (!server) return;
         return server.roles.get(roleId);
     }
 
-    getMemberFromServer(userId: string, serverId: string) {
-        return this.getServer(serverId).members.get(userId);
+    getMemberFromServer(userId: string, serverId: string): GuildMember | undefined {
+        let server = this.getServer(serverId);
+        if (!server) return;
+        return server.members.get(userId);
     }
 
     getPing() {

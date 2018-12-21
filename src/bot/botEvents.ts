@@ -1,10 +1,8 @@
 import BotHooks from "./botHooks.js";
-import * as events from "../events.js";
-import Bot from "./bot.js";
 import EventName from "./eventName.js";
 
-const { tryRun } = require("../utils.js");
-const Logger = require("../logger.js");
+import { tryRun } from "../utils.js";
+import Logger from "../logger.js";
 
 class BotEvent {
     events: { [x: string]: Function[] } = {

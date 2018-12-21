@@ -4,7 +4,7 @@ class BotCommandHelp {
     /** Description of what the command does */
     description: string;
     /** Contains all the available types of arguments */
-    overloads: { [x: string]: string; } | undefined;
+    overloads: { [x: string]: string; }[] | undefined;
     /** Examples of the use of the command */
     examples: string[][] | undefined;
     /** The group that the command is in */
@@ -23,28 +23,12 @@ class BotCommandHelp {
         /** Description of what the command does */
         description: string,
         /** All possible arguments of the command */
-        overloads?: {
-            [x: string]: string
-        },
+        overloads?: { [x: string]: string }[],
         /** Examples of the command being used, [command, explanation] */
         examples?: string[][]
     }) {
-        /** 
-         * Description of what the command does
-         * @type {String}
-         */
         this.description = data.description;
-
-        /**
-         * Contains all available types of arguments
-         * @type {Object<string, string>[]}
-         */
         this.overloads = data.overloads;
-
-        /**
-         * Examples of the use of the command
-         * @type {String[][]}
-         */
         this.examples = data.examples;
     }
 

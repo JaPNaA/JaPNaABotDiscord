@@ -21,6 +21,7 @@ class BotPermissions {
     getPermissions_role_channel(roleId: string, serverId: string, channelId: string): Permissions {
         let role = this.botHooks.getRole(roleId, serverId);
 
+        if (!role) return new Permissions();
         let permissions = new Permissions(role.permissions);
         if (channelId) {
             permissions.importCustomPermissions(
@@ -51,6 +52,7 @@ class BotPermissions {
 
         if (serverId) {
             server = this.botHooks.getServer(serverId);
+            if (!server) return new Permissions();
             user = server.members.get(userId);
             if (!user) return new Permissions();
             

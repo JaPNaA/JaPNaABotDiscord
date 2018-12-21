@@ -26,6 +26,7 @@ declare class DiscordMessageEvent {
 export { DiscordMessageEvent };
 declare class DiscordCommandEvent extends DiscordMessageEvent {
     commandContent: string;
+    precommand: Precommand;
     /**
      * DiscordCommandEvent constructor
      * @param {DiscordMessageEvent} messageEvent messageEvent to extend

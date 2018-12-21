@@ -1,9 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * @typedef {import("./botHooks.js")} BotHooks
  */
-const createKey = require("./locationKeyCreator.js");
+const locationKeyCreator_js_1 = __importDefault(require("./locationKeyCreator.js"));
 class Config {
     constructor(botHooks, config) {
         this.config = config;
@@ -21,7 +24,7 @@ class Config {
     }
     /** Gets config for plugin */
     getPlugin(pluginName) {
-        return this.get(createKey.plugin(pluginName));
+        return this.get(locationKeyCreator_js_1.default.plugin(pluginName));
     }
 }
 exports.default = Config;

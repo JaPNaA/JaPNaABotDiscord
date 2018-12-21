@@ -6,7 +6,7 @@ import CommandManager from "./command/commandManager";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
-import { Channel, Guild, Role } from "discord.js";
+import { Channel, Guild, Role, User } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
 
@@ -32,8 +32,6 @@ class BotHooks {
 
     /**
      * Sends message to channel
-     * @param {String} channelId id of channel
-     * @param {String | Object} message message to send
      */
     send(channelId: string, message: string | object) {
         return this.bot.client.send(channelId, message);
@@ -41,11 +39,9 @@ class BotHooks {
 
     /**
      * Send direct message to user
-     * @param {String} userId id of user
-     * @param {String | Object} message message to send to user
      * @param {Function} [failCallback] callback called if fails to send
      */
-    sendDM(userId: string, message: string | object, failCallback: Function) {
+    sendDM(userId: string, message: string | object, failCallback?: Function) {
         return this.bot.client.sendDM(userId, message, failCallback);
     }
 
@@ -53,10 +49,8 @@ class BotHooks {
 
     /**
      * Gets the channel with channelId
-     * @param {String} channelId
-     * @returns {Channel}
      */
-    getChannel(channelId: string): Channel {
+    getChannel(channelId: string): Channel | undefined {
         return this.bot.client.getChannel(channelId);
     }
 
@@ -64,7 +58,7 @@ class BotHooks {
      * Gets server from channelId
      * @param {String} channelId id of channel
      */
-    getServerFromChannel(channelId: string) {
+    getServerFromChannel(channelId: string): Guild | undefined {
         return this.bot.client.getServerFromChannel(channelId);
     }
 
@@ -73,7 +67,7 @@ class BotHooks {
      * @param {String} serverId id of server
      * @returns {Guild}
      */
-    getServer(serverId: string): Guild {
+    getServer(serverId: string): Guild | undefined {
         return this.bot.client.getServer(serverId);
     }
 
@@ -81,7 +75,7 @@ class BotHooks {
      * Gets user
      * @param {String} userId id of user
      */
-    getUser(userId: string) {
+    getUser(userId: string): User | undefined {
         return this.bot.client.getUser(userId);
     }
 
@@ -91,7 +85,7 @@ class BotHooks {
      * @param {String} serverId id of server
      * @returns {Role}
      */
-    getRole(roleId: string, serverId: string): Role {
+    getRole(roleId: string, serverId: string): Role | undefined {
         return this.bot.client.getRole(roleId, serverId);
     }
 

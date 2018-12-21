@@ -3,8 +3,9 @@ import BotCommandOptions from "./botcommandOptions";
 import EventName from "./bot/eventName";
 
 class BotPlugin {
-    private bot: BotHooks;
-    private _pluginName: string;
+     // Not private due to compatability issues with JS
+    public bot: BotHooks;
+    public _pluginName: string;
     
     constructor(bot: BotHooks) {
         this.bot = bot;
@@ -27,7 +28,7 @@ class BotPlugin {
      * @param {Function} func function to run when called
      * @param {BotCommandOptions} [options] permission that is required to run command
      */
-    public _registerCommand(name: string, func: Function, options: BotCommandOptions) {
+    public _registerCommand(name: string, func: Function, options?: BotCommandOptions) {
         this.bot.commandManager.register.command(name, this._pluginName, func.bind(this), options);
     }
 

@@ -2,8 +2,8 @@ import BotHooks from "./bot/botHooks";
 import BotCommandOptions from "./botcommandOptions";
 import EventName from "./bot/eventName";
 declare class BotPlugin {
-    private bot;
-    private _pluginName;
+    bot: BotHooks;
+    _pluginName: string;
     constructor(bot: BotHooks);
     /**
      * Starts the plugin
@@ -19,7 +19,7 @@ declare class BotPlugin {
      * @param {Function} func function to run when called
      * @param {BotCommandOptions} [options] permission that is required to run command
      */
-    _registerCommand(name: string, func: Function, options: BotCommandOptions): void;
+    _registerCommand(name: string, func: Function, options?: BotCommandOptions): void;
     /**
      * Adds a handler function to an event
      * @param name of event to register to

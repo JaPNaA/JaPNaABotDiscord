@@ -17,16 +17,12 @@ class BotHooks {
     }
     /**
      * Sends message to channel
-     * @param {String} channelId id of channel
-     * @param {String | Object} message message to send
      */
     send(channelId, message) {
         return this.bot.client.send(channelId, message);
     }
     /**
      * Send direct message to user
-     * @param {String} userId id of user
-     * @param {String | Object} message message to send to user
      * @param {Function} [failCallback] callback called if fails to send
      */
     sendDM(userId, message, failCallback) {
@@ -34,8 +30,6 @@ class BotHooks {
     }
     /**
      * Gets the channel with channelId
-     * @param {String} channelId
-     * @returns {Channel}
      */
     getChannel(channelId) {
         return this.bot.client.getChannel(channelId);

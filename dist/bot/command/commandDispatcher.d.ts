@@ -1,6 +1,7 @@
 import BotHooks from "../botHooks.js";
 import { DiscordMessageEvent } from "../../events.js";
 import CommandManager from "./commandManager.js";
+import { DiscordCommandEvent } from "../../events.js";
 declare class CommandDispatcher {
     botHooks: BotHooks;
     manager: CommandManager;
@@ -21,6 +22,6 @@ declare class CommandDispatcher {
     /**
      * @param {DiscordMessageEvent} messageEvent
      */
-    _createDiscordCommandEvent(messageEvent: DiscordMessageEvent): any;
+    _createDiscordCommandEvent(messageEvent: DiscordMessageEvent): DiscordCommandEvent;
 }
 export default CommandDispatcher;

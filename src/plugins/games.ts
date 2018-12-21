@@ -1,15 +1,16 @@
-const BotPlugin = require("../dist/plugin.js");
+import BotPlugin from "../plugin.js";
+import BotHooks from "../bot/botHooks.js";
 
 /**
- * @typedef {import("../dist/events.js").DiscordMessageEvent} DiscordMessageEvent
- * @typedef {import("../dist/bot/botHooks.js")} BotHooks
+ * @typedef {import("../events.js").DiscordMessageEvent} DiscordMessageEvent
+ * @typedef {import("../bot/botHooks.js")} BotHooks
  */
 
 /**
  * The weirder side of JaPNaABot
  */
 class Game extends BotPlugin {
-    constructor(bot) {
+    constructor(bot: BotHooks) {
         super(bot);
         this._pluginName = "game";
     }
@@ -29,4 +30,4 @@ class Game extends BotPlugin {
     }
 }
 
-module.exports = Game;
+export default Game;

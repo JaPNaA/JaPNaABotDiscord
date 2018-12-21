@@ -8,20 +8,8 @@ class BotCommandHelp {
     constructor(data) {
         /** Disallow the use of the command in Direct Messages? */
         this.noDM = false;
-        /**
-         * Description of what the command does
-         * @type {String}
-         */
         this.description = data.description;
-        /**
-         * Contains all available types of arguments
-         * @type {Object<string, string>[]}
-         */
         this.overloads = data.overloads;
-        /**
-         * Examples of the use of the command
-         * @type {String[][]}
-         */
         this.examples = data.examples;
     }
     /**

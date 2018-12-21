@@ -1,12 +1,12 @@
 import BotHooks from "./botHooks.js";
+import { JSONObject, JSONType } from "../jsonObject.js";
 
 /**
  * @typedef {import("./botHooks.js")} BotHooks
  */
 
-const createKey = require("./locationKeyCreator.js");
+import createKey from "./locationKeyCreator.js";
 
-type JSONObject = {[x: string]: string | string[] | number | number[] | boolean | boolean[] | JSONObject | JSONObject[]};
 type NestedObject = {
     [x: string]: {
         [x: string]: string
@@ -46,12 +46,12 @@ class Config {
         this.addLink = (this.config["addLink"] || "... oh wait I don't know how to...") as string;
     }
 
-    get(key: string) {
+    get(key: string): JSONType | undefined {
         return this.config[key];
     }
 
     /** Gets config for plugin */
-    getPlugin(pluginName: string) {
+    getPlugin(pluginName: string): JSONType | undefined {
         return this.get(createKey.plugin(pluginName));
     }
 }
