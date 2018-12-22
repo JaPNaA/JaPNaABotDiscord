@@ -102,7 +102,7 @@ export { createErrorString };
  * @param func function to try to run
  * @returns error message, if any
  */
-function tryRun(func: Function) {
+function tryRun(func: Function): string | null {
     try {
         func();
     } catch (error) {
