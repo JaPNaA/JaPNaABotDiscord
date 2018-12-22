@@ -55,9 +55,9 @@ class JapnaaWeird extends BotPlugin {
     }
 
     _start() {
-        this._registerCommand("jap", this.jap);
-        this._registerCommand("tetris", this.tetris);
-        this._registerCommand("your", this.your);
+        this._registerDefaultCommand("jap", this.jap);
+        this._registerDefaultCommand("tetris", this.tetris);
+        this._registerDefaultCommand("your", this.your);
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
 

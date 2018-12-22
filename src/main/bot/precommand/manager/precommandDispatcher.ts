@@ -27,7 +27,7 @@ class PrecommandDispatcher {
         const pre = messageEvent.precommand;
         if (!pre) throw new Error("Unknown error");
 
-        const content = pre && messageEvent.message.slice(pre.precommandStr.length);
+        const content = pre && messageEvent.message.slice(pre.names.length);
         return new DiscordCommandEvent(messageEvent, pre, content);
     }
 }

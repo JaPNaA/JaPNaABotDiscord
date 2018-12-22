@@ -20,8 +20,8 @@ class Game extends BotPlugin {
     }
 
     _start() {
-        this._registerCommand("game", this.game);
-        this._registerPrecommandHander("g!", this.gPrecommandHandler);
+        this._registerDefaultCommand("game", this.game);
+        this._registerPrecommand("g!", this.gPrecommandHandler);
     }
 }
 

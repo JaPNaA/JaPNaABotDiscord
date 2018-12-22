@@ -449,7 +449,7 @@ class Japnaa extends BotPlugin {
     }
 
     _start() {
-        this._registerCommand("echo", this.echo, new BotCommandOptions({
+        this._registerDefaultCommand("echo", this.echo, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Says what you say, you can also echo JSON objects.",
                 overloads: [{
@@ -466,7 +466,7 @@ class Japnaa extends BotPlugin {
             group: "Testing"
         }));
 
-        this._registerCommand("count", this.count, new BotCommandOptions({
+        this._registerDefaultCommand("count", this.count, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Increments a counter in the bot by 1, and sends it.",
                 examples: [
@@ -476,7 +476,7 @@ class Japnaa extends BotPlugin {
             group: "Testing"
         }));
 
-        this._registerCommand("random", this.random, new BotCommandOptions({
+        this._registerDefaultCommand("random", this.random, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Generates a random thing",
                 overloads: [{
@@ -498,7 +498,7 @@ class Japnaa extends BotPlugin {
             group: "Utils"
         }));
 
-        this._registerCommand("spam", this.spam_command, new BotCommandOptions({
+        this._registerDefaultCommand("spam", this.spam_command, new BotCommandOptions({
             noDM: true,
             help: new BotCommandHelp({
                 description: "Spams a message several times, because you want to be annoying.",
@@ -528,7 +528,7 @@ class Japnaa extends BotPlugin {
             group: "Communication"
         }));
 
-        this._registerCommand("throw", this.throw, new BotCommandOptions({
+        this._registerDefaultCommand("throw", this.throw, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Throws an error.",
                 overloads: [{
@@ -542,7 +542,7 @@ class Japnaa extends BotPlugin {
             group: "Testing"
         }));
 
-        this._registerCommand("play", this.play, new BotCommandOptions({
+        this._registerDefaultCommand("play", this.play, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sets the \"playing\" value",
                 overloads: [{
@@ -555,7 +555,7 @@ class Japnaa extends BotPlugin {
             }),
             group: "Rich Presence"
         }));
-        this._registerCommand("watch", this.watch, new BotCommandOptions({
+        this._registerDefaultCommand("watch", this.watch, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sets the \"watching\" value",
                 overloads: [{
@@ -568,7 +568,7 @@ class Japnaa extends BotPlugin {
             }),
             group: "Rich Presence"
         }));
-        this._registerCommand("listen to", this.listen_to, new BotCommandOptions({
+        this._registerDefaultCommand("listen to", this.listen_to, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sets the \"listening\" value",
                 overloads: [{
@@ -581,7 +581,7 @@ class Japnaa extends BotPlugin {
             }),
             group: "Rich Presence"
         }));
-        this._registerCommand("stream", this.stream, new BotCommandOptions({
+        this._registerDefaultCommand("stream", this.stream, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sets the \"stream\" value",
                 overloads: [{
@@ -595,7 +595,7 @@ class Japnaa extends BotPlugin {
             group: "Rich Presence"
         }));
 
-        this._registerCommand("tell", this.tell, new BotCommandOptions({
+        this._registerDefaultCommand("tell", this.tell, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "The bot sends a direct message to the user, telling the user that you told them something.",
                 overloads: [{

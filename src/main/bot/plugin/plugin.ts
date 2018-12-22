@@ -1,6 +1,7 @@
 import BotHooks from "../botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../eventName";
+import Precommand from "../precommand/precommand";
 
 class BotPlugin {
     // Not private due to compatability issues with JS
@@ -23,8 +24,8 @@ class BotPlugin {
     public _stop() { }
 
     /** Registers a command handler */
-    public _registerCommand(name: string, callback: Function, options?: BotCommandOptions) {
-        this.bot.commandManager.register.command(name, this._pluginName, callback.bind(this), options);
+    public _registerDefaultCommand(name: string, callback: Function, options?: BotCommandOptions) {
+        this.bot.defaultPrecommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
     }
 
     /** Adds a handler function to an event */
@@ -33,8 +34,8 @@ class BotPlugin {
     }
 
     /** Adds a handler function to a precommand */
-    _registerPrecommandHander(precommand: string, callback: Function) {
-        this.bot.commandManager.register.precommand(precommand, callback.bind(this));
+    _registerPrecommand(precommand: string | string[], callback: Function): Precommand {
+        return this.bot.precommandManager.createAndRegister(precommand, callback.bind(this));
     }
 }
 

@@ -26,7 +26,11 @@ class Bot {
     pluginManager: PluginManager;
 
     client: BotClient;
+
     activeAsnycRequests: number;
+    
+    // @ts-ignore this IS assigned in the constructor, dumb dumb
+    defaultPrecommand: Precommand;
 
     constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function) {
         /**
@@ -126,19 +130,19 @@ class Bot {
     }
 
     registerDefaultPrecommands() { // TODO: refactor
-        for (const precommandStr of this.config.precommands) {
-            const precommand = new Precommand (
-                this.hooks, precommandStr, 
-                this.onBotPrecommandCommand.bind(this)
-            );
+        const precommandStrs = this.config.precommands;
+        const precommand = new Precommand(this.hooks, precommandStrs);
 
-            precommand.commandManager.register(
-                "restart", "bot", this.restart.bind(this), 
-                new BotCommandOptions({
-                    requiredPermission: "BOT_ADMINISTRATOR"
-                })
-            );
-        }
+        precommand.commandManager.register(
+            "restart", "bot", this.restart.bind(this), 
+            new BotCommandOptions({
+                requiredPermission: "BOT_ADMINISTRATOR"
+            })
+        );
+
+        this.defaultPrecommand = precommand;
+        this.precommandManager.register(precommand);
+        this.hooks.attachDefaultPrecommand(precommand);
     }
 
     /**
@@ -146,10 +150,8 @@ class Bot {
      */
     stop() {
         this.pluginManager.unregisterAllPlugins();
-
         this.events.dispatch("stop", null);
-
-        this.memory.writeOut_auto();
+        this.memory.writeOut();
     }
 
     /** Restarts bot on command */
@@ -166,29 +168,6 @@ class Bot {
     onReady() {
         this.events.dispatch("start", null);
         Logger.log("Started");
-    }
-
-    /** called on command by onmessage */
-    onBotPrecommandCommand(commandEvent: DiscordCommandEvent) {
-        this.events.dispatch("command", commandEvent);
-
-        let someCommandRan = false;
-
-        for (let i = this.commandManager.commands.length - 1; i >= 0; i--) {
-            let command = this.commandManager.commands[i];
-            let ran = command.testAndRun(commandEvent);
-            if (ran) {
-                someCommandRan = true;
-                break;
-            }
-        }
-
-        if (!someCommandRan) {
-            // command doesn't exist
-            if (this.config.doAlertCommandDoesNotExist) {
-                this.client.send(commandEvent.channelId, "<@" + commandEvent.userId + ">, that command doesn't exist");
-            }
-        }
     }
 }
 

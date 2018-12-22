@@ -2,13 +2,16 @@ import Memory from "./botMemory";
 import Config from "./botConfig";
 import BotEvent from "./botEvents";
 import BotPermissions from "./botPermissions";
-import CommandManager from "./command/commandManager";
+import CommandManager from "./command/manager/commandManager";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
 import { Channel, Guild, Role, User } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
+import PrecommandManager from "./precommand/manager/precommandManager";
+import PluginManager from "./plugin/manager/pluginManager";
+import Precommand from "./precommand/precommand";
 
 
 class BotHooks {
@@ -17,9 +20,11 @@ class BotHooks {
     config: Config = null as any as Config;
     events: BotEvent = null as any as BotEvent;
     permissions: BotPermissions = null as any as BotPermissions;
-    commandManager: CommandManager = null as any as CommandManager;
+    precommandManager: PrecommandManager = null as any as PrecommandManager;
+    pluginManager: PluginManager = null as any as PluginManager;
     client: BotClient = null as any as BotClient;
     rawEventAdapter: RawEventAdapter = null as any as RawEventAdapter;
+    defaultPrecommand: Precommand = null as any as Precommand;
 
     bot: Bot;
 
@@ -126,8 +131,16 @@ class BotHooks {
         this.permissions = permissions;
     }
 
-    attachCommandManager(commandManager: CommandManager) {
-        this.commandManager = commandManager;
+    attachPrecommandManager(precommandManager: PrecommandManager) {
+        this.precommandManager = precommandManager;
+    }
+
+    attachPluginManager(pluginManager: PluginManager) {
+        this.pluginManager = pluginManager;
+    }
+
+    attachDefaultPrecommand(defaultPrecommand: Precommand) {
+        this.defaultPrecommand = defaultPrecommand;
     }
 
     attachClient(client: BotClient) {

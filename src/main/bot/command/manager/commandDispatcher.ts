@@ -16,24 +16,29 @@ class CommandDispatcher {
     /**
      * Handles message event
      */
-    onMessage(message: DiscordMessageEvent) {
+    onMessage(message: DiscordCommandEvent) {
         Logger.log_message("<<", message);
         this.dispatchIfIsCommand(message);
     }
 
-    dispatchIfIsCommand(messageEvent: DiscordMessageEvent) {
-        if (!messageEvent.precommand) return;
-        const commandEvent = this._createDiscordCommandEvent(messageEvent);
-        this.botHooks.events.dispatch("command", commandEvent);
-        commandEvent.precommand.callback(commandEvent);
-    }
+    dispatchIfIsCommand(commandEvent: DiscordCommandEvent) {
+        let someCommandRan = false;
 
-    _createDiscordCommandEvent(messageEvent: DiscordMessageEvent) {
-        const pre = messageEvent.precommand;
-        if (!pre) throw new Error("Unknown error");
+        for (let i = this.manager.commands.length - 1; i >= 0; i--) {
+            let command = this.manager.commands[i];
+            let ran = command.testAndRun(commandEvent);
+            if (ran) {
+                someCommandRan = true;
+                break;
+            }
+        }
 
-        const content = pre && messageEvent.message.slice(pre.precommandStr.length);
-        return new DiscordCommandEvent(messageEvent, pre, content);
+        if (!someCommandRan) {
+            // command doesn't exist
+            if (this.botHooks.config.doAlertCommandDoesNotExist) {
+                this.botHooks.client.send(commandEvent.channelId, "<@" + commandEvent.userId + ">, that command doesn't exist");
+            }
+        }
     }
 }
 

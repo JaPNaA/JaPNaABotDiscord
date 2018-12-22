@@ -1,6 +1,6 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import BotCommandOptions from "../main/bot/precommand/command/commandOptions.js";
-import BotCommandHelp from "../main/commandHelp.js";
+import BotCommandOptions from "../main/bot/command/commandOptions.js";
+import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import Logger from "../main/logger.js";
 
 import { getSnowflakeNum, stringToArgs } from "../main/utils.js";
@@ -10,7 +10,7 @@ import createKey from "../main/bot/locationKeyCreator.js";
 import Permissions from "../main/permissions.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
-import BotCommand from "../main/bot/precommand/command/command.js";
+import BotCommand from "../main/bot/command/command.js";
 import { TextChannel, Message } from "discord.js";
 
 /**
@@ -182,7 +182,7 @@ class Default extends BotPlugin {
             fields: fields
         };
 
-        for (let [groupName, commands] of bot.commandManager.commandGroups) {
+        for (let [groupName, commands] of bot.defaultPrecommand.commandManager.commandGroups) {
             fields.push({
                 name: groupName || "Other",
                 value: this._commandsToReadable(bot, event, commands)
@@ -219,7 +219,7 @@ class Default extends BotPlugin {
             }
 
             fields.push({
-                name: event.precommand.precommandStr + command + " *" + args.join(" ") + "*",
+                name: event.precommand.names + command + " *" + args.join(" ") + "*",
                 value: value.join("\n")
             });
         }
@@ -234,7 +234,7 @@ class Default extends BotPlugin {
         fields.push({
             name: "**Examples**",
             value: help.examples.map(e =>
-                "`" + event.precommand.precommandStr + e[0] + "` - " + e[1] + ""
+                "`" + event.precommand.names + e[0] + "` - " + e[1] + ""
             ).join("\n")
         });
     }
@@ -243,7 +243,7 @@ class Default extends BotPlugin {
      * Creates an help embed object in embed
      */
     _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: BotHooks) {
-        let title = "**" + event.precommand.precommandStr + command + "**";
+        let title = "**" + event.precommand.names + command + "**";
         let description = help.description || "The " + command + " command";
 
         if (help.group) {
@@ -306,7 +306,7 @@ class Default extends BotPlugin {
      * Sends help about a command, checks if the command and command help exists
      */
     _sendSpecificHelp(bot: BotHooks, event: DiscordCommandEvent, command: string) {
-        let help = bot.commandManager.getHelp(command);
+        let help = bot.defaultPrecommand.commandManager.getHelp(command);
 
         if (help) {
             this._sendHelpAboutCommand(bot, event, command, help);
@@ -358,14 +358,14 @@ class Default extends BotPlugin {
         if (!tagMatch) {
             bot.send(event.channelId,
                 "Invalid amount of arguments. See `" +
-                event.precommand.precommandStr + "help pretend get` for help"
+                event.precommand.names + "help pretend get` for help"
             );
             return;
         }
 
         let userId = getSnowflakeNum(tagMatch[0]);
         if (!userId) {
-            bot.send(event.channelId, "Invalid syntax. See `" + event.precommand.precommandStr + "help pretend get`");
+            bot.send(event.channelId, "Invalid syntax. See `" + event.precommand.names + "help pretend get`");
             return;
         }
         let user = bot.getUser(userId);
@@ -440,7 +440,7 @@ class Default extends BotPlugin {
         function sendHelp() {
             bot.send(event.channelId,
                 "Invalid amount of arguments. See `" +
-                event.precommand.precommandStr + "help edit permission` for help"
+                event.precommand.names + "help edit permission` for help"
             );
         }
 
@@ -594,7 +594,7 @@ class Default extends BotPlugin {
     }
 
     _start() {
-        this._registerCommand("eval", this.eval, new BotCommandOptions({
+        this._registerDefaultCommand("eval", this.eval, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
             help: new BotCommandHelp({
                 description: "Evaluates the arguments as JavaScript.",
@@ -609,7 +609,7 @@ class Default extends BotPlugin {
             group: "Testing"
         }));
 
-        this._registerCommand("log message", this.log_message, new BotCommandOptions({
+        this._registerDefaultCommand("log message", this.log_message, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Logs the message to the console of the bot's owner's computer with a \"log\" logging level.",
                 overloads: [{
@@ -622,7 +622,7 @@ class Default extends BotPlugin {
             group: "Testing"
         }));
 
-        this._registerCommand("pretend get", this.pretend_get, new BotCommandOptions({
+        this._registerDefaultCommand("pretend get", this.pretend_get, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
             help: new BotCommandHelp({
                 description: "The bot will pretend that it recieved a message.",
@@ -637,7 +637,7 @@ class Default extends BotPlugin {
             group: "Testing"
         }));
 
-        this._registerCommand("forward to", this.forward_to, new BotCommandOptions({
+        this._registerDefaultCommand("forward to", this.forward_to, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
             help: new BotCommandHelp({
                 description: "The bot will forward any message from a command to a different channel.",
@@ -652,7 +652,7 @@ class Default extends BotPlugin {
             group: "Communication"
         }));
 
-        this._registerCommand("edit permission", this.edit_permission, new BotCommandOptions({
+        this._registerDefaultCommand("edit permission", this.edit_permission, new BotCommandOptions({
             requiredPermission: "ADMINISTRATOR",
             help: new BotCommandHelp({
                 description: "Edits the permissions of a person or role.",
@@ -670,7 +670,7 @@ class Default extends BotPlugin {
             })
         }));
 
-        this._registerCommand("send", this.send, new BotCommandOptions({
+        this._registerDefaultCommand("send", this.send, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
             help: new BotCommandHelp({
                 description: "Makes the bot send a message to a specified channel.",
@@ -685,7 +685,7 @@ class Default extends BotPlugin {
             group: "Testing"
         }));
 
-        this._registerCommand("ping", this.ping, new BotCommandOptions({
+        this._registerDefaultCommand("ping", this.ping, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Pings the bot and tells you how long it took for the bot to receive the message.",
                 examples: [
@@ -694,7 +694,7 @@ class Default extends BotPlugin {
             }),
             group: "Testing"
         }));
-        this._registerCommand("user info", this.user_info, new BotCommandOptions({
+        this._registerDefaultCommand("user info", this.user_info, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Gives you information about the user. (Exposing)",
                 overloads: [{
@@ -709,7 +709,7 @@ class Default extends BotPlugin {
             }),
             group: "Utils"
         }));
-        this._registerCommand("help", this.help, new BotCommandOptions({
+        this._registerDefaultCommand("help", this.help, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Gives you help. And, you just looked up help for help. Something tells me you need some more help.",
                 overloads: [{
@@ -725,7 +725,7 @@ class Default extends BotPlugin {
             group: "Utils"
         }));
 
-        this._registerCommand("i am the bot admin", this.i_am_the_bot_admin, new BotCommandOptions({
+        this._registerDefaultCommand("i am the bot admin", this.i_am_the_bot_admin, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "The first person to run this command will become the bot admin. No one afterwards can become the bot admin.",
                 examples: [
@@ -734,7 +734,7 @@ class Default extends BotPlugin {
             })
         }));
 
-        this._registerCommand("invite", this.link, new BotCommandOptions({
+        this._registerDefaultCommand("invite", this.link, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sends the invite link in current channel.",
                 examples: [
@@ -743,7 +743,7 @@ class Default extends BotPlugin {
             }),
             group: "Promotional"
         }));
-        this._registerCommand("link", this.link, new BotCommandOptions({
+        this._registerDefaultCommand("link", this.link, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sends the invite link in current channel.",
                 examples: [
@@ -752,7 +752,7 @@ class Default extends BotPlugin {
             }),
             group: "Promotional"
         }));
-        this._registerCommand("code", this.code, new BotCommandOptions({
+        this._registerDefaultCommand("code", this.code, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Sends the link to the code repository this bot is running on, you know. In case you want to build a clone of me.",
                 examples: [
