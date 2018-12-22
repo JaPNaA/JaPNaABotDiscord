@@ -1,12 +1,8 @@
-import { User, Client, TextChannel, Channel, Guild, Role, GuildMember } from "discord.js";
+import { User, Client, TextChannel, Channel, Guild, Role, GuildMember, Message } from "discord.js";
 import BotHooks from "./botHooks.js";
 
 import Logger from "../logger.js";
-
-interface MessageObject {
-    message?: string,
-    nonce?: string
-};
+import MessageObject from "./messageObject.js";
 
 class PresenceSetter {
     client: Client;
@@ -138,11 +134,13 @@ class BotClient {
         return authorId === this.id;
     }
 
+    // TODO: refactor send, sendDM
+
     /**
      * Send message
      * @returns A promise that resolves when sent
      */
-    send(channelId: string, message: string | object): Promise<any> {
+    send(channelId: string, message: string | MessageObject): Promise<any> {
         Logger.log_message(">>", message);
 
         let promise;
@@ -158,7 +156,11 @@ class BotClient {
                 message = "_This message is empty_";
             promise = textChannel.send(message);
         } else if (typeof message === "object") {
-            promise = textChannel.send(message);
+            if (message.hasOwnProperty("message")) {
+                promise = textChannel.send(message.message, message as object);
+            } else {
+                promise = textChannel.send(message);
+            }
         } else {
             throw new TypeError("Message is not of valid type");
         }
@@ -169,45 +171,24 @@ class BotClient {
     }
 
     /**
-     * Converts a message (string | object) into an object
-     * @param message Message
-     */
-    _createMessageObject(message: string | object): object {
-        let messageObject: MessageObject;
-
-        if (typeof message === "string") {
-            messageObject = {
-                message: message
-            };
-        } else if (typeof message === "object") {
-            messageObject = {
-                ...message
-            };
-        } else {
-            throw new TypeError("Message is not of valid type");
-        }
-
-        messageObject.nonce = Math.random().toString().replace(".", "");
-
-        return messageObject;
-    }
-
-    /**
      * Sends direct message
      * @param userId id of user
      * @param message message to send
      * @param failCallback callback if failed
      * @returns A promise that resolves when message sends, rejcts if fail
      */
-    sendDM(userId: string, message: string | object, failCallback?: Function): Promise<any> {
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any> {
         Logger.log_message("D>", message);
 
         let user = this.getUser(userId);
-        let messageObject = this._createMessageObject(message);
         let promise;
 
         if (user) {
-            promise = user.send(message, messageObject);
+            if (typeof message === "object" && message.hasOwnProperty("message")) {
+                promise = user.send(message.message, message as object);
+            } else {
+                promise = user.send(message);
+            }
         } else {
             return Promise.reject();
         }
@@ -219,7 +200,6 @@ class BotClient {
 
         return promise;
     }
-
 
     getChannel(channelId: string): Channel | undefined {
         return this.client.channels.get(channelId);

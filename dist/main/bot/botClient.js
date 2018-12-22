@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const logger_js_1 = __importDefault(require("../logger.js"));
-;
 class PresenceSetter {
     constructor(client) {
         this.client = client;
@@ -106,6 +105,7 @@ class BotClient {
     isSelf(authorId) {
         return authorId === this.id;
     }
+    // TODO: refactor send, sendDM
     /**
      * Send message
      * @returns A promise that resolves when sent
@@ -123,33 +123,18 @@ class BotClient {
             promise = textChannel.send(message);
         }
         else if (typeof message === "object") {
-            promise = textChannel.send(message);
+            if (message.hasOwnProperty("message")) {
+                promise = textChannel.send(message.message, message);
+            }
+            else {
+                promise = textChannel.send(message);
+            }
         }
         else {
             throw new TypeError("Message is not of valid type");
         }
         this.sentMessageRecorder.recordSentMessage(channelId, message);
         return promise;
-    }
-    /**
-     * Converts a message (string | object) into an object
-     * @param message Message
-     */
-    _createMessageObject(message) {
-        let messageObject;
-        if (typeof message === "string") {
-            messageObject = {
-                message: message
-            };
-        }
-        else if (typeof message === "object") {
-            messageObject = Object.assign({}, message);
-        }
-        else {
-            throw new TypeError("Message is not of valid type");
-        }
-        messageObject.nonce = Math.random().toString().replace(".", "");
-        return messageObject;
     }
     /**
      * Sends direct message
@@ -161,10 +146,14 @@ class BotClient {
     sendDM(userId, message, failCallback) {
         logger_js_1.default.log_message("D>", message);
         let user = this.getUser(userId);
-        let messageObject = this._createMessageObject(message);
         let promise;
         if (user) {
-            promise = user.send(message, messageObject);
+            if (typeof message === "object" && message.hasOwnProperty("message")) {
+                promise = user.send(message.message, message);
+            }
+            else {
+                promise = user.send(message);
+            }
         }
         else {
             return Promise.reject();

@@ -2,7 +2,6 @@ import Memory from "./botMemory";
 import Config from "./botConfig";
 import BotEvent from "./botEvents";
 import BotPermissions from "./botPermissions";
-import CommandManager from "./command/manager/commandManager";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
@@ -12,6 +11,7 @@ import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
 import PluginManager from "./plugin/manager/pluginManager";
 import Precommand from "./precommand/precommand";
+import MessageObject from "./messageObject";
 
 
 class BotHooks {
@@ -35,7 +35,7 @@ class BotHooks {
     /**
      * Sends message to channel
      */
-    send(channelId: string, message: string | object) {
+    send(channelId: string, message: string | MessageObject) {
         return this.bot.client.send(channelId, message);
     }
 
@@ -43,7 +43,7 @@ class BotHooks {
      * Send direct message to user
      * @param [failCallback] callback called if fails to send
      */
-    sendDM(userId: string, message: string | object, failCallback?: Function) {
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function) {
         return this.bot.client.sendDM(userId, message, failCallback);
     }
 

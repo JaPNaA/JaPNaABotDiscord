@@ -11,6 +11,7 @@ import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
 import PluginManager from "./plugin/manager/pluginManager";
 import Precommand from "./precommand/precommand";
+import MessageObject from "./messageObject";
 declare class BotHooks {
     memory: Memory;
     config: Config;
@@ -26,12 +27,12 @@ declare class BotHooks {
     /**
      * Sends message to channel
      */
-    send(channelId: string, message: string | object): Promise<any>;
+    send(channelId: string, message: string | MessageObject): Promise<any>;
     /**
      * Send direct message to user
      * @param [failCallback] callback called if fails to send
      */
-    sendDM(userId: string, message: string | object, failCallback?: Function): Promise<any>;
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any>;
     /**
      * Gets the channel with channelId
      */
