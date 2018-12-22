@@ -46,7 +46,7 @@ class JapnaaWeird extends BotPlugin {
     onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent) {
         const user = bot.getUser(event.userId);
         if (
-            !event.precommand && // is not a command
+            !event.precommandName && // is not a command
             user && !user.bot && // sender is not a bot
             this.lolRegexp.test(event.message) // contains valid 'lol'
         ) {

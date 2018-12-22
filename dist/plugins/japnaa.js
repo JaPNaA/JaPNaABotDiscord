@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const plugin_js_1 = __importDefault(require("../main/plugin.js"));
-const commandOptions_js_1 = __importDefault(require("../main/bot/precommand/command/commandOptions.js"));
-const commandHelp_js_1 = __importDefault(require("../main/commandHelp.js"));
+const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
+const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
+const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
 const logger_js_1 = __importDefault(require("../main/logger.js"));
 const utils_js_1 = require("../main/utils.js");
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
@@ -348,7 +348,7 @@ class Japnaa extends plugin_js_1.default {
         let tagMatch = args.match(/^\s*<@\d+>\s*/);
         if (!tagMatch) {
             bot.send(event.channelId, "Invalid amount of arguments. See `" +
-                event.precommand + "help tell` for help");
+                event.precommandName + "help tell` for help");
             return;
         }
         let user = utils_js_1.getSnowflakeNum(tagMatch[0]);
@@ -371,7 +371,7 @@ class Japnaa extends plugin_js_1.default {
         this._stopAllSpam();
     }
     _start() {
-        this._registerCommand("echo", this.echo, new commandOptions_js_1.default({
+        this._registerDefaultCommand("echo", this.echo, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Says what you say, you can also echo JSON objects.",
                 overloads: [{
@@ -387,7 +387,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("count", this.count, new commandOptions_js_1.default({
+        this._registerDefaultCommand("count", this.count, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Increments a counter in the bot by 1, and sends it.",
                 examples: [
@@ -396,7 +396,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("random", this.random, new commandOptions_js_1.default({
+        this._registerDefaultCommand("random", this.random, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Generates a random thing",
                 overloads: [{
@@ -417,7 +417,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Utils"
         }));
-        this._registerCommand("spam", this.spam_command, new commandOptions_js_1.default({
+        this._registerDefaultCommand("spam", this.spam_command, new commandOptions_js_1.default({
             noDM: true,
             help: new commandHelp_js_1.default({
                 description: "Spams a message several times, because you want to be annoying.",
@@ -446,7 +446,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Communication"
         }));
-        this._registerCommand("throw", this.throw, new commandOptions_js_1.default({
+        this._registerDefaultCommand("throw", this.throw, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Throws an error.",
                 overloads: [{
@@ -459,7 +459,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("play", this.play, new commandOptions_js_1.default({
+        this._registerDefaultCommand("play", this.play, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Sets the \"playing\" value",
                 overloads: [{
@@ -472,7 +472,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Rich Presence"
         }));
-        this._registerCommand("watch", this.watch, new commandOptions_js_1.default({
+        this._registerDefaultCommand("watch", this.watch, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Sets the \"watching\" value",
                 overloads: [{
@@ -485,7 +485,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Rich Presence"
         }));
-        this._registerCommand("listen to", this.listen_to, new commandOptions_js_1.default({
+        this._registerDefaultCommand("listen to", this.listen_to, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Sets the \"listening\" value",
                 overloads: [{
@@ -498,7 +498,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Rich Presence"
         }));
-        this._registerCommand("stream", this.stream, new commandOptions_js_1.default({
+        this._registerDefaultCommand("stream", this.stream, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Sets the \"stream\" value",
                 overloads: [{
@@ -511,7 +511,7 @@ class Japnaa extends plugin_js_1.default {
             }),
             group: "Rich Presence"
         }));
-        this._registerCommand("tell", this.tell, new commandOptions_js_1.default({
+        this._registerDefaultCommand("tell", this.tell, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "The bot sends a direct message to the user, telling the user that you told them something.",
                 overloads: [{

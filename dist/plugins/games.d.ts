@@ -1,4 +1,4 @@
-import BotPlugin from "../main/plugin.js";
+import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 /**

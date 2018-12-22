@@ -28,6 +28,7 @@ class BotEvent {
     }
     dispatch(name, event) {
         let errors = [];
+        logger_js_1.default.log_message("Event: " + name);
         for (let handler of this.events[name]) {
             let error = utils_js_1.tryRun(() => handler(this.botHooks, event));
             if (error) {

@@ -421,7 +421,7 @@ class Japnaa extends BotPlugin {
         if (!tagMatch) {
             bot.send(event.channelId,
                 "Invalid amount of arguments. See `" +
-                event.precommand + "help tell` for help"
+                event.precommandName + "help tell` for help"
             );
             return;
         }

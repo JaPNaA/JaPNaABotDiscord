@@ -5,9 +5,11 @@ import RawEventAdapter from "../adapters/rawEventAdapter.js";
 import BotConfig from "./botConfig.js";
 import BotPermissions from "./botPermissions.js";
 import BotEvents from "./botEvents.js";
-import CommandManager from "./command/commandManager.js";
 import BotClient from "./botClient.js";
 import { DiscordCommandEvent } from "../events.js";
+import PrecommandManager from "./precommand/manager/precommandManager.js";
+import Precommand from "./precommand/precommand.js";
+import PluginManager from "./plugin/manager/pluginManager.js";
 declare class Bot {
     restartFunc: Function;
     hooks: BotHooks;
@@ -16,9 +18,11 @@ declare class Bot {
     memory: BotMemory;
     permissions: BotPermissions;
     events: BotEvents;
-    commandManager: CommandManager;
+    precommandManager: PrecommandManager;
+    pluginManager: PluginManager;
     client: BotClient;
     activeAsnycRequests: number;
+    defaultPrecommand: Precommand;
     constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function);
     /**
      * Add new asnyc request to wait for
@@ -32,7 +36,7 @@ declare class Bot {
     hasActiveAsyncRequests(): Boolean;
     /** Starts the bot */
     start(): void;
-    registerCommandsAndPrecommands(): void;
+    registerDefaultPrecommands(): void;
     /**
      * Stops the bot (async)
      */
@@ -43,7 +47,5 @@ declare class Bot {
      * ready callback
      */
     onReady(): void;
-    /** called on command by onmessage */
-    onBotPrecommandCommand(commandEvent: DiscordCommandEvent): void;
 }
 export default Bot;

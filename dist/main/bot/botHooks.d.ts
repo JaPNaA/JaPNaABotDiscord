@@ -2,21 +2,25 @@ import Memory from "./botMemory";
 import Config from "./botConfig";
 import BotEvent from "./botEvents";
 import BotPermissions from "./botPermissions";
-import CommandManager from "./command/commandManager";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
 import { Channel, Guild, Role, User } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
+import PrecommandManager from "./precommand/manager/precommandManager";
+import PluginManager from "./plugin/manager/pluginManager";
+import Precommand from "./precommand/precommand";
 declare class BotHooks {
     memory: Memory;
     config: Config;
     events: BotEvent;
     permissions: BotPermissions;
-    commandManager: CommandManager;
+    precommandManager: PrecommandManager;
+    pluginManager: PluginManager;
     client: BotClient;
     rawEventAdapter: RawEventAdapter;
+    defaultPrecommand: Precommand;
     bot: Bot;
     constructor(bot: Bot);
     /**
@@ -72,7 +76,9 @@ declare class BotHooks {
     attachConfig(config: Config): void;
     attachEvents(events: BotEvents): void;
     attachPermissions(permissions: BotPermissions): void;
-    attachCommandManager(commandManager: CommandManager): void;
+    attachPrecommandManager(precommandManager: PrecommandManager): void;
+    attachPluginManager(pluginManager: PluginManager): void;
+    attachDefaultPrecommand(defaultPrecommand: Precommand): void;
     attachClient(client: BotClient): void;
     newAsyncRequest(): void;
     doneAsyncRequest(): void;

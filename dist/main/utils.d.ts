@@ -51,3 +51,8 @@ export { createErrorString };
  */
 declare function tryRun(func: Function): string | null;
 export { tryRun };
+/**
+ * Converts element into element array if required
+ */
+declare function toArray<T>(element: T | T[]): T[];
+export { toArray };

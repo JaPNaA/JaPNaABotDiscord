@@ -105,3 +105,15 @@ function tryRun(func) {
     return null;
 }
 exports.tryRun = tryRun;
+/**
+ * Converts element into element array if required
+ */
+function toArray(element) {
+    if (Array.isArray(element)) {
+        return element;
+    }
+    else {
+        return [element];
+    }
+}
+exports.toArray = toArray;

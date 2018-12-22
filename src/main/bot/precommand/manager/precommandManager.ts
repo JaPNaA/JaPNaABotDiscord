@@ -2,6 +2,7 @@ import PrecommandDispatcher from "./precommandDispatcher";
 import Precommand from "../precommand";
 import BotHooks from "../../botHooks";
 import PrecommandCallback from "../precommandCallback";
+import PrecommandName from "../precommandName";
 
 class PrecommandManager {
     botHooks: BotHooks;
@@ -27,12 +28,12 @@ class PrecommandManager {
     /**
     * checks if message starts with a precommand
     */
-    getFirstPrecommand(message: string): Precommand | null {
+    getFirstPrecommandName(message: string): PrecommandName | null {
         for (let precommand of this.precommands) {
-            let startsWithPrecommand = precommand.isInMessage(message);
+            let precommandNameInMessage = precommand.getNameInMessage(message);
 
-            if (startsWithPrecommand) {
-                return precommand;
+            if (precommandNameInMessage) {
+                return precommandNameInMessage;
             }
         }
 

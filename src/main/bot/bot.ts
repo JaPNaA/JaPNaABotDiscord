@@ -19,7 +19,7 @@ class Bot {
     rawEventAdapter: RawEventAdapter;
     config: BotConfig;
     memory: BotMemory;
-    // permissions: BotPermissions;
+    permissions: BotPermissions;
     events: BotEvents;
 
     precommandManager: PrecommandManager;
@@ -60,6 +60,12 @@ class Bot {
          */
         this.memory = new BotMemory(this.hooks, memoryPath, memory);
         this.hooks.attachMemory(this.memory);
+
+        /**
+         * Bot permissions - gets permissions
+         */
+        this.permissions = new BotPermissions(this.hooks);
+        this.hooks.attachPermissions(this.permissions);
 
         /**
          * Bot events - handles handling events

@@ -192,7 +192,7 @@ class Default extends BotPlugin {
         fields.push({
             name: "---",
             value: "*Any commands in bold are ones you can run " + (event.isDM ? "here" : "there") + "*\n" +
-                "*You can type " + event.precommand + "help [commandName] to get more information on a command.*"
+                "*You can type " + event.precommandName + "help [commandName] to get more information on a command.*"
         });
 
         if (event.isDM) {
@@ -219,7 +219,7 @@ class Default extends BotPlugin {
             }
 
             fields.push({
-                name: event.precommand.names + command + " *" + args.join(" ") + "*",
+                name: event.precommandName.name + command + " *" + args.join(" ") + "*",
                 value: value.join("\n")
             });
         }
@@ -234,7 +234,7 @@ class Default extends BotPlugin {
         fields.push({
             name: "**Examples**",
             value: help.examples.map(e =>
-                "`" + event.precommand.names + e[0] + "` - " + e[1] + ""
+                "`" + event.precommandName.name + e[0] + "` - " + e[1] + ""
             ).join("\n")
         });
     }
@@ -243,7 +243,7 @@ class Default extends BotPlugin {
      * Creates an help embed object in embed
      */
     _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: BotHooks) {
-        let title = "**" + event.precommand.names + command + "**";
+        let title = "**" + event.precommandName.name + command + "**";
         let description = help.description || "The " + command + " command";
 
         if (help.group) {
@@ -358,14 +358,14 @@ class Default extends BotPlugin {
         if (!tagMatch) {
             bot.send(event.channelId,
                 "Invalid amount of arguments. See `" +
-                event.precommand.names + "help pretend get` for help"
+                event.precommandName.name + "help pretend get` for help"
             );
             return;
         }
 
         let userId = getSnowflakeNum(tagMatch[0]);
         if (!userId) {
-            bot.send(event.channelId, "Invalid syntax. See `" + event.precommand.names + "help pretend get`");
+            bot.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
             return;
         }
         let user = bot.getUser(userId);
@@ -440,7 +440,7 @@ class Default extends BotPlugin {
         function sendHelp() {
             bot.send(event.channelId,
                 "Invalid amount of arguments. See `" +
-                event.precommand.names + "help edit permission` for help"
+                event.precommandName.name + "help edit permission` for help"
             );
         }
 

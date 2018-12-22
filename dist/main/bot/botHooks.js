@@ -7,9 +7,11 @@ class BotHooks {
         this.config = null;
         this.events = null;
         this.permissions = null;
-        this.commandManager = null;
+        this.precommandManager = null;
+        this.pluginManager = null;
         this.client = null;
         this.rawEventAdapter = null;
+        this.defaultPrecommand = null;
         this.bot = bot;
     }
     /**
@@ -93,8 +95,14 @@ class BotHooks {
     attachPermissions(permissions) {
         this.permissions = permissions;
     }
-    attachCommandManager(commandManager) {
-        this.commandManager = commandManager;
+    attachPrecommandManager(precommandManager) {
+        this.precommandManager = precommandManager;
+    }
+    attachPluginManager(pluginManager) {
+        this.pluginManager = pluginManager;
+    }
+    attachDefaultPrecommand(defaultPrecommand) {
+        this.defaultPrecommand = defaultPrecommand;
     }
     attachClient(client) {
         this.client = client;

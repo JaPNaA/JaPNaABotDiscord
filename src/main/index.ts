@@ -133,7 +133,7 @@ function loadPlugin(path: string): Error | null {
 
     try {
         let plugin = new (require(npath).default)(bot.hooks);
-        bot.commandManager.register.plugin(plugin);
+        bot.pluginManager.register(plugin);
 
         Logger.log("Successfully loaded external plugin", path);
         return null;
@@ -156,7 +156,7 @@ function loadBuiltinPlugin(name: string): Error | null {
 
     try {
         let plugin = new (require(npath).default)(bot.hooks);
-        bot.commandManager.register.plugin(plugin);
+        bot.pluginManager.register(plugin);
 
         Logger.log("Successfully loaded built-in plugin", name);
         return null;

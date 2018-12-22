@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const plugin_js_1 = __importDefault(require("../main/plugin.js"));
+const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 /**
  * The weirder side of JaPNaABot
  */
@@ -41,7 +41,7 @@ class JapnaaWeird extends plugin_js_1.default {
      */
     onmessageHandler_lol(bot, event) {
         const user = bot.getUser(event.userId);
-        if (!event.precommand && // is not a command
+        if (!event.precommandName && // is not a command
             user && !user.bot && // sender is not a bot
             this.lolRegexp.test(event.message) // contains valid 'lol'
         ) {
@@ -49,9 +49,9 @@ class JapnaaWeird extends plugin_js_1.default {
         }
     }
     _start() {
-        this._registerCommand("jap", this.jap);
-        this._registerCommand("tetris", this.tetris);
-        this._registerCommand("your", this.your);
+        this._registerDefaultCommand("jap", this.jap);
+        this._registerDefaultCommand("tetris", this.tetris);
+        this._registerDefaultCommand("your", this.your);
         this._registerEventHandler("message", this.onmessageHandler_lol);
         this.bot.events.on("start", function () {
             this.bot.client.presence.setWatch("you");

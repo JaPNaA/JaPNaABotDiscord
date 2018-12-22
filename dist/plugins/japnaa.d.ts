@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordMessageEvent } from "../main/events.js";
-import BotPlugin from "../main/plugin.js";
+import BotPlugin from "../main/bot/plugin/plugin.js";
 import { JSONObject } from "../main/jsonObject.js";
 /**
  * Commonly used commands made by me, JaPNaA

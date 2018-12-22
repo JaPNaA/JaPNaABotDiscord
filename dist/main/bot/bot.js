@@ -9,10 +9,12 @@ const rawEventAdapter_js_1 = __importDefault(require("../adapters/rawEventAdapte
 const botConfig_js_1 = __importDefault(require("./botConfig.js"));
 const botPermissions_js_1 = __importDefault(require("./botPermissions.js"));
 const botEvents_js_1 = __importDefault(require("./botEvents.js"));
-const commandManager_js_1 = __importDefault(require("./command/commandManager.js"));
 const botClient_js_1 = __importDefault(require("./botClient.js"));
 const logger_js_1 = __importDefault(require("../logger.js"));
-const commandOptions_js_1 = __importDefault(require("./precommand/command/commandOptions.js"));
+const commandOptions_js_1 = __importDefault(require("./command/commandOptions.js"));
+const precommandManager_js_1 = __importDefault(require("./precommand/manager/precommandManager.js"));
+const precommand_js_1 = __importDefault(require("./precommand/precommand.js"));
+const pluginManager_js_1 = __importDefault(require("./plugin/manager/pluginManager.js"));
 class Bot {
     constructor(config, memory, memoryPath, client, restartFunc) {
         /**
@@ -39,7 +41,7 @@ class Bot {
         this.memory = new botMemory_js_1.default(this.hooks, memoryPath, memory);
         this.hooks.attachMemory(this.memory);
         /**
-         * Bot permission - handles getting and setting permissions
+         * Bot permissions - gets permissions
          */
         this.permissions = new botPermissions_js_1.default(this.hooks);
         this.hooks.attachPermissions(this.permissions);
@@ -49,10 +51,15 @@ class Bot {
         this.events = new botEvents_js_1.default(this.hooks);
         this.hooks.attachEvents(this.events);
         /**
-         * Bot command manager - manages registering commands and dispatching
+         * Bot precommand manager - manages registering and dispatching precommands
          */
-        this.commandManager = new commandManager_js_1.default(this.hooks);
-        this.hooks.attachCommandManager(this.commandManager);
+        this.precommandManager = new precommandManager_js_1.default(this.hooks);
+        this.hooks.attachPrecommandManager(this.precommandManager);
+        /**
+         * Bot plugin manager - registers plugins
+         */
+        this.pluginManager = new pluginManager_js_1.default(this.hooks);
+        this.hooks.attachPluginManager(this.pluginManager);
         /**
          * Bot client - handles sending and receiving messages
          */
@@ -85,7 +92,7 @@ class Bot {
     /** Starts the bot */
     start() {
         logger_js_1.default.log("Bot starting...");
-        this.registerCommandsAndPrecommands();
+        this.registerDefaultPrecommands();
         logger_js_1.default.setLevel(this.config.loggingLevel);
         this.memory.startAutoWrite();
         if (this.client.isReady()) {
@@ -95,21 +102,23 @@ class Bot {
             this.events.on("ready", this.onReady.bind(this));
         }
     }
-    registerCommandsAndPrecommands() {
-        this.commandManager.register.command("restart", "bot", this.restart.bind(this), new commandOptions_js_1.default({
+    registerDefaultPrecommands() {
+        const precommandStrs = this.config.precommands;
+        const precommand = new precommand_js_1.default(this.hooks, precommandStrs);
+        precommand.commandManager.register("restart", "bot", this.restart.bind(this), new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR"
         }));
-        for (let precommand of this.config.precommands) {
-            this.commandManager.register.precommand(precommand, this.onBotPrecommandCommand.bind(this));
-        }
+        this.defaultPrecommand = precommand;
+        this.precommandManager.register(precommand);
+        this.hooks.attachDefaultPrecommand(precommand);
     }
     /**
      * Stops the bot (async)
      */
     stop() {
-        this.commandManager.register.unregisterAllPlugins();
+        this.pluginManager.unregisterAllPlugins();
         this.events.dispatch("stop", null);
-        this.memory.writeOut_auto();
+        this.memory.writeOut();
     }
     /** Restarts bot on command */
     restart(bot, event) {
@@ -124,25 +133,6 @@ class Bot {
     onReady() {
         this.events.dispatch("start", null);
         logger_js_1.default.log("Started");
-    }
-    /** called on command by onmessage */
-    onBotPrecommandCommand(commandEvent) {
-        this.events.dispatch("command", commandEvent);
-        let someCommandRan = false;
-        for (let i = this.commandManager.commands.length - 1; i >= 0; i--) {
-            let command = this.commandManager.commands[i];
-            let ran = command.testAndRun(commandEvent);
-            if (ran) {
-                someCommandRan = true;
-                break;
-            }
-        }
-        if (!someCommandRan) {
-            // command doesn't exist
-            if (this.config.doAlertCommandDoesNotExist) {
-                this.client.send(commandEvent.channelId, "<@" + commandEvent.userId + ">, that command doesn't exist");
-            }
-        }
     }
 }
 exports.default = Bot;

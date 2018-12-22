@@ -3,6 +3,7 @@ import BotPermissions from "../botPermissions.js";
 import CommandManager from "../command/manager/commandManager.js";
 import BotHooks from "../botHooks.js";
 import { toArray } from "../../utils.js";
+import PrecommandName from "./precommandName.js";
 
 class Precommand {
     botHooks: BotHooks;
@@ -27,18 +28,20 @@ class Precommand {
         if (callback) {
             this.callback = callback;
         } else {
-            this.callback = this.commandManager.dispatch.onMessage;
+            this.callback = this.commandManager.dispatch.onMessage.bind(this.commandManager.dispatch);
         }
     }
 
-    public isInMessage(message: string): boolean {
-        for (let name of this.names) {
+    public getNameInMessage(message: string): PrecommandName | null {
+        for (let i = 0; i < this.names.length; i++) {
+            const name = this.names[i];
+
             if (message.startsWith(name)) {
-                return true;
+                return new PrecommandName(this, i);
             }
         }
 
-        return false;
+        return null;
     }
 
     public toString(): string {

@@ -1,8 +1,8 @@
-import BotPlugin from "../main/plugin.js";
-import BotCommandHelp from "../main/commandHelp.js";
+import BotPlugin from "../main/bot/plugin/plugin.js";
+import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent } from "../main/events.js";
-import BotCommand from "../main/bot/precommand/command/command.js";
+import BotCommand from "../main/bot/command/command.js";
 /**
  * Normal commands every bot shoud have
  */
@@ -41,7 +41,7 @@ declare class Default extends BotPlugin {
         embed: {
             color: number;
             title: string;
-            description: any;
+            description: string;
             fields: object[];
         };
     };

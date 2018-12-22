@@ -11,7 +11,7 @@ class RawEventAdapter {
      * @param message of sender
      */
     onMessage(message) {
-        let precommandUsedInMessage = this.botHooks.commandManager.getFirstPrecommand(message.content);
+        let precommandNameInMessage = this.botHooks.precommandManager.getFirstPrecommandName(message.content);
         let channel = message.channel;
         let isDM = false;
         if (channel instanceof discord_js_1.DMChannel) {
@@ -20,13 +20,13 @@ class RawEventAdapter {
         else {
             isDM = false;
         }
-        const messageEvent = new events_js_1.DiscordMessageEvent(message.author && message.author.username, message.author && message.author.id, message.channel && message.channel.id, message.guild && message.guild.id, message.content, precommandUsedInMessage, message, isDM);
+        const messageEvent = new events_js_1.DiscordMessageEvent(message.author && message.author.username, message.author && message.author.id, message.channel && message.channel.id, message.guild && message.guild.id, message.content, precommandNameInMessage, message, isDM);
         if (this.botHooks.client.isSelf(messageEvent.userId)) {
             this.botHooks.events.dispatch("sent", messageEvent);
             return;
         }
         this.botHooks.events.dispatch("message", messageEvent);
-        this.botHooks.commandManager.dispatch.onMessage(messageEvent);
+        this.botHooks.precommandManager.dispatch.onMessage(messageEvent);
     }
     onReady() {
         this.botHooks.events.dispatch("ready", null);

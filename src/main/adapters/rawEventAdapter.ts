@@ -14,7 +14,7 @@ class RawEventAdapter {
      * @param message of sender
      */
     onMessage(message: IMessage) {
-        let precommandUsedInMessage = this.botHooks.commandManager.getFirstPrecommand(message.content);
+        let precommandNameInMessage = this.botHooks.precommandManager.getFirstPrecommandName(message.content);
 
         let channel = message.channel as TextChannel | DMChannel;
         let isDM = false;
@@ -31,7 +31,8 @@ class RawEventAdapter {
                 message.author && message.author.id,
                 message.channel && message.channel.id,
                 message.guild && message.guild.id,
-                message.content, precommandUsedInMessage, message, isDM
+                message.content, precommandNameInMessage, 
+                message, isDM
             );
 
         if (this.botHooks.client.isSelf(messageEvent.userId)) {
@@ -41,7 +42,7 @@ class RawEventAdapter {
 
         this.botHooks.events.dispatch("message", messageEvent);
 
-        this.botHooks.commandManager.dispatch.onMessage(messageEvent);
+        this.botHooks.precommandManager.dispatch.onMessage(messageEvent);
     }
 
     onReady() {
