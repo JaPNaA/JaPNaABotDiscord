@@ -1,4 +1,4 @@
-import Precommand from "./precommand";
+import Precommand from "./bot/precommand/precommand";
 import IMessage from "./adapters/IMessage";
 
 class DiscordMessageEvent {

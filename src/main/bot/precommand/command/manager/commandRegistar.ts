@@ -1,13 +1,13 @@
 import BotHooks from "../botHooks.js";
 import CommandManager from "./commandManager.js";
 import BotPlugin from "../../plugin.js";
-import BotCommandOptions from "../../botcommandOptions.js";
-import BotCommand from "../../botcommand.js";
-import BotCommandHelp from "../../botcommandHelp.js";
+import BotCommandOptions from "../../commandOptions.js";
+import BotCommand from "../../command.js";
+import BotCommandHelp from "../../commandHelp.js";
 import createKey from "../locationKeyCreator.js";
-import Precommand from "../../precommand.js";
-import PrecommandCallback from "../../precommandCallback.js";
-import BotCommandCallback from "../../botcommandCallback.js";
+import Precommand from "../precommand/precommand.js";
+import PrecommandCallback from "../precommand/precommandCallback.js";
+import BotCommandCallback from "../../commandCallback.js";
 
 class CommandRegistar {
     botHooks: BotHooks;

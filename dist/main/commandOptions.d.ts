@@ -1,6 +1,5 @@
-import BotCommandHelp from "./botcommandHelp";
-
-class BotCommandOptions {
+import BotCommandHelp from "./commandHelp";
+declare class BotCommandOptions {
     requiredPermission: string | undefined;
     noDM: boolean | undefined;
     help: BotCommandHelp | undefined;
@@ -11,19 +10,13 @@ class BotCommandOptions {
      */
     constructor(options: {
         /** The required permission to run command */
-        requiredPermission?: string,
+        requiredPermission?: string;
         /** Disallow the use of the command in Direct Messages? */
-        noDM?: boolean,
+        noDM?: boolean;
         /** Help for the command, obtained via 'help' */
-        help?: BotCommandHelp,
+        help?: BotCommandHelp;
         /** The group the command belongs in, shows up in help */
-        group?: string
-    }) {
-        this.requiredPermission = options.requiredPermission;
-        this.noDM = options.noDM;
-        this.help = options.help;
-        this.group = options.group;
-    }
+        group?: string;
+    });
 }
-
 export default BotCommandOptions;

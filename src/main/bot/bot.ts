@@ -8,7 +8,7 @@ import BotEvents from "./botEvents.js";
 import CommandManager from "./command/commandManager.js";
 import BotClient from "./botClient.js";
 import Logger from "../logger.js";
-import BotCommandOptions from "../botcommandOptions.js";
+import BotCommandOptions from "./precommand/command/commandOptions.js";
 import { DiscordCommandEvent } from "../events.js";
 
 class Bot {

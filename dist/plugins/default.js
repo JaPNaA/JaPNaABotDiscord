@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/plugin.js"));
-const botcommandOptions_js_1 = __importDefault(require("../main/botcommandOptions.js"));
-const botcommandHelp_js_1 = __importDefault(require("../main/botcommandHelp.js"));
+const commandOptions_js_1 = __importDefault(require("../main/bot/precommand/command/commandOptions.js"));
+const commandHelp_js_1 = __importDefault(require("../main/commandHelp.js"));
 const logger_js_1 = __importDefault(require("../main/logger.js"));
 const utils_js_1 = require("../main/utils.js");
 const util_1 = require("util");
@@ -537,9 +537,9 @@ class Default extends plugin_js_1.default {
         bot.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
     }
     _start() {
-        this._registerCommand("eval", this.eval, new botcommandOptions_js_1.default({
+        this._registerCommand("eval", this.eval, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",
-            help: new botcommandHelp_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Evaluates the arguments as JavaScript.",
                 overloads: [{
                         "code": "Code to evaluate"
@@ -551,8 +551,8 @@ class Default extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("log message", this.log_message, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("log message", this.log_message, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Logs the message to the console of the bot's owner's computer with a \"log\" logging level.",
                 overloads: [{
                         "message": "Message to log"
@@ -563,9 +563,9 @@ class Default extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("pretend get", this.pretend_get, new botcommandOptions_js_1.default({
+        this._registerCommand("pretend get", this.pretend_get, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",
-            help: new botcommandHelp_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "The bot will pretend that it recieved a message.",
                 overloads: [{
                         "userId": "From user by UserID raw or as a @metion",
@@ -577,9 +577,9 @@ class Default extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("forward to", this.forward_to, new botcommandOptions_js_1.default({
+        this._registerCommand("forward to", this.forward_to, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",
-            help: new botcommandHelp_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "The bot will forward any message from a command to a different channel.",
                 overloads: [{
                         "channelId": "ID of channel to forward to",
@@ -591,9 +591,9 @@ class Default extends plugin_js_1.default {
             }),
             group: "Communication"
         }));
-        this._registerCommand("edit permission", this.edit_permission, new botcommandOptions_js_1.default({
+        this._registerCommand("edit permission", this.edit_permission, new commandOptions_js_1.default({
             requiredPermission: "ADMINISTRATOR",
-            help: new botcommandHelp_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Edits the permissions of a person or role.",
                 overloads: [{
                         "namespace": "Permissions in __c__hannel, __s__erver, or __g__lobal",
@@ -608,9 +608,9 @@ class Default extends plugin_js_1.default {
                 ]
             })
         }));
-        this._registerCommand("send", this.send, new botcommandOptions_js_1.default({
+        this._registerCommand("send", this.send, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",
-            help: new botcommandHelp_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Makes the bot send a message to a specified channel.",
                 overloads: [{
                         "channelId": "ID of channel. The bot must be in this channel.",
@@ -622,8 +622,8 @@ class Default extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("ping", this.ping, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("ping", this.ping, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Pings the bot and tells you how long it took for the bot to receive the message.",
                 examples: [
                     ["ping", "Do you *really* need an example?"]
@@ -631,8 +631,8 @@ class Default extends plugin_js_1.default {
             }),
             group: "Testing"
         }));
-        this._registerCommand("user info", this.user_info, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("user info", this.user_info, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Gives you information about the user. (Exposing)",
                 overloads: [{
                         "none": "Leave empty, defaulting to yourself"
@@ -646,8 +646,8 @@ class Default extends plugin_js_1.default {
             }),
             group: "Utils"
         }));
-        this._registerCommand("help", this.help, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("help", this.help, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Gives you help. And, you just looked up help for help. Something tells me you need some more help.",
                 overloads: [{
                         "none": "Leave empty, gives you a list of all the commands"
@@ -661,16 +661,16 @@ class Default extends plugin_js_1.default {
             }),
             group: "Utils"
         }));
-        this._registerCommand("i am the bot admin", this.i_am_the_bot_admin, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("i am the bot admin", this.i_am_the_bot_admin, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "The first person to run this command will become the bot admin. No one afterwards can become the bot admin.",
                 examples: [
                     ["i am the bot admin", "Makes you the bot admin (if you're first)"]
                 ]
             })
         }));
-        this._registerCommand("invite", this.link, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("invite", this.link, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Sends the invite link in current channel.",
                 examples: [
                     ["invite", "Sends the invite link in the current channel. Wait! I just said that!"]
@@ -678,8 +678,8 @@ class Default extends plugin_js_1.default {
             }),
             group: "Promotional"
         }));
-        this._registerCommand("link", this.link, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("link", this.link, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Sends the invite link in current channel.",
                 examples: [
                     ["invite", "Sends the invite link in the current channel. Wait! I just said that!"]
@@ -687,8 +687,8 @@ class Default extends plugin_js_1.default {
             }),
             group: "Promotional"
         }));
-        this._registerCommand("code", this.code, new botcommandOptions_js_1.default({
-            help: new botcommandHelp_js_1.default({
+        this._registerCommand("code", this.code, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
                 description: "Sends the link to the code repository this bot is running on, you know. In case you want to build a clone of me.",
                 examples: [
                     ["code", "Sends the link of the code in the current channel."]

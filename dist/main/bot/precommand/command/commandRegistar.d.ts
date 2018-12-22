@@ -1,10 +1,10 @@
 import BotHooks from "../botHooks.js";
 import CommandManager from "./commandManager.js";
 import BotPlugin from "../../plugin.js";
-import BotCommandOptions from "../precommand/command/commandOptions.js";
+import BotCommandOptions from "../../commandOptions.js";
 import BotCommandHelp from "../../commandHelp.js";
 import PrecommandCallback from "../precommand/precommandCallback.js";
-import BotCommandCallback from "../precommand/command/commandCallback.js";
+import BotCommandCallback from "../../commandCallback.js";
 declare class CommandRegistar {
     botHooks: BotHooks;
     manager: CommandManager;

@@ -1,6 +1,6 @@
 import BotPlugin from "../main/plugin.js";
-import BotCommandOptions from "../main/botcommandOptions.js";
-import BotCommandHelp from "../main/botcommandHelp.js";
+import BotCommandOptions from "../main/bot/precommand/command/commandOptions.js";
+import BotCommandHelp from "../main/commandHelp.js";
 import Logger from "../main/logger.js";
 
 import { getSnowflakeNum, stringToArgs } from "../main/utils.js";
@@ -10,7 +10,7 @@ import createKey from "../main/bot/locationKeyCreator.js";
 import Permissions from "../main/permissions.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
-import BotCommand from "../main/botcommand.js";
+import BotCommand from "../main/bot/precommand/command/command.js";
 import { TextChannel, Message } from "discord.js";
 
 /**

@@ -1,8 +1,8 @@
 import BotHooks from "../botHooks.js";
 import CommandDispatcher from "./commandDispatcher.js";
-import BotCommandHelp from "../../botcommandHelp.js";
-import Precommand from "../../precommand.js";
-import BotCommand from "../../botcommand.js";
+import BotCommandHelp from "../../commandHelp.js";
+import Precommand from "../precommand/precommand.js";
+import BotCommand from "../../command.js";
 import CommandRegistar from "./commandRegistar.js";
 import BotPlugin from "../../plugin.js";
 

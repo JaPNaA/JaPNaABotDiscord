@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const command_js_1 = __importDefault(require("../precommand/command/command.js"));
+const command_js_1 = __importDefault(require("../../command.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../locationKeyCreator.js"));
 const precommand_js_1 = __importDefault(require("../precommand/precommand.js"));
 class CommandRegistar {

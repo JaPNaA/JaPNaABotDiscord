@@ -1,3 +1,3 @@
-import { DiscordCommandEvent } from "./events";
+import { DiscordCommandEvent } from "../../events";
 type PrecommandCallback = (commandEvent: DiscordCommandEvent) => any;
 export default PrecommandCallback;

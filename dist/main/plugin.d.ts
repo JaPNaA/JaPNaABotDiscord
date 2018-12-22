@@ -1,5 +1,5 @@
 import BotHooks from "./bot/botHooks";
-import BotCommandOptions from "./botcommandOptions";
+import BotCommandOptions from "./bot/precommand/command/commandOptions";
 import EventName from "./bot/eventName";
 declare class BotPlugin {
     bot: BotHooks;
