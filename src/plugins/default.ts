@@ -1,4 +1,4 @@
-import BotPlugin from "../main/plugin.js";
+import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotCommandOptions from "../main/bot/precommand/command/commandOptions.js";
 import BotCommandHelp from "../main/commandHelp.js";
 import Logger from "../main/logger.js";

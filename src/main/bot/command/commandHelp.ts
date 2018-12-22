@@ -1,4 +1,4 @@
-import BotCommand from "./bot/precommand/command/command.js";
+import BotCommand from "./command.js";
 
 class BotCommandHelp {
     /** Description of what the command does */

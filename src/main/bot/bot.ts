@@ -5,11 +5,13 @@ import RawEventAdapter from "../adapters/rawEventAdapter.js";
 import BotConfig from "./botConfig.js";
 import BotPermissions from "./botPermissions.js";
 import BotEvents from "./botEvents.js";
-import CommandManager from "./command/commandManager.js";
 import BotClient from "./botClient.js";
 import Logger from "../logger.js";
-import BotCommandOptions from "./precommand/command/commandOptions.js";
+import BotCommandOptions from "./command/commandOptions.js";
 import { DiscordCommandEvent } from "../events.js";
+import PrecommandManager from "./precommand/manager/precommandManager.js";
+import Precommand from "./precommand/precommand.js";
+import PluginManager from "./plugin/manager/pluginManager.js";
 
 class Bot {
     restartFunc: Function;
@@ -17,9 +19,12 @@ class Bot {
     rawEventAdapter: RawEventAdapter;
     config: BotConfig;
     memory: BotMemory;
-    permissions: BotPermissions;
+    // permissions: BotPermissions;
     events: BotEvents;
-    commandManager: CommandManager;
+
+    precommandManager: PrecommandManager;
+    pluginManager: PluginManager;
+
     client: BotClient;
     activeAsnycRequests: number;
 
@@ -53,22 +58,22 @@ class Bot {
         this.hooks.attachMemory(this.memory);
 
         /**
-         * Bot permission - handles getting and setting permissions
-         */
-        this.permissions = new BotPermissions(this.hooks);
-        this.hooks.attachPermissions(this.permissions);
-
-        /**
          * Bot events - handles handling events
          */
         this.events = new BotEvents(this.hooks);
         this.hooks.attachEvents(this.events);
 
         /**
-         * Bot command manager - manages registering commands and dispatching
+         * Bot precommand manager - manages registering and dispatching precommands
          */
-        this.commandManager = new CommandManager(this.hooks);
-        this.hooks.attachCommandManager(this.commandManager);
+        this.precommandManager = new PrecommandManager(this.hooks);
+        this.hooks.attachPrecommandManager(this.precommandManager);
+
+        /**
+         * Bot plugin manager - registers plugins
+         */
+        this.pluginManager = new PluginManager(this.hooks);
+        this.hooks.attachPluginManager(this.pluginManager);
 
         /**
          * Bot client - handles sending and receiving messages
@@ -109,7 +114,7 @@ class Bot {
     start() {
         Logger.log("Bot starting...");
 
-        this.registerCommandsAndPrecommands();
+        this.registerDefaultPrecommands();
         Logger.setLevel(this.config.loggingLevel);
         this.memory.startAutoWrite();
 
@@ -120,13 +125,19 @@ class Bot {
         }
     }
 
-    registerCommandsAndPrecommands() {
-        this.commandManager.register.command("restart", "bot", this.restart.bind(this), new BotCommandOptions({
-            requiredPermission: "BOT_ADMINISTRATOR"
-        }));
+    registerDefaultPrecommands() { // TODO: refactor
+        for (const precommandStr of this.config.precommands) {
+            const precommand = new Precommand (
+                this.hooks, precommandStr, 
+                this.onBotPrecommandCommand.bind(this)
+            );
 
-        for (let precommand of this.config.precommands) {
-            this.commandManager.register.precommand(precommand, this.onBotPrecommandCommand.bind(this));
+            precommand.commandManager.register(
+                "restart", "bot", this.restart.bind(this), 
+                new BotCommandOptions({
+                    requiredPermission: "BOT_ADMINISTRATOR"
+                })
+            );
         }
     }
 
@@ -134,7 +145,7 @@ class Bot {
      * Stops the bot (async)
      */
     stop() {
-        this.commandManager.register.unregisterAllPlugins();
+        this.pluginManager.unregisterAllPlugins();
 
         this.events.dispatch("stop", null);
 

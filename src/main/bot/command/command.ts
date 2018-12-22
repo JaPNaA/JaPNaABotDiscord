@@ -1,10 +1,10 @@
-import Logger from "../../../logger.js";
-import { createErrorString } from "../../../utils.js";
+import Logger from "../../logger.js";
+import { createErrorString } from "../../utils.js";
 import { inspect } from "util";
-import BotCommandHelp from "../../../commandHelp.js";
+import BotCommandHelp from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
-import BotHooks from "../../botHooks.js";
-import { DiscordCommandEvent } from "../../../events.js";
+import BotHooks from "../botHooks.js";
+import { DiscordCommandEvent } from "../../events.js";
 import BotCommandCallback from "./commandCallback.js";
 
 type CleanCommandContent = {
@@ -25,7 +25,7 @@ type TestResults = {
 const whitespaceRegex: RegExp = /\s/;
 
 class BotCommand {
-    bot: BotHooks;
+    botHooks: BotHooks;
     /** Function to call when command is called */
     func: Function;
     /** Permission required to run command */
@@ -42,7 +42,7 @@ class BotCommand {
     pluginName: string | undefined;
 
     constructor(bot: BotHooks, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions) {
-        this.bot = bot;
+        this.botHooks = bot;
         this.func = func;
         this.requiredPermission = options && options.requiredPermission;
         this.noDM = (options && options.noDM) || false;
@@ -85,7 +85,7 @@ class BotCommand {
                 whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)
             )
         ) {
-            let permissions = this.bot.permissions.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
+            let permissions = this.botHooks.permissions.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
 
             if (this.noDM && commandEvent.isDM) {
                 return {
@@ -121,7 +121,7 @@ class BotCommand {
             return true;
         } else {
             if (results.reasonCannotRun) {
-                this.bot.send(commandEvent.channelId, results.reasonCannotRun);
+                this.botHooks.send(commandEvent.channelId, results.reasonCannotRun);
                 return true;
             }
 
@@ -140,7 +140,7 @@ class BotCommand {
         message = message.replace(/ {4}/g, "\t");
         message = message.slice(0, 1997) + "```";
 
-        this.bot.send(commandEvent.channelId, message);
+        this.botHooks.send(commandEvent.channelId, message);
 
         Logger.warn(message);
     }
@@ -148,7 +148,7 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
         try {
-            this.func(this.bot, commandEvent, argString);
+            this.func(this.botHooks, commandEvent, argString);
         } catch (error) {
             this.sendError(commandEvent, argString, error);
         }

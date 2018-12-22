@@ -1,9 +1,8 @@
-import BotHooks from "../botHooks.js";
-import { DiscordMessageEvent } from "../../events.js";
+import BotHooks from "../../botHooks.js";
+import { DiscordCommandEvent, DiscordMessageEvent } from "../../../events.js";
 import CommandManager from "./commandManager.js";
 
-import Logger from "../../logger.js";
-import { DiscordCommandEvent } from "../../events.js";
+import Logger from "../../../logger.js";
 
 class CommandDispatcher {
     botHooks: BotHooks;

@@ -1,6 +1,6 @@
-import BotHooks from "./bot/botHooks";
-import BotCommandOptions from "./bot/precommand/command/commandOptions";
-import EventName from "./bot/eventName";
+import BotHooks from "../botHooks";
+import BotCommandOptions from "../command/commandOptions";
+import EventName from "../eventName";
 
 class BotPlugin {
     // Not private due to compatability issues with JS

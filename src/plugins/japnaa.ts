@@ -2,9 +2,9 @@ import BotHooks from "../main/bot/botHooks.js";
 
 import { DiscordMessageEvent } from "../main/events.js";
 
-import BotPlugin from "../main/plugin.js";
-import BotCommandOptions from "../main/bot/precommand/command/commandOptions.js";
-import BotCommandHelp from "../main/commandHelp.js";
+import BotPlugin from "../main/bot/plugin/plugin.js";
+import BotCommandOptions from "../main/bot/command/commandOptions.js";
+import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import Logger from "../main/logger.js";
 
 import { stringToArgs, random, getSnowflakeNum } from "../main/utils.js";
