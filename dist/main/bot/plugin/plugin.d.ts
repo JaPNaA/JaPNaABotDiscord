@@ -1,7 +1,7 @@
 import BotHooks from "../botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../eventName";
-import Precommand from "../precommand/precommand";
+import { PrecommandWithoutCallback, PrecommandWithCallback } from "../precommand/precommand";
 declare abstract class BotPlugin {
     bot: BotHooks;
     _pluginName: string;
@@ -16,10 +16,10 @@ declare abstract class BotPlugin {
     abstract _stop(): void;
     /** Registers a command handler */
     _registerDefaultCommand(name: string, callback: Function, options?: BotCommandOptions): void;
-    _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions): void;
+    _registerCommand(precommand: PrecommandWithoutCallback, name: string, callback: Function, options?: BotCommandOptions): void;
     /** Adds a handler function to an event */
     _registerEventHandler(name: EventName, callback: Function): void;
-    /** Adds a handler function to a precommand */
-    _registerPrecommand(precommand: string | string[], callback?: Function): Precommand;
+    _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
+    _registerPrecommand(precommand: string | string[], callback: Function): PrecommandWithCallback;
 }
 export default BotPlugin;

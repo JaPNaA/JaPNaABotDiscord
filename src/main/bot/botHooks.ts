@@ -10,7 +10,7 @@ import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
 import PluginManager from "./plugin/manager/pluginManager";
-import Precommand from "./precommand/precommand";
+import { PrecommandWithoutCallback } from "./precommand/precommand";
 import MessageObject from "./messageObject";
 
 
@@ -24,7 +24,7 @@ class BotHooks {
     pluginManager: PluginManager = null as any as PluginManager;
     client: BotClient = null as any as BotClient;
     rawEventAdapter: RawEventAdapter = null as any as RawEventAdapter;
-    defaultPrecommand: Precommand = null as any as Precommand;
+    defaultPrecommand: PrecommandWithoutCallback = null as any as PrecommandWithoutCallback;
 
     bot: Bot;
 
@@ -139,7 +139,7 @@ class BotHooks {
         this.pluginManager = pluginManager;
     }
 
-    attachDefaultPrecommand(defaultPrecommand: Precommand): void {
+    attachDefaultPrecommand(defaultPrecommand: PrecommandWithoutCallback): void {
         this.defaultPrecommand = defaultPrecommand;
     }
 

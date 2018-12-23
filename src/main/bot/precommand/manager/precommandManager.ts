@@ -1,5 +1,5 @@
 import PrecommandDispatcher from "./precommandDispatcher";
-import Precommand from "../precommand";
+import { Precommand, PrecommandWithCallback, PrecommandWithoutCallback } from "../precommand";
 import BotHooks from "../../botHooks";
 import PrecommandCallback from "../precommandCallback";
 import PrecommandName from "../precommandName";
@@ -19,8 +19,17 @@ class PrecommandManager {
         this.precommands.push(precommand);
     }
 
+    createAndRegister(name: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
+    createAndRegister(name: string | string[]): PrecommandWithoutCallback;
+
     createAndRegister(name: string | string[], callback?: PrecommandCallback): Precommand {
-        const precommand: Precommand = new Precommand(this.botHooks, name, callback);
+        let precommand: Precommand;
+        if (callback) {
+            precommand = Precommand.create(this.botHooks, name, callback);
+        } else {
+            precommand = Precommand.create(this.botHooks, name);
+        }
+
         this.precommands.push(precommand);
         return precommand;
     }

@@ -1,13 +1,13 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
-import Precommand from "../main/bot/precommand/precommand.js";
+import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
 
 /**
  * The weirder side of JaPNaABot
  */
 class Game extends BotPlugin {
-    precommand: Precommand;
+    precommand: PrecommandWithoutCallback;
 
     constructor(bot: BotHooks) {
         super(bot);

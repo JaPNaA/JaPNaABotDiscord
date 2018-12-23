@@ -1,7 +1,7 @@
 import BotHooks from "../botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../eventName";
-import Precommand from "../precommand/precommand";
+import { PrecommandWithoutCallback, Precommand, PrecommandWithCallback } from "../precommand/precommand";
 import PrecommandManager from "../precommand/manager/precommandManager";
 
 abstract class BotPlugin {
@@ -31,7 +31,7 @@ abstract class BotPlugin {
         );
     }
 
-    public _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions): void {
+    public _registerCommand(precommand: PrecommandWithoutCallback, name: string, callback: Function, options?: BotCommandOptions): void {
         precommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
     }
 
@@ -40,6 +40,10 @@ abstract class BotPlugin {
         this.bot.events.on(name, callback.bind(this));
     }
 
+    public _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
+    public _registerPrecommand(precommand: string | string[], 
+        callback: Function): PrecommandWithCallback;
+        
     /** Adds a handler function to a precommand */
     public _registerPrecommand(precommand: string | string[], callback?: Function): Precommand {
         const precommandManager: PrecommandManager = this.bot.precommandManager;
