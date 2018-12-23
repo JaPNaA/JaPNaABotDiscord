@@ -9,8 +9,9 @@ class PrecommandDispatcher {
     constructor(botHooks, manager) {
         this.botHooks = botHooks;
         this.manager = manager;
+        this.botHooks.events.on("message", this.onMessage.bind(this));
     }
-    onMessage(message) {
+    onMessage(botHooks, message) {
         logger_1.default.log_message("<<", message.message);
         this.dispatchIfIsPrecommand(message);
     }
