@@ -2,6 +2,7 @@ import BotHooks from "../main/bot/botHooks.js";
 import { DiscordMessageEvent } from "../main/events.js";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
+import { User } from "discord.js";
 
 /**
  * The weirder side of JaPNaABot
@@ -17,14 +18,14 @@ class JapnaaWeird extends BotPlugin {
     /**
      * Tetris is a racing game.
      */
-    tetris(bot: BotHooks, event: DiscordMessageEvent, args: string) {
+    tetris(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
         bot.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
     }
 
     /**
      * JaP is kewl
      */
-    jap(bot: BotHooks, event: DiscordMessageEvent, args: string) {
+    jap(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
         bot.send(event.channelId, {
             embed: {
                 color: bot.config.themeColor,
@@ -36,15 +37,15 @@ class JapnaaWeird extends BotPlugin {
     /**
      * ebola your parabola
      */
-    your(bot: BotHooks, event: DiscordMessageEvent) {
+    your(bot: BotHooks, event: DiscordMessageEvent): void {
         bot.send(event.channelId, "parabola");
     }
 
     /**
      * Listens for messages with 'lol' and deviations
      */
-    onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent) {
-        const user = bot.getUser(event.userId);
+    onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent): void {
+        const user: User | undefined = bot.getUser(event.userId);
         if (
             !event.precommandName && // is not a command
             user && !user.bot && // sender is not a bot
@@ -54,7 +55,7 @@ class JapnaaWeird extends BotPlugin {
         }
     }
 
-    _start() {
+    _start(): void {
         this._registerDefaultCommand("jap", this.jap);
         this._registerDefaultCommand("tetris", this.tetris);
         this._registerDefaultCommand("your", this.your);
@@ -62,9 +63,13 @@ class JapnaaWeird extends BotPlugin {
         this._registerEventHandler("message", this.onmessageHandler_lol);
 
         this.bot.events.on("start",
-            function (this: JapnaaWeird) {
+            function (this: JapnaaWeird): void {
                 this.bot.client.presence.setWatch("you");
             }.bind(this));
+    }
+
+    _stop(): void {
+        // do nothing
     }
 }
 

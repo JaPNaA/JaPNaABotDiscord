@@ -2,18 +2,18 @@ import BotHooks from "../botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../eventName";
 import Precommand from "../precommand/precommand";
-declare class BotPlugin {
+declare abstract class BotPlugin {
     bot: BotHooks;
     _pluginName: string;
     constructor(bot: BotHooks);
     /**
      * Starts the plugin
      */
-    _start(): void;
+    abstract _start(): void;
     /**
      * Stops the plugin
      */
-    _stop(): void;
+    abstract _stop(): void;
     /** Registers a command handler */
     _registerDefaultCommand(name: string, callback: Function, options?: BotCommandOptions): void;
     _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions): void;

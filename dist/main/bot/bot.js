@@ -103,6 +103,7 @@ class Bot {
         }
     }
     registerDefaultPrecommands() {
+        // TODO: refactor
         const precommandStrs = this.config.precommands;
         const precommand = new precommand_js_1.default(this.hooks, precommandStrs);
         precommand.commandManager.register("restart", "bot", this.restart.bind(this), new commandOptions_js_1.default({

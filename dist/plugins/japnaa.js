@@ -42,7 +42,7 @@ class Japnaa extends plugin_js_1.default {
             json = JSON.parse(args);
         }
         catch (err) {
-            void 0;
+            // do nothing
         }
         if (json) {
             bot.send(event.channelId, json);
@@ -55,7 +55,8 @@ class Japnaa extends plugin_js_1.default {
      * Generates a 128 character radom string
      */
     _randomString() {
-        const min = 32, max = 127;
+        const min = 32;
+        const max = 127;
         let rands = [];
         for (let i = 0; i < 128; i++) {
             rands.push(utils_js_1.random(min, max, 1));
@@ -68,7 +69,7 @@ class Japnaa extends plugin_js_1.default {
     random(bot, event, argString) {
         const args = utils_js_1.stringToArgs(argString);
         // !random string
-        if (args[0] && args[0].toLowerCase() == "string") {
+        if (args[0] && args[0].toLowerCase() === "string") {
             bot.send(event.channelId, "```" +
                 this._randomString()
                     .replace(/`$/g, "` ") // because discord markup
@@ -116,10 +117,12 @@ class Japnaa extends plugin_js_1.default {
      * Begins spamming from spam que with interval
      */
     _startSpam() {
-        if (this.spamIntervalActive)
+        if (this.spamIntervalActive) {
             return;
-        if (this.spamInterval)
+        }
+        if (this.spamInterval) {
             clearInterval(this.spamInterval);
+        }
         this.spamInterval = setInterval(this._sendSpam.bind(this), 1000);
         this.spamIntervalActive = true;
     }
@@ -130,11 +133,13 @@ class Japnaa extends plugin_js_1.default {
         let keys = Object.keys(this.spamQue);
         for (let key of keys) {
             let que = this.spamQue[key];
-            if (que.length > 0)
+            if (que.length > 0) {
                 return;
+            }
         }
-        if (this.spamInterval)
+        if (this.spamInterval) {
             clearInterval(this.spamInterval);
+        }
         this.spamIntervalActive = false;
     }
     /**
@@ -150,8 +155,9 @@ class Japnaa extends plugin_js_1.default {
      * Stops all spam
      */
     _stopAllSpam() {
-        if (this.spamInterval)
+        if (this.spamInterval) {
             clearInterval(this.spamInterval);
+        }
         this.spamIntervalActive = false;
         let keys = Object.keys(this.spamQue);
         for (let key of keys) {
@@ -180,11 +186,20 @@ class Japnaa extends plugin_js_1.default {
      * Gets the spam limit for channel and user
      */
     _getSpamLimit(bot, event) {
-        let defaultLimit = this.config["spam.defaultLimit"];
-        let serverLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
-        let channelLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.channel(event.serverId, event.channelId));
         let userLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.user_server(event.serverId, event.userId));
-        return userLimit || channelLimit || serverLimit || defaultLimit;
+        if (userLimit !== undefined) {
+            return userLimit;
+        }
+        let channelLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.channel(event.serverId, event.channelId));
+        if (channelLimit !== undefined) {
+            return channelLimit;
+        }
+        let serverLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
+        if (serverLimit !== undefined) {
+            return serverLimit;
+        }
+        let defaultLimit = this.config["spam.defaultLimit"];
+        return defaultLimit;
     }
     /**
      * Gets the spam limit que for server and user
@@ -192,8 +207,9 @@ class Japnaa extends plugin_js_1.default {
     _getSpamQueLimit(bot, event) {
         let defaultLimit = this.config["spam.defaultQueLimit"];
         let server = bot.getServer(event.serverId);
-        if (!server)
+        if (!server) {
             throw new Error("Unknown Error");
+        }
         let serverLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(server.id));
         return serverLimit || defaultLimit;
     }
@@ -202,7 +218,7 @@ class Japnaa extends plugin_js_1.default {
      */
     _spam(bot, channelId, serverId, amount, counter, message) {
         let count = 0;
-        const spamFunc = function () {
+        const spamCallback = function () {
             if (counter) {
                 bot.send(channelId, `**${count + 1}/${amount}:** ${message}`);
             }
@@ -215,10 +231,10 @@ class Japnaa extends plugin_js_1.default {
         // prevent empty message from being added to que
         if (message.trim()) {
             if (this.spamQue[serverId]) {
-                this.spamQue[serverId].push(spamFunc);
+                this.spamQue[serverId].push(spamCallback);
             }
             else {
-                this.spamQue[serverId] = [spamFunc];
+                this.spamQue[serverId] = [spamCallback];
             }
             this._startSpam();
         }
@@ -275,7 +291,7 @@ class Japnaa extends plugin_js_1.default {
             }
         }
         // parse counter argument (1)
-        let counterParsed = counterArg && counterArg.toLowerCase() === "true";
+        let counterParsed = Boolean(counterArg) && counterArg.toLowerCase() === "true";
         if (counterParsed) {
             useCounter = true;
         }
@@ -287,7 +303,7 @@ class Japnaa extends plugin_js_1.default {
         }
         // add final strings to message
         message += messageArg.join(" ");
-        // Check against limits
+        // check against limits
         // ----------------------------------------------------------------------------------------
         let spamLimit = this._getSpamLimit(bot, event);
         let spamQueLimit = this._getSpamQueLimit(bot, event);
@@ -296,8 +312,9 @@ class Japnaa extends plugin_js_1.default {
             return;
         }
         let server = bot.getServer(event.serverId);
-        if (!server)
+        if (!server) {
             throw new Error("Unknown Error");
+        }
         if (this.spamQue[server.id] &&
             this.spamQue[server.id].length > spamQueLimit) {
             this.bot.send(event.channelId, "**Too much spam already qued.**");
@@ -381,8 +398,11 @@ class Japnaa extends plugin_js_1.default {
                     }],
                 examples: [
                     ["echo hi", "The bot will respond with \"hi\", so you're not left hanging."],
-                    ["echo {\"embed\": {\"color\": 589253, \"title\": \"JSON!\", \"description\": \"JavaScript Object Notation\"}}",
-                        "Responds with an embed with a cyan-ish color, the title \"JSON\", and the description \"JavaScript Object Notation\""]
+                    [
+                        "echo {\"embed\": {\"color\": 589253, \"title\": \"JSON!\", \"description\": \"JavaScript Object Notation\"}}",
+                        "Responds with an embed with a cyan-ish color, the title \"JSON\", and the description" +
+                            "\"JavaScript Object Notation\""
+                    ]
                 ]
             }),
             group: "Testing"

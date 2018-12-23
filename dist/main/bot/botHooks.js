@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 class BotHooks {
     constructor(bot) {
-        // Workaround and hacks below.
+        // workaround and hacks below.
         this.memory = null;
         this.config = null;
         this.events = null;

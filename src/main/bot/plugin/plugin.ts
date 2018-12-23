@@ -2,9 +2,10 @@ import BotHooks from "../botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../eventName";
 import Precommand from "../precommand/precommand";
+import PrecommandManager from "../precommand/manager/precommandManager";
 
-class BotPlugin {
-    // Not private due to compatability issues with JS
+abstract class BotPlugin {
+    // not private due to compatability issues with JS
     public bot: BotHooks;
     public _pluginName: string;
 
@@ -16,30 +17,32 @@ class BotPlugin {
     /**
      * Starts the plugin
      */
-    public _start() { }
+    public abstract _start(): void;
 
     /**
      * Stops the plugin
      */
-    public _stop() { }
+    public abstract _stop(): void;
 
     /** Registers a command handler */
-    public _registerDefaultCommand(name: string, callback: Function, options?: BotCommandOptions) {
-        this.bot.defaultPrecommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
+    public _registerDefaultCommand(name: string, callback: Function, options?: BotCommandOptions): void {
+        this.bot.defaultPrecommand.commandManager.register(
+            name, this._pluginName, callback.bind(this), options
+        );
     }
 
-    public _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions) {
+    public _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions): void {
         precommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
     }
 
     /** Adds a handler function to an event */
-    public _registerEventHandler(name: EventName, callback: Function) {
+    public _registerEventHandler(name: EventName, callback: Function): void {
         this.bot.events.on(name, callback.bind(this));
     }
 
     /** Adds a handler function to a precommand */
     public _registerPrecommand(precommand: string | string[], callback?: Function): Precommand {
-        const precommandManager = this.bot.precommandManager;
+        const precommandManager: PrecommandManager = this.bot.precommandManager;
         if (callback) {
             return precommandManager.createAndRegister(precommand, callback.bind(this));
         } else {

@@ -24,5 +24,6 @@ declare class JapnaaWeird extends BotPlugin {
      */
     onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent): void;
     _start(): void;
+    _stop(): void;
 }
 export default JapnaaWeird;

@@ -33,7 +33,7 @@ declare class Bot {
      */
     doneAsyncRequest(): void;
     /** Checks if there're more active asnyc requests */
-    hasActiveAsyncRequests(): Boolean;
+    hasActiveAsyncRequests(): boolean;
     /** Starts the bot */
     start(): void;
     registerDefaultPrecommands(): void;

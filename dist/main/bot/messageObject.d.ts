@@ -1,5 +1,5 @@
-interface MessageObject {
+interface IMessageObject {
     message?: string;
     [x: string]: any;
 }
-export default MessageObject;
+export default IMessageObject;

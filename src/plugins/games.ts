@@ -16,16 +16,19 @@ class Game extends BotPlugin {
         this.precommand = this._registerPrecommand("g!");
     }
 
-    gPrecommandHandler(event: DiscordMessageEvent) {
+    gPrecommandHandler(event: DiscordMessageEvent): void {
         this.bot.send(event.channelId, event.message);
     }
 
-    game(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    game(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
         bot.send(event.channelId, "game");
     }
 
-    _start() {
+    _start(): void {
         this._registerCommand(this.precommand, "game", this.game);
+    }
+    _stop(): void {
+        // do nothing
     }
 }
 

@@ -20,8 +20,8 @@ class PrecommandManager {
         return precommand;
     }
     /**
-    * checks if message starts with a precommand
-    */
+     * checks if message starts with a precommand
+     */
     getFirstPrecommandName(message) {
         for (let precommand of this.precommands) {
             let precommandNameInMessage = precommand.getNameInMessage(message);

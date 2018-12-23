@@ -7,10 +7,11 @@ import BotPlugin from "../../plugin/plugin.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
 import createKey from "../../locationKeyCreator.js";
+import { NestedObject, ObjectStrMap } from "../../types.js";
 
 class CommandManager {
     botHooks: BotHooks;
-    
+
     dispatch: CommandDispatcher;
     /** list of commands registered */
     commands: BotCommand[];
@@ -18,7 +19,7 @@ class CommandManager {
     commandGroups: Map<string | undefined, BotCommand[]>;
     /** Data for help */
     helpData: { [x: string]: BotCommandHelp | null | undefined };
-    
+
     constructor(botHooks: BotHooks) {
         this.botHooks = botHooks;
 
@@ -35,26 +36,27 @@ class CommandManager {
         return this.helpData[command];
     }
 
-    register(triggerWord: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions) {
-        let command = new BotCommand(this.botHooks, triggerWord, pluginName, func, options);
+    register(triggerWord: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions): void {
+        let command: BotCommand = new BotCommand(this.botHooks, triggerWord, pluginName, func, options);
 
         this.commands.push(command);
         this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
         this.registerHelp(command.commandName, command.help || null);
 
-        if (command.help) // if help is available
+        if (command.help) { // if help is available
             command.help.gatherInfoAboutCommand(command);
+        }
     }
 
     /** Apply config from bot.config to adjust command */
-    private applyConfigToCommand(command: BotCommand) {
-        if (!command.pluginName) return;
+    private applyConfigToCommand(command: BotCommand): void {
+        if (!command.pluginName) { return; }
 
-        let pluginOverrides = this.botHooks.config.commandRequiredPermissionOverrides[
+        let pluginOverrides: ObjectStrMap = this.botHooks.config.commandRequiredPermissionOverrides[
             createKey.plugin(command.pluginName)
         ];
-        let overridingRequiredPermission =
+        let overridingRequiredPermission: string =
             pluginOverrides && pluginOverrides[command.commandName];
 
         if (overridingRequiredPermission) {
@@ -62,9 +64,9 @@ class CommandManager {
         }
     }
 
-    private addCommandToGroup(groupName: string | undefined, command: BotCommand) {
-        let groupNameStr = groupName || "Other";
-        let commandGroup = this.commandGroups.get(groupNameStr);
+    private addCommandToGroup(groupName: string | undefined, command: BotCommand): void {
+        let groupNameStr: string = groupName || "Other";
+        let commandGroup: BotCommand[] | undefined = this.commandGroups.get(groupNameStr);
 
         if (commandGroup) {
             commandGroup.push(command);
@@ -73,7 +75,7 @@ class CommandManager {
         }
     }
 
-    private registerHelp(command: string, data: BotCommandHelp | null) {
+    private registerHelp(command: string, data: BotCommandHelp | null): void {
         this.helpData[command] = data;
     }
 }

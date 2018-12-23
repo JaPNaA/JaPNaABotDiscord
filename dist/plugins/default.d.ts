@@ -37,14 +37,7 @@ declare class Default extends BotPlugin {
     /**
      * Creates an help embed object in embed
      */
-    _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: BotHooks): {
-        embed: {
-            color: number;
-            title: string;
-            description: string;
-            fields: object[];
-        };
-    };
+    _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: BotHooks): object;
     /**
      * Appends the permissions for a command in help in embed
      */
@@ -92,5 +85,6 @@ declare class Default extends BotPlugin {
      */
     code(bot: BotHooks, event: DiscordCommandEvent): void;
     _start(): void;
+    _stop(): void;
 }
 export default Default;

@@ -2,6 +2,7 @@ import BotHooks from "../../botHooks";
 import { DiscordMessageEvent, DiscordCommandEvent } from "../../../events";
 import PrecommandManager from "./precommandManager";
 import Logger from "../../../logger";
+import PrecommandName from "../precommandName";
 
 class PrecommandDispatcher {
     botHooks: BotHooks;
@@ -18,18 +19,18 @@ class PrecommandDispatcher {
     }
 
     dispatchIfIsPrecommand(messageEvent: DiscordMessageEvent): void {
-        if (!messageEvent.precommandName) return;
+        if (!messageEvent.precommandName) { return; }
 
-        const commandEvent = this._createDiscordCommandEvent(messageEvent);
+        const commandEvent: DiscordCommandEvent = this._createDiscordCommandEvent(messageEvent);
         this.botHooks.events.dispatch("command", commandEvent);
         commandEvent.precommandName.precommand.callback(commandEvent);
     }
 
     _createDiscordCommandEvent(messageEvent: DiscordMessageEvent): DiscordCommandEvent {
-        const pre = messageEvent.precommandName;
-        if (!pre) throw new Error("Unknown error");
+        const pre: PrecommandName | null = messageEvent.precommandName;
+        if (!pre) { throw new Error("Unknown error"); }
 
-        const content = pre && messageEvent.message.slice(pre.name.length);
+        const content: string = pre && messageEvent.message.slice(pre.name.length);
         return new DiscordCommandEvent(messageEvent, pre, content);
     }
 }

@@ -5,14 +5,6 @@ class BotPlugin {
         this.bot = bot;
         this._pluginName = this.constructor.name.toLowerCase();
     }
-    /**
-     * Starts the plugin
-     */
-    _start() { }
-    /**
-     * Stops the plugin
-     */
-    _stop() { }
     /** Registers a command handler */
     _registerDefaultCommand(name, callback, options) {
         this.bot.defaultPrecommand.commandManager.register(name, this._pluginName, callback.bind(this), options);

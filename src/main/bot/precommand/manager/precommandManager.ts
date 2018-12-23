@@ -15,22 +15,22 @@ class PrecommandManager {
         this.precommands = [];
     }
 
-    register(precommand: Precommand) {
+    register(precommand: Precommand): void {
         this.precommands.push(precommand);
     }
 
     createAndRegister(name: string | string[], callback?: PrecommandCallback): Precommand {
-        const precommand = new Precommand(this.botHooks, name, callback);
+        const precommand: Precommand = new Precommand(this.botHooks, name, callback);
         this.precommands.push(precommand);
         return precommand;
     }
 
     /**
-    * checks if message starts with a precommand
-    */
+     * checks if message starts with a precommand
+     */
     getFirstPrecommandName(message: string): PrecommandName | null {
         for (let precommand of this.precommands) {
-            let precommandNameInMessage = precommand.getNameInMessage(message);
+            let precommandNameInMessage: PrecommandName | null = precommand.getNameInMessage(message);
 
             if (precommandNameInMessage) {
                 return precommandNameInMessage;

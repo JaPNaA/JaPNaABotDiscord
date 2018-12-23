@@ -46,7 +46,7 @@ declare class BotClient {
     constructor(botHooks: BotHooks, client: Client);
     onReady(): void;
     init(): void;
-    isReady(): Boolean;
+    isReady(): boolean;
     isSelf(authorId: string): boolean;
     /**
      * Send message

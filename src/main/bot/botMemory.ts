@@ -25,7 +25,7 @@ class Memory {
      * Stores something in memory
      * @param important write after remember?
      */
-    write(namespace: string, key: string, value: string | number | object | undefined, important: boolean = false) {
+    write(namespace: string, key: string, value: string | number | object | undefined, important: boolean = false): void {
         if (!this.memory[namespace]) {
             this.memory[namespace] = {};
         }
@@ -38,7 +38,7 @@ class Memory {
         }
     }
 
-    get(namespace: string, key: string) {
+    get(namespace: string, key: string): any | null {
         if (!this.memory[namespace]) {
             return null;
         }
@@ -52,7 +52,7 @@ class Memory {
     /**
      * Writes memory to disk
      */
-    writeOut() {
+    writeOut(): void {
         this.botHook.newAsyncRequest();
         this.botHook.dispatchEvent("beforememorywrite", null);
 
@@ -64,8 +64,8 @@ class Memory {
     /**
      * Autowrite interval callback
      */
-    writeOut_auto() {
-        if (!this.memoryChanged) return;
+    writeOut_auto(): void {
+        if (!this.memoryChanged) { return; }
         this.writeOut();
     }
 
@@ -73,7 +73,7 @@ class Memory {
      * Callback when memory is written
      * @param error, if any
      */
-    _doneWriteMemory(error: NodeJS.ErrnoException) {
+    _doneWriteMemory(error: NodeJS.ErrnoException): void {
         this.botHook.doneAsyncRequest();
         if (error) {
             Logger.error("Failed to write to memory", error);
@@ -85,16 +85,17 @@ class Memory {
     /**
      * Starts automatically writing out
      */
-    startAutoWrite() {
+    startAutoWrite(): void {
         this.autoWriteIntervalId = setInterval(this.writeOut_auto.bind(this), this.botHook.config.autoWriteTimeInterval);
     }
 
     /**
      * Stops automatically writing out
      */
-    stopAutoWrite() {
-        if (this.autoWriteIntervalId)
+    stopAutoWrite(): void {
+        if (this.autoWriteIntervalId) {
             clearInterval(this.autoWriteIntervalId);
+        }
     }
 }
 

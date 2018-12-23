@@ -39,7 +39,7 @@ class BotEvent {
         Logger.log_message("Event: " + name);
 
         for (let handler of this.events[name]) {
-            let error = tryRun(() => handler(this.botHooks, event));
+            let error: string | null = tryRun(() => handler(this.botHooks, event));
 
             if (error) {
                 errors.push(error);

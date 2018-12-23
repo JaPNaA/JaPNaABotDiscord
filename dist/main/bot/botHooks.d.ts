@@ -5,7 +5,7 @@ import BotPermissions from "./botPermissions";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
-import { Channel, Guild, Role, User } from "discord.js";
+import { Channel, Guild, Role, User, GuildMember } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
@@ -63,7 +63,7 @@ declare class BotHooks {
      * @param userId id of user
      * @param serverId id of server
      */
-    getMemberFromServer(userId: string, serverId: string): import("discord.js").GuildMember | undefined;
+    getMemberFromServer(userId: string, serverId: string): GuildMember | undefined;
     /**
      * @returns ping
      */

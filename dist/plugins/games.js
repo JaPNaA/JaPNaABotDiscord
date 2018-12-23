@@ -22,5 +22,8 @@ class Game extends plugin_js_1.default {
     _start() {
         this._registerCommand(this.precommand, "game", this.game);
     }
+    _stop() {
+        // do nothing
+    }
 }
 exports.default = Game;

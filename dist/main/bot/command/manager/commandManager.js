@@ -25,13 +25,15 @@ class CommandManager {
         this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
         this.registerHelp(command.commandName, command.help || null);
-        if (command.help) // if help is available
+        if (command.help) { // if help is available
             command.help.gatherInfoAboutCommand(command);
+        }
     }
     /** Apply config from bot.config to adjust command */
     applyConfigToCommand(command) {
-        if (!command.pluginName)
+        if (!command.pluginName) {
             return;
+        }
         let pluginOverrides = this.botHooks.config.commandRequiredPermissionOverrides[locationKeyCreator_js_1.default.plugin(command.pluginName)];
         let overridingRequiredPermission = pluginOverrides && pluginOverrides[command.commandName];
         if (overridingRequiredPermission) {

@@ -56,8 +56,9 @@ class Memory {
      * Autowrite interval callback
      */
     writeOut_auto() {
-        if (!this.memoryChanged)
+        if (!this.memoryChanged) {
             return;
+        }
         this.writeOut();
     }
     /**
@@ -82,8 +83,9 @@ class Memory {
      * Stops automatically writing out
      */
     stopAutoWrite() {
-        if (this.autoWriteIntervalId)
+        if (this.autoWriteIntervalId) {
             clearInterval(this.autoWriteIntervalId);
+        }
     }
 }
 exports.default = Memory;

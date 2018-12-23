@@ -11,5 +11,6 @@ declare class Game extends BotPlugin {
     gPrecommandHandler(event: DiscordMessageEvent): void;
     game(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     _start(): void;
+    _stop(): void;
 }
 export default Game;
