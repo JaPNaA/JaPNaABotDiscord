@@ -117,3 +117,15 @@ function toArray(element) {
     }
 }
 exports.toArray = toArray;
+/**
+ * Converts array into one element if required
+ */
+function toOne(element) {
+    if (Array.isArray(element)) {
+        return element[0];
+    }
+    else {
+        return element;
+    }
+}
+exports.toOne = toOne;

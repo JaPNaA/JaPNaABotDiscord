@@ -70,6 +70,23 @@ class Deck extends Pile {
         this.createDeck();
     }
 
+    public shuffle() {
+        let newCards: Card[] = [];
+
+        while (this.cards.length > 0) {
+            let rand = Math.floor(Math.random() * this.cards.length);
+            let card = this.cards.splice(rand, 1);
+            newCards.push(...card);
+        }
+
+        this.cards = newCards;
+    }
+
+    public takeTop(): Card | undefined {
+        let card: Card | undefined = this.cards.pop();
+        return card;
+    }
+
     private createDeck() {
         this.addNormalCards();
         this.addJokersIfNotExcluded();

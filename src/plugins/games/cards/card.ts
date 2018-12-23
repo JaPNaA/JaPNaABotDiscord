@@ -2,7 +2,12 @@ import { Suit, Rank, rankToString, suitToString, rankToShortString, suitToSymbol
 
 abstract class Card {
     abstract joker: boolean;
+    
     abstract is(card: Card): boolean;
+    abstract isJoker(card: Card): boolean;
+    abstract isSuit(suit: Suit): boolean;
+    abstract isRank(rank: Rank): boolean;
+
     abstract toString(): string;
     abstract toShortString(): string;
     abstract toShortMD(): string;
@@ -33,6 +38,18 @@ class NormalCard extends Card {
         }
     }
 
+    isJoker(): false {
+        return false;
+    }
+
+    isSuit(suit: Suit): boolean {
+        return this.suit === suit;
+    }
+
+    isRank(rank: Rank): boolean {
+        return this.rank === rank;
+    }
+
     toString(): string {
         return rankToString(this.rank) +
             " of " + suitToString(this.suit);
@@ -60,6 +77,18 @@ class JokerCard extends Card {
 
     is(card: Card): boolean {
         return card.joker == this.joker;
+    }
+
+    isJoker(): true {
+        return true;
+    }
+
+    isRank(): false {
+        return false;
+    }
+
+    isSuit(): false {
+        return false;
     }
 
     toString(): "Joker" {

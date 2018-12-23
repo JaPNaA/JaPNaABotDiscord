@@ -5,7 +5,7 @@ import BotPermissions from "./botPermissions";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
-import { Channel, Guild, Role, User, GuildMember } from "discord.js";
+import { Channel, Guild, Role, User, GuildMember, Message } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
@@ -35,7 +35,7 @@ class BotHooks {
     /**
      * Sends message to channel
      */
-    send(channelId: string, message: string | MessageObject): Promise<any> {
+    send(channelId: string, message: string | MessageObject): Promise<Message | Message[]> {
         return this.bot.client.send(channelId, message);
     }
 
@@ -43,7 +43,7 @@ class BotHooks {
      * Send direct message to user
      * @param [failCallback] callback called if fails to send
      */
-    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any> {
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<Message | Message[]> {
         return this.bot.client.sendDM(userId, message, failCallback);
     }
 

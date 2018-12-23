@@ -2,13 +2,15 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
-import Deck from "./games/cards/deck.js";
+import SlapJack from "./games/slapjack.js";
+import Game from "./games/game.js";
 
 /**
  * Games!
  */
-class Game extends BotPlugin {
+class Games extends BotPlugin {
     precommand: PrecommandWithoutCallback;
+    currentGame?: Game;
 
     constructor(bot: BotHooks) {
         super(bot);
@@ -22,16 +24,8 @@ class Game extends BotPlugin {
     }
 
     game(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
-        let deck: Deck = new Deck({
-            excludeKnights: false
-        });
-        let str: string = "";
-
-        for (let card of deck.cards) {
-            str += card.toShortMD() + ", ";
-        }
-
-        bot.send(event.channelId, str);
+        this.currentGame = new SlapJack(this.bot, event.channelId);
+        this.currentGame._start();
     }
 
     _start(): void {
@@ -42,4 +36,4 @@ class Game extends BotPlugin {
     }
 }
 
-export default Game;
+export default Games;

@@ -40,6 +40,19 @@ class Deck extends pile_1.default {
         this.options = applyDefaultOptions(options);
         this.createDeck();
     }
+    shuffle() {
+        let newCards = [];
+        while (this.cards.length > 0) {
+            let rand = Math.floor(Math.random() * this.cards.length);
+            let card = this.cards.splice(rand, 1);
+            newCards.push(...card);
+        }
+        this.cards = newCards;
+    }
+    takeTop() {
+        let card = this.cards.pop();
+        return card;
+    }
     createDeck() {
         this.addNormalCards();
         this.addJokersIfNotExcluded();

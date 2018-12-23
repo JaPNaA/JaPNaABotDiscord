@@ -4,11 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
-const deck_js_1 = __importDefault(require("./games/cards/deck.js"));
+const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
 /**
  * Games!
  */
-class Game extends plugin_js_1.default {
+class Games extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
         this._pluginName = "game";
@@ -18,14 +18,8 @@ class Game extends plugin_js_1.default {
         this.bot.send(event.channelId, event.message);
     }
     game(bot, event, args) {
-        let deck = new deck_js_1.default({
-            excludeKnights: false
-        });
-        let str = "";
-        for (let card of deck.cards) {
-            str += card.toShortMD() + ", ";
-        }
-        bot.send(event.channelId, str);
+        this.currentGame = new slapjack_js_1.default(this.bot, event.channelId);
+        this.currentGame._start();
     }
     _start() {
         this._registerCommand(this.precommand, "game", this.game);
@@ -34,4 +28,4 @@ class Game extends plugin_js_1.default {
         // do nothing
     }
 }
-exports.default = Game;
+exports.default = Games;

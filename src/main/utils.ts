@@ -125,3 +125,16 @@ function toArray<T> (element: T | T[]): T[] {
 }
 
 export { toArray };
+
+/**
+ * Converts array into one element if required
+ */
+function toOne<T> (element: T | T[]): T {
+    if (Array.isArray(element)) {
+        return element[0];
+    } else {
+        return element;
+    }
+}
+
+export { toOne };

@@ -56,3 +56,8 @@ export { tryRun };
  */
 declare function toArray<T>(element: T | T[]): T[];
 export { toArray };
+/**
+ * Converts array into one element if required
+ */
+declare function toOne<T>(element: T | T[]): T;
+export { toOne };

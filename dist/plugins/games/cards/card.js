@@ -21,6 +21,15 @@ class NormalCard extends Card {
             return false;
         }
     }
+    isJoker() {
+        return false;
+    }
+    isSuit(suit) {
+        return this.suit === suit;
+    }
+    isRank(rank) {
+        return this.rank === rank;
+    }
     toString() {
         return cardTypes_1.rankToString(this.rank) +
             " of " + cardTypes_1.suitToString(this.suit);
@@ -43,6 +52,15 @@ class JokerCard extends Card {
     }
     is(card) {
         return card.joker == this.joker;
+    }
+    isJoker() {
+        return true;
+    }
+    isRank() {
+        return false;
+    }
+    isSuit() {
+        return false;
     }
     toString() {
         return "Joker";

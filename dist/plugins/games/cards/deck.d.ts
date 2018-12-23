@@ -27,6 +27,8 @@ interface AllOptions extends Options {
 declare class Deck extends Pile {
     options: AllOptions;
     constructor(options?: Options);
+    shuffle(): void;
+    takeTop(): Card | undefined;
     private createDeck;
     private addNormalCards;
     private addCardIfNotExcluded;
