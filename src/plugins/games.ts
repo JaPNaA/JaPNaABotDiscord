@@ -2,9 +2,10 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
+import Deck from "./games/cards/deck.js";
 
 /**
- * The weirder side of JaPNaABot
+ * Games!
  */
 class Game extends BotPlugin {
     precommand: PrecommandWithoutCallback;
@@ -21,7 +22,16 @@ class Game extends BotPlugin {
     }
 
     game(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
-        bot.send(event.channelId, "game");
+        let deck: Deck = new Deck({
+            excludeKnights: false
+        });
+        let str: string = "";
+
+        for (let card of deck.cards) {
+            str += card.toShortMD() + ", ";
+        }
+
+        bot.send(event.channelId, str);
     }
 
     _start(): void {

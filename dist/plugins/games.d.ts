@@ -3,7 +3,7 @@ import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
 /**
- * The weirder side of JaPNaABot
+ * Games!
  */
 declare class Game extends BotPlugin {
     precommand: PrecommandWithoutCallback;

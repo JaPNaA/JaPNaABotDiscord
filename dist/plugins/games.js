@@ -4,8 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
+const deck_js_1 = __importDefault(require("./games/cards/deck.js"));
 /**
- * The weirder side of JaPNaABot
+ * Games!
  */
 class Game extends plugin_js_1.default {
     constructor(bot) {
@@ -17,7 +18,14 @@ class Game extends plugin_js_1.default {
         this.bot.send(event.channelId, event.message);
     }
     game(bot, event, args) {
-        bot.send(event.channelId, "game");
+        let deck = new deck_js_1.default({
+            excludeKnights: false
+        });
+        let str = "";
+        for (let card of deck.cards) {
+            str += card.toShortMD() + ", ";
+        }
+        bot.send(event.channelId, str);
     }
     _start() {
         this._registerCommand(this.precommand, "game", this.game);
