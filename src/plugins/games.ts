@@ -1,14 +1,19 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
+import Precommand from "../main/bot/precommand/precommand.js";
 
 /**
  * The weirder side of JaPNaABot
  */
 class Game extends BotPlugin {
+    precommand: Precommand;
+
     constructor(bot: BotHooks) {
         super(bot);
         this._pluginName = "game";
+
+        this.precommand = this._registerPrecommand("g!");
     }
 
     gPrecommandHandler(event: DiscordMessageEvent) {
@@ -20,8 +25,7 @@ class Game extends BotPlugin {
     }
 
     _start() {
-        this._registerDefaultCommand("game", this.game);
-        this._registerPrecommand("g!", this.gPrecommandHandler);
+        this._registerCommand(this.precommand, "game", this.game);
     }
 }
 

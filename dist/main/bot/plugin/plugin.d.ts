@@ -16,9 +16,10 @@ declare class BotPlugin {
     _stop(): void;
     /** Registers a command handler */
     _registerDefaultCommand(name: string, callback: Function, options?: BotCommandOptions): void;
+    _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions): void;
     /** Adds a handler function to an event */
     _registerEventHandler(name: EventName, callback: Function): void;
     /** Adds a handler function to a precommand */
-    _registerPrecommand(precommand: string | string[], callback: Function): Precommand;
+    _registerPrecommand(precommand: string | string[], callback?: Function): Precommand;
 }
 export default BotPlugin;

@@ -28,14 +28,23 @@ class BotPlugin {
         this.bot.defaultPrecommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
     }
 
+    public _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions) {
+        precommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
+    }
+
     /** Adds a handler function to an event */
-    _registerEventHandler(name: EventName, callback: Function) {
+    public _registerEventHandler(name: EventName, callback: Function) {
         this.bot.events.on(name, callback.bind(this));
     }
 
     /** Adds a handler function to a precommand */
-    _registerPrecommand(precommand: string | string[], callback: Function): Precommand {
-        return this.bot.precommandManager.createAndRegister(precommand, callback.bind(this));
+    public _registerPrecommand(precommand: string | string[], callback?: Function): Precommand {
+        const precommandManager = this.bot.precommandManager;
+        if (callback) {
+            return precommandManager.createAndRegister(precommand, callback.bind(this));
+        } else {
+            return precommandManager.createAndRegister(precommand);
+        }
     }
 }
 
