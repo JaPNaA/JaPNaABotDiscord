@@ -17,19 +17,60 @@ class Player {
     }
 }
 
+class Logic {
+    players: Player[];
+
+    deck: Deck;
+    pile: Pile;
+    topSet: CardSet | null;
+
+    constructor(playerIds: string[]) {
+        this.players = [];
+
+        this.deck = new Deck();
+        this.pile = new Pile();
+        this.topSet = null;
+
+        this.init(playerIds);
+    }
+
+    init(playerIds: string[]) {
+        this.deck.shuffle();
+        this.initPlayers(playerIds);
+    }
+
+    initPlayers(playerIds: string[]) {
+        for (let playerId of playerIds) {
+            this.players.push(new Player(playerId));
+        }
+    }
+
+    distributeCards() {
+        let numPlayers = this.players.length;
+        let numCards = this.deck.cards.length;
+        let cardsPerPlayer = Math.floor(numCards / numPlayers);
+
+        for (let player of this.players) {
+            for (let i: number = 0; i < cardsPerPlayer; i++) {
+                let card = this.deck.takeTop();
+                if (!card) { throw new Error("Unknown Error"); }
+                player.cards.add(card);
+            }
+
+            player.cards.sortByRank();
+        }
+    }
+}
+
 class Presidents extends Game {
     _gamePluginName: string = "presidents";
     _pluginName: string = "game." + this._gamePluginName;
     gameName: string = "Presidents";
 
     channelId: string;
-
     playerIds: string[];
-    players: Player[];
 
-    deck: Deck;
-    pile: Pile;
-    topSet: CardSet | null;
+    logic?: Logic;
 
     started: boolean;
 
@@ -37,13 +78,7 @@ class Presidents extends Game {
         super(botHooks, parentPlugin);
 
         this.channelId = channelId;
-
         this.playerIds = [];
-        this.players = [];
-
-        this.deck = new Deck();
-        this.pile = new Pile();
-        this.topSet = null;
 
         this.started = false;
     }
@@ -51,7 +86,7 @@ class Presidents extends Game {
     join(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let userId = event.userId;
         this.playerIds.push(userId);
-        bot.send(event.channelId, mention(userId) +` has joined ${this.gameName}!`);
+        bot.send(event.channelId, mention(userId) + ` has joined ${this.gameName}!`);
     }
 
     leave(bot: BotHooks, event: DiscordCommandEvent, args: string) {
@@ -71,16 +106,21 @@ class Presidents extends Game {
         this.started = true;
 
         this._sendStartingMessage();
-
-        this.deck.shuffle();
-        this._initPlayers();
-        this._distributeCards();
+        this._startGameLogic();
     }
 
     listPlayers(bot: BotHooks, event: DiscordCommandEvent, args: string) {
-        bot.send(event.channelId, 
-            this.playerIds.map(e => mention(e)).join(", ") + " (" + this.playerIds.length + ")"
-        );
+        let numPlayers = this.playerIds.length;
+
+        if (numPlayers === 0) {
+            bot.send(event.channelId, "No one is in this game.");
+        } else if (numPlayers === 1) {
+            bot.send(event.channelId, "Just " + mention(this.playerIds[0]) + ", the Loner.");
+        } else {
+            bot.send(event.channelId,
+                this.playerIds.map(e => mention(e)).join(", ") + " (" + this.playerIds.length + " players)"
+            );
+        }
     }
 
     _sendStartingMessage() {
@@ -91,26 +131,9 @@ class Presidents extends Game {
         this.bot.send(this.channelId, "Starting Presidents with players:\n" + players.join(", "));
     }
 
-    _initPlayers() {
-        for (let playerId of this.playerIds) {
-            this.players.push(new Player(playerId));
-        }
-    }
 
-    _distributeCards() {
-        let numPlayers = this.players.length;
-        let numCards = this.deck.cards.length;
-        let cardsPerPlayer = Math.floor(numCards / numPlayers);
-
-        for (let player of this.players) {
-            for (let i: number = 0; i < cardsPerPlayer; i++) {
-                let card = this.deck.takeTop();
-                if (!card) { throw new Error("Unknown Error"); }
-                player.cards.add(card);
-            }
-
-            player.cards.sortByRank();
-        }
+    _startGameLogic() {
+        this.logic = new Logic(this.playerIds);
     }
 
     _start() {
@@ -131,8 +154,9 @@ class Presidents extends Game {
             name: "Commands",
             value: "**Joining**\n" +
                 "Join this game by typing `" + precommmand + "join`\n" +
-                "and you can leave by typing `" + precommmand + "leave`\n" +
-                "There can be ### players\n" +
+                "and you can leave by typing `" + precommmand + "leave`.\n" +
+                "You can list all the players with `" + precommmand + "players`" +
+                "There can be ### players.\n" +
                 "**Starting**\n" +
                 "Once all the players are in, type `" + precommmand + "start` to start the game"
         });

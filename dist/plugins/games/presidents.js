@@ -13,6 +13,39 @@ class Player {
         this.cards = new pile_1.default();
     }
 }
+class Logic {
+    constructor(playerIds) {
+        this.players = [];
+        this.deck = new deck_1.default();
+        this.pile = new pile_1.default();
+        this.topSet = null;
+        this.init(playerIds);
+    }
+    init(playerIds) {
+        this.deck.shuffle();
+        this.initPlayers(playerIds);
+    }
+    initPlayers(playerIds) {
+        for (let playerId of playerIds) {
+            this.players.push(new Player(playerId));
+        }
+    }
+    distributeCards() {
+        let numPlayers = this.players.length;
+        let numCards = this.deck.cards.length;
+        let cardsPerPlayer = Math.floor(numCards / numPlayers);
+        for (let player of this.players) {
+            for (let i = 0; i < cardsPerPlayer; i++) {
+                let card = this.deck.takeTop();
+                if (!card) {
+                    throw new Error("Unknown Error");
+                }
+                player.cards.add(card);
+            }
+            player.cards.sortByRank();
+        }
+    }
+}
 class Presidents extends game_1.default {
     constructor(botHooks, parentPlugin, channelId) {
         super(botHooks, parentPlugin);
@@ -21,10 +54,6 @@ class Presidents extends game_1.default {
         this.gameName = "Presidents";
         this.channelId = channelId;
         this.playerIds = [];
-        this.players = [];
-        this.deck = new deck_1.default();
-        this.pile = new pile_1.default();
-        this.topSet = null;
         this.started = false;
     }
     join(bot, event, args) {
@@ -46,12 +75,19 @@ class Presidents extends game_1.default {
     start(bot, event, args) {
         this.started = true;
         this._sendStartingMessage();
-        this.deck.shuffle();
-        this._initPlayers();
-        this._distributeCards();
+        this._startGameLogic();
     }
     listPlayers(bot, event, args) {
-        bot.send(event.channelId, this.playerIds.map(e => specialUtils_1.mention(e)).join(", ") + " (" + this.playerIds.length + ")");
+        let numPlayers = this.playerIds.length;
+        if (numPlayers === 0) {
+            bot.send(event.channelId, "No one is in this game.");
+        }
+        else if (numPlayers === 1) {
+            bot.send(event.channelId, "Just " + specialUtils_1.mention(this.playerIds[0]) + ", the Loner.");
+        }
+        else {
+            bot.send(event.channelId, this.playerIds.map(e => specialUtils_1.mention(e)).join(", ") + " (" + this.playerIds.length + " players)");
+        }
     }
     _sendStartingMessage() {
         let players = [];
@@ -60,25 +96,8 @@ class Presidents extends game_1.default {
         }
         this.bot.send(this.channelId, "Starting Presidents with players:\n" + players.join(", "));
     }
-    _initPlayers() {
-        for (let playerId of this.playerIds) {
-            this.players.push(new Player(playerId));
-        }
-    }
-    _distributeCards() {
-        let numPlayers = this.players.length;
-        let numCards = this.deck.cards.length;
-        let cardsPerPlayer = Math.floor(numCards / numPlayers);
-        for (let player of this.players) {
-            for (let i = 0; i < cardsPerPlayer; i++) {
-                let card = this.deck.takeTop();
-                if (!card) {
-                    throw new Error("Unknown Error");
-                }
-                player.cards.add(card);
-            }
-            player.cards.sortByRank();
-        }
+    _startGameLogic() {
+        this.logic = new Logic(this.playerIds);
     }
     _start() {
         this._registerCommand(this.commandManager, "join", this.join);
@@ -94,8 +113,9 @@ class Presidents extends game_1.default {
             name: "Commands",
             value: "**Joining**\n" +
                 "Join this game by typing `" + precommmand + "join`\n" +
-                "and you can leave by typing `" + precommmand + "leave`\n" +
-                "There can be ### players\n" +
+                "and you can leave by typing `" + precommmand + "leave`.\n" +
+                "You can list all the players with `" + precommmand + "players`" +
+                "There can be ### players.\n" +
                 "**Starting**\n" +
                 "Once all the players are in, type `" + precommmand + "start` to start the game"
         });

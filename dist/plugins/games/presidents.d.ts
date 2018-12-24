@@ -10,16 +10,23 @@ declare class Player {
     cards: Pile;
     constructor(userId: string);
 }
+declare class Logic {
+    players: Player[];
+    deck: Deck;
+    pile: Pile;
+    topSet: CardSet | null;
+    constructor(playerIds: string[]);
+    init(playerIds: string[]): void;
+    initPlayers(playerIds: string[]): void;
+    distributeCards(): void;
+}
 declare class Presidents extends Game {
     _gamePluginName: string;
     _pluginName: string;
     gameName: string;
     channelId: string;
     playerIds: string[];
-    players: Player[];
-    deck: Deck;
-    pile: Pile;
-    topSet: CardSet | null;
+    logic?: Logic;
     started: boolean;
     constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string);
     join(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
@@ -27,8 +34,7 @@ declare class Presidents extends Game {
     start(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     listPlayers(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     _sendStartingMessage(): void;
-    _initPlayers(): void;
-    _distributeCards(): void;
+    _startGameLogic(): void;
     _start(): void;
     _sendAboutMessage(): void;
     _stop(): void;
