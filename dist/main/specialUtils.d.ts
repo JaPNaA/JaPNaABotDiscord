@@ -7,3 +7,5 @@ declare function fakeMessage(data: {
     content: string;
 }): IMessage;
 export { fakeMessage };
+declare function mention(userId: string): string;
+export { mention };

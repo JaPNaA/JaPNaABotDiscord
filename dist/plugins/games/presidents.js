@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const game_1 = __importDefault(require("./game"));
 const deck_1 = __importDefault(require("./cards/deck"));
 const pile_1 = __importDefault(require("./cards/pile"));
+const specialUtils_1 = require("../../main/specialUtils");
 class Player {
     constructor(userId) {
         this.userId = userId;
@@ -49,6 +50,9 @@ class Presidents extends game_1.default {
         this._initPlayers();
         this._distributeCards();
     }
+    listPlayers(bot, event, args) {
+        bot.send(event.channelId, this.playerIds.map(e => specialUtils_1.mention(e)).join(", ") + " (" + this.playerIds.length + ")");
+    }
     _sendStartingMessage() {
         let players = [];
         for (let playerId of this.playerIds) {
@@ -76,22 +80,33 @@ class Presidents extends game_1.default {
             player.cards.sortByRank();
         }
     }
-    debug_showCards(bot, event, args) {
-        let user = this.players.find(e => e.userId === event.userId);
-        if (!user)
-            return;
-        let str = "";
-        for (let card of user.cards) {
-            str += card.toSymbol();
-        }
-        bot.send(event.channelId, str);
-    }
     _start() {
         this._registerCommand(this.commandManager, "join", this.join);
         this._registerCommand(this.commandManager, "leave", this.leave);
         this._registerCommand(this.commandManager, "start", this.start);
-        this._registerCommand(this.commandManager, "debug:showCards", this.debug_showCards);
-        this.bot.send(this.channelId, "starting presidents");
+        this._registerCommand(this.commandManager, "players", this.listPlayers);
+        this._sendAboutMessage();
+    }
+    _sendAboutMessage() {
+        const fields = [];
+        const precommmand = this.parentPlugin.precommand.names[0];
+        fields.push({
+            name: "Commands",
+            value: "**Joining**\n" +
+                "Join this game by typing `" + precommmand + "join`\n" +
+                "and you can leave by typing `" + precommmand + "leave`\n" +
+                "There can be ### players\n" +
+                "**Starting**\n" +
+                "Once all the players are in, type `" + precommmand + "start` to start the game"
+        });
+        this.bot.send(this.channelId, {
+            embed: {
+                color: this.bot.config.themeColor,
+                title: this.gameName,
+                description: "The ultimate social card game.",
+                fields: fields
+            }
+        });
     }
     _stop() {
         // do nothing

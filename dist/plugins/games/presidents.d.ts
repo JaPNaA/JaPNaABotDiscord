@@ -25,11 +25,12 @@ declare class Presidents extends Game {
     join(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     leave(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     start(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    listPlayers(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     _sendStartingMessage(): void;
     _initPlayers(): void;
     _distributeCards(): void;
-    debug_showCards(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     _start(): void;
+    _sendAboutMessage(): void;
     _stop(): void;
 }
 export default Presidents;

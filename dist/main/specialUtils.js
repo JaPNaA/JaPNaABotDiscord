@@ -10,3 +10,7 @@ function fakeMessage(data) {
     };
 }
 exports.fakeMessage = fakeMessage;
+function mention(userId) {
+    return "<@" + userId + ">";
+}
+exports.mention = mention;

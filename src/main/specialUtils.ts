@@ -17,3 +17,9 @@ function fakeMessage(data: {
 }
 
 export { fakeMessage };
+
+function mention(userId: string) {
+    return "<@" + userId +">";
+}
+
+export { mention };
