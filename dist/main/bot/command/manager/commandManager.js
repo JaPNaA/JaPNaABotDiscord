@@ -29,6 +29,9 @@ class CommandManager {
             command.help.gatherInfoAboutCommand(command);
         }
     }
+    registerUnkownCommandHanlder(func) {
+        this.unknownCommandHandler = func;
+    }
     /** Apply config from bot.config to adjust command */
     applyConfigToCommand(command) {
         if (!command.pluginName) {

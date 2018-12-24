@@ -3,6 +3,9 @@ import BotCommandOptions from "../command/commandOptions";
 import EventName from "../eventName";
 import { PrecommandWithoutCallback, Precommand, PrecommandWithCallback } from "../precommand/precommand";
 import PrecommandManager from "../precommand/manager/precommandManager";
+import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
+import CommandManager from "../command/manager/commandManager";
+import BotCommandCallback from "../command/commandCallback";
 
 abstract class BotPlugin {
     // not private due to compatability issues with JS
@@ -31,8 +34,26 @@ abstract class BotPlugin {
         );
     }
 
-    public _registerCommand(precommand: PrecommandWithoutCallback, name: string, callback: Function, options?: BotCommandOptions): void {
-        precommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
+    public _registerCommand(commandManager: CommandManager, name: string,
+        callback: BotCommandCallback, options?: BotCommandOptions): void;
+    public _registerCommand(precommand: PrecommandWithoutCallback, name: string,
+        callback: BotCommandCallback, options?: BotCommandOptions): void;
+
+    public _registerCommand(precommandOrCommandManager: CommandManager | PrecommandWithoutCallback,
+        name: string, callback: BotCommandCallback, options?: BotCommandOptions): void {
+        let commandManager: CommandManager;
+
+        if (precommandOrCommandManager instanceof PrecommandWithoutCallback) {
+            commandManager = precommandOrCommandManager.commandManager;
+        } else {
+            commandManager = precommandOrCommandManager;
+        }
+
+        commandManager.register(name, this._pluginName, callback.bind(this), options);
+    }
+
+    public _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: UnknownCommandHandler) {
+        precommand.commandManager.registerUnkownCommandHanlder(func.bind(this));
     }
 
     /** Adds a handler function to an event */
@@ -41,9 +62,9 @@ abstract class BotPlugin {
     }
 
     public _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
-    public _registerPrecommand(precommand: string | string[], 
+    public _registerPrecommand(precommand: string | string[],
         callback: Function): PrecommandWithCallback;
-        
+
     /** Adds a handler function to a precommand */
     public _registerPrecommand(precommand: string | string[], callback?: Function): Precommand {
         const precommandManager: PrecommandManager = this.bot.precommandManager;

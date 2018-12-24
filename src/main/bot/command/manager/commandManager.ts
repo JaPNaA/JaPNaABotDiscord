@@ -1,13 +1,12 @@
 import BotHooks from "../../botHooks.js";
 import CommandDispatcher from "./commandDispatcher.js";
 import BotCommandHelp from "../commandHelp.js";
-import { Precommand } from "../../precommand/precommand.js";
 import BotCommand from "../command.js";
-import BotPlugin from "../../plugin/plugin.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
 import createKey from "../../locationKeyCreator.js";
-import { NestedObject, ObjectStrMap } from "../../types.js";
+import { ObjectStrMap } from "../../types.js";
+import UnknownCommandHandler from "./unknownCommandHandler.js";
 
 class CommandManager {
     botHooks: BotHooks;
@@ -15,6 +14,8 @@ class CommandManager {
     dispatch: CommandDispatcher;
     /** list of commands registered */
     commands: BotCommand[];
+    /** called when an unknown command is called */
+    unknownCommandHandler?: UnknownCommandHandler;
     /** groups of commands */
     commandGroups: Map<string | undefined, BotCommand[]>;
     /** Data for help */
@@ -47,6 +48,10 @@ class CommandManager {
         if (command.help) { // if help is available
             command.help.gatherInfoAboutCommand(command);
         }
+    }
+
+    registerUnkownCommandHanlder(func: UnknownCommandHandler) {
+        this.unknownCommandHandler = func;
     }
 
     /** Apply config from bot.config to adjust command */

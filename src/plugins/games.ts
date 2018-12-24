@@ -10,13 +10,14 @@ import Game from "./games/game.js";
  */
 class Games extends BotPlugin {
     precommand: PrecommandWithoutCallback;
-    currentGame?: Game;
+    currentGames: Map<string, Game>;
 
     constructor(bot: BotHooks) {
         super(bot);
         this._pluginName = "game";
 
         this.precommand = this._registerPrecommand("g!");
+        this.currentGames = new Map();
     }
 
     gPrecommandHandler(event: DiscordMessageEvent): void {
@@ -24,12 +25,23 @@ class Games extends BotPlugin {
     }
 
     game(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
-        this.currentGame = new SlapJack(this.bot, event.channelId);
-        this.currentGame._start();
+        const game = new SlapJack(this.bot, event.channelId);
+        this.currentGames.set(event.channelId, game);
+        game._start();
+    }
+
+    unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
+        let gameInChannel = this.currentGames.get(event.channelId);
+        if (gameInChannel) {
+            gameInChannel.commandManager.dispatch.onMessage(event);
+        } else {
+            bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+        }
     }
 
     _start(): void {
         this._registerCommand(this.precommand, "game", this.game);
+        this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     _stop(): void {
         // do nothing

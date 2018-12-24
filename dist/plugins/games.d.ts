@@ -8,10 +8,11 @@ import Game from "./games/game.js";
  */
 declare class Games extends BotPlugin {
     precommand: PrecommandWithoutCallback;
-    currentGame?: Game;
+    currentGames: Map<string, Game>;
     constructor(bot: BotHooks);
     gPrecommandHandler(event: DiscordMessageEvent): void;
     game(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent): void;
     _start(): void;
     _stop(): void;
 }

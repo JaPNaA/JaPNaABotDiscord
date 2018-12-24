@@ -13,16 +13,28 @@ class Games extends plugin_js_1.default {
         super(bot);
         this._pluginName = "game";
         this.precommand = this._registerPrecommand("g!");
+        this.currentGames = new Map();
     }
     gPrecommandHandler(event) {
         this.bot.send(event.channelId, event.message);
     }
     game(bot, event, args) {
-        this.currentGame = new slapjack_js_1.default(this.bot, event.channelId);
-        this.currentGame._start();
+        const game = new slapjack_js_1.default(this.bot, event.channelId);
+        this.currentGames.set(event.channelId, game);
+        game._start();
+    }
+    unknownCommandHandler(bot, event) {
+        let gameInChannel = this.currentGames.get(event.channelId);
+        if (gameInChannel) {
+            gameInChannel.commandManager.dispatch.onMessage(event);
+        }
+        else {
+            bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+        }
     }
     _start() {
         this._registerCommand(this.precommand, "game", this.game);
+        this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     _stop() {
         // do nothing

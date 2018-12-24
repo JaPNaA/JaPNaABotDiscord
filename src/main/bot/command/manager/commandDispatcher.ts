@@ -1,8 +1,7 @@
 import BotHooks from "../../botHooks.js";
-import { DiscordCommandEvent, DiscordMessageEvent } from "../../../events.js";
+import { DiscordCommandEvent } from "../../../events.js";
 import CommandManager from "./commandManager.js";
 
-import Logger from "../../../logger.js";
 import BotCommand from "../command.js";
 
 class CommandDispatcher {
@@ -35,8 +34,13 @@ class CommandDispatcher {
 
         if (!someCommandRan) {
             // command doesn't exist
-            if (this.botHooks.config.doAlertCommandDoesNotExist) {
-                this.botHooks.client.send(commandEvent.channelId, "<@" + commandEvent.userId + ">, that command doesn't exist");
+            if (this.manager.unknownCommandHandler) {
+                this.manager.unknownCommandHandler(this.botHooks, commandEvent);
+            } else if (this.botHooks.config.doAlertCommandDoesNotExist) {
+                this.botHooks.client.send(
+                    commandEvent.channelId, 
+                    "<@" + commandEvent.userId + ">, that command doesn't exist"
+                );
             }
         }
     }

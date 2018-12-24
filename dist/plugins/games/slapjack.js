@@ -10,13 +10,16 @@ const cardTypes_1 = require("./cards/cardTypes");
 class SlapJack extends game_1.default {
     constructor(botHooks, channelId) {
         super(botHooks);
+        this._pluginName = "game.slapjack";
         this.speedMilli = 1333;
         this.jack = cardTypes_1.Rank.jack;
         this.deck = new deck_1.default();
         this.deck.shuffle();
         this.channelId = channelId;
+        this.acceptingSlaps = false;
     }
     _start() {
+        this._registerCommand(this.commandManager, "slap", this.slap);
         this.bot.send(this.channelId, "Loading...")
             .then(e => {
             this.activeMessage = utils_1.toOne(e);
@@ -28,6 +31,14 @@ class SlapJack extends game_1.default {
         this.tick();
         this.startTicking();
     }
+    slap(bot, event, args) {
+        if (this.acceptingSlaps) {
+            bot.send(event.channelId, "u did it! yay");
+        }
+        else {
+            bot.send(event.channelId, "you slapped too early! violent!!");
+        }
+    }
     tick() {
         if (!this.activeMessage) {
             return;
@@ -38,6 +49,7 @@ class SlapJack extends game_1.default {
         }
         if (topCard.isRank(this.jack)) {
             this.stopTicking();
+            this.acceptingSlaps = true;
         }
         this.activeMessage.edit(topCard.toString());
     }

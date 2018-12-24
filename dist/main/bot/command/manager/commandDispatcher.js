@@ -23,7 +23,10 @@ class CommandDispatcher {
         }
         if (!someCommandRan) {
             // command doesn't exist
-            if (this.botHooks.config.doAlertCommandDoesNotExist) {
+            if (this.manager.unknownCommandHandler) {
+                this.manager.unknownCommandHandler(this.botHooks, commandEvent);
+            }
+            else if (this.botHooks.config.doAlertCommandDoesNotExist) {
                 this.botHooks.client.send(commandEvent.channelId, "<@" + commandEvent.userId + ">, that command doesn't exist");
             }
         }

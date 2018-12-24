@@ -5,8 +5,10 @@ import { toOne } from "../../main/utils";
 import { Message } from "discord.js";
 import { Rank } from "./cards/cardTypes";
 import { Card } from "./cards/card";
+import { DiscordCommandEvent } from "../../main/events";
 
 class SlapJack extends Game {
+    _pluginName: string = "game.slapjack";
     channelId: string;
     activeMessage?: Message;
 
@@ -16,6 +18,7 @@ class SlapJack extends Game {
 
     deck: Deck;
     jack: Rank = Rank.jack;
+    acceptingSlaps: boolean;
 
     constructor(botHooks: BotHooks, channelId: string) {
         super(botHooks);
@@ -24,9 +27,12 @@ class SlapJack extends Game {
         this.deck.shuffle();
 
         this.channelId = channelId;
+        this.acceptingSlaps = false;
     }
 
     _start() {
+        this._registerCommand(this.commandManager, "slap", this.slap);
+
         this.bot.send(this.channelId, "Loading...")
             .then(e => {
                 this.activeMessage = toOne(e);
@@ -40,6 +46,14 @@ class SlapJack extends Game {
         this.startTicking();
     }
 
+    slap(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+        if (this.acceptingSlaps) {
+            bot.send(event.channelId, "u did it! yay");
+        } else {
+            bot.send(event.channelId, "you slapped too early! violent!!");
+        }
+    }
+
     tick() {
         if (!this.activeMessage) { return; }
 
@@ -48,6 +62,7 @@ class SlapJack extends Game {
 
         if (topCard.isRank(this.jack)) {
             this.stopTicking();
+            this.acceptingSlaps = true;
         }
 
         this.activeMessage.edit(topCard.toString());
