@@ -11,6 +11,10 @@ const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
 class Games extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
+        this.gameAliases = {
+            "slapjack": slapjack_js_1.default,
+            "slap jack": slapjack_js_1.default,
+        };
         this._pluginName = "games";
         this.config = bot.config.getPlugin(this._pluginName);
         this.precommand = this._registerPrecommand(this.config.precommand);
@@ -19,14 +23,25 @@ class Games extends plugin_js_1.default {
     gPrecommandHandler(event) {
         this.bot.send(event.channelId, event.message);
     }
-    game(bot, event, args) {
-        const game = new slapjack_js_1.default(this.bot, this, event.channelId);
-        this.currentGames.set(event.channelId, game);
-        game._start();
+    play(bot, event, args) {
+        let cleanedArgs = args.trim().toLowerCase();
+        const gameClass = this._getGame(cleanedArgs);
+        if (gameClass) {
+            let game = new gameClass(this.bot, this, event.channelId);
+            this.currentGames.set(event.channelId, game);
+            game._start();
+        }
+        else {
+            bot.send(event.channelId, "That game doesn't exist :confused:\n" +
+                "```c\n// TODO: add way to list all games```");
+        }
+    }
+    _getGame(name) {
+        return this.gameAliases[name];
     }
     unknownCommandHandler(bot, event) {
         let gameInChannel = this.currentGames.get(event.channelId);
-        if (gameInChannel) {
+        if (gameInChannel) { // forward to the game
             gameInChannel.commandManager.dispatch.onMessage(event);
         }
         else {
@@ -34,7 +49,7 @@ class Games extends plugin_js_1.default {
         }
     }
     _start() {
-        this._registerCommand(this.precommand, "game", this.game);
+        this._registerCommand(this.precommand, "play", this.play);
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     _stop() {
