@@ -5,6 +5,7 @@ import BotHooks from "../../main/bot/botHooks";
 import { Message } from "discord.js";
 import { Rank } from "./cards/cardTypes";
 import { DiscordCommandEvent } from "../../main/events";
+import Games from "../games";
 declare class SlapJack extends Game {
     _pluginName: string;
     gameName: string;
@@ -17,7 +18,7 @@ declare class SlapJack extends Game {
     acceptingSlaps: boolean;
     jackedTime: number;
     gameEnded: boolean;
-    constructor(botHooks: BotHooks, channelId: string);
+    constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string);
     _start(): void;
     onReadyStart(): void;
     slap(bot: BotHooks, event: DiscordCommandEvent, args: string): void;

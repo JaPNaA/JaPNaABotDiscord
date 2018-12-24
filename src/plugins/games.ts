@@ -28,7 +28,7 @@ class Games extends BotPlugin {
     }
 
     game(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
-        const game = new SlapJack(this.bot, event.channelId);
+        const game = new SlapJack(this.bot, this, event.channelId);
         this.currentGames.set(event.channelId, game);
         game._start();
     }

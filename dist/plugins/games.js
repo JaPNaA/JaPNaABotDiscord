@@ -20,7 +20,7 @@ class Games extends plugin_js_1.default {
         this.bot.send(event.channelId, event.message);
     }
     game(bot, event, args) {
-        const game = new slapjack_js_1.default(this.bot, event.channelId);
+        const game = new slapjack_js_1.default(this.bot, this, event.channelId);
         this.currentGames.set(event.channelId, game);
         game._start();
     }

@@ -6,9 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const commandManager_1 = __importDefault(require("../../main/bot/command/manager/commandManager"));
 const plugin_1 = __importDefault(require("../../main/bot/plugin/plugin"));
 class Game extends plugin_1.default {
-    constructor(botHooks) {
+    constructor(botHooks, parentPlugin) {
         super(botHooks);
         this.gameEnded = false;
+        this.parentPlugin = parentPlugin;
         this.commandManager = new commandManager_1.default(this.bot);
         this.gameName = this.constructor.name;
         this._gamePluginName = this.gameName.toLowerCase();

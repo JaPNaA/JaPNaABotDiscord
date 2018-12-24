@@ -6,6 +6,7 @@ import { Message } from "discord.js";
 import { Rank } from "./cards/cardTypes";
 import { Card } from "./cards/card";
 import { DiscordCommandEvent } from "../../main/events";
+import Games from "../games";
 
 class SlapJack extends Game {
     _pluginName: string = "game.slapjack";
@@ -24,8 +25,8 @@ class SlapJack extends Game {
 
     gameEnded: boolean = false;
 
-    constructor(botHooks: BotHooks, channelId: string) {
-        super(botHooks);
+    constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string) {
+        super(botHooks, parentPlugin);
 
         this.deck = new Deck({
             excludeJokers: true
@@ -48,7 +49,10 @@ class SlapJack extends Game {
     }
 
     onReadyStart() {
-        this.bot.send(this.channelId, "Type `g!slap` when the card above is a Jack");
+        this.bot.send(this.channelId, 
+            "Type `" + this.parentPlugin.precommand.names[0] + 
+            "slap` when the card above is a Jack"
+        );
         this.tick();
         this.startTicking();
     }

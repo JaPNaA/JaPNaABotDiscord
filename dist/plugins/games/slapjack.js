@@ -8,8 +8,8 @@ const game_1 = __importDefault(require("../games/game"));
 const utils_1 = require("../../main/utils");
 const cardTypes_1 = require("./cards/cardTypes");
 class SlapJack extends game_1.default {
-    constructor(botHooks, channelId) {
-        super(botHooks);
+    constructor(botHooks, parentPlugin, channelId) {
+        super(botHooks, parentPlugin);
         this._pluginName = "game.slapjack";
         this.gameName = "Slap Jack";
         this.speedMilli = 1333;
@@ -32,7 +32,8 @@ class SlapJack extends game_1.default {
         });
     }
     onReadyStart() {
-        this.bot.send(this.channelId, "Type `g!slap` when the card above is a Jack");
+        this.bot.send(this.channelId, "Type `" + this.parentPlugin.precommand.names[0] +
+            "slap` when the card above is a Jack");
         this.tick();
         this.startTicking();
     }

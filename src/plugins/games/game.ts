@@ -2,16 +2,20 @@ import BotHooks from "../../main/bot/botHooks";
 import CommandManager from "../../main/bot/command/manager/commandManager";
 import BotPlugin from "../../main/bot/plugin/plugin";
 import { DiscordCommandEvent } from "../../main/events";
+import Games from "../games";
 
 abstract class Game extends BotPlugin {
+    parentPlugin: Games;
+
     commandManager: CommandManager;
     _gamePluginName: string;
     gameName: string;
 
     gameEnded: boolean = false;
 
-    constructor(botHooks: BotHooks) {
+    constructor(botHooks: BotHooks, parentPlugin: Games) {
         super(botHooks)
+        this.parentPlugin = parentPlugin;
 
         this.commandManager = new CommandManager(this.bot);
 
