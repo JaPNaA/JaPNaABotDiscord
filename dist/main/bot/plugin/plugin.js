@@ -20,8 +20,15 @@ class BotPlugin {
         }
         commandManager.register(name, this._pluginName, callback.bind(this), options);
     }
-    _registerUnknownCommandHandler(precommand, func) {
-        precommand.commandManager.registerUnkownCommandHanlder(func.bind(this));
+    _registerUnknownCommandHandler(precommandOrCommandManager, func) {
+        let commandManager;
+        if (precommandOrCommandManager instanceof precommand_1.PrecommandWithoutCallback) {
+            commandManager = precommandOrCommandManager.commandManager;
+        }
+        else {
+            commandManager = precommandOrCommandManager;
+        }
+        commandManager.registerUnkownCommandHanlder(func.bind(this));
     }
     /** Adds a handler function to an event */
     _registerEventHandler(name, callback) {

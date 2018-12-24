@@ -9,16 +9,20 @@ import { DiscordCommandEvent } from "../../main/events";
 
 class SlapJack extends Game {
     _pluginName: string = "game.slapjack";
+    gameName: string = "Slap Jack";
+
     channelId: string;
     activeMessage?: Message;
-
     speedMilli: number = 1333;
-
     timeoutId?: NodeJS.Timeout;
 
     deck: Deck;
     jack: Rank = Rank.jack;
+
     acceptingSlaps: boolean;
+    jackedTime: number;
+
+    gameEnded: boolean = false;
 
     constructor(botHooks: BotHooks, channelId: string) {
         super(botHooks);
@@ -28,6 +32,7 @@ class SlapJack extends Game {
 
         this.channelId = channelId;
         this.acceptingSlaps = false;
+        this.jackedTime = 0;
     }
 
     _start() {
@@ -48,7 +53,13 @@ class SlapJack extends Game {
 
     slap(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         if (this.acceptingSlaps) {
-            bot.send(event.channelId, "u did it! yay");
+            bot.send(
+                event.channelId, 
+                `<@${event.userId}> did it! yay\n` + 
+                (Date.now() - this.jackedTime).toString() + "ms"
+            );
+
+            this.gameEnded = true;
         } else {
             bot.send(event.channelId, "you slapped too early! violent!!");
         }
@@ -61,11 +72,16 @@ class SlapJack extends Game {
         if (!topCard) { throw new Error("No cards left"); }
 
         if (topCard.isRank(this.jack)) {
-            this.stopTicking();
-            this.acceptingSlaps = true;
+            this.jacked();
         }
 
         this.activeMessage.edit(topCard.toString());
+    }
+
+    jacked() {
+        this.stopTicking();
+        this.acceptingSlaps = true;
+        this.jackedTime = Date.now();
     }
 
     startTicking() {

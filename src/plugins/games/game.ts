@@ -1,15 +1,33 @@
 import BotHooks from "../../main/bot/botHooks";
 import CommandManager from "../../main/bot/command/manager/commandManager";
 import BotPlugin from "../../main/bot/plugin/plugin";
+import { DiscordCommandEvent } from "../../main/events";
 
 abstract class Game extends BotPlugin {
     commandManager: CommandManager;
+    _gamePluginName: string;
+    gameName: string;
+
+    gameEnded: boolean = false;
 
     constructor(botHooks: BotHooks) {
         super(botHooks)
 
         this.commandManager = new CommandManager(this.bot);
-        this._pluginName = "game." + this.constructor.name.toLowerCase();
+
+        this.gameName = this.constructor.name;
+        this._gamePluginName = this.gameName.toLowerCase();
+        this._pluginName = "game." + this._gamePluginName;
+
+        this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
+    }
+
+    unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
+        bot.send(
+            event.channelId, 
+            "lol that command doesn't exist!!1!\n" + 
+            "(You're playing " + this.gameName + ")"
+        );
     }
 }
 

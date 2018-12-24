@@ -11,12 +11,15 @@ class SlapJack extends game_1.default {
     constructor(botHooks, channelId) {
         super(botHooks);
         this._pluginName = "game.slapjack";
+        this.gameName = "Slap Jack";
         this.speedMilli = 1333;
         this.jack = cardTypes_1.Rank.jack;
+        this.gameEnded = false;
         this.deck = new deck_1.default();
         this.deck.shuffle();
         this.channelId = channelId;
         this.acceptingSlaps = false;
+        this.jackedTime = 0;
     }
     _start() {
         this._registerCommand(this.commandManager, "slap", this.slap);
@@ -33,7 +36,9 @@ class SlapJack extends game_1.default {
     }
     slap(bot, event, args) {
         if (this.acceptingSlaps) {
-            bot.send(event.channelId, "u did it! yay");
+            bot.send(event.channelId, `<@${event.userId}> did it! yay\n` +
+                (Date.now() - this.jackedTime).toString() + "ms");
+            this.gameEnded = true;
         }
         else {
             bot.send(event.channelId, "you slapped too early! violent!!");
@@ -48,10 +53,14 @@ class SlapJack extends game_1.default {
             throw new Error("No cards left");
         }
         if (topCard.isRank(this.jack)) {
-            this.stopTicking();
-            this.acceptingSlaps = true;
+            this.jacked();
         }
         this.activeMessage.edit(topCard.toString());
+    }
+    jacked() {
+        this.stopTicking();
+        this.acceptingSlaps = true;
+        this.jackedTime = Date.now();
     }
     startTicking() {
         this.timeoutId = setInterval(() => {

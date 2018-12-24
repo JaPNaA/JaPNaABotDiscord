@@ -7,6 +7,7 @@ import { Rank } from "./cards/cardTypes";
 import { DiscordCommandEvent } from "../../main/events";
 declare class SlapJack extends Game {
     _pluginName: string;
+    gameName: string;
     channelId: string;
     activeMessage?: Message;
     speedMilli: number;
@@ -14,11 +15,14 @@ declare class SlapJack extends Game {
     deck: Deck;
     jack: Rank;
     acceptingSlaps: boolean;
+    jackedTime: number;
+    gameEnded: boolean;
     constructor(botHooks: BotHooks, channelId: string);
     _start(): void;
     onReadyStart(): void;
     slap(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     tick(): void;
+    jacked(): void;
     startTicking(): void;
     stopTicking(): void;
     _stop(): void;
