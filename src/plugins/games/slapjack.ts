@@ -7,6 +7,7 @@ import { Rank } from "./cards/cardUtils";
 import { Card } from "./cards/card";
 import { DiscordCommandEvent } from "../../main/events";
 import Games from "../games";
+import { mention } from "../../main/specialUtils";
 
 class SlapJack extends Game {
     _gamePluginName: string = "slapjack"
@@ -62,7 +63,7 @@ class SlapJack extends Game {
         if (this.acceptingSlaps) {
             bot.send(
                 event.channelId, 
-                `<@${event.userId}> did it! yay\n` + 
+                mention(event.userId) + " did it! yay\n" + 
                 (event.createdTimestamp - this.jackedTime).toString() + "ms"
             );
 

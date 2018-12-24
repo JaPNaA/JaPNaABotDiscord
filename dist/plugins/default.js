@@ -317,7 +317,7 @@ class Default extends plugin_js_1.default {
         let user = bot.getUser(userId);
         let message = args.slice(tagMatch[0].length).trim();
         if (!user) {
-            bot.send(event.channelId, "Could not find user <@" + userId + ">");
+            bot.send(event.channelId, "Could not find user" + specialUtils_js_1.mention(userId));
             return;
         }
         let channel = bot.getChannel(event.channelId);
@@ -417,11 +417,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` in this channel");
+                    bot.send(event.channelId, "Given" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this channel");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this channel.");
+                    bot.send(event.channelId, "Removed" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -430,11 +430,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this channel.");
+                    bot.send(event.channelId, "Given role" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this channel.");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this channel.");
+                    bot.send(event.channelId, "Removed role" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -452,11 +452,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` in this server");
+                    bot.send(event.channelId, "Given" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this server");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) from this server.");
+                    bot.send(event.channelId, "Removed" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -465,11 +465,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this server.");
+                    bot.send(event.channelId, "Given role" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this server.");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed role <@" + id + ">'s permission (`" + permission + "`) from this server.");
+                    bot.send(event.channelId, "Removed role" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -491,11 +491,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_global(id, permission, true);
-                    bot.send(event.channelId, "Given <@" + id + "> the permission `" + permission + "` everywhere");
+                    bot.send(event.channelId, "Given" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` everywhere");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_global(id, permission, false);
-                    bot.send(event.channelId, "Removed <@" + id + ">'s permission (`" + permission + "`) everywhere.");
+                    bot.send(event.channelId, "Removed" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) everywhere.");
                 }
                 else {
                     sendHelp();

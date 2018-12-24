@@ -9,6 +9,7 @@ const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHel
 const logger_js_1 = __importDefault(require("../main/logger.js"));
 const utils_js_1 = require("../main/utils.js");
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
+const specialUtils_js_1 = require("../main/specialUtils.js");
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -256,7 +257,7 @@ class Japnaa extends plugin_js_1.default {
                     bot.send(event.channelId, "All spam on every server stopped");
                 }
                 else {
-                    bot.send(event.channelId, "<@" + event.userId + ">, you don't have the permissions to do that.");
+                    bot.send(event.channelId, specialUtils_js_1.mention(event.userId) + ", you don't have the permissions to do that.");
                 }
                 return;
             case "limit":
@@ -375,13 +376,13 @@ class Japnaa extends plugin_js_1.default {
         }
         let message = args.slice(tagMatch[0].length);
         bot.sendDM(user, {
-            message: "<@" + event.userId + "> told you",
+            message: specialUtils_js_1.mention(event.userId) + " told you",
             embed: {
                 color: bot.config.themeColor,
                 description: message
             }
         }, function () {
-            bot.send(event.channelId, "Failed to tell <@" + user + ">");
+            bot.send(event.channelId, "Failed to tell " + specialUtils_js_1.mention(user));
         });
     }
     _stop() {

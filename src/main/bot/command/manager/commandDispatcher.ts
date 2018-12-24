@@ -3,6 +3,7 @@ import { DiscordCommandEvent } from "../../../events.js";
 import CommandManager from "./commandManager.js";
 
 import BotCommand from "../command.js";
+import { mention } from "../../../specialUtils.js";
 
 class CommandDispatcher {
     botHooks: BotHooks;
@@ -39,7 +40,7 @@ class CommandDispatcher {
             } else if (this.botHooks.config.doAlertCommandDoesNotExist) {
                 this.botHooks.client.send(
                     commandEvent.channelId, 
-                    "<@" + commandEvent.userId + ">, that command doesn't exist"
+                    mention(commandEvent.userId) + ", that command doesn't exist"
                 );
             }
         }

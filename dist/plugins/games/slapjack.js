@@ -7,6 +7,7 @@ const deck_1 = __importDefault(require("./cards/deck"));
 const game_1 = __importDefault(require("../games/game"));
 const utils_1 = require("../../main/utils");
 const cardUtils_1 = require("./cards/cardUtils");
+const specialUtils_1 = require("../../main/specialUtils");
 class SlapJack extends game_1.default {
     constructor(botHooks, parentPlugin, channelId) {
         super(botHooks, parentPlugin);
@@ -40,7 +41,7 @@ class SlapJack extends game_1.default {
     }
     slap(bot, event, args) {
         if (this.acceptingSlaps) {
-            bot.send(event.channelId, `<@${event.userId}> did it! yay\n` +
+            bot.send(event.channelId, specialUtils_1.mention(event.userId) + " did it! yay\n" +
                 (event.createdTimestamp - this.jackedTime).toString() + "ms");
             this.gameEnded = true;
         }

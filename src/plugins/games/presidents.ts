@@ -51,7 +51,7 @@ class Presidents extends Game {
     join(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let userId = event.userId;
         this.playerIds.push(userId);
-        bot.send(event.channelId, `<@${userId}> has joined ${this.gameName}!`);
+        bot.send(event.channelId, mention(userId) +` has joined ${this.gameName}!`);
     }
 
     leave(bot: BotHooks, event: DiscordCommandEvent, args: string) {
@@ -61,9 +61,9 @@ class Presidents extends Game {
         this.playerIds.splice(index, 1);
 
         if (index < 0) {
-            bot.send(event.channelId, `<@${userId}>, you were never in the game!`);
+            bot.send(event.channelId, mention(userId) + ", you were never in the game!");
         } else {
-            bot.send(event.channelId, `<@${userId}> has left the game`);
+            bot.send(event.channelId, mention(userId) + " has left the game");
         }
     }
 
@@ -86,7 +86,7 @@ class Presidents extends Game {
     _sendStartingMessage() {
         let players: string[] = [];
         for (let playerId of this.playerIds) {
-            players.push(`<@${playerId}>`);
+            players.push(mention(playerId));
         }
         this.bot.send(this.channelId, "Starting Presidents with players:\n" + players.join(", "));
     }

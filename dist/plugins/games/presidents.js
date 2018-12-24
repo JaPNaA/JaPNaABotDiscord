@@ -30,17 +30,17 @@ class Presidents extends game_1.default {
     join(bot, event, args) {
         let userId = event.userId;
         this.playerIds.push(userId);
-        bot.send(event.channelId, `<@${userId}> has joined ${this.gameName}!`);
+        bot.send(event.channelId, specialUtils_1.mention(userId) + ` has joined ${this.gameName}!`);
     }
     leave(bot, event, args) {
         let userId = event.userId;
         let index = this.playerIds.indexOf(userId);
         this.playerIds.splice(index, 1);
         if (index < 0) {
-            bot.send(event.channelId, `<@${userId}>, you were never in the game!`);
+            bot.send(event.channelId, specialUtils_1.mention(userId) + ", you were never in the game!");
         }
         else {
-            bot.send(event.channelId, `<@${userId}> has left the game`);
+            bot.send(event.channelId, specialUtils_1.mention(userId) + " has left the game");
         }
     }
     start(bot, event, args) {
@@ -56,7 +56,7 @@ class Presidents extends game_1.default {
     _sendStartingMessage() {
         let players = [];
         for (let playerId of this.playerIds) {
-            players.push(`<@${playerId}>`);
+            players.push(specialUtils_1.mention(playerId));
         }
         this.bot.send(this.channelId, "Starting Presidents with players:\n" + players.join(", "));
     }

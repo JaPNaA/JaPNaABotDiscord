@@ -12,6 +12,7 @@ import { stringToArgs, random, getSnowflakeNum } from "../main/utils.js";
 import createKey from "../main/bot/locationKeyCreator.js";
 import { JSONObject } from "../main/jsonObject.js";
 import { Guild } from "discord.js";
+import { mention } from "../main/specialUtils.js";
 
 type SpamCallback = () => boolean;
 
@@ -300,7 +301,7 @@ class Japnaa extends BotPlugin {
                 this._stopAllSpam();
                 bot.send(event.channelId, "All spam on every server stopped");
             } else {
-                bot.send(event.channelId, "<@" + event.userId + ">, you don't have the permissions to do that.");
+                bot.send(event.channelId, mention(event.userId) + ", you don't have the permissions to do that.");
             }
             return;
         case "limit":
@@ -443,13 +444,13 @@ class Japnaa extends BotPlugin {
         let message: string = args.slice(tagMatch[0].length);
 
         bot.sendDM(user, {
-            message: "<@" + event.userId + "> told you",
+            message: mention(event.userId) + " told you",
             embed: {
                 color: bot.config.themeColor,
                 description: message
             }
         }, function (): void {
-            bot.send(event.channelId, "Failed to tell <@" + user + ">");
+            bot.send(event.channelId, "Failed to tell " + mention(user as string));
         });
     }
 
