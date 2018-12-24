@@ -12,6 +12,7 @@ import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 import BotCommand from "../main/bot/command/command.js";
 import { TextChannel, Message, Guild, User, Channel, GuildMember } from "discord.js";
+import { fakeMessage } from "../main/specialUtils.js";
 
 /**
  * Normal commands every bot shoud have
@@ -379,12 +380,12 @@ class Default extends BotPlugin {
 
         if (!guild) { throw new Error("Unknown error"); }
 
-        bot.rawEventAdapter.onMessage({
+        bot.rawEventAdapter.onMessage(fakeMessage({
             author: user,
             channel: channel as TextChannel,
             guild: guild,
             content: message
-        });
+        }));
     }
 
     /**
@@ -414,12 +415,12 @@ class Default extends BotPlugin {
             return; // tODO: Tell invalid, get help
         }
 
-        bot.rawEventAdapter.onMessage({
+        bot.rawEventAdapter.onMessage(fakeMessage({
             author: author,
             channel: channel,
             guild: guild,
             content: message
-        });
+        }));
 
         let sentMessages: object[] = bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);

@@ -12,11 +12,14 @@ class Games extends BotPlugin {
     precommand: PrecommandWithoutCallback;
     currentGames: Map<string, Game>;
 
+    config: { [x: string]: any };
+
     constructor(bot: BotHooks) {
         super(bot);
-        this._pluginName = "game";
+        this._pluginName = "games";
+        this.config = bot.config.getPlugin(this._pluginName) as any;
 
-        this.precommand = this._registerPrecommand("g!");
+        this.precommand = this._registerPrecommand(this.config.precommand);
         this.currentGames = new Map();
     }
 

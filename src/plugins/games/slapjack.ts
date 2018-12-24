@@ -27,7 +27,9 @@ class SlapJack extends Game {
     constructor(botHooks: BotHooks, channelId: string) {
         super(botHooks);
 
-        this.deck = new Deck();
+        this.deck = new Deck({
+            excludeJokers: true
+        });
         this.deck.shuffle();
 
         this.channelId = channelId;
@@ -56,7 +58,7 @@ class SlapJack extends Game {
             bot.send(
                 event.channelId, 
                 `<@${event.userId}> did it! yay\n` + 
-                (Date.now() - this.jackedTime).toString() + "ms"
+                (event.createdTimestamp - this.jackedTime).toString() + "ms"
             );
 
             this.gameEnded = true;
@@ -71,17 +73,19 @@ class SlapJack extends Game {
         let topCard: Card | undefined = this.deck.takeTop();
         if (!topCard) { throw new Error("No cards left"); }
 
-        if (topCard.isRank(this.jack)) {
-            this.jacked();
-        }
+        let promise = this.activeMessage.edit(topCard.toString());
 
-        this.activeMessage.edit(topCard.toString());
+        if (topCard.isRank(this.jack)) {
+            this.jacked(promise);
+        }
     }
 
-    jacked() {
+    jacked(editPromise: Promise<any>) {
         this.stopTicking();
-        this.acceptingSlaps = true;
-        this.jackedTime = Date.now();
+        editPromise.then(() => {
+            this.acceptingSlaps = true;
+            this.jackedTime = Date.now();
+        });
     }
 
     startTicking() {

@@ -11,8 +11,9 @@ const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
 class Games extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
-        this._pluginName = "game";
-        this.precommand = this._registerPrecommand("g!");
+        this._pluginName = "games";
+        this.config = bot.config.getPlugin(this._pluginName);
+        this.precommand = this._registerPrecommand(this.config.precommand);
         this.currentGames = new Map();
     }
     gPrecommandHandler(event) {

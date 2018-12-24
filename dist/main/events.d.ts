@@ -17,6 +17,8 @@ declare class DiscordMessageEvent {
     originalEvent: IMessage;
     /** Is the message from Direct Messages? */
     isDM: boolean;
+    /** When the message was sent */
+    createdTimestamp: number;
     /**
      * DiscordMessageEvent contructor
      * @param username of sender
@@ -26,7 +28,17 @@ declare class DiscordMessageEvent {
      * @param precommandName is message valid command? If so, what is precommand?
      * @param event websocket event
      */
-    constructor(username: string, userId: string, channelId: string, serverId: string, message: string, precommandName: PrecommandName | null, event: IMessage, isDM: boolean);
+    constructor(data: {
+        username: string;
+        userId: string;
+        channelId: string;
+        serverId: string;
+        message: string;
+        precommandName: PrecommandName | null;
+        originalEvent: IMessage;
+        isDM: boolean;
+        createdTimestamp: number;
+    });
 }
 export { DiscordMessageEvent };
 declare class DiscordCommandEvent extends DiscordMessageEvent {

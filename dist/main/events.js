@@ -10,22 +10,23 @@ class DiscordMessageEvent {
      * @param precommandName is message valid command? If so, what is precommand?
      * @param event websocket event
      */
-    constructor(username, userId, channelId, serverId, message, precommandName, event, isDM) {
-        this.username = username;
-        this.userId = userId;
-        this.channelId = channelId;
-        this.serverId = serverId;
-        this.message = message;
-        this.precommandName = precommandName;
-        this.originalEvent = event;
-        this.isDM = isDM;
+    constructor(data) {
+        this.username = data.username;
+        this.userId = data.userId;
+        this.channelId = data.channelId;
+        this.serverId = data.serverId;
+        this.message = data.message;
+        this.precommandName = data.precommandName;
+        this.originalEvent = data.originalEvent;
+        this.isDM = data.isDM;
+        this.createdTimestamp = data.createdTimestamp;
     }
 }
 exports.DiscordMessageEvent = DiscordMessageEvent;
 class DiscordCommandEvent extends DiscordMessageEvent {
     constructor(messageEvent, pre, content) {
         // inheirt all properties of DiscordMessageEvent
-        super(messageEvent.username, messageEvent.userId, messageEvent.channelId, messageEvent.serverId, messageEvent.message, messageEvent.precommandName, messageEvent.originalEvent, messageEvent.isDM);
+        super(messageEvent);
         this.precommandName = pre;
         this.commandContent = content;
     }

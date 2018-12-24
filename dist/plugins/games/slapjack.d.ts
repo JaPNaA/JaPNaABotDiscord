@@ -22,7 +22,7 @@ declare class SlapJack extends Game {
     onReadyStart(): void;
     slap(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     tick(): void;
-    jacked(): void;
+    jacked(editPromise: Promise<any>): void;
     startTicking(): void;
     stopTicking(): void;
     _stop(): void;

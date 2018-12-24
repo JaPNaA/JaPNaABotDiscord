@@ -11,6 +11,7 @@ const utils_js_1 = require("../main/utils.js");
 const util_1 = require("util");
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
 const permissions_js_1 = __importDefault(require("../main/permissions.js"));
+const specialUtils_js_1 = require("../main/specialUtils.js");
 /**
  * Normal commands every bot shoud have
  */
@@ -324,12 +325,12 @@ class Default extends plugin_js_1.default {
         if (!guild) {
             throw new Error("Unknown error");
         }
-        bot.rawEventAdapter.onMessage({
+        bot.rawEventAdapter.onMessage(specialUtils_js_1.fakeMessage({
             author: user,
             channel: channel,
             guild: guild,
             content: message
-        });
+        }));
     }
     /**
      * Pretends to recieve a message from someone else
@@ -356,12 +357,12 @@ class Default extends plugin_js_1.default {
         if (!author || !guild) {
             return; // tODO: Tell invalid, get help
         }
-        bot.rawEventAdapter.onMessage({
+        bot.rawEventAdapter.onMessage(specialUtils_js_1.fakeMessage({
             author: author,
             channel: channel,
             guild: guild,
             content: message
-        });
+        }));
         let sentMessages = bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {

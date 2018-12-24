@@ -18,6 +18,8 @@ class DiscordMessageEvent {
     originalEvent: IMessage;
     /** Is the message from Direct Messages? */
     isDM: boolean;
+    /** When the message was sent */
+    createdTimestamp: number;
     /**
      * DiscordMessageEvent contructor
      * @param username of sender
@@ -27,17 +29,26 @@ class DiscordMessageEvent {
      * @param precommandName is message valid command? If so, what is precommand?
      * @param event websocket event
      */
-    constructor(username: string, userId: string, channelId: string, serverId: string,
-        message: string, precommandName: PrecommandName | null, event: IMessage, isDM: boolean
-    ) {
-        this.username = username;
-        this.userId = userId;
-        this.channelId = channelId;
-        this.serverId = serverId;
-        this.message = message;
-        this.precommandName = precommandName;
-        this.originalEvent = event;
-        this.isDM = isDM;
+    constructor(data: {
+        username: string, 
+        userId: string,
+        channelId: string,
+        serverId: string,
+        message: string,
+        precommandName: PrecommandName | null,
+        originalEvent: IMessage,
+        isDM: boolean,
+        createdTimestamp: number
+    }) {
+        this.username = data.username;
+        this.userId = data.userId;
+        this.channelId = data.channelId;
+        this.serverId = data.serverId;
+        this.message = data.message;
+        this.precommandName = data.precommandName;
+        this.originalEvent = data.originalEvent;
+        this.isDM = data.isDM;
+        this.createdTimestamp = data.createdTimestamp;
     }
 }
 
@@ -51,11 +62,7 @@ class DiscordCommandEvent extends DiscordMessageEvent {
 
     constructor(messageEvent: DiscordMessageEvent, pre: PrecommandName, content: string) {
         // inheirt all properties of DiscordMessageEvent
-        super(
-            messageEvent.username, messageEvent.userId, messageEvent.channelId,
-            messageEvent.serverId, messageEvent.message, messageEvent.precommandName,
-            messageEvent.originalEvent, messageEvent.isDM
-        );
+        super(messageEvent);
 
         this.precommandName = pre;
         this.commandContent = content;

@@ -15,7 +15,9 @@ class SlapJack extends game_1.default {
         this.speedMilli = 1333;
         this.jack = cardTypes_1.Rank.jack;
         this.gameEnded = false;
-        this.deck = new deck_1.default();
+        this.deck = new deck_1.default({
+            excludeJokers: true
+        });
         this.deck.shuffle();
         this.channelId = channelId;
         this.acceptingSlaps = false;
@@ -37,7 +39,7 @@ class SlapJack extends game_1.default {
     slap(bot, event, args) {
         if (this.acceptingSlaps) {
             bot.send(event.channelId, `<@${event.userId}> did it! yay\n` +
-                (Date.now() - this.jackedTime).toString() + "ms");
+                (event.createdTimestamp - this.jackedTime).toString() + "ms");
             this.gameEnded = true;
         }
         else {
@@ -52,15 +54,17 @@ class SlapJack extends game_1.default {
         if (!topCard) {
             throw new Error("No cards left");
         }
+        let promise = this.activeMessage.edit(topCard.toString());
         if (topCard.isRank(this.jack)) {
-            this.jacked();
+            this.jacked(promise);
         }
-        this.activeMessage.edit(topCard.toString());
     }
-    jacked() {
+    jacked(editPromise) {
         this.stopTicking();
-        this.acceptingSlaps = true;
-        this.jackedTime = Date.now();
+        editPromise.then(() => {
+            this.acceptingSlaps = true;
+            this.jackedTime = Date.now();
+        });
     }
     startTicking() {
         this.timeoutId = setInterval(() => {
