@@ -44,13 +44,13 @@ function suitToSymbol(suit: Suit) {
 function suitToInt(suit: Suit) {
     switch (suit) {
         case Suit.spades:
-            return 0xA0;
+            return 0xA;
         case Suit.hearts:
-            return 0xB0;
+            return 0xB;
         case Suit.diamonds:
-            return 0xC0;
+            return 0xC;
         case Suit.clubs:
-            return 0xD0;
+            return 0xD;
     }
 }
 
@@ -155,7 +155,10 @@ function rankToShortString(rank: Rank) {
 
 function toSymbol(suit: Suit, rank: Rank) {
     let firstChar = 0xD83C;
-    let secondChar = 0xDC00 + suitToInt(suit) + rankToInt(rank);
+    let secondChar = 
+        0xDC00 +
+        suitToInt(suit) * 0x10 +
+        rankToInt(rank);
 
     return String.fromCharCode(firstChar, secondChar);
 }

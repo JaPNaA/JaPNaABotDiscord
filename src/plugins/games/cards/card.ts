@@ -1,4 +1,4 @@
-import { Suit, Rank, rankToString, suitToString, rankToShortString, suitToSymbol, toSymbol } from "./cardTypes";
+import { Suit, Rank, rankToString, suitToString, rankToShortString, suitToSymbol, toSymbol, rankToInt, suitToInt } from "./cardUtils";
 
 abstract class Card {
     abstract joker: boolean;
@@ -12,6 +12,9 @@ abstract class Card {
     abstract toShortString(): string;
     abstract toShortMD(): string;
     abstract toSymbol(): string;
+
+    abstract indexByRank(): number;
+    abstract indexBySuit(): number;
 }
 
 class NormalCard extends Card {
@@ -66,6 +69,16 @@ class NormalCard extends Card {
     toSymbol(): string {
         return toSymbol(this.suit, this.rank);
     }
+
+    indexByRank(): number {
+        return rankToInt(this.rank) * 0x10 +
+            suitToInt(this.suit);
+    }
+
+    indexBySuit(): number {
+        return suitToInt(this.suit) * 0x10 +
+            rankToInt(this.rank);
+    }
 }
 
 class JokerCard extends Card {
@@ -105,6 +118,13 @@ class JokerCard extends Card {
 
     toSymbol(): "\u{1F0CF}" {
         return "\u{1F0CF}";
+    }
+
+    indexByRank(): 0xFF {
+        return 0xFF;
+    }
+    indexBySuit(): 0xFF {
+        return 0xFF;
     }
 }
 

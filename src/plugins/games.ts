@@ -2,8 +2,11 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
 import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
-import SlapJack from "./games/slapjack.js";
+
 import Game from "./games/game.js";
+
+import SlapJack from "./games/slapjack.js";
+import Presidents from "./games/presidents.js";
 
 interface GameClass {
     new(botHooks: BotHooks, parentPlugin: Games, channelId: string): Game
@@ -21,6 +24,11 @@ class Games extends BotPlugin {
     gameAliases: { [x: string]: GameClass } = {
         "slapjack": SlapJack,
         "slap jack": SlapJack,
+
+        "president": Presidents,
+        "presidents": Presidents,
+        "kings": Presidents,
+        "scum": Presidents
     };
 
     constructor(bot: BotHooks) {
@@ -37,9 +45,16 @@ class Games extends BotPlugin {
     }
 
     play(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
+        let currentGame = this.currentGames.get(event.channelId);
+        if (currentGame) {
+            // TODO: confirm to end current game
+            currentGame._stop();
+        }
+
         let cleanedArgs = args.trim().toLowerCase();
 
         const gameClass = this._getGame(cleanedArgs);
+        
         if (gameClass) {
             let game = new gameClass(this.bot, this, event.channelId);
             this.currentGames.set(event.channelId, game);

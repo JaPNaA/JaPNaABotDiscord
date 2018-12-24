@@ -1,4 +1,4 @@
-import { Suit, Rank, SuitKeys, RankKeys } from "./cardTypes";
+import { Suit, Rank, SuitKeys, RankKeys } from "./cardUtils";
 import { Card, NormalCard, JokerCard } from "./card";
 import Pile from "./pile";
 
@@ -68,23 +68,6 @@ class Deck extends Pile {
         super();
         this.options = applyDefaultOptions(options);
         this.createDeck();
-    }
-
-    public shuffle() {
-        let newCards: Card[] = [];
-
-        while (this.cards.length > 0) {
-            let rand = Math.floor(Math.random() * this.cards.length);
-            let card = this.cards.splice(rand, 1);
-            newCards.push(...card);
-        }
-
-        this.cards = newCards;
-    }
-
-    public takeTop(): Card | undefined {
-        let card: Card | undefined = this.cards.pop();
-        return card;
     }
 
     private createDeck() {

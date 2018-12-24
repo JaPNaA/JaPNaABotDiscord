@@ -3,13 +3,14 @@ import Game from "../games/game";
 import BotHooks from "../../main/bot/botHooks";
 import { toOne } from "../../main/utils";
 import { Message } from "discord.js";
-import { Rank } from "./cards/cardTypes";
+import { Rank } from "./cards/cardUtils";
 import { Card } from "./cards/card";
 import { DiscordCommandEvent } from "../../main/events";
 import Games from "../games";
 
 class SlapJack extends Game {
-    _pluginName: string = "game.slapjack";
+    _gamePluginName: string = "slapjack"
+    _pluginName: string = "game." + this._gamePluginName;
     gameName: string = "Slap Jack";
 
     channelId: string;
@@ -105,7 +106,7 @@ class SlapJack extends Game {
     }
 
     _stop() {
-        //
+        this.stopTicking();
     }
 }
 

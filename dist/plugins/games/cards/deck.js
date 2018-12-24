@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const cardTypes_1 = require("./cardTypes");
+const cardUtils_1 = require("./cardUtils");
 const card_1 = require("./card");
 const pile_1 = __importDefault(require("./pile"));
 ;
@@ -40,31 +40,18 @@ class Deck extends pile_1.default {
         this.options = applyDefaultOptions(options);
         this.createDeck();
     }
-    shuffle() {
-        let newCards = [];
-        while (this.cards.length > 0) {
-            let rand = Math.floor(Math.random() * this.cards.length);
-            let card = this.cards.splice(rand, 1);
-            newCards.push(...card);
-        }
-        this.cards = newCards;
-    }
-    takeTop() {
-        let card = this.cards.pop();
-        return card;
-    }
     createDeck() {
         this.addNormalCards();
         this.addJokersIfNotExcluded();
     }
     addNormalCards() {
-        for (let suit of cardTypes_1.SuitKeys) {
+        for (let suit of cardUtils_1.SuitKeys) {
             if (this.options.excludeSuits.includes(suit)) {
                 continue;
             }
-            for (let rank of cardTypes_1.RankKeys) {
+            for (let rank of cardUtils_1.RankKeys) {
                 if (this.options.excludeRanks.includes(rank) ||
-                    ((rank == cardTypes_1.Rank.knight) && this.options.excludeKnights)) {
+                    ((rank == cardUtils_1.Rank.knight) && this.options.excludeKnights)) {
                     continue;
                 }
                 this.addCardIfNotExcluded(suit, rank);

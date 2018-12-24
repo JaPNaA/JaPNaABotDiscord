@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
+const presidents_js_1 = __importDefault(require("./games/presidents.js"));
 /**
  * Games!
  */
@@ -14,6 +15,10 @@ class Games extends plugin_js_1.default {
         this.gameAliases = {
             "slapjack": slapjack_js_1.default,
             "slap jack": slapjack_js_1.default,
+            "president": presidents_js_1.default,
+            "presidents": presidents_js_1.default,
+            "kings": presidents_js_1.default,
+            "scum": presidents_js_1.default
         };
         this._pluginName = "games";
         this.config = bot.config.getPlugin(this._pluginName);
@@ -24,6 +29,11 @@ class Games extends plugin_js_1.default {
         this.bot.send(event.channelId, event.message);
     }
     play(bot, event, args) {
+        let currentGame = this.currentGames.get(event.channelId);
+        if (currentGame) {
+            // TODO: confirm to end current game
+            currentGame._stop();
+        }
         let cleanedArgs = args.trim().toLowerCase();
         const gameClass = this._getGame(cleanedArgs);
         if (gameClass) {

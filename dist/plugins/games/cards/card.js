@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const cardTypes_1 = require("./cardTypes");
+const cardUtils_1 = require("./cardUtils");
 class Card {
 }
 exports.Card = Card;
@@ -31,17 +31,25 @@ class NormalCard extends Card {
         return this.rank === rank;
     }
     toString() {
-        return cardTypes_1.rankToString(this.rank) +
-            " of " + cardTypes_1.suitToString(this.suit);
+        return cardUtils_1.rankToString(this.rank) +
+            " of " + cardUtils_1.suitToString(this.suit);
     }
     toShortString() {
-        return cardTypes_1.suitToSymbol(this.suit) + cardTypes_1.rankToShortString(this.rank);
+        return cardUtils_1.suitToSymbol(this.suit) + cardUtils_1.rankToShortString(this.rank);
     }
     toShortMD() {
         return "`" + this.toShortString() + "`";
     }
     toSymbol() {
-        return cardTypes_1.toSymbol(this.suit, this.rank);
+        return cardUtils_1.toSymbol(this.suit, this.rank);
+    }
+    indexByRank() {
+        return cardUtils_1.rankToInt(this.rank) * 0x10 +
+            cardUtils_1.suitToInt(this.suit);
+    }
+    indexBySuit() {
+        return cardUtils_1.suitToInt(this.suit) * 0x10 +
+            cardUtils_1.rankToInt(this.rank);
     }
 }
 exports.NormalCard = NormalCard;
@@ -73,6 +81,12 @@ class JokerCard extends Card {
     }
     toSymbol() {
         return "\u{1F0CF}";
+    }
+    indexByRank() {
+        return 0xFF;
+    }
+    indexBySuit() {
+        return 0xFF;
     }
 }
 exports.JokerCard = JokerCard;

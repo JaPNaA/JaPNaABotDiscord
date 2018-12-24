@@ -6,14 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const deck_1 = __importDefault(require("./cards/deck"));
 const game_1 = __importDefault(require("../games/game"));
 const utils_1 = require("../../main/utils");
-const cardTypes_1 = require("./cards/cardTypes");
+const cardUtils_1 = require("./cards/cardUtils");
 class SlapJack extends game_1.default {
     constructor(botHooks, parentPlugin, channelId) {
         super(botHooks, parentPlugin);
-        this._pluginName = "game.slapjack";
+        this._gamePluginName = "slapjack";
+        this._pluginName = "game." + this._gamePluginName;
         this.gameName = "Slap Jack";
         this.speedMilli = 1333;
-        this.jack = cardTypes_1.Rank.jack;
+        this.jack = cardUtils_1.Rank.jack;
         this.gameEnded = false;
         this.deck = new deck_1.default({
             excludeJokers: true
@@ -78,7 +79,7 @@ class SlapJack extends game_1.default {
         }
     }
     _stop() {
-        //
+        this.stopTicking();
     }
 }
 exports.default = SlapJack;

@@ -1,4 +1,4 @@
-import { Suit, Rank } from "./cardTypes";
+import { Suit, Rank } from "./cardUtils";
 declare abstract class Card {
     abstract joker: boolean;
     abstract is(card: Card): boolean;
@@ -9,6 +9,8 @@ declare abstract class Card {
     abstract toShortString(): string;
     abstract toShortMD(): string;
     abstract toSymbol(): string;
+    abstract indexByRank(): number;
+    abstract indexBySuit(): number;
 }
 declare class NormalCard extends Card {
     suit: Suit;
@@ -23,6 +25,8 @@ declare class NormalCard extends Card {
     toShortString(): string;
     toShortMD(): string;
     toSymbol(): string;
+    indexByRank(): number;
+    indexBySuit(): number;
 }
 declare class JokerCard extends Card {
     joker: true;
@@ -35,5 +39,7 @@ declare class JokerCard extends Card {
     toShortString(): "JK";
     toShortMD(): string;
     toSymbol(): "\u{1F0CF}";
+    indexByRank(): 0xFF;
+    indexBySuit(): 0xFF;
 }
 export { Card, NormalCard, JokerCard };

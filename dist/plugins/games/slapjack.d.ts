@@ -3,10 +3,11 @@ import Deck from "./cards/deck";
 import Game from "../games/game";
 import BotHooks from "../../main/bot/botHooks";
 import { Message } from "discord.js";
-import { Rank } from "./cards/cardTypes";
+import { Rank } from "./cards/cardUtils";
 import { DiscordCommandEvent } from "../../main/events";
 import Games from "../games";
 declare class SlapJack extends Game {
+    _gamePluginName: string;
     _pluginName: string;
     gameName: string;
     channelId: string;
