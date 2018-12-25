@@ -9,7 +9,7 @@ import SlapJack from "./games/slapjack.js";
 import Presidents from "./games/presidents.js";
 
 interface GameClass {
-    new(botHooks: BotHooks, parentPlugin: Games, channelId: string): Game
+    new(botHooks: BotHooks, parentPlugin: Games, channelId: string, initer: string): Game
 }
 
 /**
@@ -18,6 +18,7 @@ interface GameClass {
 class Games extends BotPlugin {
     precommand: PrecommandWithoutCallback;
     currentGames: Map<string, Game>;
+    playerGameMap: Map<string, Game>;
 
     config: { [x: string]: any };
 
@@ -38,13 +39,26 @@ class Games extends BotPlugin {
 
         this.precommand = this._registerPrecommand(this.config.precommand);
         this.currentGames = new Map();
+        this.playerGameMap = new Map();
     }
 
-    gPrecommandHandler(event: DiscordMessageEvent): void {
+    public _isDMLockAvailable(userId: string): boolean {
+        return this.playerGameMap.get(userId) === undefined;
+    }
+
+    public _lockAndGetDMHandle(userId: string, game: Game) {
+        if (this._isDMLockAvailable(userId)) {
+            this.playerGameMap.set(userId, game);
+        } else {
+            throw new Error("Already locked");
+        }
+    }
+
+    public gPrecommandHandler(event: DiscordMessageEvent): void {
         this.bot.send(event.channelId, event.message);
     }
 
-    play(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
+    public play(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
         let currentGame = this.currentGames.get(event.channelId);
         if (currentGame) {
             // TODO: confirm to end current game
@@ -56,7 +70,7 @@ class Games extends BotPlugin {
         const gameClass = this._getGame(cleanedArgs);
         
         if (gameClass) {
-            let game = new gameClass(this.bot, this, event.channelId);
+            let game = new gameClass(this.bot, this, event.channelId, event.userId);
             this.currentGames.set(event.channelId, game);
             game._start();
         } else {
@@ -67,17 +81,38 @@ class Games extends BotPlugin {
         }
     }
 
-    _getGame(name: string): GameClass | undefined {
+    public _getGame(name: string): GameClass | undefined {
         return this.gameAliases[name];
     }
 
-    unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
+    public unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
+        if (event.isDM) {
+            this._forwardToGameFromDM(bot, event);
+        } else {
+            this._forwardToGameInChannel(bot, event);
+        }
+    }
+
+    private _forwardToGameInChannel(bot: BotHooks, event: DiscordCommandEvent) {
         let gameInChannel = this.currentGames.get(event.channelId);
-        if (gameInChannel) { // forward to the game
+        if (gameInChannel) {
             gameInChannel.commandManager.dispatch.onMessage(event);
         } else {
-            bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+            this._sendDoesntExist(bot, event);
         }
+    }
+
+    private _forwardToGameFromDM(bot: BotHooks, event: DiscordCommandEvent) {
+        let game = this.playerGameMap.get(event.userId);
+        if (game) {
+            game.commandManager.dispatch.onMessage(event);
+        } else {
+            this._sendDoesntExist(bot, event);
+        }
+    }
+
+    private _sendDoesntExist(bot: BotHooks, event: DiscordCommandEvent) {
+        bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
     }
 
     _start(): void {

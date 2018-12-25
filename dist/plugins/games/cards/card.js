@@ -2,6 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const cardUtils_1 = require("./cardUtils");
 class Card {
+    toShortMD() {
+        return " `" + this.toShortString() + "` ";
+    }
 }
 exports.Card = Card;
 class NormalCard extends Card {
@@ -36,9 +39,6 @@ class NormalCard extends Card {
     }
     toShortString() {
         return cardUtils_1.suitToSymbol(this.suit) + cardUtils_1.rankToShortString(this.rank);
-    }
-    toShortMD() {
-        return "`" + this.toShortString() + "`";
     }
     toSymbol() {
         return cardUtils_1.toSymbol(this.suit, this.rank);
@@ -75,9 +75,6 @@ class JokerCard extends Card {
     }
     toShortString() {
         return "JK";
-    }
-    toShortMD() {
-        return "`" + this.toShortString() + "`";
     }
     toSymbol() {
         return "\u{1F0CF}";

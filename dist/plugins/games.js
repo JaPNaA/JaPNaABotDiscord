@@ -24,6 +24,18 @@ class Games extends plugin_js_1.default {
         this.config = bot.config.getPlugin(this._pluginName);
         this.precommand = this._registerPrecommand(this.config.precommand);
         this.currentGames = new Map();
+        this.playerGameMap = new Map();
+    }
+    _isDMLockAvailable(userId) {
+        return this.playerGameMap.get(userId) === undefined;
+    }
+    _lockAndGetDMHandle(userId, game) {
+        if (this._isDMLockAvailable(userId)) {
+            this.playerGameMap.set(userId, game);
+        }
+        else {
+            throw new Error("Already locked");
+        }
     }
     gPrecommandHandler(event) {
         this.bot.send(event.channelId, event.message);
@@ -37,7 +49,7 @@ class Games extends plugin_js_1.default {
         let cleanedArgs = args.trim().toLowerCase();
         const gameClass = this._getGame(cleanedArgs);
         if (gameClass) {
-            let game = new gameClass(this.bot, this, event.channelId);
+            let game = new gameClass(this.bot, this, event.channelId, event.userId);
             this.currentGames.set(event.channelId, game);
             game._start();
         }
@@ -50,13 +62,33 @@ class Games extends plugin_js_1.default {
         return this.gameAliases[name];
     }
     unknownCommandHandler(bot, event) {
+        if (event.isDM) {
+            this._forwardToGameFromDM(bot, event);
+        }
+        else {
+            this._forwardToGameInChannel(bot, event);
+        }
+    }
+    _forwardToGameInChannel(bot, event) {
         let gameInChannel = this.currentGames.get(event.channelId);
-        if (gameInChannel) { // forward to the game
+        if (gameInChannel) {
             gameInChannel.commandManager.dispatch.onMessage(event);
         }
         else {
-            bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+            this._sendDoesntExist(bot, event);
         }
+    }
+    _forwardToGameFromDM(bot, event) {
+        let game = this.playerGameMap.get(event.userId);
+        if (game) {
+            game.commandManager.dispatch.onMessage(event);
+        }
+        else {
+            this._sendDoesntExist(bot, event);
+        }
+    }
+    _sendDoesntExist(bot, event) {
+        bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
     }
     _start() {
         this._registerCommand(this.precommand, "play", this.play);

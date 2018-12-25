@@ -7,8 +7,8 @@ declare abstract class Card {
     abstract isRank(rank: Rank): boolean;
     abstract toString(): string;
     abstract toShortString(): string;
-    abstract toShortMD(): string;
     abstract toSymbol(): string;
+    toShortMD(): string;
     abstract indexByRank(): number;
     abstract indexBySuit(): number;
 }
@@ -23,7 +23,6 @@ declare class NormalCard extends Card {
     isRank(rank: Rank): boolean;
     toString(): string;
     toShortString(): string;
-    toShortMD(): string;
     toSymbol(): string;
     indexByRank(): number;
     indexBySuit(): number;
@@ -37,7 +36,6 @@ declare class JokerCard extends Card {
     isSuit(): false;
     toString(): "Joker";
     toShortString(): "JK";
-    toShortMD(): string;
     toSymbol(): "\u{1F0CF}";
     indexByRank(): 0xFF;
     indexBySuit(): 0xFF;

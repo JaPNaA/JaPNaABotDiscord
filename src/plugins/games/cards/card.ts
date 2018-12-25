@@ -10,8 +10,10 @@ abstract class Card {
 
     abstract toString(): string;
     abstract toShortString(): string;
-    abstract toShortMD(): string;
     abstract toSymbol(): string;
+    toShortMD(): string {
+        return " `" + this.toShortString() + "` ";
+    }
 
     abstract indexByRank(): number;
     abstract indexBySuit(): number;
@@ -62,10 +64,6 @@ class NormalCard extends Card {
         return suitToSymbol(this.suit) + rankToShortString(this.rank);
     }
 
-    toShortMD(): string {
-        return "`" + this.toShortString() + "`";
-    }
-
     toSymbol(): string {
         return toSymbol(this.suit, this.rank);
     }
@@ -110,10 +108,6 @@ class JokerCard extends Card {
 
     toShortString(): "JK" {
         return "JK";
-    }
-
-    toShortMD(): string {
-        return "`" + this.toShortString() + "`";
     }
 
     toSymbol(): "\u{1F0CF}" {
