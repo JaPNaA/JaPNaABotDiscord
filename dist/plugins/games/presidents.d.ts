@@ -30,7 +30,15 @@ declare class Logic {
     private gameLoop;
     private sendEveryoneTheirDeck;
     private sendOnesDeck;
+    private waitForValidTurn;
     private waitForTurn;
+    private tryParseAndDoAction;
+    private parseAction;
+    private tryDoAction;
+    private tryActionEndGame;
+    private tryActionBurn;
+    private tryActionRun;
+    private tryPlayCard;
 }
 declare enum AlertCanUseInDMState {
     notAlerted = 0,

@@ -27,6 +27,28 @@ class PresidentsPlayer extends Player {
         this.waitingOn = false;
     }
 }
+var Action;
+(function (Action) {
+    Action[Action["ace"] = 0] = "ace";
+    Action[Action["n2"] = 1] = "n2";
+    Action[Action["n3"] = 2] = "n3";
+    Action[Action["n4"] = 3] = "n4";
+    Action[Action["n5"] = 4] = "n5";
+    Action[Action["n6"] = 5] = "n6";
+    Action[Action["n7"] = 6] = "n7";
+    Action[Action["n8"] = 7] = "n8";
+    Action[Action["n9"] = 8] = "n9";
+    Action[Action["n10"] = 9] = "n10";
+    Action[Action["jack"] = 10] = "jack";
+    Action[Action["knight"] = 11] = "knight";
+    Action[Action["queen"] = 12] = "queen";
+    Action[Action["king"] = 13] = "king";
+    Action[Action["joker"] = 14] = "joker";
+    Action[Action["burn"] = 15] = "burn";
+    Action[Action["run"] = 16] = "run";
+    Action[Action["endGame"] = 17] = "endGame";
+})(Action || (Action = {}));
+;
 class Logic {
     constructor(botHooks, playerIds) {
         this.bot = botHooks;
@@ -98,8 +120,10 @@ class Logic {
         let fields = [];
         fields.push({
             name: "Commands",
-            value: "`g!use [rank][suit]` or `g!use [suit][rank]` to use cards\n" +
-                "`g!use [possibleMove]` to use a suggested move"
+            value: "`g!use [rank/action]` to use cards\n" +
+                "`g!use _rank_ _[amount]_` to put down cards\n" +
+                "rank: a | 2-10 | j | c | q | k\n" +
+                "amount: number, defaults to the most you can play"
         });
         fields.push({
             name: "Possible moves",
@@ -114,6 +138,14 @@ class Logic {
             }
         });
     }
+    waitForValidTurn(player) {
+        return __awaiter(this, void 0, void 0, function* () {
+            while (true) {
+                let response = yield this.waitForTurn(player);
+                this.tryParseAndDoAction(response.message, player);
+            }
+        });
+    }
     waitForTurn(player) {
         let promise = new Promise(function (resolve, reject) {
             player.waitingOn = true;
@@ -121,6 +153,115 @@ class Logic {
         });
         this.bot.sendDM(player.userId, "It's your turn!");
         return promise;
+    }
+    tryParseAndDoAction(args, player) {
+        let cleanArgs = args.trim().toLowerCase().split(" ");
+        const action = this.parseAction(cleanArgs[0]);
+        const amount = parseInt(cleanArgs[0]);
+        if (!action) {
+            return { validSyntax: false, validAction: false, message: null };
+        }
+        let result = this.tryDoAction(action, amount, player);
+        if (!result.valid) {
+            return {
+                validAction: false,
+                validSyntax: true,
+                message: result.message
+            };
+        }
+        return { validAction: true, validSyntax: true, message: null };
+    }
+    parseAction(str) {
+        switch (str) {
+            case "a":
+            case "ace":
+            case "1":
+                return Action.ace;
+            case "2":
+                return Action.n2;
+            case "3":
+                return Action.n3;
+            case "4":
+                return Action.n4;
+            case "5":
+                return Action.n5;
+            case "6":
+                return Action.n6;
+            case "7":
+                return Action.n7;
+            case "8":
+                return Action.n8;
+            case "9":
+                return Action.n9;
+            case "10":
+                return Action.n10;
+            case "j":
+                return Action.jack;
+            case "c":
+                return Action.knight;
+            case "q":
+                return Action.queen;
+            case "k":
+                return Action.king;
+            case "j":
+                return Action.joker;
+            case "b":
+                return Action.burn;
+            case "r":
+                return Action.run;
+            case "e":
+                return Action.endGame;
+            default:
+                return null;
+        }
+    }
+    tryDoAction(action, amount, player) {
+        let valid = true;
+        let message = null;
+        switch (action) {
+            case Action.endGame: {
+                const result = this.tryActionEndGame(player);
+                if (!result) {
+                    valid = false;
+                    message = "Cannot end game";
+                }
+                break;
+            }
+            case Action.burn: {
+                const result = this.tryActionBurn(player);
+                if (!result) {
+                    valid = false;
+                    message = "Cannot burn cards";
+                }
+            }
+            case Action.run: {
+                const result = this.tryActionRun(player);
+                if (!result) {
+                    valid = false;
+                    message = "Cannot run";
+                }
+            }
+            default: {
+                const result = this.tryPlayCard(player, action, amount);
+                if (!result.valid) {
+                    valid = false;
+                    message = result.message;
+                }
+            }
+        }
+        return { valid: valid, message: message };
+    }
+    tryActionEndGame(player) {
+        return false;
+    }
+    tryActionBurn(player) {
+        return false;
+    }
+    tryActionRun(player) {
+        return false;
+    }
+    tryPlayCard(player, action, amount) {
+        return { valid: false, message: "Not implemented" };
     }
 }
 var AlertCanUseInDMState;

@@ -6,6 +6,7 @@ import Pile from "./cards/pile";
 import CardSet from "./cards/cardSet";
 import { DiscordCommandEvent } from "../../main/events";
 import { mention } from "../../main/specialUtils";
+import { Suit, Rank } from "./cards/cardUtils";
 
 class Player {
     userId: string;
@@ -26,6 +27,10 @@ class PresidentsPlayer extends Player {
         this.waitingOn = false;
     }
 }
+
+enum Action {
+    ace, n2, n3, n4, n5, n6, n7, n8, n9, n10, jack, knight, queen, king, joker, burn, run, endGame
+};
 
 class Logic {
     bot: BotHooks;
@@ -116,8 +121,10 @@ class Logic {
 
         fields.push({
             name: "Commands",
-            value: "`g!use [rank][suit]` or `g!use [suit][rank]` to use cards\n" +
-                "`g!use [possibleMove]` to use a suggested move"
+            value: "`g!use [rank/action]` to use cards\n" +
+                "`g!use _rank_ _[amount]_` to put down cards\n" +
+                "rank: a | 2-10 | j | c | q | k\n" +
+                "amount: number, defaults to the most you can play"
         });
 
         fields.push({
@@ -135,8 +142,15 @@ class Logic {
         })
     }
 
+    private async waitForValidTurn(player: PresidentsPlayer) {
+        while (true) {
+            let response = await this.waitForTurn(player);
+            this.tryParseAndDoAction(response.message, player);
+        }
+    }
+
     private waitForTurn(player: PresidentsPlayer): Promise<DiscordCommandEvent> {
-        let promise = new Promise<DiscordCommandEvent>(function (resolve, reject) {
+        let promise = new Promise<DiscordCommandEvent>(function (resolve, reject): void {
             player.waitingOn = true;
             player.resolveWait = resolve;
         });
@@ -144,6 +158,138 @@ class Logic {
         this.bot.sendDM(player.userId, "It's your turn!");
 
         return promise;
+    }
+
+    private tryParseAndDoAction(args: string, player: PresidentsPlayer): {
+        validSyntax: boolean,
+        validAction: boolean,
+        message: string | null
+    } {
+        let cleanArgs = args.trim().toLowerCase().split(" ");
+        const action = this.parseAction(cleanArgs[0]);
+        const amount = parseInt(cleanArgs[0]);
+
+        if (!action) {
+            return { validSyntax: false, validAction: false, message: null };
+        }
+
+        let result = this.tryDoAction(action, amount, player);
+
+        if (!result.valid) {
+            return {
+                validAction: false,
+                validSyntax: true,
+                message: result.message
+            };
+        }
+
+        return { validAction: true, validSyntax: true, message: null };
+    }
+
+    private parseAction(str: string): Action | null {
+        switch (str) {
+            case "a":
+            case "ace":
+            case "1":
+                return Action.ace;
+            case "2":
+                return Action.n2;
+            case "3":
+                return Action.n3;
+            case "4":
+                return Action.n4;
+            case "5":
+                return Action.n5;
+            case "6":
+                return Action.n6;
+            case "7":
+                return Action.n7;
+            case "8":
+                return Action.n8;
+            case "9":
+                return Action.n9;
+            case "10":
+                return Action.n10;
+            case "j":
+                return Action.jack;
+            case "c":
+                return Action.knight;
+            case "q":
+                return Action.queen;
+            case "k":
+                return Action.king;
+            case "j":
+                return Action.joker;
+            case "b":
+                return Action.burn;
+            case "r":
+                return Action.run;
+            case "e":
+                return Action.endGame;
+            default:
+                return null;
+        }
+    }
+
+    private tryDoAction(action: Action, amount: number, player: PresidentsPlayer): {
+        valid: boolean,
+        message: string | null
+    } {
+        let valid: boolean = true;
+        let message: string | null = null;
+
+        switch (action) {
+            case Action.endGame: {
+                const result = this.tryActionEndGame(player);
+                if (!result) {
+                    valid = false;
+                    message = "Cannot end game";
+                }
+                break;
+            }
+            case Action.burn: {
+                const result = this.tryActionBurn(player);
+                if (!result) {
+                    valid = false;
+                    message = "Cannot burn cards";
+                }
+            }
+            case Action.run: {
+                const result = this.tryActionRun(player);
+                if (!result) {
+                    valid = false;
+                    message = "Cannot run";
+                }
+            }
+            default: {
+                const result = this.tryPlayCard(player, action, amount);
+                if (!result.valid) {
+                    valid = false;
+                    message = result.message;
+                }
+            }
+        }
+
+        return { valid: valid, message: message };
+    }
+
+    private tryActionEndGame(player: PresidentsPlayer): boolean {
+        return false;
+    }
+
+    private tryActionBurn(player: PresidentsPlayer): boolean {
+        return false;
+    }
+
+    private tryActionRun(player: PresidentsPlayer): boolean {
+        return false;
+    }
+
+    private tryPlayCard(player: PresidentsPlayer, action: Action, amount: number): {
+        valid: boolean,
+        message: string
+    } {
+        return { valid: false, message: "Not implemented" };
     }
 }
 
@@ -257,14 +403,14 @@ class Presidents extends Game {
         if (!this.logic || !this.started) return;
 
         this.logic.onUseCards(event, args);
-        
+
         if (!event.isDM) {
             this.alertCanUseInDM();
         }
     }
 
     private alertCanUseInDM() {
-        switch(this.alertCanUseInDMsState) {
+        switch (this.alertCanUseInDMsState) {
             case AlertCanUseInDMState.notAlerted:
                 this.alertCanUseInDMFirst();
                 break;
@@ -277,7 +423,7 @@ class Presidents extends Game {
     }
 
     private alertCanUseInDMFirst() {
-        this.bot.send(this.channelId, 
+        this.bot.send(this.channelId,
             "Uhm, you know you can do that directly in " +
             "your Direct Messages?... right?"
         );
