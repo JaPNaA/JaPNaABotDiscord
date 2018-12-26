@@ -8,5 +8,17 @@ class CardSet extends cardList_1.default {
     constructor(cards) {
         super(cards);
     }
+    toStrings() {
+        return this.cards.map(card => card.toString());
+    }
+    toShortStrings() {
+        return this.cards.map(card => card.toShortString());
+    }
+    toSymbols() {
+        return this.cards.map(card => card.toSymbol());
+    }
+    toShortMDs() {
+        return this.cards.map(card => card.toShortMD());
+    }
 }
 exports.default = CardSet;

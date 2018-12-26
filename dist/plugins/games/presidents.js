@@ -19,6 +19,7 @@ const specialUtils_1 = require("../../main/specialUtils");
 const cardUtils_1 = require("./cards/cardUtils");
 const card_1 = require("./cards/card");
 const pile_1 = __importDefault(require("./cards/pile"));
+const utils_1 = require("../../main/utils");
 class Player {
     constructor(userId) {
         this.userId = userId;
@@ -113,8 +114,9 @@ const cardHierarchy = [
     cardUtils_1.Rank.jack, cardUtils_1.Rank.queen, cardUtils_1.Rank.king, cardUtils_1.Rank.ace
 ];
 class Logic {
-    constructor(botHooks, playerIds) {
+    constructor(botHooks, channelId, playerIds) {
         this.bot = botHooks;
+        this.channelId = channelId;
         this.players = [];
         this.deck = new deck_1.default();
         this.pile = new pile_1.default();
@@ -161,10 +163,12 @@ class Logic {
     gameLoop() {
         return __awaiter(this, void 0, void 0, function* () {
             this.sendEveryoneTheirDeck();
+            this.sendPile();
             while (true) {
                 for (let player of this.players) {
                     yield this.waitForValidTurn(player);
                     this.sendOnesDeck(player);
+                    this.updatePile();
                 }
             }
         });
@@ -495,6 +499,24 @@ class Logic {
     playerUseSet(set) {
         this.pile.add(set);
     }
+    sendPile() {
+        this.bot.send(this.channelId, "Loading...")
+            .then(msg => this.pileMessage = utils_1.toOne(msg))
+            .then(() => this.updatePile());
+    }
+    updatePile() {
+        let topSet = this.pile.getTopSet();
+        if (!this.pileMessage) {
+            this.sendPile();
+            return;
+        }
+        if (!topSet) {
+            this.pileMessage.edit("Top set: " + "_None_");
+        }
+        else {
+            this.pileMessage.edit("Top set: " + topSet.toShortMDs().join(""));
+        }
+    }
 }
 var AlertCanUseInDMState;
 (function (AlertCanUseInDMState) {
@@ -576,7 +598,7 @@ class Presidents extends game_1.default {
         this.bot.send(this.channelId, "Starting Presidents with players:\n" + players.join(", "));
     }
     _startGameLogic() {
-        this.logic = new Logic(this.bot, this.playerIds);
+        this.logic = new Logic(this.bot, this.channelId, this.playerIds);
     }
     useCards(bot, event, args) {
         if (!this.logic || !this.started)

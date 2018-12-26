@@ -7,6 +7,7 @@ import { DiscordCommandEvent } from "../../main/events";
 import { Rank } from "./cards/cardUtils";
 import { Card, NormalCard } from "./cards/card";
 import Pile from "./cards/pile";
+import { Message } from "discord.js";
 declare class Player {
     userId: string;
     constructor(userId: string);
@@ -30,11 +31,13 @@ declare class PresidentsPlayer extends Player {
 }
 declare class Logic {
     bot: BotHooks;
+    channelId: string;
     players: PresidentsPlayer[];
     deck: Deck;
     pile: Pile;
+    pileMessage?: Message;
     gameLoopPromise: Promise<void>;
-    constructor(botHooks: BotHooks, playerIds: string[]);
+    constructor(botHooks: BotHooks, channelId: string, playerIds: string[]);
     onUseCards(event: DiscordCommandEvent, args: string): void;
     private init;
     private initPlayers;
@@ -53,6 +56,8 @@ declare class Logic {
     private tryActionRun;
     private tryPlayCard;
     private playerUseSet;
+    private sendPile;
+    private updatePile;
 }
 declare enum AlertCanUseInDMState {
     notAlerted = 0,

@@ -9,6 +9,8 @@ import { mention } from "../../main/specialUtils";
 import { Rank } from "./cards/cardUtils";
 import { Card, NormalCard } from "./cards/card";
 import Pile from "./cards/pile";
+import { Message } from "discord.js";
+import { toOne } from "../../main/utils";
 
 class Player {
     userId: string;
@@ -97,15 +99,19 @@ const cardHierarchy: Rank[] = [
 
 class Logic {
     bot: BotHooks;
+    channelId: string;
     players: PresidentsPlayer[];
 
     deck: Deck;
     pile: Pile;
 
+    pileMessage?: Message;
+
     gameLoopPromise: Promise<void>;
 
-    constructor(botHooks: BotHooks, playerIds: string[]) {
+    constructor(botHooks: BotHooks, channelId: string, playerIds: string[]) {
         this.bot = botHooks;
+        this.channelId = channelId;
         this.players = [];
 
         this.deck = new Deck();
@@ -157,11 +163,13 @@ class Logic {
 
     private async gameLoop(): Promise<void> {
         this.sendEveryoneTheirDeck();
+        this.sendPile();
 
         while (true) {
             for (let player of this.players) {
                 await this.waitForValidTurn(player);
                 this.sendOnesDeck(player);
+                this.updatePile();
             }
         }
     }
@@ -527,6 +535,26 @@ class Logic {
     private playerUseSet(set: CardSet) {
         this.pile.add(set);
     }
+
+    private sendPile() {
+        this.bot.send(this.channelId, "Loading...")
+            .then(msg => this.pileMessage = toOne(msg))
+            .then(() => this.updatePile());
+    }
+
+    private updatePile() {
+        let topSet = this.pile.getTopSet();
+        if (!this.pileMessage) {
+            this.sendPile();
+            return;
+        }
+
+        if (!topSet) {
+            this.pileMessage.edit("Top set: " + "_None_");
+        } else {
+            this.pileMessage.edit("Top set: " + topSet.toShortMDs().join(""));
+        }
+    }
 }
 
 enum AlertCanUseInDMState {
@@ -632,7 +660,7 @@ class Presidents extends Game {
 
 
     _startGameLogic() {
-        this.logic = new Logic(this.bot, this.playerIds);
+        this.logic = new Logic(this.bot, this.channelId, this.playerIds);
     }
 
     useCards(bot: BotHooks, event: DiscordCommandEvent, args: string) {
