@@ -1,35 +1,28 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-class Pile {
+const cardSet_1 = __importDefault(require("./cardSet"));
+const cardList_1 = __importDefault(require("./cardList"));
+class Pile extends cardList_1.default {
     constructor() {
-        this.cards = [];
+        super([]);
+        this.sets = [];
     }
-    *[Symbol.iterator]() {
-        for (let card of this.cards) {
-            yield card;
+    add(setOrCard) {
+        let set;
+        if (setOrCard instanceof cardSet_1.default) {
+            set = setOrCard;
         }
-    }
-    add(card) {
-        this.cards.push(card);
-    }
-    sortByRank() {
-        this.cards = this.cards.sort((a, b) => a.indexByRank() - b.indexByRank());
-    }
-    sortBySuit() {
-        this.cards = this.cards.sort((a, b) => a.indexBySuit() - b.indexBySuit());
-    }
-    shuffle() {
-        let newCards = [];
-        while (this.cards.length > 0) {
-            let rand = Math.floor(Math.random() * this.cards.length);
-            let card = this.cards.splice(rand, 1);
-            newCards.push(...card);
+        else {
+            set = new cardSet_1.default([setOrCard]);
         }
-        this.cards = newCards;
+        this.cards.push(...set.cards);
+        this.sets.push(set);
     }
-    takeTop() {
-        let card = this.cards.pop();
-        return card;
+    getTopSet() {
+        return this.sets[this.sets.length - 1];
     }
 }
 exports.default = Pile;

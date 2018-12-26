@@ -1,12 +1,9 @@
 import { Card } from "./card";
+import CardList from "./cardList";
 
-class CardSet {
-    amount: number;
-    card: Card;
-
-    constructor(amount: number, card: Card) {
-        this.amount = amount;
-        this.card = card;
+class CardSet extends CardList {
+    constructor(cards: Card[]) {
+        super(cards);
     }
 }
 

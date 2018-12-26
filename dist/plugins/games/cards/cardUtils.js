@@ -33,6 +33,13 @@ var Rank;
 })(Rank || (Rank = {}));
 exports.Rank = Rank;
 ;
+var Type;
+(function (Type) {
+    Type[Type["normal"] = 0] = "normal";
+    Type[Type["joker"] = 1] = "joker";
+})(Type || (Type = {}));
+exports.Type = Type;
+;
 const SuitKeys = getEnumKeys(Suit);
 exports.SuitKeys = SuitKeys;
 const RankKeys = getEnumKeys(Rank);

@@ -1,12 +1,11 @@
 import { Card } from "./card";
-declare class Pile {
-    cards: Card[];
+import CardSet from "./cardSet";
+import CardList from "./cardList";
+declare class Pile extends CardList {
+    sets: CardSet[];
     constructor();
-    [Symbol.iterator](): Iterator<Card>;
+    add(set: CardSet): void;
     add(card: Card): void;
-    sortByRank(): void;
-    sortBySuit(): void;
-    shuffle(): void;
-    takeTop(): Card | undefined;
+    getTopSet(): CardSet | undefined;
 }
 export default Pile;

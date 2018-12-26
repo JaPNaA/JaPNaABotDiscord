@@ -72,6 +72,7 @@ class BotCommand {
         let results = this.test(commandEvent);
         if (results.canRun) {
             let cleaned = this._getCleanCommandContent(commandEvent.commandContent);
+            commandEvent.arguments = cleaned.args;
             this.tryRunCommand(commandEvent, cleaned.args);
             return true;
         }

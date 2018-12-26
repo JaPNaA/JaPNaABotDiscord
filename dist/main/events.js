@@ -24,11 +24,13 @@ class DiscordMessageEvent {
 }
 exports.DiscordMessageEvent = DiscordMessageEvent;
 class DiscordCommandEvent extends DiscordMessageEvent {
-    constructor(messageEvent, pre, content) {
+    constructor(data) {
         // inheirt all properties of DiscordMessageEvent
-        super(messageEvent);
-        this.precommandName = pre;
-        this.commandContent = content;
+        super(data.messageEvent);
+        /** Arguments of command */
+        this.arguments = null;
+        this.precommandName = data.pre;
+        this.commandContent = data.content;
     }
 }
 exports.DiscordCommandEvent = DiscordCommandEvent;

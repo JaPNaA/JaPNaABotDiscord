@@ -46,6 +46,12 @@ declare class DiscordCommandEvent extends DiscordMessageEvent {
     commandContent: string;
     /** Precommand used */
     precommandName: PrecommandName;
-    constructor(messageEvent: DiscordMessageEvent, pre: PrecommandName, content: string);
+    /** Arguments of command */
+    arguments: string | null;
+    constructor(data: {
+        messageEvent: DiscordMessageEvent;
+        pre: PrecommandName;
+        content: string;
+    });
 }
 export { DiscordCommandEvent };

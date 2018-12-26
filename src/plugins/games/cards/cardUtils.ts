@@ -12,6 +12,10 @@ enum Rank {
     ace, n2, n3, n4, n5, n6, n7, n8, n9, n10, jack, knight, queen, king
 };
 
+enum Type {
+    normal, joker
+};
+
 const SuitKeys: Suit[] = getEnumKeys<Suit>(Suit);
 const RankKeys: Rank[] = getEnumKeys<Rank>(Rank);
 
@@ -164,6 +168,7 @@ function toSymbol(suit: Suit, rank: Rank) {
 }
 
 export {
+    Type,
     Suit, SuitKeys, suitToString, suitToSymbol, suitToInt,
     Rank, RankKeys, rankToString, rankToShortString, rankToInt,
     toSymbol

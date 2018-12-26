@@ -1,6 +1,6 @@
 import { Suit, Rank } from "./cardUtils";
 import { Card } from "./card";
-import Pile from "./pile";
+import CardsList from "./pile";
 interface Options {
     /** How many decks */
     muliplier?: number;
@@ -24,7 +24,7 @@ interface AllOptions extends Options {
     excludeRanks: Rank[];
     excludeCards: Card[];
 }
-declare class Deck extends Pile {
+declare class Deck extends CardsList {
     options: AllOptions;
     constructor(options?: Options);
     private createDeck;

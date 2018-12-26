@@ -29,7 +29,11 @@ class PrecommandDispatcher {
             throw new Error("Unknown error");
         }
         const content = pre && messageEvent.message.slice(pre.name.length);
-        return new events_1.DiscordCommandEvent(messageEvent, pre, content);
+        return new events_1.DiscordCommandEvent({
+            messageEvent: messageEvent,
+            pre: pre,
+            content: content
+        });
     }
 }
 exports.default = PrecommandDispatcher;

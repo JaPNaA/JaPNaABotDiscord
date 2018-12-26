@@ -64,7 +64,8 @@ class JapnaaWeird extends BotPlugin {
 
         this.bot.events.on("start",
             function (this: JapnaaWeird): void {
-                this.bot.client.presence.setWatch("you");
+                // this.bot.client.presence.setWatch("you");
+                this.bot.client.presence.setWatch("Santa watch you");
             }.bind(this));
     }
 

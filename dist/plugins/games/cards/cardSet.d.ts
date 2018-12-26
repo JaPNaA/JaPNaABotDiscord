@@ -1,7 +1,6 @@
 import { Card } from "./card";
-declare class CardSet {
-    amount: number;
-    card: Card;
-    constructor(amount: number, card: Card);
+import CardList from "./cardList";
+declare class CardSet extends CardList {
+    constructor(cards: Card[]);
 }
 export default CardSet;

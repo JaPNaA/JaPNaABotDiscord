@@ -1,6 +1,6 @@
 import { Suit, Rank, SuitKeys, RankKeys } from "./cardUtils";
 import { Card, NormalCard, JokerCard } from "./card";
-import Pile from "./pile";
+import CardsList from "./pile";
 
 interface Options {
     /** How many decks */
@@ -61,7 +61,7 @@ function applyDefaultOptions(options?: Options): AllOptions {
 }
 
 
-class Deck extends Pile {
+class Deck extends CardsList {
     options: AllOptions;
 
     constructor(options?: Options) {

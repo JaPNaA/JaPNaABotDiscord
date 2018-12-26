@@ -124,6 +124,7 @@ class BotCommand {
         let results: TestResults = this.test(commandEvent);
         if (results.canRun) {
             let cleaned: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
+            commandEvent.arguments = cleaned.args;
             this.tryRunCommand(commandEvent, cleaned.args);
             return true;
         } else {

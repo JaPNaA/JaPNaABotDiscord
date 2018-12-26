@@ -54,7 +54,8 @@ class JapnaaWeird extends plugin_js_1.default {
         this._registerDefaultCommand("your", this.your);
         this._registerEventHandler("message", this.onmessageHandler_lol);
         this.bot.events.on("start", function () {
-            this.bot.client.presence.setWatch("you");
+            // this.bot.client.presence.setWatch("you");
+            this.bot.client.presence.setWatch("Santa watch you");
         }.bind(this));
     }
     _stop() {

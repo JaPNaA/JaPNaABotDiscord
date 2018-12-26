@@ -13,8 +13,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const game_1 = __importDefault(require("./game"));
 const deck_1 = __importDefault(require("./cards/deck"));
-const pile_1 = __importDefault(require("./cards/pile"));
+const cardList_1 = __importDefault(require("./cards/cardList"));
+const cardSet_1 = __importDefault(require("./cards/cardSet"));
 const specialUtils_1 = require("../../main/specialUtils");
+const cardUtils_1 = require("./cards/cardUtils");
+const card_1 = require("./cards/card");
+const pile_1 = __importDefault(require("./cards/pile"));
 class Player {
     constructor(userId) {
         this.userId = userId;
@@ -23,8 +27,63 @@ class Player {
 class PresidentsPlayer extends Player {
     constructor(userId) {
         super(userId);
-        this.cards = new pile_1.default();
+        this.cards = new cardList_1.default([]);
         this.waitingOn = false;
+    }
+    countJokers() {
+        return this.cards.getAllJokers().length;
+    }
+    count(rank) {
+        return this.cards.getAllRank(rank).length;
+    }
+    has(rank, amount) {
+        let count = this.count(rank);
+        if (count >= amount) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    hasJokers(amount) {
+        let count = this.countJokers();
+        if (count >= amount) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+    use(rank, amount) {
+        let cards = this.cards.getAllRank(rank).slice(0, amount);
+        this.useCards(cards, amount);
+        return cards;
+    }
+    useJoker(amount) {
+        let cards = this.cards.getAllJokers().slice(0, amount);
+        this.useCards(cards, amount);
+        return cards;
+    }
+    useCards(cards, amount) {
+        if (cards.length < amount) {
+            throw new Error("Not enough cards");
+        }
+        for (let card of cards) {
+            this.cards.remove(card);
+        }
+    }
+    separateBurnAndNormalCards() {
+        let normalCards = [];
+        let burnCards = [];
+        for (let card of this.cards) {
+            if (card.isRank(cardUtils_1.Rank.n2) || card.isJoker()) {
+                burnCards.push(card);
+            }
+            else {
+                normalCards.push(card);
+            }
+        }
+        return { burnCards: burnCards, normalCards: normalCards };
     }
 }
 var Action;
@@ -49,13 +108,16 @@ var Action;
     Action[Action["endGame"] = 17] = "endGame";
 })(Action || (Action = {}));
 ;
+const cardHierarchy = [
+    cardUtils_1.Rank.n3, cardUtils_1.Rank.n4, cardUtils_1.Rank.n5, cardUtils_1.Rank.n6, cardUtils_1.Rank.n7, cardUtils_1.Rank.n8, cardUtils_1.Rank.n9, cardUtils_1.Rank.n10,
+    cardUtils_1.Rank.jack, cardUtils_1.Rank.queen, cardUtils_1.Rank.king, cardUtils_1.Rank.ace
+];
 class Logic {
     constructor(botHooks, playerIds) {
         this.bot = botHooks;
         this.players = [];
         this.deck = new deck_1.default();
         this.pile = new pile_1.default();
-        this.topSet = null;
         this.init(playerIds);
         this.gameLoopPromise = this.gameLoop();
     }
@@ -101,7 +163,7 @@ class Logic {
             this.sendEveryoneTheirDeck();
             while (true) {
                 for (let player of this.players) {
-                    yield this.waitForTurn(player);
+                    yield this.waitForValidTurn(player);
                     this.sendOnesDeck(player);
                 }
             }
@@ -140,9 +202,19 @@ class Logic {
     }
     waitForValidTurn(player) {
         return __awaiter(this, void 0, void 0, function* () {
+            this.bot.sendDM(player.userId, "It's your turn!");
             while (true) {
                 let response = yield this.waitForTurn(player);
-                this.tryParseAndDoAction(response.message, player);
+                let result = this.tryParseAndDoAction(response.arguments, player);
+                if (!result.validSyntax) {
+                    this.bot.sendDM(player.userId, "Invalid syntax");
+                }
+                else if (!result.validAction) {
+                    this.bot.sendDM(player.userId, result.message);
+                }
+                else {
+                    break;
+                }
             }
         });
     }
@@ -151,14 +223,16 @@ class Logic {
             player.waitingOn = true;
             player.resolveWait = resolve;
         });
-        this.bot.sendDM(player.userId, "It's your turn!");
         return promise;
     }
     tryParseAndDoAction(args, player) {
-        let cleanArgs = args.trim().toLowerCase().split(" ");
+        if (args === null) {
+            throw new Error("No arguments");
+        }
+        let cleanArgs = args.trim().toLowerCase().split(/\s/g);
         const action = this.parseAction(cleanArgs[0]);
-        const amount = parseInt(cleanArgs[0]);
-        if (!action) {
+        const amount = parseInt(cleanArgs[1]);
+        if (action === null) {
             return { validSyntax: false, validAction: false, message: null };
         }
         let result = this.tryDoAction(action, amount, player);
@@ -203,7 +277,7 @@ class Logic {
                 return Action.queen;
             case "k":
                 return Action.king;
-            case "j":
+            case "jk":
                 return Action.joker;
             case "b":
                 return Action.burn;
@@ -233,6 +307,7 @@ class Logic {
                     valid = false;
                     message = "Cannot burn cards";
                 }
+                break;
             }
             case Action.run: {
                 const result = this.tryActionRun(player);
@@ -240,6 +315,7 @@ class Logic {
                     valid = false;
                     message = "Cannot run";
                 }
+                break;
             }
             default: {
                 const result = this.tryPlayCard(player, action, amount);
@@ -252,16 +328,172 @@ class Logic {
         return { valid: valid, message: message };
     }
     tryActionEndGame(player) {
-        return false;
+        let result = this.tryEndGameWithBurnCards(player);
+        // TODO: implement win by run
+        return result;
+    }
+    tryEndGameWithBurnCards(player) {
+        const { normalCards, burnCards } = player.separateBurnAndNormalCards();
+        // rule: last card cannot be a burn card 
+        if (normalCards.length < 1) {
+            return false;
+        }
+        // cannot use end game if there's no burn card
+        if (burnCards.length < 1) {
+            return false;
+        } // TODO: implement end game without burn
+        let rank = normalCards[0].rank;
+        for (let i = 1; i < normalCards.length; i++) {
+            // cannot make set
+            if (!normalCards[i].isRank(rank)) {
+                return false;
+            }
+            ;
+        }
+        // TODO: fix problem, in case requires more than one '2' to burn
+        for (let burnCard of burnCards) {
+            this.playerUseSet(new cardSet_1.default([burnCard]));
+        }
+        this.playerUseSet(new cardSet_1.default(player.use(rank, normalCards.length)));
+        return true;
     }
     tryActionBurn(player) {
+        let topSet = this.pile.getTopSet();
+        if (!topSet) {
+            return false;
+        }
+        let card = topSet.cards[0];
+        if (!(card instanceof card_1.NormalCard)) {
+            return false;
+        }
+        if (player.has(card.rank, topSet.cards.length)) {
+            this.playerUseSet(new cardSet_1.default(player.use(card.rank, topSet.cards.length)));
+            return true;
+        }
         return false;
     }
     tryActionRun(player) {
+        let topSet = this.pile.getTopSet();
+        if (!topSet) {
+            return false;
+        }
+        let card = topSet.cards[0];
+        if (!(card instanceof card_1.NormalCard)) {
+            return false;
+        }
+        let requiredRank = cardHierarchy[cardHierarchy.indexOf(card.rank) + 1];
+        if (!requiredRank) {
+            return false;
+        }
+        if (player.has(requiredRank, topSet.cards.length)) {
+            this.playerUseSet(new cardSet_1.default(player.use(card.rank, topSet.cards.length)));
+            return true;
+        }
         return false;
     }
     tryPlayCard(player, action, amount) {
-        return { valid: false, message: "Not implemented" };
+        let topSet = this.pile.getTopSet();
+        let requiredAmount;
+        if (topSet) {
+            if (topSet.cards[0].isRank(cardUtils_1.Rank.n2) || topSet.cards[0].isJoker()) {
+                requiredAmount = null;
+            }
+            else {
+                requiredAmount = topSet.cards.length;
+            }
+        }
+        else {
+            requiredAmount = null;
+        }
+        let maxAmount;
+        let rank = cardUtils_1.Rank.ace;
+        let joker = false;
+        switch (action) {
+            case Action.n2:
+                maxAmount = player.count(cardUtils_1.Rank.n2);
+                rank = cardUtils_1.Rank.n2;
+                break;
+            case Action.n3:
+                maxAmount = player.count(cardUtils_1.Rank.n3);
+                rank = cardUtils_1.Rank.n3;
+                break;
+            case Action.n4:
+                maxAmount = player.count(cardUtils_1.Rank.n4);
+                rank = cardUtils_1.Rank.n4;
+                break;
+            case Action.n5:
+                maxAmount = player.count(cardUtils_1.Rank.n5);
+                rank = cardUtils_1.Rank.n5;
+                break;
+            case Action.n6:
+                maxAmount = player.count(cardUtils_1.Rank.n6);
+                rank = cardUtils_1.Rank.n6;
+                break;
+            case Action.n7:
+                maxAmount = player.count(cardUtils_1.Rank.n7);
+                rank = cardUtils_1.Rank.n7;
+                break;
+            case Action.n8:
+                maxAmount = player.count(cardUtils_1.Rank.n8);
+                rank = cardUtils_1.Rank.n8;
+                break;
+            case Action.n9:
+                maxAmount = player.count(cardUtils_1.Rank.n9);
+                rank = cardUtils_1.Rank.n9;
+                break;
+            case Action.n10:
+                maxAmount = player.count(cardUtils_1.Rank.n10);
+                rank = cardUtils_1.Rank.n10;
+                break;
+            case Action.jack:
+                maxAmount = player.count(cardUtils_1.Rank.jack);
+                rank = cardUtils_1.Rank.jack;
+                break;
+            case Action.queen:
+                maxAmount = player.count(cardUtils_1.Rank.queen);
+                rank = cardUtils_1.Rank.queen;
+                break;
+            case Action.king:
+                maxAmount = player.count(cardUtils_1.Rank.king);
+                rank = cardUtils_1.Rank.king;
+                break;
+            case Action.ace:
+                maxAmount = player.count(cardUtils_1.Rank.ace);
+                rank = cardUtils_1.Rank.ace;
+                break;
+            case Action.joker:
+                maxAmount = player.countJokers();
+                joker = true;
+                break;
+            default:
+                throw new Error("Unknown Error");
+        }
+        if (amount) {
+            if (amount > maxAmount) {
+                return { valid: false, message: "You don't have enough of those cards" };
+            }
+            else if (amount !== requiredAmount) {
+                return { valid: false, message: "You cannot play that amount of cards" };
+            }
+        }
+        else if (requiredAmount) {
+            if (requiredAmount > maxAmount) {
+                return { valid: false, message: "You don't have enough of those cards" };
+            }
+        }
+        else {
+            amount = maxAmount;
+        }
+        if (joker) {
+            this.playerUseSet(new cardSet_1.default(player.useJoker(requiredAmount || amount)));
+        }
+        else {
+            this.playerUseSet(new cardSet_1.default(player.use(rank, requiredAmount || amount)));
+        }
+        return { valid: true, message: "" };
+    }
+    playerUseSet(set) {
+        this.pile.add(set);
     }
 }
 var AlertCanUseInDMState;

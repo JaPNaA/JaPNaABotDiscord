@@ -4,7 +4,7 @@ abstract class Card {
     abstract joker: boolean;
     
     abstract is(card: Card): boolean;
-    abstract isJoker(card: Card): boolean;
+    abstract isJoker(): boolean;
     abstract isSuit(suit: Suit): boolean;
     abstract isRank(rank: Rank): boolean;
 

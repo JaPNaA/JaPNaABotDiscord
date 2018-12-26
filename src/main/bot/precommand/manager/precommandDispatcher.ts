@@ -33,7 +33,11 @@ class PrecommandDispatcher {
         if (!pre) { throw new Error("Unknown error"); }
 
         const content: string = pre && messageEvent.message.slice(pre.name.length);
-        return new DiscordCommandEvent(messageEvent, pre, content);
+        return new DiscordCommandEvent({
+            messageEvent: messageEvent,
+            pre: pre,
+            content: content
+        });
     }
 }
 export default PrecommandDispatcher;

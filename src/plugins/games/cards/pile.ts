@@ -1,49 +1,32 @@
 import { Card } from "./card";
+import CardSet from "./cardSet";
+import CardList from "./cardList";
 
-class Pile {
-    cards: Card[];
+class Pile extends CardList {
+    sets: CardSet[];
 
     constructor() {
-        this.cards = [];
+        super([]);
+        this.sets = [];
     }
 
-    public *[Symbol.iterator](): Iterator<Card> {
-        for (let card of this.cards) {
-            yield card;
-        }
-    }
+    public add(set: CardSet): void;
+    public add(card: Card): void;
 
-    public add(card: Card) {
-        this.cards.push(card);
-    }
-
-    public sortByRank() {
-        this.cards = this.cards.sort(
-            (a, b) => a.indexByRank() - b.indexByRank()
-        );
-    }
-
-    public sortBySuit() {
-        this.cards = this.cards.sort(
-            (a, b) => a.indexBySuit() - b.indexBySuit()
-        );
-    }
-
-    public shuffle() {
-        let newCards: Card[] = [];
-
-        while (this.cards.length > 0) {
-            let rand = Math.floor(Math.random() * this.cards.length);
-            let card = this.cards.splice(rand, 1);
-            newCards.push(...card);
+    public add(setOrCard: CardSet | Card): void {
+        let set: CardSet;
+        if (setOrCard instanceof CardSet) {
+            set = setOrCard;
+        } else {
+            set = new CardSet([setOrCard]);
         }
 
-        this.cards = newCards;
+        this.cards.push(...set.cards);
+        this.sets.push(set);
     }
 
-    public takeTop(): Card | undefined {
-        let card: Card | undefined = this.cards.pop();
-        return card;
+    public getTopSet(): CardSet | undefined {
+        return this.sets[this.sets.length - 1];
     }
 }
 

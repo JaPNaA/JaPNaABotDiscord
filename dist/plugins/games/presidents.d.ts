@@ -2,25 +2,37 @@ import Game from "./game";
 import BotHooks from "../../main/bot/botHooks";
 import Games from "../games";
 import Deck from "./cards/deck";
-import Pile from "./cards/pile";
-import CardSet from "./cards/cardSet";
+import CardsList from "./cards/cardList";
 import { DiscordCommandEvent } from "../../main/events";
+import { Rank } from "./cards/cardUtils";
+import { Card, NormalCard } from "./cards/card";
+import Pile from "./cards/pile";
 declare class Player {
     userId: string;
     constructor(userId: string);
 }
 declare class PresidentsPlayer extends Player {
-    cards: Pile;
+    cards: CardsList;
     waitingOn: boolean;
     resolveWait?: (value: DiscordCommandEvent) => void;
     constructor(userId: string);
+    countJokers(): number;
+    count(rank: Rank): number;
+    has(rank: Rank, amount: number): boolean;
+    hasJokers(amount: number): boolean;
+    use(rank: Rank, amount: number): Card[];
+    useJoker(amount: number): Card[];
+    private useCards;
+    separateBurnAndNormalCards(): {
+        burnCards: Card[];
+        normalCards: NormalCard[];
+    };
 }
 declare class Logic {
     bot: BotHooks;
     players: PresidentsPlayer[];
     deck: Deck;
     pile: Pile;
-    topSet: CardSet | null;
     gameLoopPromise: Promise<void>;
     constructor(botHooks: BotHooks, playerIds: string[]);
     onUseCards(event: DiscordCommandEvent, args: string): void;
@@ -36,9 +48,11 @@ declare class Logic {
     private parseAction;
     private tryDoAction;
     private tryActionEndGame;
+    private tryEndGameWithBurnCards;
     private tryActionBurn;
     private tryActionRun;
     private tryPlayCard;
+    private playerUseSet;
 }
 declare enum AlertCanUseInDMState {
     notAlerted = 0,
