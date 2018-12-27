@@ -4,7 +4,7 @@ import Games from "../../games";
 import { DiscordCommandEvent } from "../../../main/events";
 import { mention } from "../../../main/specialUtils";
 import PresidentsMain from "./game";
-import ErrorCodes from "./errors";
+import { AlreadyJoinedError, DMAlreadyLockedError } from "./errors";
 
 /**
  * Handles leaving and joining of Presidents, as long as some aliases to other 
@@ -14,6 +14,8 @@ class Presidents extends Game {
     _gamePluginName: string = "presidents";
     _pluginName: string = "game." + this._gamePluginName;
     gameName: string = "Presidents";
+
+    initer: string;
 
     channelId: string;
 
@@ -26,28 +28,41 @@ class Presidents extends Game {
         this._gamePluginName = "presidents";
         this._pluginName = "game." + this._gamePluginName;
 
+        this.initer = initer;
+
         this.channelId = channelId;
         this.game = new PresidentsMain(this.bot, this.parentPlugin, this);
-        this.game.playerHandler.addPlayer(initer);
     }
 
     join(bot: BotHooks, event: DiscordCommandEvent, args: string) {
         let userId = event.userId;
-        let result = this.game.playerHandler.addPlayer(userId);
+        this.addPlayer(userId);
+    }
 
-        if (result.succeeded) {
-            bot.send(event.channelId, mention(userId) + ` has joined ${this.gameName}!`);
-        } else if (result.errorCode === ErrorCodes.alreadyJoined) {
-            bot.send(event.channelId, mention(userId) + ", you're already in the game!");
-        } else if (result.errorCode === ErrorCodes.DMAlreadyLocked) {
-            bot.send(event.channelId,
-                mention(userId) +
-                ", you're in another game which also requires DMs!"
-            );
-        } else {
-            bot.send(event.channelId,
-                "Failed adding " + mention(userId) +
-                " to game: Unknown Error."
+    silentlyAddPlayer(userId: string) {
+        try {
+            this.game.playerHandler.addPlayer(userId);
+        } catch (err) {
+            this.handleJoinError(err, userId);
+        }
+    }
+
+    addPlayer(userId: string) {
+        try {
+            this.game.playerHandler.addPlayer(userId);
+            this.bot.send(this.channelId, mention(userId) + " has joined " + this.gameName + "!");
+        } catch (err) {
+            this.handleJoinError(err, userId);
+        }
+    }
+
+    handleJoinError(err: Error, userId: string) {
+        if (err instanceof AlreadyJoinedError) {
+            this.bot.send(this.channelId, mention(userId) + ", you're already in the game!");
+        } else if (err instanceof DMAlreadyLockedError) {
+            this.bot.send(this.channelId,
+                "Failed to add " + mention(userId) +
+                ". You're in another game which also requires DMs!"
             );
         }
     }
@@ -109,12 +124,10 @@ class Presidents extends Game {
         this._registerCommand(this.commandManager, "join", this.join);
         this._registerCommand(this.commandManager, "leave", this.leave);
         this._registerCommand(this.commandManager, "start", this.start);
-        
         this._registerCommand(this.commandManager, "players", this.listPlayers);
-        
         this._registerCommand(this.commandManager, "use", this.playerUseCard);
-        
         this._sendAboutMessage();
+        this.silentlyAddPlayer(this.initer);
     }
 
     _sendAboutMessage() {

@@ -1,7 +1,6 @@
-import Player from "./player";
+import Player from "./player/player";
 import BotHooks from "../../../main/bot/botHooks";
 import Games from "../../games";
-import ErrorCodes from "./errors";
 import Presidents from "./presidents";
 declare class PlayerHandler {
     bot: BotHooks;
@@ -9,10 +8,7 @@ declare class PlayerHandler {
     presidentsGame: Presidents;
     players: Player[];
     constructor(bot: BotHooks, parentGame: Games, presidentsGame: Presidents);
-    addPlayer(userId: string): {
-        succeeded: boolean;
-        errorCode?: ErrorCodes;
-    };
+    addPlayer(userId: string): void;
     removePlayer(userId: string): boolean;
     removeAllPlayers(): void;
     getPlayer(userId: string): Player | null;

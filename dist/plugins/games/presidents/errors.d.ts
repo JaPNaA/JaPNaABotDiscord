@@ -1,5 +1,13 @@
-declare enum ErrorCodes {
-    DMAlreadyLocked = 0,
-    alreadyJoined = 1
+declare class MessageSyntaxError extends Error {
+    constructor(message?: string);
 }
-export default ErrorCodes;
+declare class MessageActionError extends Error {
+    constructor(message?: string);
+}
+declare class DMAlreadyLockedError extends Error {
+    constructor();
+}
+declare class AlreadyJoinedError extends Error {
+    constructor();
+}
+export { MessageSyntaxError, MessageActionError, DMAlreadyLockedError, AlreadyJoinedError };

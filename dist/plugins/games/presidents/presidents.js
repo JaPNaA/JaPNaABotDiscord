@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const game_1 = __importDefault(require("../game"));
 const specialUtils_1 = require("../../../main/specialUtils");
 const game_2 = __importDefault(require("./game"));
-const errors_1 = __importDefault(require("./errors"));
+const errors_1 = require("./errors");
 /**
  * Handles leaving and joining of Presidents, as long as some aliases to other
  * components
@@ -20,26 +20,38 @@ class Presidents extends game_1.default {
         this.gameName = "Presidents";
         this._gamePluginName = "presidents";
         this._pluginName = "game." + this._gamePluginName;
+        this.initer = initer;
         this.channelId = channelId;
         this.game = new game_2.default(this.bot, this.parentPlugin, this);
-        this.game.playerHandler.addPlayer(initer);
     }
     join(bot, event, args) {
         let userId = event.userId;
-        let result = this.game.playerHandler.addPlayer(userId);
-        if (result.succeeded) {
-            bot.send(event.channelId, specialUtils_1.mention(userId) + ` has joined ${this.gameName}!`);
+        this.addPlayer(userId);
+    }
+    silentlyAddPlayer(userId) {
+        try {
+            this.game.playerHandler.addPlayer(userId);
         }
-        else if (result.errorCode === errors_1.default.alreadyJoined) {
-            bot.send(event.channelId, specialUtils_1.mention(userId) + ", you're already in the game!");
+        catch (err) {
+            this.handleJoinError(err, userId);
         }
-        else if (result.errorCode === errors_1.default.DMAlreadyLocked) {
-            bot.send(event.channelId, specialUtils_1.mention(userId) +
-                ", you're in another game which also requires DMs!");
+    }
+    addPlayer(userId) {
+        try {
+            this.game.playerHandler.addPlayer(userId);
+            this.bot.send(this.channelId, specialUtils_1.mention(userId) + " has joined " + this.gameName + "!");
         }
-        else {
-            bot.send(event.channelId, "Failed adding " + specialUtils_1.mention(userId) +
-                " to game: Unknown Error.");
+        catch (err) {
+            this.handleJoinError(err, userId);
+        }
+    }
+    handleJoinError(err, userId) {
+        if (err instanceof errors_1.AlreadyJoinedError) {
+            this.bot.send(this.channelId, specialUtils_1.mention(userId) + ", you're already in the game!");
+        }
+        else if (err instanceof errors_1.DMAlreadyLockedError) {
+            this.bot.send(this.channelId, "Failed to add " + specialUtils_1.mention(userId) +
+                ". You're in another game which also requires DMs!");
         }
     }
     leave(bot, event, args) {
@@ -91,6 +103,7 @@ class Presidents extends game_1.default {
         this._registerCommand(this.commandManager, "players", this.listPlayers);
         this._registerCommand(this.commandManager, "use", this.playerUseCard);
         this._sendAboutMessage();
+        this.silentlyAddPlayer(this.initer);
     }
     _sendAboutMessage() {
         const fields = [];

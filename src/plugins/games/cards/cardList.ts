@@ -1,4 +1,4 @@
-import { Card } from "./card";
+import { Card, JokerCard, NormalCard } from "./card";
 import { Rank, Suit } from "./cardUtils";
 
 class CardList {
@@ -32,16 +32,16 @@ class CardList {
         );
     }
 
-    public getAllRank(rank: Rank): Card[] {
-        return this.cards.filter(card => card.isRank(rank));
+    public getAllRank(rank: Rank): NormalCard[] {
+        return this.cards.filter(card => card.isRank(rank)) as NormalCard[];
     }
 
-    public getAllSuit(suit: Suit): Card[] {
-        return this.cards.filter(card => card.isSuit(suit));
+    public getAllSuit(suit: Suit): NormalCard[] {
+        return this.cards.filter(card => card.isSuit(suit)) as NormalCard[];
     }
 
-    public getAllJokers(): Card[] {
-        return this.cards.filter(card => card.joker);
+    public getAllJokers(): JokerCard[] {
+        return this.cards.filter(card => card.joker) as JokerCard[];
     }
 
     public shuffle() {
@@ -69,6 +69,14 @@ class CardList {
         const index = this.cards.findIndex(e => e.is(card));
         if (index < 0) { throw new Error("Cannot remove non-existant card"); }
         return this.cards.splice(index, 1)[0];
+    }
+
+    public get(index: number): Card {
+        return this.cards[index];
+    }
+
+    public get size(): number {
+        return this.cards.length;
     }
 }
 

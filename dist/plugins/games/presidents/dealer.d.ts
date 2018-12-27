@@ -1,5 +1,5 @@
 import Deck from "../cards/deck";
-import Player from "./player";
+import Player from "./player/player";
 declare class Dealer {
     deck: Deck;
     config: {

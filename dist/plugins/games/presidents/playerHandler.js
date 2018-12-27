@@ -3,8 +3,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const player_1 = __importDefault(require("./player"));
-const errors_1 = __importDefault(require("./errors"));
+const player_1 = __importDefault(require("./player/player"));
+const errors_1 = require("./errors");
 class PlayerHandler {
     constructor(bot, parentGame, presidentsGame) {
         this.bot = bot;
@@ -14,14 +14,13 @@ class PlayerHandler {
     }
     addPlayer(userId) {
         if (this.isPlayerListed(userId)) {
-            return { succeeded: false, errorCode: errors_1.default.alreadyJoined };
+            throw new errors_1.AlreadyJoinedError();
         }
         if (!this.parentGame._isDMLockAvailable(userId)) {
-            return { succeeded: false, errorCode: errors_1.default.DMAlreadyLocked };
+            throw new errors_1.DMAlreadyLockedError();
         }
         this.parentGame._lockAndGetDMHandle(userId, this.presidentsGame);
-        this.players.push(new player_1.default(this.bot, userId));
-        return { succeeded: true };
+        this.players.push(new player_1.default(this.bot, this.presidentsGame.game, userId));
     }
     removePlayer(userId) {
         let index = this.findPlayerIndex(userId);

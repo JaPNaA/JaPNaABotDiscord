@@ -1,8 +1,8 @@
-import Player from "./player";
+import Player from "./player/player";
 import BotHooks from "../../../main/bot/botHooks";
 import Games from "../../games";
-import ErrorCodes from "./errors";
 import Presidents from "./presidents";
+import { AlreadyJoinedError, DMAlreadyLockedError } from "./errors";
 
 class PlayerHandler {
     bot: BotHooks;
@@ -19,19 +19,17 @@ class PlayerHandler {
         this.players = [];
     }
 
-    public addPlayer(userId: string): { succeeded: boolean, errorCode?: ErrorCodes } {
+    public addPlayer(userId: string): void {
         if (this.isPlayerListed(userId)) {
-            return { succeeded: false, errorCode: ErrorCodes.alreadyJoined };
+            throw new AlreadyJoinedError();
         }
 
         if (!this.parentGame._isDMLockAvailable(userId)) {
-            return { succeeded: false, errorCode: ErrorCodes.DMAlreadyLocked };
+            throw new DMAlreadyLockedError();
         }
 
         this.parentGame._lockAndGetDMHandle(userId, this.presidentsGame);
-        this.players.push(new Player(this.bot, userId));
-
-        return { succeeded: true };
+        this.players.push(new Player(this.bot, this.presidentsGame.game, userId));
     }
 
     public removePlayer(userId: string): boolean {

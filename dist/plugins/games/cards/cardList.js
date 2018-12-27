@@ -50,5 +50,11 @@ class CardList {
         }
         return this.cards.splice(index, 1)[0];
     }
+    get(index) {
+        return this.cards[index];
+    }
+    get size() {
+        return this.cards.length;
+    }
 }
 exports.default = CardList;
