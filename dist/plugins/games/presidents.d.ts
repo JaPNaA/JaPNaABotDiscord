@@ -2,7 +2,6 @@ import Game from "./game";
 import BotHooks from "../../main/bot/botHooks";
 import Games from "../games";
 import Deck from "./cards/deck";
-import CardsList from "./cards/cardList";
 import { DiscordCommandEvent } from "../../main/events";
 import { Rank } from "./cards/cardUtils";
 import { Card, NormalCard } from "./cards/card";
@@ -28,7 +27,7 @@ declare class Logic {
     players: Player[];
     deck: Deck;
     pile: Pile;
-    topSet: CardSet | null;
+    pileMessage?: Message;
     constructor(playerIds: string[]);
     init(playerIds: string[]): void;
     initPlayers(playerIds: string[]): void;
