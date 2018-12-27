@@ -3,7 +3,7 @@ import BotHooks from "../../../main/bot/botHooks";
 import Games from "../../games";
 import { DiscordCommandEvent } from "../../../main/events";
 import { mention } from "../../../main/specialUtils";
-import PresidentsGame from "./game";
+import PresidentsMain from "./game";
 import ErrorCodes from "./errors";
 
 /**
@@ -17,12 +17,17 @@ class Presidents extends Game {
 
     channelId: string;
 
-    game: PresidentsGame;
+    game: PresidentsMain;
 
     constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string, initer: string) {
         super(botHooks, parentPlugin);
+
+        this.gameName = "Presidents";
+        this._gamePluginName = "presidents";
+        this._pluginName = "game." + this._gamePluginName;
+
         this.channelId = channelId;
-        this.game = new PresidentsGame(this.bot, this.parentPlugin);
+        this.game = new PresidentsMain(this.bot, this.parentPlugin, this);
         this.game.playerHandler.addPlayer(initer);
     }
 
@@ -79,6 +84,10 @@ class Presidents extends Game {
         }
     }
 
+    playerUseCard(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+        this.game.messageHandler.onMessage(event.userId, event);
+    }
+
     _sendStartingMessage() {
         let players: string[] = [];
         for (let player of this.game.playerHandler.players) {
@@ -100,9 +109,11 @@ class Presidents extends Game {
         this._registerCommand(this.commandManager, "join", this.join);
         this._registerCommand(this.commandManager, "leave", this.leave);
         this._registerCommand(this.commandManager, "start", this.start);
-
+        
         this._registerCommand(this.commandManager, "players", this.listPlayers);
-
+        
+        this._registerCommand(this.commandManager, "use", this.playerUseCard);
+        
         this._sendAboutMessage();
     }
 
@@ -132,7 +143,7 @@ class Presidents extends Game {
     }
 
     _stop() {
-        // do nothing
+        this.game.playerHandler.removeAllPlayers();
     }
 }
 

@@ -76,6 +76,7 @@ class Player {
         this.bot = botHooks;
         this.userId = userId;
         this.cards = new PlayerCards();
+        this.messageCallbacks = [];
     }
     sendCards() {
         let cardStr = "";
@@ -83,6 +84,17 @@ class Player {
             cardStr += card.toShortMD();
         }
         this.bot.sendDM(this.userId, cardStr);
+    }
+    waitForOneMessage(callback) {
+        this.messageCallbacks.push(callback);
+    }
+    onMessage(message) {
+        while (true) {
+            const messageCallback = this.messageCallbacks.pop();
+            if (!messageCallback)
+                break;
+            messageCallback(message);
+        }
     }
 }
 exports.default = Player;

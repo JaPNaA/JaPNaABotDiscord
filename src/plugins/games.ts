@@ -55,6 +55,10 @@ class Games extends BotPlugin {
         }
     }
 
+    public _unlockDMHandle(userId: string) {
+        this.playerGameMap.delete(userId);
+    }
+
     private play(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
         let currentGame = this.currentGames.get(event.channelId);
         if (currentGame) {
@@ -80,6 +84,14 @@ class Games extends BotPlugin {
 
     private _getGame(name: string): GameClass | undefined {
         return this.gameAliases[name];
+    }
+
+    _start(): void {
+        this._registerCommand(this.precommand, "play", this.play, new BotCommandOptions({
+            noDM: true
+        }));
+
+        this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
 
     private unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
@@ -112,13 +124,6 @@ class Games extends BotPlugin {
         bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
     }
 
-    _start(): void {
-        this._registerCommand(this.precommand, "play", this.play, new BotCommandOptions({
-            noDM: true
-        }));
-
-        this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
-    }
     _stop(): void {
         // do nothing
     }

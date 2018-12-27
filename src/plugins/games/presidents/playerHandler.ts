@@ -2,16 +2,16 @@ import Player from "./player";
 import BotHooks from "../../../main/bot/botHooks";
 import Games from "../../games";
 import ErrorCodes from "./errors";
-import PresidentsGame from "./game";
+import Presidents from "./presidents";
 
 class PlayerHandler {
     bot: BotHooks;
     parentGame: Games;
-    presidentsGame: PresidentsGame;
+    presidentsGame: Presidents;
 
     players: Player[];
 
-    constructor(bot: BotHooks, parentGame: Games, presidentsGame: PresidentsGame) {
+    constructor(bot: BotHooks, parentGame: Games, presidentsGame: Presidents) {
         this.bot = bot;
         this.parentGame = parentGame;
         this.presidentsGame = presidentsGame;
@@ -39,9 +39,21 @@ class PlayerHandler {
         if (index < 0) {
             return false;
         } else {
+            this.parentGame._unlockDMHandle(userId);
             this.players.splice(index, 1);
             return true;
         }
+    }
+
+    public removeAllPlayers() {
+        for (let player of this.players) {
+            this.parentGame._unlockDMHandle(player.userId);
+        }
+        this.players.length = 0;
+    }
+
+    public getPlayer(userId: string): Player | null {
+        return this.findPlayer(userId);
     }
 
     private isPlayerListed(userId: string): boolean {

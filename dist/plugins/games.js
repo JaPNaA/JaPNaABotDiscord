@@ -38,6 +38,9 @@ class Games extends plugin_js_1.default {
             throw new Error("Already locked");
         }
     }
+    _unlockDMHandle(userId) {
+        this.playerGameMap.delete(userId);
+    }
     play(bot, event, args) {
         let currentGame = this.currentGames.get(event.channelId);
         if (currentGame) {
@@ -58,6 +61,12 @@ class Games extends plugin_js_1.default {
     }
     _getGame(name) {
         return this.gameAliases[name];
+    }
+    _start() {
+        this._registerCommand(this.precommand, "play", this.play, new commandOptions_js_1.default({
+            noDM: true
+        }));
+        this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     unknownCommandHandler(bot, event) {
         if (event.isDM) {
@@ -87,12 +96,6 @@ class Games extends plugin_js_1.default {
     }
     _sendDoesntExist(bot, event) {
         bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
-    }
-    _start() {
-        this._registerCommand(this.precommand, "play", this.play, new commandOptions_js_1.default({
-            noDM: true
-        }));
-        this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     _stop() {
         // do nothing

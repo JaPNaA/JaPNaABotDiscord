@@ -13,22 +13,45 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const playerHandler_1 = __importDefault(require("./playerHandler"));
 const dealer_1 = __importDefault(require("./dealer"));
-const game_1 = __importDefault(require("../game"));
-class PresidentsGame extends game_1.default {
-    constructor(botHooks, parentGame) {
-        super(botHooks, parentGame);
+const messageHandler_1 = __importDefault(require("./messageHandler"));
+class PresidentsMain {
+    constructor(botHooks, parentGame, presidentsGame) {
+        this.bot = botHooks;
         this.parentGame = parentGame;
-        this.playerHandler = new playerHandler_1.default(this.bot, this.parentGame, this);
+        this.playerHandler = new playerHandler_1.default(this.bot, this.parentGame, presidentsGame);
+        this.messageHandler = new messageHandler_1.default(this);
         this.dealer = new dealer_1.default();
     }
     start() {
-        this.dealer.distributeCards(this.playerHandler.players);
         this.startMainLoop();
     }
     startMainLoop() {
         return __awaiter(this, void 0, void 0, function* () {
+            this.dealer.distributeCards(this.playerHandler.players);
+            this.sortEveryonesDecks();
             this.sendEveryoneTheirDecks();
+            while (true) {
+                // protect against infinite loop
+                if (this.playerHandler.players.length <= 0)
+                    break;
+                for (let player of this.playerHandler.players) {
+                    yield this.waitForTurn(player);
+                    player.sendCards();
+                }
+            }
         });
+    }
+    waitForTurn(player) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield new Promise(function (resolve) {
+                player.waitForOneMessage(resolve);
+            });
+        });
+    }
+    sortEveryonesDecks() {
+        for (let player of this.playerHandler.players) {
+            player.cards.sort();
+        }
     }
     sendEveryoneTheirDecks() {
         for (let player of this.playerHandler.players) {
@@ -42,4 +65,4 @@ class PresidentsGame extends game_1.default {
         // do nothing
     }
 }
-exports.default = PresidentsGame;
+exports.default = PresidentsMain;

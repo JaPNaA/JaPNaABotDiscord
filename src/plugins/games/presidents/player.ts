@@ -2,6 +2,7 @@ import CardsList from "../cards/cardList";
 import { Rank } from "../cards/cardUtils";
 import { Card, NormalCard } from "../cards/card";
 import BotHooks from "../../../main/bot/botHooks";
+import { DiscordCommandEvent } from "../../../main/events";
 
 class PlayerCards {
     cards: CardsList;
@@ -75,16 +76,20 @@ class PlayerCards {
     }
 }
 
+type MessageCallback = (event: DiscordCommandEvent) => any; 
+
 class Player {
     bot: BotHooks;
     userId: string;
     cards: PlayerCards;
+    messageCallbacks: MessageCallback[];
 
     constructor(botHooks: BotHooks, userId: string) {
         this.bot = botHooks;
 
         this.userId = userId;
         this.cards = new PlayerCards();
+        this.messageCallbacks = [];
     }
 
     sendCards() {
@@ -93,6 +98,18 @@ class Player {
             cardStr += card.toShortMD();
         }
         this.bot.sendDM(this.userId, cardStr);
+    }
+
+    waitForOneMessage(callback: MessageCallback) {
+        this.messageCallbacks.push(callback);
+    }
+
+    onMessage(message: DiscordCommandEvent) {
+        while (true) {
+            const messageCallback = this.messageCallbacks.pop();
+            if (!messageCallback) break;
+            messageCallback(message);
+        }
     }
 }
 

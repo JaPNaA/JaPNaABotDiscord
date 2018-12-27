@@ -17,8 +17,11 @@ class Presidents extends game_1.default {
         this._gamePluginName = "presidents";
         this._pluginName = "game." + this._gamePluginName;
         this.gameName = "Presidents";
+        this.gameName = "Presidents";
+        this._gamePluginName = "presidents";
+        this._pluginName = "game." + this._gamePluginName;
         this.channelId = channelId;
-        this.game = new game_2.default(this.bot, this.parentPlugin);
+        this.game = new game_2.default(this.bot, this.parentPlugin, this);
         this.game.playerHandler.addPlayer(initer);
     }
     join(bot, event, args) {
@@ -67,6 +70,9 @@ class Presidents extends game_1.default {
                 " (" + players.length + " players)");
         }
     }
+    playerUseCard(bot, event, args) {
+        this.game.messageHandler.onMessage(event.userId, event);
+    }
     _sendStartingMessage() {
         let players = [];
         for (let player of this.game.playerHandler.players) {
@@ -83,6 +89,7 @@ class Presidents extends game_1.default {
         this._registerCommand(this.commandManager, "leave", this.leave);
         this._registerCommand(this.commandManager, "start", this.start);
         this._registerCommand(this.commandManager, "players", this.listPlayers);
+        this._registerCommand(this.commandManager, "use", this.playerUseCard);
         this._sendAboutMessage();
     }
     _sendAboutMessage() {
@@ -108,7 +115,7 @@ class Presidents extends game_1.default {
         });
     }
     _stop() {
-        // do nothing
+        this.game.playerHandler.removeAllPlayers();
     }
 }
 exports.default = Presidents;

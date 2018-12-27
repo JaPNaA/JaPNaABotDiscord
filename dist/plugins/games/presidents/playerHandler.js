@@ -29,9 +29,19 @@ class PlayerHandler {
             return false;
         }
         else {
+            this.parentGame._unlockDMHandle(userId);
             this.players.splice(index, 1);
             return true;
         }
+    }
+    removeAllPlayers() {
+        for (let player of this.players) {
+            this.parentGame._unlockDMHandle(player.userId);
+        }
+        this.players.length = 0;
+    }
+    getPlayer(userId) {
+        return this.findPlayer(userId);
     }
     isPlayerListed(userId) {
         let player = this.findPlayer(userId);
