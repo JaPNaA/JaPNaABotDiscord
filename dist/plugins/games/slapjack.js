@@ -36,7 +36,6 @@ class SlapJack extends game_1.default {
     onReadyStart() {
         this.bot.send(this.channelId, "Type `" + this.parentPlugin.precommand.names[0] +
             "slap` when the card above is a Jack");
-        this.tick();
         this.startTicking();
     }
     slap(bot, event, args) {

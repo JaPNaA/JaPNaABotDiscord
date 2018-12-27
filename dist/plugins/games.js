@@ -5,7 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
-const presidents_js_1 = __importDefault(require("./games/presidents.js"));
+const presidents_js_1 = __importDefault(require("./games/presidents/presidents.js"));
+const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 /**
  * Games!
  */
@@ -36,9 +37,6 @@ class Games extends plugin_js_1.default {
         else {
             throw new Error("Already locked");
         }
-    }
-    gPrecommandHandler(event) {
-        this.bot.send(event.channelId, event.message);
     }
     play(bot, event, args) {
         let currentGame = this.currentGames.get(event.channelId);
@@ -91,7 +89,9 @@ class Games extends plugin_js_1.default {
         bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
     }
     _start() {
-        this._registerCommand(this.precommand, "play", this.play);
+        this._registerCommand(this.precommand, "play", this.play, new commandOptions_js_1.default({
+            noDM: true
+        }));
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     _stop() {

@@ -9,6 +9,7 @@ const pile_1 = __importDefault(require("./pile"));
 ;
 const defaultOptions = {
     muliplier: 1,
+    shuffled: false,
     excludeJokers: false,
     excludeKnights: true,
     excludeSuits: [],
@@ -18,6 +19,7 @@ const defaultOptions = {
 function applyDefaultOptions(options) {
     let newOptions = {
         muliplier: defaultOptions.muliplier,
+        shuffled: defaultOptions.shuffled,
         excludeJokers: defaultOptions.excludeJokers,
         excludeKnights: defaultOptions.excludeKnights,
         excludeSuits: defaultOptions.excludeSuits,
@@ -43,6 +45,9 @@ class Deck extends pile_1.default {
     createDeck() {
         this.addNormalCards();
         this.addJokersIfNotExcluded();
+        if (this.options.shuffled) {
+            this.shuffle();
+        }
     }
     addNormalCards() {
         for (let suit of cardUtils_1.SuitKeys) {

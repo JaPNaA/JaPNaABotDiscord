@@ -1,6 +1,5 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
-import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
 import Game from "./games/game.js";
 interface GameClass {
@@ -22,10 +21,9 @@ declare class Games extends BotPlugin {
     constructor(bot: BotHooks);
     _isDMLockAvailable(userId: string): boolean;
     _lockAndGetDMHandle(userId: string, game: Game): void;
-    gPrecommandHandler(event: DiscordMessageEvent): void;
-    play(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
-    _getGame(name: string): GameClass | undefined;
-    unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent): void;
+    private play;
+    private _getGame;
+    private unknownCommandHandler;
     private _forwardToGameInChannel;
     private _forwardToGameFromDM;
     private _sendDoesntExist;

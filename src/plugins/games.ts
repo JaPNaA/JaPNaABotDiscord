@@ -6,7 +6,8 @@ import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js"
 import Game from "./games/game.js";
 
 import SlapJack from "./games/slapjack.js";
-import Presidents from "./games/presidents.js";
+import Presidents from "./games/presidents/presidents.js";
+import BotCommandOptions from "../main/bot/command/commandOptions.js";
 
 interface GameClass {
     new(botHooks: BotHooks, parentPlugin: Games, channelId: string, initer: string): Game
@@ -54,11 +55,7 @@ class Games extends BotPlugin {
         }
     }
 
-    public gPrecommandHandler(event: DiscordMessageEvent): void {
-        this.bot.send(event.channelId, event.message);
-    }
-
-    public play(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
+    private play(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
         let currentGame = this.currentGames.get(event.channelId);
         if (currentGame) {
             // TODO: confirm to end current game
@@ -81,11 +78,11 @@ class Games extends BotPlugin {
         }
     }
 
-    public _getGame(name: string): GameClass | undefined {
+    private _getGame(name: string): GameClass | undefined {
         return this.gameAliases[name];
     }
 
-    public unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
+    private unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
         if (event.isDM) {
             this._forwardToGameFromDM(bot, event);
         } else {
@@ -116,7 +113,10 @@ class Games extends BotPlugin {
     }
 
     _start(): void {
-        this._registerCommand(this.precommand, "play", this.play);
+        this._registerCommand(this.precommand, "play", this.play, new BotCommandOptions({
+            noDM: true
+        }));
+
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     _stop(): void {

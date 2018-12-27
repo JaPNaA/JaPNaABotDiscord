@@ -55,7 +55,6 @@ class SlapJack extends Game {
             "Type `" + this.parentPlugin.precommand.names[0] + 
             "slap` when the card above is a Jack"
         );
-        this.tick();
         this.startTicking();
     }
 

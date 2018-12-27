@@ -1,0 +1,25 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Action;
+(function (Action) {
+    Action[Action["ace"] = 0] = "ace";
+    Action[Action["n2"] = 1] = "n2";
+    Action[Action["n3"] = 2] = "n3";
+    Action[Action["n4"] = 3] = "n4";
+    Action[Action["n5"] = 4] = "n5";
+    Action[Action["n6"] = 5] = "n6";
+    Action[Action["n7"] = 6] = "n7";
+    Action[Action["n8"] = 7] = "n8";
+    Action[Action["n9"] = 8] = "n9";
+    Action[Action["n10"] = 9] = "n10";
+    Action[Action["jack"] = 10] = "jack";
+    Action[Action["knight"] = 11] = "knight";
+    Action[Action["queen"] = 12] = "queen";
+    Action[Action["king"] = 13] = "king";
+    Action[Action["joker"] = 14] = "joker";
+    Action[Action["burn"] = 15] = "burn";
+    Action[Action["run"] = 16] = "run";
+    Action[Action["endGame"] = 17] = "endGame";
+})(Action || (Action = {}));
+;
+exports.default = Action;

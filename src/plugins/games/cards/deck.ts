@@ -5,6 +5,8 @@ import CardsList from "./pile";
 interface Options {
     /** How many decks */
     muliplier?: number;
+    /** Automatically shuffle? */
+    shuffled?: boolean;
     /** Don't put jokers in deck */
     excludeJokers?: boolean;
     /** Exclude knights in deck */
@@ -21,6 +23,7 @@ interface Options {
 
 interface AllOptions extends Options {
     muliplier: number;
+    shuffled: boolean;
     excludeJokers: boolean;
     excludeKnights: boolean;
     excludeSuits: Suit[];
@@ -30,6 +33,7 @@ interface AllOptions extends Options {
 
 const defaultOptions: AllOptions = {
     muliplier: 1,
+    shuffled: false,
     excludeJokers: false,
     excludeKnights: true,
     excludeSuits: [],
@@ -40,6 +44,7 @@ const defaultOptions: AllOptions = {
 function applyDefaultOptions(options?: Options): AllOptions {
     let newOptions: AllOptions = {
         muliplier: defaultOptions.muliplier,
+        shuffled: defaultOptions.shuffled,
         excludeJokers: defaultOptions.excludeJokers,
         excludeKnights: defaultOptions.excludeKnights,
         excludeSuits: defaultOptions.excludeSuits,
@@ -73,6 +78,10 @@ class Deck extends CardsList {
     private createDeck() {
         this.addNormalCards();
         this.addJokersIfNotExcluded();
+
+        if (this.options.shuffled) {
+            this.shuffle();
+        }
     }
 
     private addNormalCards() {

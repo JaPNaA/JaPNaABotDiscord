@@ -4,6 +4,8 @@ import CardsList from "./pile";
 interface Options {
     /** How many decks */
     muliplier?: number;
+    /** Automatically shuffle? */
+    shuffled?: boolean;
     /** Don't put jokers in deck */
     excludeJokers?: boolean;
     /** Exclude knights in deck */
@@ -18,6 +20,7 @@ interface Options {
 }
 interface AllOptions extends Options {
     muliplier: number;
+    shuffled: boolean;
     excludeJokers: boolean;
     excludeKnights: boolean;
     excludeSuits: Suit[];
