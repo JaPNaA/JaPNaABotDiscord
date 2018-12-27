@@ -10,12 +10,7 @@ import Pile from "./cards/pile";
 import { Message } from "discord.js";
 declare class Player {
     userId: string;
-    constructor(userId: string);
-}
-declare class PresidentsPlayer extends Player {
-    cards: CardsList;
-    waitingOn: boolean;
-    resolveWait?: (value: DiscordCommandEvent) => void;
+    cards: Pile;
     constructor(userId: string);
     countJokers(): number;
     count(rank: Rank): number;
@@ -30,39 +25,14 @@ declare class PresidentsPlayer extends Player {
     };
 }
 declare class Logic {
-    bot: BotHooks;
-    channelId: string;
-    players: PresidentsPlayer[];
+    players: Player[];
     deck: Deck;
     pile: Pile;
-    pileMessage?: Message;
-    gameLoopPromise: Promise<void>;
-    constructor(botHooks: BotHooks, channelId: string, playerIds: string[]);
-    onUseCards(event: DiscordCommandEvent, args: string): void;
-    private init;
-    private initPlayers;
-    private distributeCards;
-    private gameLoop;
-    private sendEveryoneTheirDeck;
-    private sendOnesDeck;
-    private waitForValidTurn;
-    private waitForTurn;
-    private tryParseAndDoAction;
-    private parseAction;
-    private tryDoAction;
-    private tryActionEndGame;
-    private tryEndGameWithBurnCards;
-    private tryActionBurn;
-    private tryActionRun;
-    private tryPlayCard;
-    private playerUseSet;
-    private sendPile;
-    private updatePile;
-}
-declare enum AlertCanUseInDMState {
-    notAlerted = 0,
-    alerted = 1,
-    okThen = 2
+    topSet: CardSet | null;
+    constructor(playerIds: string[]);
+    init(playerIds: string[]): void;
+    initPlayers(playerIds: string[]): void;
+    distributeCards(): void;
 }
 declare class Presidents extends Game {
     _gamePluginName: string;
@@ -71,23 +41,14 @@ declare class Presidents extends Game {
     channelId: string;
     playerIds: string[];
     logic?: Logic;
-    alertCanUseInDMsState: AlertCanUseInDMState;
     started: boolean;
-    constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string, initer: string);
+    constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string);
     join(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
-    _addPlayer(userId: string): {
-        hasError: boolean;
-        message: string;
-    };
     leave(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     start(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     listPlayers(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     _sendStartingMessage(): void;
     _startGameLogic(): void;
-    useCards(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
-    private alertCanUseInDM;
-    private alertCanUseInDMFirst;
-    private alertCanUseInDMOkThen;
     _start(): void;
     _sendAboutMessage(): void;
     _stop(): void;
