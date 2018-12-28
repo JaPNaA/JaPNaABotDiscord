@@ -30,6 +30,31 @@ class Logic {
         this.lastPlayerToPlay = null;
         this.lastPass = false;
     }
+    getRequiredAmountNormalCard(rank) {
+        if (rank === this.config.burnCardRank) {
+            return this.getRequiredAmount_2();
+        }
+        else {
+            return this.getRequiredAmount();
+        }
+    }
+    getRequiredAmount() {
+        const topSet = this.pile.getTopSet();
+        if (!topSet) {
+            return 0;
+        }
+        return this.getTopSetSize();
+    }
+    getRequiredAmount_2() {
+        const topSet = this.pile.getTopSet();
+        if (!topSet) {
+            return 0;
+        }
+        return Math.ceil(topSet.size / 2);
+    }
+    getRequiredAmount_joker() {
+        return 1;
+    }
     getTopSetSize() {
         if (this.wasBurned)
             return 0;
@@ -104,27 +129,27 @@ class Logic {
             return;
         }
         if (firstCard.isJoker()) {
-            if (cards.size !== 1) {
-                throw new errors_1.MessageActionError("You can only play 1 joker at a time.");
-            }
+            this.assertAmount_joker(cards);
             return;
         }
-        let topSet = this.pile.getTopSet();
-        if (!topSet) {
-            throw new Error("Unknown Error");
+        let requiredAmount = this.getRequiredAmount();
+        if (cards.size !== requiredAmount) {
+            throw new errors_1.MessageActionError("You must play " + requiredAmount + " cards of the same rank.");
         }
-        if (cards.size !== topSet.size) {
-            throw new errors_1.MessageActionError("You must play " + topSet.size + " cards of the same rank.");
+    }
+    assertAmount_joker(cards) {
+        if (cards.size !== this.getRequiredAmount_joker()) {
+            throw new errors_1.MessageActionError("You can only play 1 joker at a time.");
         }
     }
     assertAmount_2(cards) {
-        let topSet = this.pile.getTopSet();
+        const topSet = this.pile.getTopSet();
         if (!topSet) {
             throw new Error("Unknown Error");
         }
-        let required2s = Math.ceil(topSet.size / 2);
+        let required2s = this.getRequiredAmount_2();
         if (cards.size !== required2s) {
-            throw new errors_1.MessageActionError("You must play " + topSet.size + " of those cards to burn.");
+            throw new errors_1.MessageActionError("You must play " + required2s + " of those cards to burn.");
         }
     }
     assertHigherOrSameRank(cards) {

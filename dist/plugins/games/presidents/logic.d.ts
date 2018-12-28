@@ -22,6 +22,10 @@ declare class Logic {
         revolutions: boolean;
     };
     constructor();
+    getRequiredAmountNormalCard(rank: Rank): number;
+    getRequiredAmount(): number;
+    getRequiredAmount_2(): number;
+    getRequiredAmount_joker(): 1;
     getTopSetSize(): number;
     beforePlayerTurn(player: Player): void;
     playerPass(player: Player): void;
@@ -32,6 +36,7 @@ declare class Logic {
     private assertCardsAreSameRank_joker;
     private assertCardsAreSameRank_normal;
     private assertAmount;
+    private assertAmount_joker;
     private assertAmount_2;
     private assertHigherOrSameRank;
     private checkForBurn;

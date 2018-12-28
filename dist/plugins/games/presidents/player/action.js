@@ -22,10 +22,18 @@ class PlayerAction {
         this.player.cards.removeCards(set);
     }
     useCards(rank, amount) {
-        if (isNaN(amount) || amount <= 0) {
-            throw new errors_1.MessageSyntaxError("Amount is invalid");
+        debugger;
+        let ramount = amount;
+        let requiredAmount = this.logic.getRequiredAmountNormalCard(rank);
+        if (!amount) {
+            if (!requiredAmount) {
+                ramount = this.player.cards.cards.getAllRank(rank).length;
+            }
+            else {
+                ramount = requiredAmount;
+            }
         }
-        const set = this.createSet(rank, amount);
+        const set = this.createSet(rank, ramount);
         this.logic.playerUse(this.player, set);
         this.player.cards.removeCards(set);
     }

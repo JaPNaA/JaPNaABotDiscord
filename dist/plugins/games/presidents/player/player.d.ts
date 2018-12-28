@@ -12,7 +12,10 @@ declare class Player {
     cards: PlayerCards;
     action: PlayerAction;
     messageCallbacks: MessageCallback[];
+    done: boolean;
+    acknowledgedDone: boolean;
     constructor(botHooks: BotHooks, presidentGame: PresidentsMain, userId: string);
+    checkDone(): void;
     tell(message: string): void;
     createCardStr(): string;
     tellCards(): void;

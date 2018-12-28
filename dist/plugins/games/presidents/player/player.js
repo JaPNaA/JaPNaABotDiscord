@@ -12,6 +12,13 @@ class Player {
         this.cards = new cards_1.default();
         this.action = new action_1.default(this, presidentGame.logic);
         this.messageCallbacks = [];
+        this.done = false;
+        this.acknowledgedDone = false;
+    }
+    checkDone() {
+        if (this.cards.cards.size === 0) {
+            this.done = true;
+        }
     }
     tell(message) {
         this.bot.sendDM(this.userId, message);
@@ -24,6 +31,9 @@ class Player {
         return cardStr;
     }
     tellCards() {
+        if (this.done) {
+            return;
+        }
         this.bot.sendDM(this.userId, "**Your deck**\n" + this.createCardStr());
     }
     waitForOneMessage(callback) {

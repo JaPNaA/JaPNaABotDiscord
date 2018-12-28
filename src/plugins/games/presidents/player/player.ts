@@ -15,6 +15,9 @@ class Player {
     action: PlayerAction;
     messageCallbacks: MessageCallback[];
 
+    done: boolean;
+    acknowledgedDone: boolean;
+
     constructor(botHooks: BotHooks, presidentGame: PresidentsMain, userId: string) {
         this.bot = botHooks;
 
@@ -22,6 +25,15 @@ class Player {
         this.cards = new PlayerCards();
         this.action = new PlayerAction(this, presidentGame.logic);
         this.messageCallbacks = [];
+
+        this.done = false;
+        this.acknowledgedDone = false;
+    }
+
+    public checkDone() {
+        if (this.cards.cards.size === 0) {
+            this.done = true;
+        }
     }
 
     tell(message: string) {
@@ -37,6 +49,7 @@ class Player {
     }
 
     tellCards() {
+        if (this.done) { return; }
         this.bot.sendDM(this.userId, "**Your deck**\n" + this.createCardStr());
     }
 
@@ -48,7 +61,7 @@ class Player {
         while (true) {
             const messageCallback = this.messageCallbacks.pop();
             if (!messageCallback) break;
-            messageCallback({message, type});
+            messageCallback({ message, type });
         }
     }
 }

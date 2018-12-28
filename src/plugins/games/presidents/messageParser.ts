@@ -28,6 +28,8 @@ class MessageParser {
         } else {
             player.action.useCards(rank, amount);
         }
+
+        player.checkDone();
     }
 
     private parseRankAction(rankArgStr: string) {

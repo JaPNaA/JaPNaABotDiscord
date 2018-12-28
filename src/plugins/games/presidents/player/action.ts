@@ -1,6 +1,6 @@
 import { Rank } from "../../cards/cardUtils";
 import Player from "./player";
-import { MessageSyntaxError, MessageActionError } from "../errors";
+import { MessageActionError } from "../errors";
 import Logic from "../logic";
 import CardSet from "../../cards/cardSet";
 
@@ -28,11 +28,19 @@ class PlayerAction {
     }
 
     useCards(rank: Rank, amount: number) {
-        if (isNaN(amount) || amount <= 0) {
-            throw new MessageSyntaxError("Amount is invalid");
+        debugger;
+        let ramount = amount;
+        let requiredAmount = this.logic.getRequiredAmountNormalCard(rank);
+
+        if (!amount) {
+            if (!requiredAmount) {
+                ramount = this.player.cards.cards.getAllRank(rank).length;
+            } else {
+                ramount = requiredAmount;
+            }
         }
 
-        const set = this.createSet(rank, amount);
+        const set = this.createSet(rank, ramount);
         this.logic.playerUse(this.player, set);
         this.player.cards.removeCards(set);
     }

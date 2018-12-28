@@ -26,8 +26,11 @@ declare class PresidentsMain {
     private sortEveryonesDecks;
     private tellEveryoneTheirDecksAndInstructions;
     private sendPile;
-    mainLoopTick(): Promise<boolean>;
     private updatePile;
+    mainLoopTick(): Promise<boolean>;
+    private sendPlayerCards;
+    private checkDone;
+    private hasGameEnded;
     private announce;
     _start(): void;
     _stop(): void;

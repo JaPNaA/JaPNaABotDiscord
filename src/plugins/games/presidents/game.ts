@@ -63,6 +63,8 @@ class PresidentsMain {
     }
 
     private async waitForTurn(player: Player) {
+        if (player.done) { return; }
+
         let promise: Promise<MessageEvent> = new Promise(function (resolve) {
             player.waitForOneMessage(resolve);
         });
@@ -97,7 +99,7 @@ class PresidentsMain {
 
             str += "**This is your deck:**\n" + player.createCardStr() + "\n";
             str += "\n**When your turn comes around:**\n";
-            str += "_To play a card_, type `" + precommand + "use [cardName] [amount, if required]`\n";
+            str += "_To play a card_, type `" + precommand + "use [cardName] [amount, optional]`\n";
             str += "_To pass_, type `" + precommand + "pass`\n";
             str += "\nGood luck!";
 
@@ -109,41 +111,6 @@ class PresidentsMain {
         const message = toOne(await this.announce("Loading..."));
         this.pileMessage = message;
         this.updatePile();
-    }
-
-    async mainLoopTick(): Promise<boolean> {
-        if (this.playerHandler.players.length <= 0) {
-            return false;
-        }
-
-        for (let i = 0; i < this.playerHandler.players.length; i++) {
-            const player = this.playerHandler.players[i];
-
-            player.action.beforeTurn();
-
-            if (this.logic.wasBurned && !this.logic.pileEmpty) {
-                player.tell("Burned! It's your turn!");
-            } else {
-                const topSet = this.logic.pile.getTopSet();
-                if (topSet) {
-                    let topSetStr = " You're playing on" + topSet.toShortMDs().join("");
-                    player.tell("It's your turn!" + topSetStr);
-                } else {
-                    player.tell("It's your turn!");
-                }
-            }
-
-            this.updatePile();
-            await this.waitForValidTurn(player);
-            player.tellCards();
-
-            if (this.logic.wasBurned) {
-                i--;
-                continue;
-            }
-        }
-
-        return true;
     }
 
     private updatePile() {
@@ -166,6 +133,70 @@ class PresidentsMain {
         } else {
             this.sendPile();
         }
+    }
+
+    async mainLoopTick(): Promise<boolean> {
+        if (this.playerHandler.players.length <= 0) {
+            return false;
+        }
+
+        for (let i = 0; i < this.playerHandler.players.length; i++) {
+            const player = this.playerHandler.players[i];
+
+            player.action.beforeTurn();
+
+            this.sendPlayerCards(player);
+            this.updatePile();
+            await this.waitForValidTurn(player);
+            player.tellCards();
+            this.checkDone(player);
+
+            if (this.hasGameEnded()) {
+                return false;
+            }
+
+            if (this.logic.wasBurned) {
+                i--;
+                continue;
+            }
+        }
+
+        return true;
+    }
+
+
+    private sendPlayerCards(player: Player) {
+        if (player.done) { return; }
+
+        if (this.logic.wasBurned && !this.logic.pileEmpty) {
+            player.tell("Burned! It's your turn!");
+        } else {
+            const topSet = this.logic.pile.getTopSet();
+            if (topSet) {
+                let topSetStr = " You're playing on" + topSet.toShortMDs().join("");
+                player.tell("It's your turn!" + topSetStr);
+            } else {
+                player.tell("It's your turn!");
+            }
+        }
+    }
+
+    private checkDone(player: Player) {
+        if (player.done && !player.acknowledgedDone) {
+            player.tell("You won! maybe");
+        }
+    }
+
+    private hasGameEnded(): boolean {
+        let playersNotDone = 0;
+
+        for (let player of this.playerHandler.players) {
+            if (!player.done) {
+                playersNotDone++;
+            }
+        }
+
+        return playersNotDone <= 1; // last person is automatically loser
     }
 
     private announce(message: string): Promise<Message | Message[]> {

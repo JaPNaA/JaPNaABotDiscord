@@ -23,6 +23,7 @@ class MessageParser {
         else {
             player.action.useCards(rank, amount);
         }
+        player.checkDone();
     }
     parseRankAction(rankArgStr) {
         let rank = cardUtils_1.Rank.ace;
