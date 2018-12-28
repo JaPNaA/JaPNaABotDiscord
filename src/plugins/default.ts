@@ -634,6 +634,8 @@ class Default extends BotPlugin {
             if (error) {
                 Logger.error(error);
                 bot.send(event.channelId, "Error updating bot. See logs.");
+            } else {
+                bot.send(event.channelId, "Update successful. Stopping...");
             }
 
             Logger.log(stdout);
@@ -644,7 +646,7 @@ class Default extends BotPlugin {
 
     _endBotProcess() {
         Logger.log("Exiting process...");
-        japnaabot.stop();
+        japnaabot.stop(10000).then(() => process.exit(0));
     }
 
     _start() {

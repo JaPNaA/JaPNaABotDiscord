@@ -572,6 +572,9 @@ class Default extends plugin_js_1.default {
                 logger_js_1.default.error(error);
                 bot.send(event.channelId, "Error updating bot. See logs.");
             }
+            else {
+                bot.send(event.channelId, "Update successful. Stopping...");
+            }
             logger_js_1.default.log(stdout);
             logger_js_1.default.log(stderr);
             this._endBotProcess();
@@ -579,7 +582,7 @@ class Default extends plugin_js_1.default {
     }
     _endBotProcess() {
         logger_js_1.default.log("Exiting process...");
-        japnaabot.stop();
+        japnaabot.stop(10000).then(() => process.exit(0));
     }
     _start() {
         this._registerDefaultCommand("eval", this.eval, new commandOptions_js_1.default({
