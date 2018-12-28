@@ -24,7 +24,7 @@ declare class PresidentsMain {
     private waitForTurn;
     private handlePlayerTurnError;
     private sortEveryonesDecks;
-    private tellEveryoneTheirDecks;
+    private tellEveryoneTheirDecksAndInstructions;
     private sendPile;
     mainLoopTick(): Promise<boolean>;
     private updatePile;

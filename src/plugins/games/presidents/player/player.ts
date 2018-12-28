@@ -28,12 +28,16 @@ class Player {
         this.bot.sendDM(this.userId, message);
     }
 
-    tellCards() {
+    createCardStr(): string {
         let cardStr = "";
         for (let card of this.cards.cards) {
             cardStr += card.toShortMD();
         }
-        this.bot.sendDM(this.userId, cardStr);
+        return cardStr;
+    }
+
+    tellCards() {
+        this.bot.sendDM(this.userId, "**Your deck**\n" + this.createCardStr());
     }
 
     waitForOneMessage(callback: MessageCallback) {

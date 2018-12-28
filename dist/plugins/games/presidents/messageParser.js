@@ -84,12 +84,6 @@ class MessageParser {
             case "joker":
                 joker = true;
                 break;
-            case "burn":
-            case "b":
-                break;
-            case "run":
-            case "r":
-                break;
             default:
                 throw new errors_1.MessageSyntaxError("Unkown rank or action");
         }

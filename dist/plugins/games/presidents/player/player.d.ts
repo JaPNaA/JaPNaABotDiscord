@@ -14,6 +14,7 @@ declare class Player {
     messageCallbacks: MessageCallback[];
     constructor(botHooks: BotHooks, presidentGame: PresidentsMain, userId: string);
     tell(message: string): void;
+    createCardStr(): string;
     tellCards(): void;
     waitForOneMessage(callback: MessageCallback): void;
     onMessage(message: DiscordCommandEvent, type: MessageType): void;

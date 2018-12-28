@@ -106,14 +106,6 @@ class MessageParser {
                 joker = true;
                 break;
 
-            case "burn":
-            case "b":
-                break;
-
-            case "run":
-            case "r":
-                break;
-
             default:
                 throw new MessageSyntaxError("Unkown rank or action");
         }

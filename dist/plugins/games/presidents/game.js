@@ -37,7 +37,7 @@ class PresidentsMain {
         return __awaiter(this, void 0, void 0, function* () {
             this.dealer.distributeCards(this.playerHandler.players);
             this.sortEveryonesDecks();
-            this.tellEveryoneTheirDecks();
+            this.tellEveryoneTheirDecksAndInstructions();
             yield this.sendPile();
             while (yield this.mainLoopTick()) { }
         });
@@ -82,9 +82,16 @@ class PresidentsMain {
             player.cards.sort();
         }
     }
-    tellEveryoneTheirDecks() {
+    tellEveryoneTheirDecksAndInstructions() {
         for (let player of this.playerHandler.players) {
-            player.tellCards();
+            let str = "";
+            let precommand = this.parentGame.precommand.names[0];
+            str += "**This is your deck:**\n" + player.createCardStr() + "\n";
+            str += "\n**When your turn comes around:**\n";
+            str += "_To play a card_, type `" + precommand + "use [cardName] [amount, if required]`\n";
+            str += "_To pass_, type `" + precommand + "pass`\n";
+            str += "\nGood luck!";
+            this.bot.sendDM(player.userId, str);
         }
     }
     sendPile() {
@@ -129,15 +136,15 @@ class PresidentsMain {
     updatePile() {
         if (this.pileMessage) {
             const topSet = this.logic.pile.getTopSet();
-            let msg;
+            let msg = "Current pile: ";
             if (topSet) {
-                msg = topSet.toShortMDs().join("");
+                msg += topSet.toShortMDs().join("");
                 if (this.logic.wasBurned) {
                     msg += " _(burned)_";
                 }
             }
             else {
-                msg = "_No cards_";
+                msg += "_No cards_";
             }
             this.pileMessage.edit(msg);
         }
