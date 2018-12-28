@@ -32,7 +32,7 @@ class BotCommandHelp {
     /**
      * Gathers some information about command
      */
-    gatherInfoAboutCommand(command: BotCommand) {
+    gatherInfoAboutCommand(command: BotCommand): void {
         this.group = command.group;
         this.noDM = command.noDM;
         this.requiredPermission = command.requiredPermission;

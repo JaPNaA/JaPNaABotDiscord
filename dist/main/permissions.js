@@ -42,7 +42,10 @@ class Permissions {
         this.ATTACH_FILES = utils_js_1.getBit(this.num, 13);
         /** Allows for reading of message history */
         this.READ_MESSAGE_HISTORY = utils_js_1.getBit(this.num, 14);
-        /** Allows for using the @everyone tag to notify all users in a channel, and the @here tag to notify all online users in a channel */
+        /**
+         * Allows for using the @everyone tag to notify all users in a channel,
+         * and the @here tag to notify all online users in a channel
+         */
         this.MENTION_EVERYONE = utils_js_1.getBit(this.num, 15);
         /** Allows the usage of custom emojis from other servers */
         this.USE_EXTERNAL_EMOJIS = utils_js_1.getBit(this.num, 16);
@@ -140,8 +143,9 @@ class Permissions {
         return keys;
     }
     importCustomPermissions(keys) {
-        if (!keys)
+        if (!keys) {
             return;
+        }
         if (typeof keys === "string") { // jic someone still has old method
             keys = JSON.parse(keys);
         }

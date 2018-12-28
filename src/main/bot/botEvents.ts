@@ -4,6 +4,8 @@ import EventName from "./eventName.js";
 import { tryRun } from "../utils.js";
 import Logger from "../logger.js";
 
+type EventHandler = (botHooks: BotHooks, event: any) => void;
+
 class BotEvent {
     events: { [x: string]: Function[] } = {
         "ready": [],
@@ -29,7 +31,7 @@ class BotEvent {
         this.botHooks = botHooks;
     }
 
-    on(name: EventName, func: Function): void {
+    on(name: EventName, func: EventHandler): void {
         this.events[name].push(func);
     }
 
@@ -39,7 +41,7 @@ class BotEvent {
         Logger.log_message("Event: " + name);
 
         for (let handler of this.events[name]) {
-            let error = tryRun(() => handler(this.botHooks, event));
+            let error: string | null = tryRun(() => handler(this.botHooks, event));
 
             if (error) {
                 errors.push(error);

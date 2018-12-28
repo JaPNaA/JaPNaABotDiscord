@@ -3,6 +3,7 @@ import BotHooks from "../main/bot/botHooks.js";
 import { DiscordMessageEvent } from "../main/events.js";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import { JSONObject } from "../main/jsonObject.js";
+declare type SpamCallback = () => boolean;
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -11,7 +12,7 @@ declare class Japnaa extends BotPlugin {
     counter: number;
     /** Que of spam functions */
     spamQue: {
-        [x: string]: Function[];
+        [x: string]: SpamCallback[];
     };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
@@ -62,7 +63,7 @@ declare class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit que for server and user
      */
-    _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): any;
+    _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): number;
     /**
      * Actual spam function
      */

@@ -101,7 +101,10 @@ class Permissions {
         this.ATTACH_FILES = getBit(this.num, 13);
         /** Allows for reading of message history */
         this.READ_MESSAGE_HISTORY = getBit(this.num, 14);
-        /** Allows for using the @everyone tag to notify all users in a channel, and the @here tag to notify all online users in a channel */
+        /**
+         * Allows for using the @everyone tag to notify all users in a channel,
+         * and the @here tag to notify all online users in a channel
+         */
         this.MENTION_EVERYONE = getBit(this.num, 15);
         /** Allows the usage of custom emojis from other servers */
         this.USE_EXTERNAL_EMOJIS = getBit(this.num, 16);
@@ -141,7 +144,7 @@ class Permissions {
     /**
      * Sets all permissions to true
      */
-    setAllPermissionsTrue() {
+    setAllPermissionsTrue(): void {
         for (let key of Permissions.keys) {
             this[key] = true;
         }
@@ -158,7 +161,7 @@ class Permissions {
 
     /** Converts this.* to markdown string, with true being bold */
     discordPermToString(): string {
-        let str = [];
+        let str: string[] = [];
         for (let key of Permissions.keys) {
             if (this[key]) {
                 str.push("**" + this.toReadable(key) + "**");
@@ -174,8 +177,8 @@ class Permissions {
      * Converts this.customPermissions to markdown string, with true being bold
      */
     customToString(): string {
-        let str = [];
-        let keys = Object.keys(this.customPermissions);
+        let str: string[] = [];
+        let keys: string[] = Object.keys(this.customPermissions);
         for (let key of keys) {
             if (this.customPermissions[key]) {
                 str.push("**" + this.toReadable(key) + "**");
@@ -198,7 +201,7 @@ class Permissions {
 
     getCustomPermissions(): string[] {
         let keys: string[] = [];
-        let okeys = Object.keys(this.customPermissions);
+        let okeys: string[] = Object.keys(this.customPermissions);
 
         for (let okey of okeys) {
             if (this.customPermissions[okey]) {
@@ -209,8 +212,8 @@ class Permissions {
         return keys;
     }
 
-    importCustomPermissions(keys: string[]) {
-        if (!keys) return;
+    importCustomPermissions(keys: string[]): void {
+        if (!keys) { return; }
 
         if (typeof keys === "string") { // jic someone still has old method
             keys = JSON.parse(keys);
@@ -222,7 +225,7 @@ class Permissions {
     }
 
     /** Writes a custom permission */
-    writeCustomPermission(permission: string, value: boolean) {
+    writeCustomPermission(permission: string, value: boolean): void {
         this.customPermissions[permission] = value;
     }
 }

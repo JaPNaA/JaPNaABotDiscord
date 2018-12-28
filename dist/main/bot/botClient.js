@@ -54,8 +54,9 @@ class SentMessageRecorder {
      */
     recordSentMessage(channelId, message) {
         let sentMessagesArr = this.recordedSentMessages[channelId];
-        if (!sentMessagesArr)
+        if (!sentMessagesArr) {
             return;
+        }
         sentMessagesArr.push(message);
     }
     /**
@@ -87,7 +88,7 @@ class BotClient {
         this.userIdDMMap = {};
         this.presence = new PresenceSetter(this.client);
         this.sentMessageRecorder = new SentMessageRecorder();
-        // Catch error, and logs them
+        // catch error, and logs them
         this.client.on("error", function (error) {
             logger_js_1.default.error(error);
         });
@@ -100,7 +101,7 @@ class BotClient {
         this.id = this.client.user.id;
     }
     isReady() {
-        return new Boolean(this.client.readyAt);
+        return Boolean(this.client.readyAt);
     }
     isSelf(authorId) {
         return authorId === this.id;
@@ -114,12 +115,14 @@ class BotClient {
         logger_js_1.default.log_message(">>", message);
         let promise;
         let textChannel = this.getChannel(channelId);
-        if (textChannel.type == "voice")
+        if (textChannel.type === "voice") {
             throw new TypeError("Cannot send to voice channel");
+        }
         this.botHooks.events.dispatch("send", message);
         if (typeof message === "string") {
-            if (message.trim().length === 0)
+            if (message.trim().length === 0) {
                 message = "_This message is empty_";
+            }
             promise = textChannel.send(message);
         }
         else if (typeof message === "object") {
@@ -158,8 +161,9 @@ class BotClient {
         else {
             return Promise.reject();
         }
-        if (failCallback)
+        if (failCallback) {
             promise.catch(() => failCallback());
+        }
         this.botHooks.events.dispatch("senddm", this);
         return promise;
     }
@@ -168,8 +172,9 @@ class BotClient {
     }
     getServerFromChannel(channelId) {
         let channel = this.getChannel(channelId);
-        if (!channel || !(channel instanceof discord_js_1.TextChannel))
+        if (!channel || !(channel instanceof discord_js_1.TextChannel)) {
             return;
+        }
         return channel.guild;
     }
     getServer(serverId) {
@@ -180,14 +185,16 @@ class BotClient {
     }
     getRole(roleId, serverId) {
         let server = this.getServer(serverId);
-        if (!server)
+        if (!server) {
             return;
+        }
         return server.roles.get(roleId);
     }
     getMemberFromServer(userId, serverId) {
         let server = this.getServer(serverId);
-        if (!server)
+        if (!server) {
             return;
+        }
         return server.members.get(userId);
     }
     getPing() {

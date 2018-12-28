@@ -30,7 +30,7 @@ class Default extends plugin_js_1.default {
         this.sawUpdateBotWarning = false;
     }
     ping(bot, event) {
-        bot.send(event.channelId, "Pong! Took " + Math.round(bot.getPing()) + "ms"); //* should be using abstraction
+        bot.send(event.channelId, "Pong! Took " + Math.round(bot.getPing()) + "ms"); // * should be using abstraction
     }
     eval(bot, event, args) {
         let str = util_1.inspect(eval(args));
@@ -74,8 +74,9 @@ class Default extends plugin_js_1.default {
             });
             if (!event.isDM) {
                 let member = bot.getMemberFromServer(userId, event.serverId);
-                if (!member)
+                if (!member) {
                     throw new Error("Unknown error");
+                }
                 let rolesString = (member.roles.size >= 1 ?
                     member.roles.map(role => "**" + role.name.replace(/@/g, "@\u200B") +
                         "** (" + role.id + ")").join(", ") :
@@ -184,8 +185,9 @@ class Default extends plugin_js_1.default {
      * Appends the overloads for help in embed
      */
     _appendHelpOverloads(fields, help, event, command) {
-        if (!help.overloads)
+        if (!help.overloads) {
             return;
+        }
         for (let overload of help.overloads) {
             let value = [];
             let args = Object.keys(overload);
@@ -202,8 +204,9 @@ class Default extends plugin_js_1.default {
      * Appends the overloads for help in embed
      */
     _appendHelpExamples(fields, help, event) {
-        if (!help.examples)
+        if (!help.examples) {
             return;
+        }
         fields.push({
             name: "**Examples**",
             value: help.examples.map(e => "`" + event.precommandName.name + e[0] + "` - " + e[1] + "").join("\n")
@@ -221,23 +224,21 @@ class Default extends plugin_js_1.default {
         if (help.fromPlugin) {
             description = "_From plugin '" + help.fromPlugin + "'_\n" + description;
         }
-        return {
-            embed: {
+        return { embed: {
                 color: bot.config.themeColor,
                 title: title,
                 description: description,
                 fields: fields
-            }
-        };
+            } };
     }
     /**
      * Appends the permissions for a command in help in embed
      */
     _appendHelpPermissions(fields, help) {
-        let requiredPermissionMarkdownStr = help.requiredPermission ? "**" + help.requiredPermission + "**" : "none";
-        let runInDMMarkdownStr = help.noDM ? "**no**" : "allowed";
-        let value = "Required permission: " + requiredPermissionMarkdownStr +
-            "\nRun in DMs: " + runInDMMarkdownStr;
+        let requiredPermissionMarkdown = help.requiredPermission ? "**" + help.requiredPermission + "**" : "none";
+        let runInDMMarkdown = help.noDM ? "**no**" : "allowed";
+        let value = "Required permission: " + requiredPermissionMarkdown +
+            "\nRun in DMs: " + runInDMMarkdown;
         fields.push({
             name: "**Permissions**",
             value: value
@@ -330,8 +331,9 @@ class Default extends plugin_js_1.default {
         }
         let channel = bot.getChannel(event.channelId);
         let guild = bot.getServer(event.serverId);
-        if (!guild)
+        if (!guild) {
             throw new Error("Unknown error");
+        }
         bot.rawEventAdapter.onMessage({
             author: user,
             channel: channel,
@@ -344,12 +346,14 @@ class Default extends plugin_js_1.default {
      */
     forward_to(bot, event, args) {
         let firstWhitespaceMatch = args.match(/\s/);
-        if (!firstWhitespaceMatch)
-            return; // TODO: Tell invalid, get help
+        if (!firstWhitespaceMatch) {
+            return;
+        } // tODO: Tell invalid, get help
         let tagMatch = args.slice(0, firstWhitespaceMatch.index);
         let channelId = utils_js_1.getSnowflakeNum(tagMatch);
-        if (!channelId)
-            return; // TODO: Tell invalid, get help
+        if (!channelId) {
+            return;
+        } // tODO: Tell invalid, get help
         let channel = bot.getChannel(channelId);
         let message = args.slice(tagMatch.length).trim();
         if (!channel) {
@@ -360,7 +364,7 @@ class Default extends plugin_js_1.default {
         let author = bot.getUser(event.userId);
         let guild = bot.getServer(event.serverId);
         if (!author || !guild) {
-            return; // TODO: Tell invalid, get help
+            return; // tODO: Tell invalid, get help
         }
         bot.rawEventAdapter.onMessage({
             author: author,
@@ -396,8 +400,9 @@ class Default extends plugin_js_1.default {
         let action = args[2][0].toLowerCase();
         /** Id of user or role */
         let id = utils_js_1.getSnowflakeNum(args[3]);
-        if (!id)
-            return; // TODO: tell invalid, get help
+        if (!id) {
+            return;
+        } // tODO: tell invalid, get help
         /** Permission name */
         let permission = args[4].trim().toUpperCase();
         /** Permissions for assigner */
@@ -413,8 +418,8 @@ class Default extends plugin_js_1.default {
             bot.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
             return;
         }
-        if (ns === "c") { // Channel namespace
-            if (type === "u") { // Assign to user
+        if (ns === "c") { // channel namespace
+            if (type === "u") { // assign to user
                 if (!bot.getMemberFromServer(id, event.serverId)) {
                     bot.send(event.channelId, "User not found");
                     return;
@@ -431,7 +436,7 @@ class Default extends plugin_js_1.default {
                     sendHelp();
                 }
             }
-            else if (type === "r") { // Assign to role
+            else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
                     bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this channel.");
@@ -448,8 +453,8 @@ class Default extends plugin_js_1.default {
                 sendHelp();
             }
         }
-        else if (ns === "s") { // Server namespace
-            if (type === "u") { // Assign to user
+        else if (ns === "s") { // server namespace
+            if (type === "u") { // assign to user
                 if (!bot.getMemberFromServer(id, event.serverId)) {
                     bot.send(event.channelId, "User not found");
                     return;
@@ -466,7 +471,7 @@ class Default extends plugin_js_1.default {
                     sendHelp();
                 }
             }
-            else if (type === "r") { // Assign to role
+            else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
                     bot.send(event.channelId, "Given role <@" + id + "> the permission `" + permission + "` in this server.");
@@ -483,12 +488,12 @@ class Default extends plugin_js_1.default {
                 sendHelp();
             }
         }
-        else if (ns === "g") { // Global namespace
+        else if (ns === "g") { // global namespace
             if (!assignerPermissions.has("BOT_ADMINISTRATOR")) {
                 bot.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
                 return;
             }
-            if (type === "u") { // Assign to user
+            if (type === "u") { // assign to user
                 if (!bot.getMemberFromServer(id, event.serverId)) {
                     bot.send(event.channelId, "User not found");
                     return;
@@ -505,7 +510,7 @@ class Default extends plugin_js_1.default {
                     sendHelp();
                 }
             }
-            else if (type === "r") { // Assign to role
+            else if (type === "r") { // assign to role
                 bot.send(event.channelId, "Global roles are not a thing.");
             }
             else {
@@ -522,11 +527,13 @@ class Default extends plugin_js_1.default {
      */
     send(bot, event, args) {
         let whitespaceMatch = args.match(/\s/);
-        if (!whitespaceMatch)
-            return; // TODO: tell invalid, help
+        if (!whitespaceMatch) {
+            return;
+        } // tODO: tell invalid, help
         let whitespaceIndex = whitespaceMatch.index;
-        if (!whitespaceIndex)
+        if (!whitespaceIndex) {
             throw new Error("Unknown error");
+        }
         bot.send(args.slice(0, whitespaceIndex), args.slice(whitespaceIndex + 1));
     }
     /**
@@ -620,7 +627,10 @@ class Default extends plugin_js_1.default {
                         "message": "The message that it will mention"
                     }],
                 examples: [
-                    ["pretend get <@207890448159735808> !user info", "Will make the bot pretend that the message actually came from <@207890448159735808>."]
+                    [
+                        "pretend get <@207890448159735808> !user info",
+                        "Will make the bot pretend that the message actually came from <@207890448159735808>."
+                    ]
                 ]
             }),
             group: "Testing"
@@ -631,10 +641,14 @@ class Default extends plugin_js_1.default {
                 description: "The bot will forward any message from a command to a different channel.",
                 overloads: [{
                         "channelId": "ID of channel to forward to",
-                        "message": "The bot will pretend to recieve this message, and if it responds, it will forward the message to the channel."
+                        "message": "The bot will pretend to recieve this message, and if it responds, " +
+                            "it will forward the message to the channel."
                     }],
                 examples: [
-                    ["forward to 513789011081297921 !echo a", "Will run the command and send the results to the channel with the ID 513789011081297921"]
+                    [
+                        "forward to 513789011081297921 !echo a",
+                        "Will run the command and send the results to the channel with the ID 513789011081297921"
+                    ]
                 ]
             }),
             group: "Communication"
@@ -651,8 +665,13 @@ class Default extends plugin_js_1.default {
                         "permission": "Name of permission to add or remove to user or role"
                     }],
                 examples: [
-                    ["edit permission server user add <@207890448159735808> my_permission", "Will give <@207890448159735808> the permission `MY_PERMISSION` in the server."],
-                    ["edit permission s u r <@207890448159735808> my_permission", "Will remove my_permission from <@207890448159735808> in the server."]
+                    [
+                        "edit permission server user add <@207890448159735808> my_permission",
+                        "Will give <@207890448159735808> the permission `MY_PERMISSION` in the server."
+                    ], [
+                        "edit permission s u r <@207890448159735808> my_permission",
+                        "Will remove my_permission from <@207890448159735808> in the server."
+                    ]
                 ]
             })
         }));
@@ -737,7 +756,8 @@ class Default extends plugin_js_1.default {
         }));
         this._registerDefaultCommand("code", this.code, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
-                description: "Sends the link to the code repository this bot is running on, you know. In case you want to build a clone of me.",
+                description: "Sends the link to the code repository this bot is running on, you know. " +
+                    "In case you want to build a clone of me.",
                 examples: [
                     ["code", "Sends the link of the code in the current channel."]
                 ]
@@ -751,6 +771,8 @@ class Default extends plugin_js_1.default {
             group: "Other"
         }));
     }
-    _stop() { }
+    _stop() {
+        // do nothing
+    }
 }
 exports.default = Default;

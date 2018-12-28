@@ -11,8 +11,8 @@ declare class PrecommandManager {
     register(precommand: Precommand): void;
     createAndRegister(name: string | string[], callback?: PrecommandCallback): Precommand;
     /**
-    * checks if message starts with a precommand
-    */
+     * checks if message starts with a precommand
+     */
     getFirstPrecommandName(message: string): PrecommandName | null;
 }
 export default PrecommandManager;

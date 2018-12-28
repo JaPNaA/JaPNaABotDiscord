@@ -39,8 +39,8 @@ export { stringToArgs };
  */
 function random(min: number = 0, max: number = 1, step: number = 0): number {
     if (step) { // step is not 0
-        let smin = Math.floor(min / step);
-        let smax = Math.floor(max / step) + 1;
+        let smin: number = Math.floor(min / step);
+        let smax: number = Math.floor(max / step) + 1;
         return step * Math.floor(smin + Math.random() * (smax - smin));
     } else if (step === 1) { // optimize for 1
         return Math.floor(min + Math.random() * (max - min));
@@ -69,7 +69,7 @@ export { getBit };
  * @returns id
  */
 function getSnowflakeNum(id: string): string | null {
-    let matches = id.match(/\d{7,}/);
+    let matches: RegExpMatchArray | null = id.match(/\d{7,}/);
     if (matches) {
         return matches[0];
     }
@@ -84,12 +84,12 @@ export { getSnowflakeNum };
  * @returns error string
  */
 function createErrorString(error: Error): string {
-    let str = error.stack;
+    let str: string | undefined = error.stack;
 
     if (require.main && str) {
         str = str.split(PATH.dirname(require.main.filename)).join(".");
     } else {
-        str = "Error generating error string. How ironic."
+        str = "Error generating error string. How ironic.";
     }
 
     return str;

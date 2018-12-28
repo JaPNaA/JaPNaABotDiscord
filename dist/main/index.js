@@ -29,11 +29,11 @@ function _init() {
     _getConfigFromPath();
     bot = new bot_js_1.default(config, memory, memoryPath, client, _init);
     botHooks = bot.hooks;
-    if (config["autoloadPlugins"]) {
-        for (let pluginName of config["builtinPlugins"]) {
+    if (config.autoloadPlugins) {
+        for (let pluginName of config.builtinPlugins) {
             loadBuiltinPlugin(pluginName);
         }
-        for (let pluginPath of config["externalPlugins"]) {
+        for (let pluginPath of config.externalPlugins) {
             loadPlugin(pluginPath);
         }
     }
@@ -65,8 +65,9 @@ function _concatObject(base, override) {
  * Sets the config to the contents of the config file
  */
 function _getConfigFromPath() {
-    if (!configPath)
+    if (!configPath) {
         return;
+    }
     let fileConfig = JSON.parse(strip_json_comments_1.default(fs_1.default.readFileSync(configPath).toString()));
     config = Object.assign({}, defaultConfig, _concatObject(fileConfig, runtimeConfig));
 }
@@ -75,11 +76,11 @@ function _getConfigFromPath() {
  * @param path path to plugin
  */
 function registerAutoloadPlugin(path) {
-    if (runtimeConfig["externalPlugins"]) {
-        runtimeConfig["externalPlugins"].push(path);
+    if (runtimeConfig.externalPlugins) {
+        runtimeConfig.externalPlugins.push(path);
     }
     else {
-        runtimeConfig["externalPlugins"] = [path];
+        runtimeConfig.externalPlugins = [path];
     }
     loadPlugin(path);
 }
@@ -89,11 +90,11 @@ exports.registerAutoloadPlugin = registerAutoloadPlugin;
  * @param name name of built-in plugin
  */
 function registerAutoloadBuiltinPlugin(name) {
-    if (runtimeConfig["builtinPlugins"]) {
-        runtimeConfig["builtinPlugins"].push(name);
+    if (runtimeConfig.builtinPlugins) {
+        runtimeConfig.builtinPlugins.push(name);
     }
     else {
-        runtimeConfig["builtinPlugins"] = [name];
+        runtimeConfig.builtinPlugins = [name];
     }
     loadBuiltinPlugin(name);
 }

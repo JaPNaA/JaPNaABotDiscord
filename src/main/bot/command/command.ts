@@ -6,6 +6,7 @@ import BotCommandOptions from "./commandOptions.js";
 import BotHooks from "../botHooks.js";
 import { DiscordCommandEvent } from "../../events.js";
 import BotCommandCallback from "./commandCallback.js";
+import Permissions from "../../permissions.js";
 
 type CleanCommandContent = {
     /** The cleaned message */
@@ -58,10 +59,10 @@ class BotCommand {
      * @returns cleaned command content
      */
     _getCleanCommandContent(dirtyContent: string): CleanCommandContent {
-        let trimmed = dirtyContent.trimLeft();
-        let args = trimmed.slice(this.commandName.length + 1); // the +1 is the space after the command
-        let commandContent = trimmed.toLowerCase();
-        let nextCharAfterCommand = commandContent[this.commandName.length];
+        let trimmed: string = dirtyContent.trimLeft();
+        let args: string = trimmed.slice(this.commandName.length + 1); // the +1 is the space after the command
+        let commandContent: string = trimmed.toLowerCase();
+        let nextCharAfterCommand: string = commandContent[this.commandName.length];
 
         return {
             commandContent: commandContent,
@@ -76,7 +77,7 @@ class BotCommand {
      * @returns Error string
      */
     test(commandEvent: DiscordCommandEvent): TestResults {
-        let cleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
+        let cleanCommandContent: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
 
         if (
             cleanCommandContent.commandContent.startsWith(this.commandName) &&
@@ -85,10 +86,10 @@ class BotCommand {
                 whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)
             )
         ) {
-            let permissions = 
+            let permissions: Permissions =
                 this.botHooks.permissions.getPermissions_channel(
-                    commandEvent.userId, 
-                    commandEvent.serverId, 
+                    commandEvent.userId,
+                    commandEvent.serverId,
                     commandEvent.channelId
                 );
 
@@ -119,9 +120,9 @@ class BotCommand {
      * @returns Did the command run OR not have enough permissions to run
      */
     testAndRun(commandEvent: DiscordCommandEvent): boolean {
-        let results = this.test(commandEvent);
+        let results: TestResults = this.test(commandEvent);
         if (results.canRun) {
-            let cleaned = this._getCleanCommandContent(commandEvent.commandContent);
+            let cleaned: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
             this.tryRunCommand(commandEvent, cleaned.args);
             return true;
         } else {
@@ -134,9 +135,9 @@ class BotCommand {
         }
     }
 
-    sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error) {
-        let errorStr = createErrorString(error);
-        let message =
+    sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error): void {
+        let errorStr: string = createErrorString(error);
+        let message: string =
             "```An error occured\n" + errorStr +
             "\nCommand: " + this.commandName +
             "\nArguments: " + argString +
@@ -151,7 +152,7 @@ class BotCommand {
     }
 
     /** Tries to run command, and sends an error message if fails */
-    tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
+    tryRunCommand(commandEvent: DiscordCommandEvent, argString: string): void {
         try {
             this.func(this.botHooks, commandEvent, argString);
         } catch (error) {

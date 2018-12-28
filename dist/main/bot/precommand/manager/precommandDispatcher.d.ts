@@ -5,7 +5,7 @@ declare class PrecommandDispatcher {
     botHooks: BotHooks;
     manager: PrecommandManager;
     constructor(botHooks: BotHooks, manager: PrecommandManager);
-    onMessage(message: DiscordMessageEvent): void;
+    onMessage(botHooks: BotHooks, message: DiscordMessageEvent): void;
     dispatchIfIsPrecommand(messageEvent: DiscordMessageEvent): void;
     _createDiscordCommandEvent(messageEvent: DiscordMessageEvent): DiscordCommandEvent;
 }

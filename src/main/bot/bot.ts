@@ -28,7 +28,7 @@ class Bot {
     client: BotClient;
 
     activeAsnycRequests: number;
-    
+
     // @ts-ignore this IS assigned in the constructor, dumb dumb
     defaultPrecommand: Precommand;
 
@@ -49,7 +49,7 @@ class Bot {
         this.rawEventAdapter = new RawEventAdapter(this.hooks);
         this.hooks.attachRawEventAdapter(this.rawEventAdapter);
 
-        /** 
+        /**
          * Bot config - gets configuration settings
          */
         this.config = new BotConfig(this.hooks, config);
@@ -102,7 +102,7 @@ class Bot {
     /**
      * Add new asnyc request to wait for
      */
-    newAsyncRequest() {
+    newAsyncRequest(): void {
         this.activeAsnycRequests++;
         this.events.dispatch("addasync", this.activeAsnycRequests);
     }
@@ -110,18 +110,18 @@ class Bot {
     /**
      * Remove asnyc request to wait for
      */
-    doneAsyncRequest() {
+    doneAsyncRequest(): void {
         this.activeAsnycRequests--;
         this.events.dispatch("doneasync", this.activeAsnycRequests);
     }
 
     /** Checks if there're more active asnyc requests */
-    hasActiveAsyncRequests(): Boolean {
+    hasActiveAsyncRequests(): boolean {
         return this.activeAsnycRequests > 0;
     }
 
     /** Starts the bot */
-    start() {
+    start(): void {
         Logger.log("Bot starting...");
 
         this.registerDefaultPrecommands();
@@ -135,12 +135,13 @@ class Bot {
         }
     }
 
-    registerDefaultPrecommands() { // TODO: refactor
-        const precommandStrs = this.config.precommands;
-        const precommand = new Precommand(this.hooks, precommandStrs);
+    registerDefaultPrecommands(): void {
+        // TODO: refactor
+        const precommandStrs: string[] = this.config.precommands;
+        const precommand: Precommand = new Precommand(this.hooks, precommandStrs);
 
         precommand.commandManager.register(
-            "restart", "bot", this.restart.bind(this), 
+            "restart", "bot", this.restart.bind(this),
             new BotCommandOptions({
                 requiredPermission: "BOT_ADMINISTRATOR"
             })
@@ -154,14 +155,14 @@ class Bot {
     /**
      * Stops the bot (async)
      */
-    stop() {
+    stop(): void {
         this.pluginManager.unregisterAllPlugins();
         this.events.dispatch("stop", null);
         this.memory.writeOut();
     }
 
     /** Restarts bot on command */
-    restart(bot: BotHooks, event: DiscordCommandEvent) {
+    restart(bot: BotHooks, event: DiscordCommandEvent): void {
         bot.client.send(event.channelId, "**Restarting**");
         Logger.log("Restarting");
         this.stop();
@@ -171,7 +172,7 @@ class Bot {
     /**
      * ready callback
      */
-    onReady() {
+    onReady(): void {
         this.events.dispatch("start", null);
         Logger.log("Started");
     }

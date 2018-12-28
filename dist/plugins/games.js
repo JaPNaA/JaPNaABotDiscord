@@ -11,6 +11,7 @@ class Game extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
         this._pluginName = "game";
+        this.precommand = this._registerPrecommand("g!");
     }
     gPrecommandHandler(event) {
         this.bot.send(event.channelId, event.message);
@@ -19,8 +20,10 @@ class Game extends plugin_js_1.default {
         bot.send(event.channelId, "game");
     }
     _start() {
-        this._registerDefaultCommand("game", this.game);
-        this._registerPrecommand("g!", this.gPrecommandHandler);
+        this._registerCommand(this.precommand, "game", this.game);
+    }
+    _stop() {
+        // do nothing
     }
 }
 exports.default = Game;

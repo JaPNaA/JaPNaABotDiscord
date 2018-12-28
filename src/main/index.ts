@@ -5,6 +5,7 @@ import STRIP_JSON_COMMENTS from "strip-json-comments";
 import Logger from "./logger.js";
 import Bot from "./bot/bot.js";
 import BotHooks from "./bot/botHooks.js";
+import BotPlugin from "./bot/plugin/plugin.js";
 
 let client: DISCORD.Client;
 
@@ -13,7 +14,7 @@ let botHooks: BotHooks;
 
 // let shuttingDown = false;
 
-let defaultConfig = JSON.parse(
+let defaultConfig: object = JSON.parse(
     STRIP_JSON_COMMENTS(FS.readFileSync(__dirname + "/../../data/config.jsonc").toString())
 );
 let runtimeConfig: { [x: string]: any } = {};
@@ -21,7 +22,7 @@ let memory: { [x: string]: any };
 
 // configureables
 // ----------------------------------------------------------------------------------------
-let memoryPath = "../../data/memory.json";
+let memoryPath: string = "../../data/memory.json";
 
 let token: string;
 let config: { [x: string]: any };
@@ -30,16 +31,16 @@ let configPath: string | null = null;
 /**
  * Initializes the bot
  */
-function _init() {
+function _init(): void {
     _getConfigFromPath();
     bot = new Bot(config, memory, memoryPath, client, _init);
     botHooks = bot.hooks;
 
-    if (config["autoloadPlugins"]) {
-        for (let pluginName of config["builtinPlugins"]) {
+    if (config.autoloadPlugins) {
+        for (let pluginName of config.builtinPlugins) {
             loadBuiltinPlugin(pluginName);
         }
-        for (let pluginPath of config["externalPlugins"]) {
+        for (let pluginPath of config.externalPlugins) {
             loadPlugin(pluginPath);
         }
     }
@@ -52,14 +53,14 @@ function _init() {
  * @returns concated object
  */
 function _concatObject(base: { [s: string]: any; }, override: { [s: string]: any; }): { [s: string]: any; } {
-    let c = { ...base };
+    let c: { [x: string]: any } = { ...base };
 
-    let overrideKeys = Object.keys(override);
+    let overrideKeys: string[] = Object.keys(override);
 
     for (let key of overrideKeys) {
-        let baseVal = base[key];
-        let overrideVal = override[key];
-        let cval = null;
+        let baseVal: any = base[key];
+        let overrideVal: any = override[key];
+        let cval: any = null;
 
         if (Array.isArray(baseVal)) {
             cval = baseVal.concat(overrideVal);
@@ -76,10 +77,10 @@ function _concatObject(base: { [s: string]: any; }, override: { [s: string]: any
 /**
  * Sets the config to the contents of the config file
  */
-function _getConfigFromPath() {
-    if (!configPath) return;
+function _getConfigFromPath(): void {
+    if (!configPath) { return; }
 
-    let fileConfig = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(configPath).toString()));
+    let fileConfig: object = JSON.parse(STRIP_JSON_COMMENTS(FS.readFileSync(configPath).toString()));
     config = {
         ...defaultConfig,
         ..._concatObject(fileConfig, runtimeConfig)
@@ -90,11 +91,11 @@ function _getConfigFromPath() {
  * Registers a plugin to auto-load
  * @param path path to plugin
  */
-function registerAutoloadPlugin(path: string) {
-    if (runtimeConfig["externalPlugins"]) {
-        runtimeConfig["externalPlugins"].push(path);
+function registerAutoloadPlugin(path: string): void {
+    if (runtimeConfig.externalPlugins) {
+        runtimeConfig.externalPlugins.push(path);
     } else {
-        runtimeConfig["externalPlugins"] = [path];
+        runtimeConfig.externalPlugins = [path];
     }
 
     loadPlugin(path);
@@ -104,11 +105,11 @@ function registerAutoloadPlugin(path: string) {
  * Registers a built-in plugin to auto-load
  * @param name name of built-in plugin
  */
-function registerAutoloadBuiltinPlugin(name: string) {
-    if (runtimeConfig["builtinPlugins"]) {
-        runtimeConfig["builtinPlugins"].push(name);
+function registerAutoloadBuiltinPlugin(name: string): void {
+    if (runtimeConfig.builtinPlugins) {
+        runtimeConfig.builtinPlugins.push(name);
     } else {
-        runtimeConfig["builtinPlugins"] = [name];
+        runtimeConfig.builtinPlugins = [name];
     }
 
     loadBuiltinPlugin(name);
@@ -132,7 +133,7 @@ function loadPlugin(path: string): Error | null {
     delete require.cache[require.resolve(npath)];
 
     try {
-        let plugin = new (require(npath).default)(bot.hooks);
+        let plugin: BotPlugin = new (require(npath).default)(bot.hooks);
         bot.pluginManager.register(plugin);
 
         Logger.log("Successfully loaded external plugin", path);
@@ -149,13 +150,13 @@ function loadPlugin(path: string): Error | null {
  * @returns any errors that may have occured while loading plugin
  */
 function loadBuiltinPlugin(name: string): Error | null {
-    let npath = "../plugins/" + name + ".js";
+    let npath: string = "../plugins/" + name + ".js";
 
     // delete old plugin cache
     delete require.cache[require.resolve(npath)];
 
     try {
-        let plugin = new (require(npath).default)(bot.hooks);
+        let plugin: BotPlugin = new (require(npath).default)(bot.hooks);
         bot.pluginManager.register(plugin);
 
         Logger.log("Successfully loaded built-in plugin", name);
@@ -169,14 +170,14 @@ function loadBuiltinPlugin(name: string): Error | null {
 /**
  * Starts the bot
  * @param apiToken The Discord API token
- * @param botConfig The bot's config, overriding default config, 
+ * @param botConfig The bot's config, overriding default config,
  * or path to json/jsonc config.
- * 
+ *
  * Choosing a path will allow the bot to reload the config when you call the `!reload` command
- * 
+ *
  * @param pathToMemoryFile the path to the memory file for the bot
  */
-function start(apiToken: string, botConfig: string | object, pathToMemoryFile: string) {
+function start(apiToken: string, botConfig: string | object, pathToMemoryFile: string): void {
     token = apiToken;
 
     if (typeof botConfig === "string") {
@@ -230,11 +231,11 @@ function stop(timeout?: number): Promise<any> {
     client.destroy();
     Logger.log("\nGracefully stopping...");
 
-    let promise = new Promise(function (resolve) {
+    let promise: Promise<any> = new Promise(function (resolve: Function): void {
         if (bot.hasActiveAsyncRequests()) {
             Logger.log("Waiting for asnyc requests to finish...");
 
-            bot.events.on("doneasync", function () {
+            bot.events.on("doneasync", function (): void {
                 if (!bot.hasActiveAsyncRequests()) {
                     Logger.log("Async requests done");
                     resolve(true);
@@ -245,7 +246,7 @@ function stop(timeout?: number): Promise<any> {
         }
 
         if (timeout !== undefined) {
-            setTimeout(function () {
+            setTimeout(function (): void {
                 resolve(false);
                 Logger.warn("Stop handler timed out");
             }, timeout);

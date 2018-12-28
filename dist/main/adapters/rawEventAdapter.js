@@ -26,7 +26,6 @@ class RawEventAdapter {
             return;
         }
         this.botHooks.events.dispatch("message", messageEvent);
-        this.botHooks.precommandManager.dispatch.onMessage(messageEvent);
     }
     onReady() {
         this.botHooks.events.dispatch("ready", null);

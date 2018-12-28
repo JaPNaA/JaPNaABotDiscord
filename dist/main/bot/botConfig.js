@@ -13,8 +13,8 @@ class Config {
         this.doAlertCommandDoesNotExist = (this.config["bot.alertCommandDoesNotExist"] || false);
         this.commandRequiredPermissionOverrides = (this.config["bot.commandRequiredPermissionOverrides"] || {});
         this.autoWriteTimeInterval = (this.config["memory.autoWriteInterval"] || 60 * 1000 /* Every minute */);
-        this.gitlabLink = (this.config["gitlabLink"] || "... oh wait hold on I don't have it...");
-        this.addLink = (this.config["addLink"] || "... oh wait I don't know how to...");
+        this.gitlabLink = (this.config.gitlabLink || "... oh wait hold on I don't have it...");
+        this.addLink = (this.config.addLink || "... oh wait I don't know how to...");
     }
     get(key) {
         return this.config[key];

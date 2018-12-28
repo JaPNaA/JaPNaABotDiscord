@@ -22,7 +22,7 @@ class Precommand {
         this.botHooks = botHooks;
         this.permissions = new BotPermissions(botHooks);
         this.commandManager = new CommandManager(botHooks);
-        
+
         this.names = toArray<string>(name);
 
         if (callback) {
@@ -33,8 +33,8 @@ class Precommand {
     }
 
     public getNameInMessage(message: string): PrecommandName | null {
-        for (let i = 0; i < this.names.length; i++) {
-            const name = this.names[i];
+        for (let i: number = 0; i < this.names.length; i++) {
+            const name: string = this.names[i];
 
             if (message.startsWith(name)) {
                 return new PrecommandName(this, i);

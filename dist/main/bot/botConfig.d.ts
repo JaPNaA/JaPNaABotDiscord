@@ -1,10 +1,6 @@
 import BotHooks from "./botHooks.js";
 import { JSONType } from "../jsonObject.js";
-declare type NestedObject = {
-    [x: string]: {
-        [x: string]: string;
-    };
-};
+import { NestedObject } from "./types.js";
 declare class Config {
     /** Original config */
     private config;

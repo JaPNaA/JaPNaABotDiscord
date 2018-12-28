@@ -11,7 +11,7 @@ class PresenceSetter {
         this.client = client;
     }
 
-    setGame(name: string) {
+    setGame(name: string): void {
         this.client.user.setPresence({
             game: {
                 name: name || undefined,
@@ -20,7 +20,7 @@ class PresenceSetter {
         });
     }
 
-    setWatch(name: string) {
+    setWatch(name: string): void {
         this.client.user.setPresence({
             game: {
                 name: name || undefined,
@@ -29,7 +29,7 @@ class PresenceSetter {
         });
     }
 
-    setListen(name: string) {
+    setListen(name: string): void {
         this.client.user.setPresence({
             game: {
                 name: name || undefined,
@@ -38,7 +38,7 @@ class PresenceSetter {
         });
     }
 
-    setStream(name: string) {
+    setStream(name: string): void {
         this.client.user.setPresence({
             game: {
                 name: name || undefined,
@@ -60,10 +60,9 @@ class SentMessageRecorder {
      * @param channelId id of channel
      * @param message message that was sent
      */
-    recordSentMessage(channelId: string, message: string | object) {
-        let sentMessagesArr = this.recordedSentMessages[channelId];
-        if (!sentMessagesArr)
-            return;
+    recordSentMessage(channelId: string, message: string | object): void {
+        let sentMessagesArr: any[] | null = this.recordedSentMessages[channelId];
+        if (!sentMessagesArr) { return; }
 
         sentMessagesArr.push(message);
     }
@@ -72,19 +71,19 @@ class SentMessageRecorder {
      * Starts recording message sent to a channel
      * @param channelId id of channel
      */
-    startRecordingMessagesSentToChannel(channelId: string) {
+    startRecordingMessagesSentToChannel(channelId: string): void {
         this.recordedSentMessages[channelId] = [];
     }
 
     /**
-     * Stops recording messages sent to a channel, 
+     * Stops recording messages sent to a channel,
      * and flushes (clear and returns) the sent messages
      * that were recorded
      * @param channelId id of channel
      * @returns recorded sent messages
      */
     stopAndFlushSentMessagesRecordedFromChannel(channelId: string): any[] {
-        let sentMessages = this.recordedSentMessages[channelId];
+        let sentMessages: any[] | null = this.recordedSentMessages[channelId];
         this.recordedSentMessages[channelId] = null;
         return sentMessages || [];
     }
@@ -110,27 +109,27 @@ class BotClient {
         this.presence = new PresenceSetter(this.client);
         this.sentMessageRecorder = new SentMessageRecorder();
 
-        // Catch error, and logs them
-        this.client.on("error", function (error: any) {
+        // catch error, and logs them
+        this.client.on("error", function (error: any): void {
             Logger.error(error);
         });
 
         this.botHooks.events.on("ready", this.onReady.bind(this));
     }
 
-    onReady() {
+    onReady(): void {
         this.id = this.client.user.id;
     }
 
-    init() {
+    init(): void {
         this.id = this.client.user.id;
     }
 
-    isReady() {
-        return new Boolean(this.client.readyAt);
+    isReady(): boolean {
+        return Boolean(this.client.readyAt);
     }
 
-    isSelf(authorId: string) {
+    isSelf(authorId: string): boolean {
         return authorId === this.id;
     }
 
@@ -143,17 +142,19 @@ class BotClient {
     send(channelId: string, message: string | MessageObject): Promise<any> {
         Logger.log_message(">>", message);
 
-        let promise;
+        let promise: Promise<any>;
         let textChannel: TextChannel = this.getChannel(channelId) as TextChannel;
 
-        if (textChannel.type == "voice")
+        if (textChannel.type === "voice") {
             throw new TypeError("Cannot send to voice channel");
+        }
 
         this.botHooks.events.dispatch("send", message);
 
         if (typeof message === "string") {
-            if (message.trim().length === 0)
+            if (message.trim().length === 0) {
                 message = "_This message is empty_";
+            }
             promise = textChannel.send(message);
         } else if (typeof message === "object") {
             if (message.hasOwnProperty("message")) {
@@ -180,8 +181,8 @@ class BotClient {
     sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any> {
         Logger.log_message("D>", message);
 
-        let user = this.getUser(userId);
-        let promise;
+        let user: User | undefined = this.getUser(userId);
+        let promise: Promise<any>;
 
         if (user) {
             if (typeof message === "object" && message.hasOwnProperty("message")) {
@@ -193,8 +194,9 @@ class BotClient {
             return Promise.reject();
         }
 
-        if (failCallback)
+        if (failCallback) {
             promise.catch(() => failCallback());
+        }
 
         this.botHooks.events.dispatch("senddm", this);
 
@@ -206,8 +208,8 @@ class BotClient {
     }
 
     getServerFromChannel(channelId: string): Guild | undefined {
-        let channel = this.getChannel(channelId);
-        if (!channel || !(channel instanceof TextChannel)) return;
+        let channel: Channel | undefined = this.getChannel(channelId);
+        if (!channel || !(channel instanceof TextChannel)) { return; }
         return channel.guild;
     }
 
@@ -215,23 +217,23 @@ class BotClient {
         return this.client.guilds.get(serverId);
     }
 
-    getUser(userId: string) {
+    getUser(userId: string): User | undefined {
         return this.client.users.get(userId);
     }
 
     getRole(roleId: string, serverId: string): Role | undefined {
-        let server = this.getServer(serverId);
-        if (!server) return;
+        let server: Guild | undefined = this.getServer(serverId);
+        if (!server) { return; }
         return server.roles.get(roleId);
     }
 
     getMemberFromServer(userId: string, serverId: string): GuildMember | undefined {
-        let server = this.getServer(serverId);
-        if (!server) return;
+        let server: Guild | undefined = this.getServer(serverId);
+        if (!server) { return; }
         return server.members.get(userId);
     }
 
-    getPing() {
+    getPing(): number {
         return this.client.ping;
     }
 }

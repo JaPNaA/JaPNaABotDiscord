@@ -5,7 +5,7 @@ import BotPermissions from "./botPermissions";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
-import { Channel, Guild, Role, User } from "discord.js";
+import { Channel, Guild, Role, User, GuildMember } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
@@ -15,7 +15,7 @@ import MessageObject from "./messageObject";
 
 
 class BotHooks {
-    // Workaround and hacks below.
+    // workaround and hacks below.
     memory: Memory = null as any as Memory;
     config: Config = null as any as Config;
     events: BotEvent = null as any as BotEvent;
@@ -35,7 +35,7 @@ class BotHooks {
     /**
      * Sends message to channel
      */
-    send(channelId: string, message: string | MessageObject) {
+    send(channelId: string, message: string | MessageObject): Promise<any> {
         return this.bot.client.send(channelId, message);
     }
 
@@ -43,7 +43,7 @@ class BotHooks {
      * Send direct message to user
      * @param [failCallback] callback called if fails to send
      */
-    sendDM(userId: string, message: string | MessageObject, failCallback?: Function) {
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any> {
         return this.bot.client.sendDM(userId, message, failCallback);
     }
 
@@ -94,7 +94,7 @@ class BotHooks {
      * @param userId id of user
      * @param serverId id of server
      */
-    getMemberFromServer(userId: string, serverId: string) {
+    getMemberFromServer(userId: string, serverId: string): GuildMember | undefined {
         return this.bot.client.getMemberFromServer(userId, serverId);
     }
 
@@ -109,55 +109,55 @@ class BotHooks {
 
     /**
      * Attaches raw event adapter to hook
-     * @param rawEventAdapter 
+     * @param rawEventAdapter
      */
-    attachRawEventAdapter(rawEventAdapter: RawEventAdapter) {
+    attachRawEventAdapter(rawEventAdapter: RawEventAdapter): void {
         this.rawEventAdapter = rawEventAdapter;
     }
 
-    attachMemory(memory: Memory) {
+    attachMemory(memory: Memory): void {
         this.memory = memory;
     }
 
-    attachConfig(config: Config) {
+    attachConfig(config: Config): void {
         this.config = config;
     }
 
-    attachEvents(events: BotEvents) {
+    attachEvents(events: BotEvents): void {
         this.events = events;
     }
 
-    attachPermissions(permissions: BotPermissions) {
+    attachPermissions(permissions: BotPermissions): void {
         this.permissions = permissions;
     }
 
-    attachPrecommandManager(precommandManager: PrecommandManager) {
+    attachPrecommandManager(precommandManager: PrecommandManager): void {
         this.precommandManager = precommandManager;
     }
 
-    attachPluginManager(pluginManager: PluginManager) {
+    attachPluginManager(pluginManager: PluginManager): void {
         this.pluginManager = pluginManager;
     }
 
-    attachDefaultPrecommand(defaultPrecommand: Precommand) {
+    attachDefaultPrecommand(defaultPrecommand: Precommand): void {
         this.defaultPrecommand = defaultPrecommand;
     }
 
-    attachClient(client: BotClient) {
+    attachClient(client: BotClient): void {
         this.client = client;
     }
 
 
-    newAsyncRequest() {
+    newAsyncRequest(): void {
         this.bot.newAsyncRequest();
     }
 
-    doneAsyncRequest() {
+    doneAsyncRequest(): void {
         this.bot.doneAsyncRequest();
     }
 
 
-    dispatchEvent(name: EventName, event: any) {
+    dispatchEvent(name: EventName, event: any): void {
         this.bot.events.dispatch(name, event);
     }
 }

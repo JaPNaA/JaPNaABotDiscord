@@ -10,12 +10,12 @@ class PluginManager {
         this.plugins = [];
     }
 
-    register(plugin: BotPlugin) {
+    register(plugin: BotPlugin): void {
         this.plugins.push(plugin);
         plugin._start();
     }
 
-    unregisterAllPlugins() {
+    unregisterAllPlugins(): void {
         for (let plugin of this.plugins) {
             plugin._stop();
         }

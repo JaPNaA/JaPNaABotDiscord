@@ -12,8 +12,9 @@ class BotPermissions {
     }
     getPermissions_role_channel(roleId, serverId, channelId) {
         let role = this.botHooks.getRole(roleId, serverId);
-        if (!role)
+        if (!role) {
             return new permissions_js_1.default();
+        }
         let permissions = new permissions_js_1.default(role.permissions);
         if (channelId) {
             permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId)));
@@ -27,15 +28,19 @@ class BotPermissions {
         return permissions;
     }
     getPermissions_channel(userId, serverId, channelId) {
-        let server, user, roles;
+        let server;
+        let user;
+        let roles;
         let permissionsNum = 0;
         if (serverId) {
             server = this.botHooks.getServer(serverId);
-            if (!server)
+            if (!server) {
                 return new permissions_js_1.default();
+            }
             user = server.members.get(userId);
-            if (!user)
+            if (!user) {
                 return new permissions_js_1.default();
+            }
             roles = user.roles.array();
             let permissions = user.permissions.bitfield;
             permissionsNum |= permissions;

@@ -2,6 +2,7 @@ import BotHooks from "../bot/botHooks.js";
 import { TextChannel, DMChannel } from "discord.js";
 import { DiscordMessageEvent } from "../events.js";
 import IMessage from "./IMessage.js";
+import PrecommandName from "../bot/precommand/precommandName.js";
 
 class RawEventAdapter {
     botHooks: BotHooks;
@@ -13,11 +14,11 @@ class RawEventAdapter {
      * When receiving raw messages
      * @param message of sender
      */
-    onMessage(message: IMessage) {
-        let precommandNameInMessage = this.botHooks.precommandManager.getFirstPrecommandName(message.content);
+    onMessage(message: IMessage): void {
+        let precommandNameInMessage: PrecommandName | null = this.botHooks.precommandManager.getFirstPrecommandName(message.content);
 
-        let channel = message.channel as TextChannel | DMChannel;
-        let isDM = false;
+        let channel: TextChannel | DMChannel = message.channel as TextChannel | DMChannel;
+        let isDM: boolean = false;
 
         if (channel instanceof DMChannel) {
             isDM = true;
@@ -31,7 +32,7 @@ class RawEventAdapter {
                 message.author && message.author.id,
                 message.channel && message.channel.id,
                 message.guild && message.guild.id,
-                message.content, precommandNameInMessage, 
+                message.content, precommandNameInMessage,
                 message, isDM
             );
 
@@ -41,11 +42,9 @@ class RawEventAdapter {
         }
 
         this.botHooks.events.dispatch("message", messageEvent);
-
-        this.botHooks.precommandManager.dispatch.onMessage(messageEvent);
     }
 
-    onReady() {
+    onReady(): void {
         this.botHooks.events.dispatch("ready", null);
     }
 }

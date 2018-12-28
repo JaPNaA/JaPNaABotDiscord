@@ -1,13 +1,7 @@
 import BotHooks from "./botHooks.js";
 import { JSONObject, JSONType } from "../jsonObject.js";
-
+import { NestedObject } from "./types.js";
 import createKey from "./locationKeyCreator.js";
-
-type NestedObject = {
-    [x: string]: {
-        [x: string]: string
-    }
-};
 
 class Config {
     /** Original config */
@@ -38,8 +32,8 @@ class Config {
         this.doAlertCommandDoesNotExist = (this.config["bot.alertCommandDoesNotExist"] || false) as boolean;
         this.commandRequiredPermissionOverrides = (this.config["bot.commandRequiredPermissionOverrides"] || {}) as NestedObject;
         this.autoWriteTimeInterval = (this.config["memory.autoWriteInterval"] || 60 * 1000 /* Every minute */) as number;
-        this.gitlabLink = (this.config["gitlabLink"] || "... oh wait hold on I don't have it...") as string;
-        this.addLink = (this.config["addLink"] || "... oh wait I don't know how to...") as string;
+        this.gitlabLink = (this.config.gitlabLink || "... oh wait hold on I don't have it...") as string;
+        this.addLink = (this.config.addLink || "... oh wait I don't know how to...") as string;
     }
 
     get(key: string): JSONType | undefined {
