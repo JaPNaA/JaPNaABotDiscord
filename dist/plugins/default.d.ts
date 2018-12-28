@@ -7,6 +7,7 @@ import BotCommand from "../main/bot/command/command.js";
  * Normal commands every bot shoud have
  */
 declare class Default extends BotPlugin {
+    sawUpdateBotWarning: boolean;
     constructor(bot: BotHooks);
     ping(bot: BotHooks, event: DiscordCommandEvent): void;
     eval(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
@@ -91,6 +92,16 @@ declare class Default extends BotPlugin {
      * Sends link to view code of bot (like what you're doing right now!)
      */
     code(bot: BotHooks, event: DiscordCommandEvent): void;
+    /**
+     * Updates the bot
+     */
+    update_bot(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    /**
+     * Actually updates the bot
+     */
+    _actuallyUpdateBot(bot: BotHooks, event: DiscordCommandEvent): void;
+    _endBotProcess(): void;
     _start(): void;
+    _stop(): void;
 }
 export default Default;

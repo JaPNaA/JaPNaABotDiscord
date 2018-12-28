@@ -224,7 +224,7 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
  * @param [timeout] time until the stop is forced. Null for no timeout
  * @returns resolves when the bot finishes stopping
  */
-function stop(timeout: number): Promise<any> {
+function stop(timeout?: number): Promise<any> {
     // shuttingDown = true;
     bot.stop();
     client.destroy();
@@ -271,12 +271,7 @@ function getDefaultConfig(): object {
     return defaultConfig;
 }
 
-export default {
-    loadPlugin, loadBuiltinPlugin,
-    registerAutoloadPlugin, registerAutoloadBuiltinPlugin,
-    start, stop,
-    getBot, getDefaultConfig,
-
+const classes = {
     Bot: require("./bot/bot.js"),
     BotCommand: require("./botcommand.js"),
     BotCommandOptions: require("./botcommandOptions.js"),
@@ -286,6 +281,15 @@ export default {
     Permissions: require("./permissions.js"),
     BotPlugin: require("./plugin.js"),
     utils: require("./utils.js")
+}
+
+export {
+    loadPlugin, loadBuiltinPlugin,
+    registerAutoloadPlugin, registerAutoloadBuiltinPlugin,
+    start, stop,
+    getBot, getDefaultConfig,
+
+    classes    
 };
 
 // @ts-ignore

@@ -37,7 +37,7 @@ declare function start(apiToken: string, botConfig: string | object, pathToMemor
  * @param [timeout] time until the stop is forced. Null for no timeout
  * @returns resolves when the bot finishes stopping
  */
-declare function stop(timeout: number): Promise<any>;
+declare function stop(timeout?: number): Promise<any>;
 /**
  * Gets the local variable, bot
  * @returns bot
@@ -48,15 +48,7 @@ declare function getBot(): Bot;
  * @returns default bot config
  */
 declare function getDefaultConfig(): object;
-declare const _default: {
-    loadPlugin: typeof loadPlugin;
-    loadBuiltinPlugin: typeof loadBuiltinPlugin;
-    registerAutoloadPlugin: typeof registerAutoloadPlugin;
-    registerAutoloadBuiltinPlugin: typeof registerAutoloadBuiltinPlugin;
-    start: typeof start;
-    stop: typeof stop;
-    getBot: typeof getBot;
-    getDefaultConfig: typeof getDefaultConfig;
+declare const classes: {
     Bot: any;
     BotCommand: any;
     BotCommandOptions: any;
@@ -67,4 +59,4 @@ declare const _default: {
     BotPlugin: any;
     utils: any;
 };
-export default _default;
+export { loadPlugin, loadBuiltinPlugin, registerAutoloadPlugin, registerAutoloadBuiltinPlugin, start, stop, getBot, getDefaultConfig, classes };

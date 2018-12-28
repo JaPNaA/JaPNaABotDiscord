@@ -83,6 +83,7 @@ function registerAutoloadPlugin(path) {
     }
     loadPlugin(path);
 }
+exports.registerAutoloadPlugin = registerAutoloadPlugin;
 /**
  * Registers a built-in plugin to auto-load
  * @param name name of built-in plugin
@@ -96,6 +97,7 @@ function registerAutoloadBuiltinPlugin(name) {
     }
     loadBuiltinPlugin(name);
 }
+exports.registerAutoloadBuiltinPlugin = registerAutoloadBuiltinPlugin;
 /**
  * loads/reloads plugin
  * @param path path to plugin
@@ -122,6 +124,7 @@ function loadPlugin(path) {
         return e;
     }
 }
+exports.loadPlugin = loadPlugin;
 /**
  * loads/reloads a builtin plugin
  * @param name name of builtin plugin
@@ -142,6 +145,7 @@ function loadBuiltinPlugin(name) {
         return e;
     }
 }
+exports.loadBuiltinPlugin = loadBuiltinPlugin;
 /**
  * Starts the bot
  * @param apiToken The Discord API token
@@ -181,6 +185,7 @@ function start(apiToken, botConfig, pathToMemoryFile) {
     // shuttingDown = false;
     _init();
 }
+exports.start = start;
 /**
  * Stop the bot
  * @param [timeout] time until the stop is forced. Null for no timeout
@@ -213,6 +218,7 @@ function stop(timeout) {
     });
     return promise;
 }
+exports.stop = stop;
 /**
  * Gets the local variable, bot
  * @returns bot
@@ -220,6 +226,7 @@ function stop(timeout) {
 function getBot() {
     return bot;
 }
+exports.getBot = getBot;
 /**
  * Gets the default config
  * @returns default bot config
@@ -227,11 +234,8 @@ function getBot() {
 function getDefaultConfig() {
     return defaultConfig;
 }
-exports.default = {
-    loadPlugin, loadBuiltinPlugin,
-    registerAutoloadPlugin, registerAutoloadBuiltinPlugin,
-    start, stop,
-    getBot, getDefaultConfig,
+exports.getDefaultConfig = getDefaultConfig;
+const classes = {
     Bot: require("./bot/bot.js"),
     BotCommand: require("./botcommand.js"),
     BotCommandOptions: require("./botcommandOptions.js"),
@@ -242,6 +246,7 @@ exports.default = {
     BotPlugin: require("./plugin.js"),
     utils: require("./utils.js")
 };
+exports.classes = classes;
 // @ts-ignore
 if (require.main === module) { // if not being 'require'-d into something else
     require("./run-standalone");

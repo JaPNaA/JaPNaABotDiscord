@@ -66,6 +66,8 @@ class JapnaaWeird extends BotPlugin {
                 this.bot.client.presence.setWatch("you");
             }.bind(this));
     }
+
+    _stop() { }
 }
 
 export default JapnaaWeird;

@@ -13,13 +13,19 @@ import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
 import BotCommand from "../main/bot/command/command.js";
 import { TextChannel, Message } from "discord.js";
 
+import * as childProcess from "child_process";
+import * as japnaabot from "../main/index";
+
 /**
  * Normal commands every bot shoud have
  */
 class Default extends BotPlugin {
+    sawUpdateBotWarning: boolean;
+
     constructor(bot: BotHooks) {
         super(bot);
         this._pluginName = "default";
+        this.sawUpdateBotWarning = false;
     }
     
     ping(bot: BotHooks, event: DiscordCommandEvent) {
@@ -593,6 +599,54 @@ class Default extends BotPlugin {
         bot.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
     }
 
+    /**
+     * Updates the bot
+     */
+    update_bot(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+        let cleanArgs = args.trim().toLowerCase();
+
+        if (cleanArgs === "confirm") {
+            if (this.sawUpdateBotWarning) {
+                this._actuallyUpdateBot(bot, event);
+                return;
+            }
+        }
+
+        bot.send(event.channelId, 
+            "Confirm updating the bot with `" + event.precommandName.name +
+            "update bot confirm`.\n" +
+            "**The bot process will exit after the update.**"
+        );
+
+        this.sawUpdateBotWarning = true;
+    }
+
+    /**
+     * Actually updates the bot
+     */
+    _actuallyUpdateBot(bot: BotHooks, event: DiscordCommandEvent) {
+        childProcess.exec(
+            "npm install --save gitlab:japnaa/japnaabotdiscord",
+            callback.bind(this)
+        );
+
+        function callback(this: Default, error: childProcess.ExecException | null, stdout: string, stderr: string) {
+            if (error) {
+                Logger.error(error);
+                bot.send(event.channelId, "Error updating bot. See logs.");
+            }
+
+            Logger.log(stdout);
+            Logger.log(stderr);
+            this._endBotProcess();
+        }
+    }
+
+    _endBotProcess() {
+        Logger.log("Exiting process...");
+        japnaabot.stop();
+    }
+
     _start() {
         this._registerDefaultCommand("eval", this.eval, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
@@ -761,7 +815,16 @@ class Default extends BotPlugin {
             }),
             group: "Promotional"
         }));
+
+        this._registerDefaultCommand("update bot", this.update_bot, new BotCommandOptions({
+            help: new BotCommandHelp({
+                description: "Updates the 'japnaabot' node module to the newest version"
+            }),
+            group: "Other"
+        }));
     }
+
+    _stop() { }
 }
 
 export default Default;

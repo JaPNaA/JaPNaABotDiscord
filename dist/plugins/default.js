@@ -2,6 +2,13 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
@@ -11,6 +18,8 @@ const utils_js_1 = require("../main/utils.js");
 const util_1 = require("util");
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
 const permissions_js_1 = __importDefault(require("../main/permissions.js"));
+const childProcess = __importStar(require("child_process"));
+const japnaabot = __importStar(require("../main/index"));
 /**
  * Normal commands every bot shoud have
  */
@@ -18,6 +27,7 @@ class Default extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
         this._pluginName = "default";
+        this.sawUpdateBotWarning = false;
     }
     ping(bot, event) {
         bot.send(event.channelId, "Pong! Took " + Math.round(bot.getPing()) + "ms"); //* should be using abstraction
@@ -536,6 +546,41 @@ class Default extends plugin_js_1.default {
     code(bot, event) {
         bot.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
     }
+    /**
+     * Updates the bot
+     */
+    update_bot(bot, event, args) {
+        let cleanArgs = args.trim().toLowerCase();
+        if (cleanArgs === "confirm") {
+            if (this.sawUpdateBotWarning) {
+                this._actuallyUpdateBot(bot, event);
+                return;
+            }
+        }
+        bot.send(event.channelId, "Confirm updating the bot with `" + event.precommandName.name +
+            "update bot confirm`.\n" +
+            "**The bot process will exit after the update.**");
+        this.sawUpdateBotWarning = true;
+    }
+    /**
+     * Actually updates the bot
+     */
+    _actuallyUpdateBot(bot, event) {
+        childProcess.exec("npm install --save gitlab:japnaa/japnaabotdiscord", callback.bind(this));
+        function callback(error, stdout, stderr) {
+            if (error) {
+                logger_js_1.default.error(error);
+                bot.send(event.channelId, "Error updating bot. See logs.");
+            }
+            logger_js_1.default.log(stdout);
+            logger_js_1.default.log(stderr);
+            this._endBotProcess();
+        }
+    }
+    _endBotProcess() {
+        logger_js_1.default.log("Exiting process...");
+        japnaabot.stop();
+    }
     _start() {
         this._registerDefaultCommand("eval", this.eval, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",
@@ -696,6 +741,13 @@ class Default extends plugin_js_1.default {
             }),
             group: "Promotional"
         }));
+        this._registerDefaultCommand("update bot", this.update_bot, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
+                description: "Updates the 'japnaabot' node module to the newest version"
+            }),
+            group: "Other"
+        }));
     }
+    _stop() { }
 }
 exports.default = Default;

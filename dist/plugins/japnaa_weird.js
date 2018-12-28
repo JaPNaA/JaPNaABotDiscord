@@ -57,5 +57,6 @@ class JapnaaWeird extends plugin_js_1.default {
             this.bot.client.presence.setWatch("you");
         }.bind(this));
     }
+    _stop() { }
 }
 exports.default = JapnaaWeird;

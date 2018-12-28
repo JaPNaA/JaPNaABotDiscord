@@ -1,4 +1,4 @@
-import jbot from "./index.js";
+import * as jbot from "./index.js";
 
 const MEMORY_PATH = "./data/memory.json";
 const CONFIG_PATH = "./data/config.jsonc";
