@@ -11,7 +11,9 @@ import { Rank } from "../cards/cardUtils";
  */
 class Logic {
     pile: Pile;
-    burned: boolean;
+    wasBurned: boolean;
+
+    nowBurned: boolean;
 
     config = {
         burnCardRank: Rank.n2,
@@ -26,11 +28,12 @@ class Logic {
 
     constructor() {
         this.pile = new Pile();
-        this.burned = true;
+        this.wasBurned = true;
+        this.nowBurned = false;
     }
 
     public getTopSetSize(): number {
-        if (this.burned) return 0;
+        if (this.wasBurned) return 0;
 
         let topSet = this.pile.getTopSet();
         if (!topSet) return 0;
@@ -41,9 +44,13 @@ class Logic {
     public playerUse(cards: CardSet): void {
         // puts cards down, burn them, etc
         // throw errors!
+        this.nowBurned = false;
+
         this.assertCorrect(cards);
         this.checkForBurn(cards);
         this.pile.add(cards);
+        
+        this.wasBurned = this.nowBurned;
     }
 
     private assertCorrect(cards: CardSet) {
@@ -82,7 +89,7 @@ class Logic {
     }
 
     private assertAmount(cards: CardSet) {
-        if (this.burned) { return; }
+        if (this.wasBurned) { return; }
 
         let firstCard = cards.get(0);
         if (firstCard.isRank(this.config.burnCardRank)) {
@@ -113,7 +120,7 @@ class Logic {
     }
 
     private assertHigherOrSameRank(cards: CardSet) {
-        if (this.burned) { return; }
+        if (this.wasBurned) { return; }
         let topCard = this.pile.getTopCard() as NormalCard;
         if (!topCard) { throw new Error("Unknown Error"); }
 
@@ -142,14 +149,14 @@ class Logic {
     }
 
     private checkForSameCards(cards: CardSet) {
-        if (this.burned) { return; }
+        if (this.wasBurned) { return; }
         let topCard = this.pile.getTopCard() as NormalCard;
         if (!topCard) { throw new Error("Unknown Error"); }
 
         let firstCard = cards.get(0) as NormalCard;
         if (this.areBurnCards(cards)) { return; }
 
-        if (firstCard.is(topCard)) {
+        if (firstCard.isRank(topCard.rank)) {
             this.burn();
         }
     }
@@ -163,7 +170,7 @@ class Logic {
     }
 
     private burn() {
-        this.burned = true;
+        this.nowBurned = true;
     }
 }
 

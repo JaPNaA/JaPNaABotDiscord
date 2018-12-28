@@ -9,6 +9,8 @@ import { DiscordCommandEvent } from "../../../main/events";
 import MessageParser from "./messageParser";
 import { MessageSyntaxError, MessageActionError } from "./errors";
 import Logic from "./logic";
+import { Message } from "discord.js";
+import { toOne } from "../../../main/utils";
 
 class PresidentsMain {
     bot: BotHooks;
@@ -20,6 +22,8 @@ class PresidentsMain {
     messageParser: MessageParser;
     logic: Logic;
     dealer: Dealer;
+
+    pileMessage?: Message;
 
     constructor(botHooks: BotHooks, parentGame: Games, presidentsGame: PresidentsGame) {
         this.bot = botHooks;
@@ -41,17 +45,9 @@ class PresidentsMain {
         this.dealer.distributeCards(this.playerHandler.players);
         this.sortEveryonesDecks();
         this.tellEveryoneTheirDecks();
+        this.sendPile();
 
-        while (true) {
-            // protect against infinite loop
-            if (this.playerHandler.players.length <= 0) break;
-
-            for (let player of this.playerHandler.players) {
-                player.tell("It's your turn!");
-                await this.waitForValidTurn(player);
-                player.tellCards();
-            }
-        }
+        while (await this.mainLoopTick()) { }
     }
 
     private async waitForValidTurn(player: Player) {
@@ -94,8 +90,50 @@ class PresidentsMain {
         }
     }
 
-    private announce(message: string) {
-        this.bot.send(this.presidentsGame.channelId, message);
+    private async sendPile() {
+        const message = toOne(await this.announce("Loading..."));
+        this.pileMessage = message;
+        this.updatePile();
+    }
+
+    async mainLoopTick(): Promise<boolean> {
+        if (this.playerHandler.players.length <= 0) {
+            return false;
+        }
+
+        for (let player of this.playerHandler.players) {
+            player.tell("It's your turn!");
+            await this.waitForValidTurn(player);
+            this.updatePile();
+            player.tellCards();
+        }
+
+        return true;
+    }
+
+    private updatePile() {
+        if (this.pileMessage) {
+            const topSet = this.logic.pile.getTopSet();
+            let msg: string;
+
+            if (topSet) {
+                msg = topSet.toShortMDs().join("");
+            } else {
+                msg = "_No cards_";
+            }
+
+            if (this.logic.wasBurned) {
+                msg += " _(burned)_";
+            }
+
+            this.pileMessage.edit(msg);
+        } else {
+            this.sendPile();
+        }
+    }
+
+    private announce(message: string): Promise<Message | Message[]> {
+        return this.bot.send(this.presidentsGame.channelId, message);
     }
 
     _start() {

@@ -7,7 +7,8 @@ import { Rank } from "../cards/cardUtils";
  */
 declare class Logic {
     pile: Pile;
-    burned: boolean;
+    wasBurned: boolean;
+    nowBurned: boolean;
     config: {
         burnCardRank: Rank;
         firstPlayer: boolean;

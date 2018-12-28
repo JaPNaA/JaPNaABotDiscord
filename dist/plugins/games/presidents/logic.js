@@ -24,10 +24,11 @@ class Logic {
             revolutions: false // TODO: implement true - when 4x a card is played, card hierarchy reverses
         };
         this.pile = new pile_1.default();
-        this.burned = true;
+        this.wasBurned = true;
+        this.nowBurned = false;
     }
     getTopSetSize() {
-        if (this.burned)
+        if (this.wasBurned)
             return 0;
         let topSet = this.pile.getTopSet();
         if (!topSet)
@@ -37,9 +38,11 @@ class Logic {
     playerUse(cards) {
         // puts cards down, burn them, etc
         // throw errors!
+        this.nowBurned = false;
         this.assertCorrect(cards);
         this.checkForBurn(cards);
         this.pile.add(cards);
+        this.wasBurned = this.nowBurned;
     }
     assertCorrect(cards) {
         this.assertCardsAreSameRank(cards);
@@ -73,7 +76,7 @@ class Logic {
         }
     }
     assertAmount(cards) {
-        if (this.burned) {
+        if (this.wasBurned) {
             return;
         }
         let firstCard = cards.get(0);
@@ -100,7 +103,7 @@ class Logic {
         }
     }
     assertHigherOrSameRank(cards) {
-        if (this.burned) {
+        if (this.wasBurned) {
             return;
         }
         let topCard = this.pile.getTopCard();
@@ -127,7 +130,7 @@ class Logic {
         }
     }
     checkForSameCards(cards) {
-        if (this.burned) {
+        if (this.wasBurned) {
             return;
         }
         let topCard = this.pile.getTopCard();
@@ -138,7 +141,7 @@ class Logic {
         if (this.areBurnCards(cards)) {
             return;
         }
-        if (firstCard.is(topCard)) {
+        if (firstCard.isRank(topCard.rank)) {
             this.burn();
         }
     }
@@ -148,7 +151,7 @@ class Logic {
             firstCard.isRank(this.config.burnCardRank));
     }
     burn() {
-        this.burned = true;
+        this.nowBurned = true;
     }
 }
 exports.default = Logic;

@@ -6,6 +6,7 @@ import MessageHandler from "./messageHandler";
 import PresidentsGame from "./presidents";
 import MessageParser from "./messageParser";
 import Logic from "./logic";
+import { Message } from "discord.js";
 declare class PresidentsMain {
     bot: BotHooks;
     parentGame: Games;
@@ -15,6 +16,7 @@ declare class PresidentsMain {
     messageParser: MessageParser;
     logic: Logic;
     dealer: Dealer;
+    pileMessage?: Message;
     constructor(botHooks: BotHooks, parentGame: Games, presidentsGame: PresidentsGame);
     start(): void;
     private startMainLoop;
@@ -23,6 +25,9 @@ declare class PresidentsMain {
     private handlePlayerTurnError;
     private sortEveryonesDecks;
     private tellEveryoneTheirDecks;
+    private sendPile;
+    mainLoopTick(): Promise<boolean>;
+    private updatePile;
     private announce;
     _start(): void;
     _stop(): void;

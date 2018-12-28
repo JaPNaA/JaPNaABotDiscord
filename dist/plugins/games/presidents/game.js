@@ -17,6 +17,7 @@ const messageHandler_1 = __importDefault(require("./messageHandler"));
 const messageParser_1 = __importDefault(require("./messageParser"));
 const errors_1 = require("./errors");
 const logic_1 = __importDefault(require("./logic"));
+const utils_1 = require("../../../main/utils");
 class PresidentsMain {
     constructor(botHooks, parentGame, presidentsGame) {
         this.bot = botHooks;
@@ -36,16 +37,8 @@ class PresidentsMain {
             this.dealer.distributeCards(this.playerHandler.players);
             this.sortEveryonesDecks();
             this.tellEveryoneTheirDecks();
-            while (true) {
-                // protect against infinite loop
-                if (this.playerHandler.players.length <= 0)
-                    break;
-                for (let player of this.playerHandler.players) {
-                    player.tell("It's your turn!");
-                    yield this.waitForValidTurn(player);
-                    player.tellCards();
-                }
-            }
+            this.sendPile();
+            while (yield this.mainLoopTick()) { }
         });
     }
     waitForValidTurn(player) {
@@ -88,8 +81,48 @@ class PresidentsMain {
             player.tellCards();
         }
     }
+    sendPile() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const message = utils_1.toOne(yield this.announce("Loading..."));
+            this.pileMessage = message;
+            this.updatePile();
+        });
+    }
+    mainLoopTick() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.playerHandler.players.length <= 0) {
+                return false;
+            }
+            for (let player of this.playerHandler.players) {
+                player.tell("It's your turn!");
+                yield this.waitForValidTurn(player);
+                this.updatePile();
+                player.tellCards();
+            }
+            return true;
+        });
+    }
+    updatePile() {
+        if (this.pileMessage) {
+            const topSet = this.logic.pile.getTopSet();
+            let msg;
+            if (topSet) {
+                msg = topSet.toShortMDs().join("");
+            }
+            else {
+                msg = "_No cards_";
+            }
+            if (this.logic.wasBurned) {
+                msg += " _(burned)_";
+            }
+            this.pileMessage.edit(msg);
+        }
+        else {
+            this.sendPile();
+        }
+    }
     announce(message) {
-        this.bot.send(this.presidentsGame.channelId, message);
+        return this.bot.send(this.presidentsGame.channelId, message);
     }
     _start() {
         // do nothing
