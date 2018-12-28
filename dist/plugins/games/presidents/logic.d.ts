@@ -23,9 +23,10 @@ declare class Logic {
     };
     constructor();
     getTopSetSize(): number;
+    beforePlayerTurn(player: Player): void;
     playerPass(player: Player): void;
-    playerUse(player: Player, cards: CardSet): void;
     private checkForNoOneCanGoBurn;
+    playerUse(player: Player, cards: CardSet): void;
     private assertCorrect;
     private assertCardsAreSameRank;
     private assertCardsAreSameRank_joker;

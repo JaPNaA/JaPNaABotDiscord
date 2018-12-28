@@ -6,6 +6,7 @@ declare class PlayerAction {
     player: Player;
     logic: Logic;
     constructor(player: Player, gameLogic: Logic);
+    beforeTurn(): void;
     pass(): void;
     useJoker(): void;
     useCards(rank: Rank, amount: number): void;

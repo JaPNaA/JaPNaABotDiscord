@@ -38,7 +38,7 @@ class PresidentsMain {
             this.dealer.distributeCards(this.playerHandler.players);
             this.sortEveryonesDecks();
             this.tellEveryoneTheirDecks();
-            this.sendPile();
+            yield this.sendPile();
             while (yield this.mainLoopTick()) { }
         });
     }
@@ -101,14 +101,22 @@ class PresidentsMain {
             }
             for (let i = 0; i < this.playerHandler.players.length; i++) {
                 const player = this.playerHandler.players[i];
+                player.action.beforeTurn();
                 if (this.logic.wasBurned && !this.logic.pileEmpty) {
                     player.tell("Burned! It's your turn!");
                 }
                 else {
-                    player.tell("It's your turn!");
+                    const topSet = this.logic.pile.getTopSet();
+                    if (topSet) {
+                        let topSetStr = " You're playing on" + topSet.toShortMDs().join("");
+                        player.tell("It's your turn!" + topSetStr);
+                    }
+                    else {
+                        player.tell("It's your turn!");
+                    }
                 }
-                yield this.waitForValidTurn(player);
                 this.updatePile();
+                yield this.waitForValidTurn(player);
                 player.tellCards();
                 if (this.logic.wasBurned) {
                     i--;

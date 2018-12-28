@@ -5,7 +5,6 @@ import Games from "../../games";
 import MessageHandler from "./messageHandler";
 import Player from "./player/player";
 import PresidentsGame from "./presidents";
-import { DiscordCommandEvent } from "../../../main/events";
 import MessageParser from "./messageParser";
 import { MessageSyntaxError, MessageActionError } from "./errors";
 import Logic from "./logic";
@@ -47,7 +46,7 @@ class PresidentsMain {
         this.dealer.distributeCards(this.playerHandler.players);
         this.sortEveryonesDecks();
         this.tellEveryoneTheirDecks();
-        this.sendPile();
+        await this.sendPile();
 
         while (await this.mainLoopTick()) { }
     }
@@ -111,15 +110,22 @@ class PresidentsMain {
         for (let i = 0; i < this.playerHandler.players.length; i++) {
             const player = this.playerHandler.players[i];
 
+            player.action.beforeTurn();
+
             if (this.logic.wasBurned && !this.logic.pileEmpty) {
                 player.tell("Burned! It's your turn!");
             } else {
-                player.tell("It's your turn!");
+                const topSet = this.logic.pile.getTopSet();
+                if (topSet) {
+                    let topSetStr = " You're playing on" + topSet.toShortMDs().join("");
+                    player.tell("It's your turn!" + topSetStr);
+                } else {
+                    player.tell("It's your turn!");
+                }
             }
 
-            await this.waitForValidTurn(player);
-
             this.updatePile();
+            await this.waitForValidTurn(player);
             player.tellCards();
 
             if (this.logic.wasBurned) {

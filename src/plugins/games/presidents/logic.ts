@@ -5,7 +5,6 @@ import { MessageActionError } from "./errors";
 import cardHierarchy from "./cardHierarchy";
 import { Rank } from "../cards/cardUtils";
 import Player from "./player/player";
-import Logger from "../../../main/logger";
 
 /**
  * contains the logic for the game -
@@ -51,33 +50,35 @@ class Logic {
         return topSet.size;
     }
 
-    public playerPass(player: Player) { 
+    public beforePlayerTurn(player: Player): void {
+        this.checkForNoOneCanGoBurn(player);
+    }
+
+    public playerPass(player: Player) {
         this.lastPass = true;
     }
-    
+
+    private checkForNoOneCanGoBurn(player: Player) {
+        if (!this.lastPass) { return; }
+        if (player === this.lastPlayerToPlay) {
+            this.wasBurned = true;
+            this.lastPlayerToPlay = null;
+        }
+    }
+
     public playerUse(player: Player, cards: CardSet): void {
         this.nowBurned = false;
-        
-        this.checkForNoOneCanGoBurn(player);
+
         this.assertCorrect(cards);
         this.checkForBurn(cards);
         this.pile.add(cards);
-        
+
         this.lastPlayerToPlay = player;
         this.pileEmpty = false;
         this.lastPass = false;
         this.wasBurned = this.nowBurned;
     }
-    
-    private checkForNoOneCanGoBurn(player: Player) {
-        if (!this.lastPass) { return; }
-        Logger.log(this.lastPlayerToPlay);
-        if (player === this.lastPlayerToPlay) {
-            this.wasBurned = true;
-            this.lastPlayerToPlay = null;
-            Logger.log("Passed - no one else can go");
-        }
-    }
+
     private assertCorrect(cards: CardSet) {
         this.assertCardsAreSameRank(cards);
         this.assertAmount(cards);

@@ -10,6 +10,9 @@ class PlayerAction {
         this.player = player;
         this.logic = gameLogic;
     }
+    beforeTurn() {
+        this.logic.beforePlayerTurn(this.player);
+    }
     pass() {
         this.logic.playerPass(this.player);
     }
