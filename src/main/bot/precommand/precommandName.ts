@@ -1,4 +1,4 @@
-import Precommand from "./precommand";
+import { Precommand } from "./precommand";
 
 class PrecommandName {
     precommand: Precommand;

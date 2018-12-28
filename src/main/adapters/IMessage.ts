@@ -1,4 +1,4 @@
-import { User, Guild, Channel } from "discord.js";
+import { User, Guild, Channel, Message } from "discord.js";
 
 interface IMessage {
     author: User;
@@ -7,6 +7,7 @@ interface IMessage {
     content: string;
     /** actual event from the vendor (which implements this interface) */
     actual?: IMessage;
+    createdTimestamp: number;
 }
 
 export default IMessage;

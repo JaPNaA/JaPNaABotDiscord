@@ -20,7 +20,17 @@ class RawEventAdapter {
         else {
             isDM = false;
         }
-        const messageEvent = new events_js_1.DiscordMessageEvent(message.author && message.author.username, message.author && message.author.id, message.channel && message.channel.id, message.guild && message.guild.id, message.content, precommandNameInMessage, message, isDM);
+        const messageEvent = new events_js_1.DiscordMessageEvent({
+            username: message.author && message.author.username,
+            userId: message.author && message.author.id,
+            channelId: message.channel && message.channel.id,
+            serverId: message.guild && message.guild.id,
+            message: message.content,
+            precommandName: precommandNameInMessage,
+            originalEvent: message,
+            isDM: isDM,
+            createdTimestamp: message.createdTimestamp
+        });
         if (this.botHooks.client.isSelf(messageEvent.userId)) {
             this.botHooks.events.dispatch("sent", messageEvent);
             return;

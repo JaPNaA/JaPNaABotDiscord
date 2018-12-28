@@ -1,8 +1,11 @@
 import BotHooks from "../botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../eventName";
-import Precommand from "../precommand/precommand";
+import { PrecommandWithoutCallback, Precommand, PrecommandWithCallback } from "../precommand/precommand";
 import PrecommandManager from "../precommand/manager/precommandManager";
+import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
+import CommandManager from "../command/manager/commandManager";
+import BotCommandCallback from "../command/commandCallback";
 
 abstract class BotPlugin {
     // not private due to compatability issues with JS
@@ -31,14 +34,48 @@ abstract class BotPlugin {
         );
     }
 
-    public _registerCommand(precommand: Precommand, name: string, callback: Function, options?: BotCommandOptions): void {
-        precommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
+    public _registerCommand(commandManager: CommandManager, name: string,
+        callback: BotCommandCallback, options?: BotCommandOptions): void;
+    public _registerCommand(precommand: PrecommandWithoutCallback, name: string,
+        callback: BotCommandCallback, options?: BotCommandOptions): void;
+
+    public _registerCommand(precommandOrCommandManager: CommandManager | PrecommandWithoutCallback,
+        name: string, callback: BotCommandCallback, options?: BotCommandOptions): void {
+        let commandManager: CommandManager;
+
+        if (precommandOrCommandManager instanceof PrecommandWithoutCallback) {
+            commandManager = precommandOrCommandManager.commandManager;
+        } else {
+            commandManager = precommandOrCommandManager;
+        }
+
+        commandManager.register(name, this._pluginName, callback.bind(this), options);
+    }
+
+    public _registerUnknownCommandHandler(commandManager: CommandManager, func: UnknownCommandHandler): void;
+    public _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: UnknownCommandHandler): void;
+
+    public _registerUnknownCommandHandler(precommandOrCommandManager: PrecommandWithoutCallback | CommandManager,
+        func: UnknownCommandHandler): void {
+        let commandManager: CommandManager;
+
+        if (precommandOrCommandManager instanceof PrecommandWithoutCallback) {
+            commandManager = precommandOrCommandManager.commandManager;
+        } else {
+            commandManager = precommandOrCommandManager;
+        }
+
+        commandManager.registerUnkownCommandHanlder(func.bind(this));
     }
 
     /** Adds a handler function to an event */
     public _registerEventHandler(name: EventName, callback: Function): void {
         this.bot.events.on(name, callback.bind(this));
     }
+
+    public _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
+    public _registerPrecommand(precommand: string | string[],
+        callback: Function): PrecommandWithCallback;
 
     /** Adds a handler function to a precommand */
     public _registerPrecommand(precommand: string | string[], callback?: Function): Precommand {

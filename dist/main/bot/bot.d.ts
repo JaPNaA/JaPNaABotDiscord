@@ -8,7 +8,7 @@ import BotEvents from "./botEvents.js";
 import BotClient from "./botClient.js";
 import { DiscordCommandEvent } from "../events.js";
 import PrecommandManager from "./precommand/manager/precommandManager.js";
-import Precommand from "./precommand/precommand.js";
+import { PrecommandWithoutCallback } from "./precommand/precommand.js";
 import PluginManager from "./plugin/manager/pluginManager.js";
 declare class Bot {
     restartFunc: Function;
@@ -22,7 +22,7 @@ declare class Bot {
     pluginManager: PluginManager;
     client: BotClient;
     activeAsnycRequests: number;
-    defaultPrecommand: Precommand;
+    defaultPrecommand: PrecommandWithoutCallback;
     constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function);
     /**
      * Add new asnyc request to wait for

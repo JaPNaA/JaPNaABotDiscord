@@ -8,7 +8,7 @@ import { User } from "discord.js";
  * The weirder side of JaPNaABot
  */
 class JapnaaWeird extends BotPlugin {
-    lolRegexp: RegExp = /(\s*[l|\\/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\/]+/i;
+    lolRegexp: RegExp = /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i;
 
     constructor(bot: BotHooks) {
         super(bot);
@@ -64,7 +64,8 @@ class JapnaaWeird extends BotPlugin {
 
         this.bot.events.on("start",
             function (this: JapnaaWeird): void {
-                this.bot.client.presence.setWatch("you");
+                // this.bot.client.presence.setWatch("you");
+                this.bot.client.presence.setGame("development");
             }.bind(this));
     }
 

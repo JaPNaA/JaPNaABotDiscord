@@ -10,7 +10,7 @@ import Logger from "../logger.js";
 import BotCommandOptions from "./command/commandOptions.js";
 import { DiscordCommandEvent } from "../events.js";
 import PrecommandManager from "./precommand/manager/precommandManager.js";
-import Precommand from "./precommand/precommand.js";
+import { Precommand, PrecommandWithoutCallback } from "./precommand/precommand.js";
 import PluginManager from "./plugin/manager/pluginManager.js";
 
 class Bot {
@@ -30,7 +30,7 @@ class Bot {
     activeAsnycRequests: number;
 
     // @ts-ignore this IS assigned in the constructor, dumb dumb
-    defaultPrecommand: Precommand;
+    defaultPrecommand: PrecommandWithoutCallback;
 
     constructor(config: object, memory: object, memoryPath: string, client: Client, restartFunc: Function) {
         /**
@@ -138,7 +138,7 @@ class Bot {
     registerDefaultPrecommands(): void {
         // TODO: refactor
         const precommandStrs: string[] = this.config.precommands;
-        const precommand: Precommand = new Precommand(this.hooks, precommandStrs);
+        const precommand: PrecommandWithoutCallback = Precommand.create(this.hooks, precommandStrs);
 
         precommand.commandManager.register(
             "restart", "bot", this.restart.bind(this),

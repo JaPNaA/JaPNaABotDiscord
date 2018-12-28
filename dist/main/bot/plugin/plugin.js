@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const precommand_1 = require("../precommand/precommand");
 class BotPlugin {
     constructor(bot) {
         this.bot = bot;
@@ -9,8 +10,25 @@ class BotPlugin {
     _registerDefaultCommand(name, callback, options) {
         this.bot.defaultPrecommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
     }
-    _registerCommand(precommand, name, callback, options) {
-        precommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
+    _registerCommand(precommandOrCommandManager, name, callback, options) {
+        let commandManager;
+        if (precommandOrCommandManager instanceof precommand_1.PrecommandWithoutCallback) {
+            commandManager = precommandOrCommandManager.commandManager;
+        }
+        else {
+            commandManager = precommandOrCommandManager;
+        }
+        commandManager.register(name, this._pluginName, callback.bind(this), options);
+    }
+    _registerUnknownCommandHandler(precommandOrCommandManager, func) {
+        let commandManager;
+        if (precommandOrCommandManager instanceof precommand_1.PrecommandWithoutCallback) {
+            commandManager = precommandOrCommandManager.commandManager;
+        }
+        else {
+            commandManager = precommandOrCommandManager;
+        }
+        commandManager.registerUnkownCommandHanlder(func.bind(this));
     }
     /** Adds a handler function to an event */
     _registerEventHandler(name, callback) {

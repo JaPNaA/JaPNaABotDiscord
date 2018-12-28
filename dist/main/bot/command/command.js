@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logger_js_1 = __importDefault(require("../../logger.js"));
 const utils_js_1 = require("../../utils.js");
 const util_1 = require("util");
+const specialUtils_js_1 = require("../../specialUtils.js");
 const whitespaceRegex = /\s/;
 class BotCommand {
     constructor(bot, commandName, pluginName, func, options) {
@@ -54,7 +55,7 @@ class BotCommand {
             if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
                 return {
                     canRun: false,
-                    reasonCannotRun: "<@" + commandEvent.userId + "> **You must have `" +
+                    reasonCannotRun: specialUtils_js_1.mention(commandEvent.userId) + " **You must have `" +
                         this.requiredPermission + "` permissions to run this command.**"
                 };
             }
@@ -71,6 +72,7 @@ class BotCommand {
         let results = this.test(commandEvent);
         if (results.canRun) {
             let cleaned = this._getCleanCommandContent(commandEvent.commandContent);
+            commandEvent.arguments = cleaned.args;
             this.tryRunCommand(commandEvent, cleaned.args);
             return true;
         }

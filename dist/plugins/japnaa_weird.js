@@ -10,7 +10,7 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 class JapnaaWeird extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
-        this.lolRegexp = /(\s*[l|\\/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\/]+/i;
+        this.lolRegexp = /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i;
         this._pluginName = "japnaaweird";
     }
     /**
@@ -54,7 +54,8 @@ class JapnaaWeird extends plugin_js_1.default {
         this._registerDefaultCommand("your", this.your);
         this._registerEventHandler("message", this.onmessageHandler_lol);
         this.bot.events.on("start", function () {
-            this.bot.client.presence.setWatch("you");
+            // this.bot.client.presence.setWatch("you");
+            this.bot.client.presence.setGame("development");
         }.bind(this));
     }
     _stop() {

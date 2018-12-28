@@ -1,16 +1,34 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/botHooks.js";
-import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
-import Precommand from "../main/bot/precommand/precommand.js";
+import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
+import Game from "./games/game.js";
+interface GameClass {
+    new (botHooks: BotHooks, parentPlugin: Games, channelId: string, initer: string): Game;
+}
 /**
- * The weirder side of JaPNaABot
+ * Games!
  */
-declare class Game extends BotPlugin {
-    precommand: Precommand;
+declare class Games extends BotPlugin {
+    precommand: PrecommandWithoutCallback;
+    currentGames: Map<string, Game>;
+    playerGameMap: Map<string, Game>;
+    config: {
+        [x: string]: any;
+    };
+    gameAliases: {
+        [x: string]: GameClass;
+    };
     constructor(bot: BotHooks);
-    gPrecommandHandler(event: DiscordMessageEvent): void;
-    game(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    _isDMLockAvailable(userId: string): boolean;
+    _lockAndGetDMHandle(userId: string, game: Game): void;
+    _unlockDMHandle(userId: string): void;
+    private play;
+    private _getGame;
     _start(): void;
+    private unknownCommandHandler;
+    private _forwardToGameInChannel;
+    private _forwardToGameFromDM;
+    private _sendDoesntExist;
     _stop(): void;
 }
-export default Game;
+export default Games;

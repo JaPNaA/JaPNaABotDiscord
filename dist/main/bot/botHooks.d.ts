@@ -5,12 +5,12 @@ import BotPermissions from "./botPermissions";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
-import { Channel, Guild, Role, User, GuildMember } from "discord.js";
+import { Channel, Guild, Role, User, GuildMember, Message } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
 import PluginManager from "./plugin/manager/pluginManager";
-import Precommand from "./precommand/precommand";
+import { PrecommandWithoutCallback } from "./precommand/precommand";
 import MessageObject from "./messageObject";
 declare class BotHooks {
     memory: Memory;
@@ -21,18 +21,18 @@ declare class BotHooks {
     pluginManager: PluginManager;
     client: BotClient;
     rawEventAdapter: RawEventAdapter;
-    defaultPrecommand: Precommand;
+    defaultPrecommand: PrecommandWithoutCallback;
     bot: Bot;
     constructor(bot: Bot);
     /**
      * Sends message to channel
      */
-    send(channelId: string, message: string | MessageObject): Promise<any>;
+    send(channelId: string, message: string | MessageObject): Promise<Message | Message[]>;
     /**
      * Send direct message to user
      * @param [failCallback] callback called if fails to send
      */
-    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any>;
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<Message | Message[]>;
     /**
      * Gets the channel with channelId
      */
@@ -79,7 +79,7 @@ declare class BotHooks {
     attachPermissions(permissions: BotPermissions): void;
     attachPrecommandManager(precommandManager: PrecommandManager): void;
     attachPluginManager(pluginManager: PluginManager): void;
-    attachDefaultPrecommand(defaultPrecommand: Precommand): void;
+    attachDefaultPrecommand(defaultPrecommand: PrecommandWithoutCallback): void;
     attachClient(client: BotClient): void;
     newAsyncRequest(): void;
     doneAsyncRequest(): void;

@@ -274,13 +274,13 @@ function getDefaultConfig(): object {
 
 const classes = {
     Bot: require("./bot/bot.js"),
-    BotCommand: require("./botcommand.js"),
-    BotCommandOptions: require("./botcommandOptions.js"),
-    BotCommandHelp: require("./botcommandHelp.js"),
+    BotCommand: require("./bot/command/command.js"),
+    BotCommandOptions: require("./bot/command/commandOptions.js"),
+    BotCommandHelp: require("./bot/command/commandHelp.js"),
     events: require("./events.js"),
     Logger: require("./logger.js"),
     Permissions: require("./permissions.js"),
-    BotPlugin: require("./plugin.js"),
+    BotPlugin: require("./bot/plugin/plugin.js"),
     utils: require("./utils.js")
 }
 

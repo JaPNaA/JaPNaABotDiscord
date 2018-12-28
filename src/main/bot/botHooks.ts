@@ -5,12 +5,12 @@ import BotPermissions from "./botPermissions";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../adapters/rawEventAdapter";
-import { Channel, Guild, Role, User, GuildMember } from "discord.js";
+import { Channel, Guild, Role, User, GuildMember, Message } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "./eventName";
 import PrecommandManager from "./precommand/manager/precommandManager";
 import PluginManager from "./plugin/manager/pluginManager";
-import Precommand from "./precommand/precommand";
+import { PrecommandWithoutCallback } from "./precommand/precommand";
 import MessageObject from "./messageObject";
 
 
@@ -24,7 +24,7 @@ class BotHooks {
     pluginManager: PluginManager = null as any as PluginManager;
     client: BotClient = null as any as BotClient;
     rawEventAdapter: RawEventAdapter = null as any as RawEventAdapter;
-    defaultPrecommand: Precommand = null as any as Precommand;
+    defaultPrecommand: PrecommandWithoutCallback = null as any as PrecommandWithoutCallback;
 
     bot: Bot;
 
@@ -35,7 +35,7 @@ class BotHooks {
     /**
      * Sends message to channel
      */
-    send(channelId: string, message: string | MessageObject): Promise<any> {
+    send(channelId: string, message: string | MessageObject): Promise<Message | Message[]> {
         return this.bot.client.send(channelId, message);
     }
 
@@ -43,7 +43,7 @@ class BotHooks {
      * Send direct message to user
      * @param [failCallback] callback called if fails to send
      */
-    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any> {
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<Message | Message[]> {
         return this.bot.client.sendDM(userId, message, failCallback);
     }
 
@@ -139,7 +139,7 @@ class BotHooks {
         this.pluginManager = pluginManager;
     }
 
-    attachDefaultPrecommand(defaultPrecommand: Precommand): void {
+    attachDefaultPrecommand(defaultPrecommand: PrecommandWithoutCallback): void {
         this.defaultPrecommand = defaultPrecommand;
     }
 

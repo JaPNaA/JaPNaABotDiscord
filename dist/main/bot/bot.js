@@ -13,7 +13,7 @@ const botClient_js_1 = __importDefault(require("./botClient.js"));
 const logger_js_1 = __importDefault(require("../logger.js"));
 const commandOptions_js_1 = __importDefault(require("./command/commandOptions.js"));
 const precommandManager_js_1 = __importDefault(require("./precommand/manager/precommandManager.js"));
-const precommand_js_1 = __importDefault(require("./precommand/precommand.js"));
+const precommand_js_1 = require("./precommand/precommand.js");
 const pluginManager_js_1 = __importDefault(require("./plugin/manager/pluginManager.js"));
 class Bot {
     constructor(config, memory, memoryPath, client, restartFunc) {
@@ -105,7 +105,7 @@ class Bot {
     registerDefaultPrecommands() {
         // TODO: refactor
         const precommandStrs = this.config.precommands;
-        const precommand = new precommand_js_1.default(this.hooks, precommandStrs);
+        const precommand = precommand_js_1.Precommand.create(this.hooks, precommandStrs);
         precommand.commandManager.register("restart", "bot", this.restart.bind(this), new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR"
         }));

@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const precommandDispatcher_1 = __importDefault(require("./precommandDispatcher"));
-const precommand_1 = __importDefault(require("../precommand"));
+const precommand_1 = require("../precommand");
 class PrecommandManager {
     constructor(botHooks) {
         this.botHooks = botHooks;
@@ -15,7 +15,13 @@ class PrecommandManager {
         this.precommands.push(precommand);
     }
     createAndRegister(name, callback) {
-        const precommand = new precommand_1.default(this.botHooks, name, callback);
+        let precommand;
+        if (callback) {
+            precommand = precommand_1.Precommand.create(this.botHooks, name, callback);
+        }
+        else {
+            precommand = precommand_1.Precommand.create(this.botHooks, name);
+        }
         this.precommands.push(precommand);
         return precommand;
     }

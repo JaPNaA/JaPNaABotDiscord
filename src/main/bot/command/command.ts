@@ -7,6 +7,7 @@ import BotHooks from "../botHooks.js";
 import { DiscordCommandEvent } from "../../events.js";
 import BotCommandCallback from "./commandCallback.js";
 import Permissions from "../../permissions.js";
+import { mention } from "../../specialUtils.js";
 
 type CleanCommandContent = {
     /** The cleaned message */
@@ -103,7 +104,7 @@ class BotCommand {
             if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
                 return {
                     canRun: false,
-                    reasonCannotRun: "<@" + commandEvent.userId + "> **You must have `" +
+                    reasonCannotRun: mention(commandEvent.userId) + " **You must have `" +
                         this.requiredPermission + "` permissions to run this command.**"
                 };
             }
@@ -123,6 +124,7 @@ class BotCommand {
         let results: TestResults = this.test(commandEvent);
         if (results.canRun) {
             let cleaned: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
+            commandEvent.arguments = cleaned.args;
             this.tryRunCommand(commandEvent, cleaned.args);
             return true;
         } else {

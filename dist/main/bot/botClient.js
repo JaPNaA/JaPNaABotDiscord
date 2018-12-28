@@ -155,6 +155,9 @@ class BotClient {
                 promise = user.send(message.message, message);
             }
             else {
+                if (typeof message === "string" && message.trim().length === 0) {
+                    message = "_This message is empty_";
+                }
                 promise = user.send(message);
             }
         }

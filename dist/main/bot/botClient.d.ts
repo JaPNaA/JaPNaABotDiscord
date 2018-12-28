@@ -1,4 +1,4 @@
-import { User, Client, Channel, Guild, Role, GuildMember } from "discord.js";
+import { User, Client, Channel, Guild, Role, GuildMember, Message } from "discord.js";
 import BotHooks from "./botHooks.js";
 import MessageObject from "./messageObject.js";
 declare class PresenceSetter {
@@ -52,7 +52,7 @@ declare class BotClient {
      * Send message
      * @returns A promise that resolves when sent
      */
-    send(channelId: string, message: string | MessageObject): Promise<any>;
+    send(channelId: string, message: string | MessageObject): Promise<Message | Message[]>;
     /**
      * Sends direct message
      * @param userId id of user
@@ -60,7 +60,7 @@ declare class BotClient {
      * @param failCallback callback if failed
      * @returns A promise that resolves when message sends, rejcts if fail
      */
-    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any>;
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<Message | Message[]>;
     getChannel(channelId: string): Channel | undefined;
     getServerFromChannel(channelId: string): Guild | undefined;
     getServer(serverId: string): Guild | undefined;

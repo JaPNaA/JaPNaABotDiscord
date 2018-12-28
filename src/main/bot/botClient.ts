@@ -139,10 +139,10 @@ class BotClient {
      * Send message
      * @returns A promise that resolves when sent
      */
-    send(channelId: string, message: string | MessageObject): Promise<any> {
+    send(channelId: string, message: string | MessageObject): Promise<Message | Message[]> {
         Logger.log_message(">>", message);
 
-        let promise: Promise<any>;
+        let promise: Promise<Message | Message[]>;
         let textChannel: TextChannel = this.getChannel(channelId) as TextChannel;
 
         if (textChannel.type === "voice") {
@@ -178,16 +178,19 @@ class BotClient {
      * @param failCallback callback if failed
      * @returns A promise that resolves when message sends, rejcts if fail
      */
-    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<any> {
+    sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<Message | Message[]> {
         Logger.log_message("D>", message);
 
         let user: User | undefined = this.getUser(userId);
-        let promise: Promise<any>;
+        let promise: Promise<Message | Message[]>;
 
         if (user) {
             if (typeof message === "object" && message.hasOwnProperty("message")) {
                 promise = user.send(message.message, message as object);
             } else {
+                if (typeof message === "string" && message.trim().length === 0) {
+                    message = "_This message is empty_";
+                }
                 promise = user.send(message);
             }
         } else {

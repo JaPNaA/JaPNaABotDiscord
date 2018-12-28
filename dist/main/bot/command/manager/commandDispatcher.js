@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const specialUtils_js_1 = require("../../../specialUtils.js");
 class CommandDispatcher {
     constructor(botHooks, manager) {
         this.botHooks = botHooks;
@@ -23,8 +24,11 @@ class CommandDispatcher {
         }
         if (!someCommandRan) {
             // command doesn't exist
-            if (this.botHooks.config.doAlertCommandDoesNotExist) {
-                this.botHooks.client.send(commandEvent.channelId, "<@" + commandEvent.userId + ">, that command doesn't exist");
+            if (this.manager.unknownCommandHandler) {
+                this.manager.unknownCommandHandler(this.botHooks, commandEvent);
+            }
+            else if (this.botHooks.config.doAlertCommandDoesNotExist) {
+                this.botHooks.client.send(commandEvent.channelId, specialUtils_js_1.mention(commandEvent.userId) + ", that command doesn't exist");
             }
         }
     }
