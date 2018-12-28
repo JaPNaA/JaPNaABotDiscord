@@ -4,11 +4,11 @@ class MessageHandler {
     constructor(presidentsGame) {
         this.game = presidentsGame;
     }
-    onMessage(userId, event) {
+    onMessage(userId, event, type) {
         let player = this.game.playerHandler.getPlayer(userId);
         if (!player)
             return;
-        player.onMessage(event);
+        player.onMessage(event, type);
     }
 }
 exports.default = MessageHandler;

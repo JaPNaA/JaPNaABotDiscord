@@ -10,15 +10,28 @@ class PlayerAction {
         this.player = player;
         this.logic = gameLogic;
     }
+    pass() {
+        this.logic.playerPass(this.player);
+    }
     useJoker() {
+        const set = this.createJokerSet();
+        this.logic.playerUse(this.player, set);
+        this.player.cards.removeCards(set);
     }
     useCards(rank, amount) {
         if (isNaN(amount) || amount <= 0) {
             throw new errors_1.MessageSyntaxError("Amount is invalid");
         }
         const set = this.createSet(rank, amount);
-        this.logic.playerUse(set);
+        this.logic.playerUse(this.player, set);
         this.player.cards.removeCards(set);
+    }
+    createJokerSet() {
+        const joker = this.player.cards.getJoker();
+        if (!joker) {
+            throw new errors_1.MessageActionError("You do not have a joker.");
+        }
+        return new cardSet_1.default([joker]);
     }
     createSet(rank, amount) {
         const cards = this.player.cards.getRank(rank, amount);

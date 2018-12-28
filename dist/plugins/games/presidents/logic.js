@@ -8,6 +8,7 @@ const card_1 = require("../cards/card");
 const errors_1 = require("./errors");
 const cardHierarchy_1 = __importDefault(require("./cardHierarchy"));
 const cardUtils_1 = require("../cards/cardUtils");
+const logger_1 = __importDefault(require("../../../main/logger"));
 /**
  * contains the logic for the game -
  * burning, runs, which cards can be played
@@ -26,6 +27,9 @@ class Logic {
         this.pile = new pile_1.default();
         this.wasBurned = true;
         this.nowBurned = false;
+        this.pileEmpty = true;
+        this.lastPlayerToPlay = null;
+        this.lastPass = false;
     }
     getTopSetSize() {
         if (this.wasBurned)
@@ -35,14 +39,30 @@ class Logic {
             return 0;
         return topSet.size;
     }
-    playerUse(cards) {
-        // puts cards down, burn them, etc
-        // throw errors!
+    playerPass(player) {
+        this.lastPass = true;
+    }
+    playerUse(player, cards) {
         this.nowBurned = false;
+        this.checkForNoOneCanGoBurn(player);
         this.assertCorrect(cards);
         this.checkForBurn(cards);
         this.pile.add(cards);
+        this.lastPlayerToPlay = player;
+        this.pileEmpty = false;
+        this.lastPass = false;
         this.wasBurned = this.nowBurned;
+    }
+    checkForNoOneCanGoBurn(player) {
+        if (!this.lastPass) {
+            return;
+        }
+        logger_1.default.log(this.lastPlayerToPlay);
+        if (player === this.lastPlayerToPlay) {
+            this.wasBurned = true;
+            this.lastPlayerToPlay = null;
+            logger_1.default.log("Passed - no one else can go");
+        }
     }
     assertCorrect(cards) {
         this.assertCardsAreSameRank(cards);
@@ -82,6 +102,12 @@ class Logic {
         let firstCard = cards.get(0);
         if (firstCard.isRank(this.config.burnCardRank)) {
             this.assertAmount_2(cards);
+            return;
+        }
+        if (firstCard.isJoker()) {
+            if (cards.size !== 1) {
+                throw new errors_1.MessageActionError("You can only play 1 joker at a time.");
+            }
             return;
         }
         let topSet = this.pile.getTopSet();

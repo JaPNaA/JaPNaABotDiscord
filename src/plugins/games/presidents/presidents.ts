@@ -5,6 +5,7 @@ import { DiscordCommandEvent } from "../../../main/events";
 import { mention } from "../../../main/specialUtils";
 import PresidentsMain from "./game";
 import { AlreadyJoinedError, DMAlreadyLockedError } from "./errors";
+import MessageType from "./messageType";
 
 /**
  * Handles leaving and joining of Presidents, as long as some aliases to other 
@@ -99,8 +100,12 @@ class Presidents extends Game {
         }
     }
 
-    playerUseCard(bot: BotHooks, event: DiscordCommandEvent, args: string) {
-        this.game.messageHandler.onMessage(event.userId, event);
+    playerUse(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+        this.game.messageHandler.onMessage(event.userId, event, MessageType.use);
+    }
+
+    playerPass(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+        this.game.messageHandler.onMessage(event.userId, event, MessageType.pass)
     }
 
     _sendStartingMessage() {
@@ -125,7 +130,8 @@ class Presidents extends Game {
         this._registerCommand(this.commandManager, "leave", this.leave);
         this._registerCommand(this.commandManager, "start", this.start);
         this._registerCommand(this.commandManager, "players", this.listPlayers);
-        this._registerCommand(this.commandManager, "use", this.playerUseCard);
+        this._registerCommand(this.commandManager, "use", this.playerUse);
+        this._registerCommand(this.commandManager, "pass", this.playerPass);
         this._sendAboutMessage();
         this.silentlyAddPlayer(this.initer);
     }

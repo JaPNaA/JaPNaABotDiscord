@@ -7,6 +7,7 @@ const game_1 = __importDefault(require("../game"));
 const specialUtils_1 = require("../../../main/specialUtils");
 const game_2 = __importDefault(require("./game"));
 const errors_1 = require("./errors");
+const messageType_1 = __importDefault(require("./messageType"));
 /**
  * Handles leaving and joining of Presidents, as long as some aliases to other
  * components
@@ -82,8 +83,11 @@ class Presidents extends game_1.default {
                 " (" + players.length + " players)");
         }
     }
-    playerUseCard(bot, event, args) {
-        this.game.messageHandler.onMessage(event.userId, event);
+    playerUse(bot, event, args) {
+        this.game.messageHandler.onMessage(event.userId, event, messageType_1.default.use);
+    }
+    playerPass(bot, event, args) {
+        this.game.messageHandler.onMessage(event.userId, event, messageType_1.default.pass);
     }
     _sendStartingMessage() {
         let players = [];
@@ -101,7 +105,8 @@ class Presidents extends game_1.default {
         this._registerCommand(this.commandManager, "leave", this.leave);
         this._registerCommand(this.commandManager, "start", this.start);
         this._registerCommand(this.commandManager, "players", this.listPlayers);
-        this._registerCommand(this.commandManager, "use", this.playerUseCard);
+        this._registerCommand(this.commandManager, "use", this.playerUse);
+        this._registerCommand(this.commandManager, "pass", this.playerPass);
         this._sendAboutMessage();
         this.silentlyAddPlayer(this.initer);
     }

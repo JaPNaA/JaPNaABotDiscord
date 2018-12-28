@@ -6,7 +6,10 @@ class MessageParser {
     constructor(game) {
         this.game = game;
     }
-    parse(player, event) {
+    parse_pass(player, event) {
+        player.action.pass();
+    }
+    parse_use(player, event) {
         const cleanArgs = event.arguments && event.arguments.trim().toLowerCase();
         if (!cleanArgs) {
             throw new Error("Unknown Error");

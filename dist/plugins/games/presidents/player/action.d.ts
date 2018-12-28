@@ -6,8 +6,10 @@ declare class PlayerAction {
     player: Player;
     logic: Logic;
     constructor(player: Player, gameLogic: Logic);
+    pass(): void;
     useJoker(): void;
     useCards(rank: Rank, amount: number): void;
+    createJokerSet(): CardSet;
     createSet(rank: Rank, amount: number): CardSet;
 }
 export default PlayerAction;

@@ -13,7 +13,14 @@ class PlayerAction {
         this.logic = gameLogic;
     }
 
+    pass() {
+        this.logic.playerPass(this.player);
+    }
+
     useJoker() {
+        const set = this.createJokerSet();
+        this.logic.playerUse(this.player, set);
+        this.player.cards.removeCards(set);
     }
 
     useCards(rank: Rank, amount: number) {
@@ -22,8 +29,16 @@ class PlayerAction {
         }
 
         const set = this.createSet(rank, amount);
-        this.logic.playerUse(set);
+        this.logic.playerUse(this.player, set);
         this.player.cards.removeCards(set);
+    }
+
+    createJokerSet(): CardSet {
+        const joker = this.player.cards.getJoker();
+        if (!joker) {
+            throw new MessageActionError("You do not have a joker.");
+        }
+        return new CardSet([joker]);
     }
 
     createSet(rank: Rank, amount: number): CardSet {

@@ -26,12 +26,12 @@ class Player {
     waitForOneMessage(callback) {
         this.messageCallbacks.push(callback);
     }
-    onMessage(message) {
+    onMessage(message, type) {
         while (true) {
             const messageCallback = this.messageCallbacks.pop();
             if (!messageCallback)
                 break;
-            messageCallback(message);
+            messageCallback({ message, type });
         }
     }
 }

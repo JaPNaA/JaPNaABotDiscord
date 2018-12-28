@@ -11,7 +11,11 @@ class MessageParser {
         this.game = game;
     }
 
-    parse(player: Player, event: DiscordCommandEvent) {
+    parse_pass(player: Player, event: DiscordCommandEvent) {
+        player.action.pass();
+    }
+
+    parse_use(player: Player, event: DiscordCommandEvent) {
         const cleanArgs: string | null = event.arguments && event.arguments.trim().toLowerCase();
         if (!cleanArgs) { throw new Error("Unknown Error"); }
 

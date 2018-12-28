@@ -1,14 +1,18 @@
 import Pile from "../cards/pile";
 import CardSet from "../cards/cardSet";
 import { Rank } from "../cards/cardUtils";
+import Player from "./player/player";
 /**
  * contains the logic for the game -
  * burning, runs, which cards can be played
  */
 declare class Logic {
     pile: Pile;
+    pileEmpty: boolean;
     wasBurned: boolean;
-    nowBurned: boolean;
+    lastPlayerToPlay: Player | null;
+    lastPass: boolean;
+    private nowBurned;
     config: {
         burnCardRank: Rank;
         firstPlayer: boolean;
@@ -19,7 +23,9 @@ declare class Logic {
     };
     constructor();
     getTopSetSize(): number;
-    playerUse(cards: CardSet): void;
+    playerPass(player: Player): void;
+    playerUse(player: Player, cards: CardSet): void;
+    private checkForNoOneCanGoBurn;
     private assertCorrect;
     private assertCardsAreSameRank;
     private assertCardsAreSameRank_joker;

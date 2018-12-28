@@ -4,6 +4,8 @@ import { NormalCard, JokerCard, Card } from "../cards/card";
 import { MessageActionError } from "./errors";
 import cardHierarchy from "./cardHierarchy";
 import { Rank } from "../cards/cardUtils";
+import Player from "./player/player";
+import Logger from "../../../main/logger";
 
 /**
  * contains the logic for the game -
@@ -11,9 +13,13 @@ import { Rank } from "../cards/cardUtils";
  */
 class Logic {
     pile: Pile;
-    wasBurned: boolean;
+    pileEmpty: boolean;
 
-    nowBurned: boolean;
+    wasBurned: boolean;
+    lastPlayerToPlay: Player | null;
+    lastPass: boolean;
+
+    private nowBurned: boolean;
 
     config = {
         burnCardRank: Rank.n2,
@@ -28,8 +34,12 @@ class Logic {
 
     constructor() {
         this.pile = new Pile();
+
         this.wasBurned = true;
         this.nowBurned = false;
+        this.pileEmpty = true;
+        this.lastPlayerToPlay = null;
+        this.lastPass = false;
     }
 
     public getTopSetSize(): number {
@@ -41,18 +51,33 @@ class Logic {
         return topSet.size;
     }
 
-    public playerUse(cards: CardSet): void {
-        // puts cards down, burn them, etc
-        // throw errors!
+    public playerPass(player: Player) { 
+        this.lastPass = true;
+    }
+    
+    public playerUse(player: Player, cards: CardSet): void {
         this.nowBurned = false;
-
+        
+        this.checkForNoOneCanGoBurn(player);
         this.assertCorrect(cards);
         this.checkForBurn(cards);
         this.pile.add(cards);
         
+        this.lastPlayerToPlay = player;
+        this.pileEmpty = false;
+        this.lastPass = false;
         this.wasBurned = this.nowBurned;
     }
-
+    
+    private checkForNoOneCanGoBurn(player: Player) {
+        if (!this.lastPass) { return; }
+        Logger.log(this.lastPlayerToPlay);
+        if (player === this.lastPlayerToPlay) {
+            this.wasBurned = true;
+            this.lastPlayerToPlay = null;
+            Logger.log("Passed - no one else can go");
+        }
+    }
     private assertCorrect(cards: CardSet) {
         this.assertCardsAreSameRank(cards);
         this.assertAmount(cards);
@@ -94,6 +119,15 @@ class Logic {
         let firstCard = cards.get(0);
         if (firstCard.isRank(this.config.burnCardRank)) {
             this.assertAmount_2(cards);
+            return;
+        }
+
+        if (firstCard.isJoker()) {
+            if (cards.size !== 1) {
+                throw new MessageActionError(
+                    "You can only play 1 joker at a time."
+                );
+            }
             return;
         }
 

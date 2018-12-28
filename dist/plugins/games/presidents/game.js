@@ -18,6 +18,7 @@ const messageParser_1 = __importDefault(require("./messageParser"));
 const errors_1 = require("./errors");
 const logic_1 = __importDefault(require("./logic"));
 const utils_1 = require("../../../main/utils");
+const messageType_1 = __importDefault(require("./messageType"));
 class PresidentsMain {
     constructor(botHooks, parentGame, presidentsGame) {
         this.bot = botHooks;
@@ -60,7 +61,12 @@ class PresidentsMain {
                 player.waitForOneMessage(resolve);
             });
             let message = yield promise;
-            this.messageParser.parse(player, message);
+            if (message.type == messageType_1.default.pass) {
+                this.messageParser.parse_pass(player, message.message);
+            }
+            else if (message.type == messageType_1.default.use) {
+                this.messageParser.parse_use(player, message.message);
+            }
         });
     }
     handlePlayerTurnError(error, player) {
@@ -93,11 +99,21 @@ class PresidentsMain {
             if (this.playerHandler.players.length <= 0) {
                 return false;
             }
-            for (let player of this.playerHandler.players) {
-                player.tell("It's your turn!");
+            for (let i = 0; i < this.playerHandler.players.length; i++) {
+                const player = this.playerHandler.players[i];
+                if (this.logic.wasBurned && !this.logic.pileEmpty) {
+                    player.tell("Burned! It's your turn!");
+                }
+                else {
+                    player.tell("It's your turn!");
+                }
                 yield this.waitForValidTurn(player);
                 this.updatePile();
                 player.tellCards();
+                if (this.logic.wasBurned) {
+                    i--;
+                    continue;
+                }
             }
             return true;
         });
@@ -108,12 +124,12 @@ class PresidentsMain {
             let msg;
             if (topSet) {
                 msg = topSet.toShortMDs().join("");
+                if (this.logic.wasBurned) {
+                    msg += " _(burned)_";
+                }
             }
             else {
                 msg = "_No cards_";
-            }
-            if (this.logic.wasBurned) {
-                msg += " _(burned)_";
             }
             this.pileMessage.edit(msg);
         }

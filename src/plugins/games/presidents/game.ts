@@ -11,6 +11,8 @@ import { MessageSyntaxError, MessageActionError } from "./errors";
 import Logic from "./logic";
 import { Message } from "discord.js";
 import { toOne } from "../../../main/utils";
+import MessageEvent from "./messageEvent";
+import MessageType from "./messageType";
 
 class PresidentsMain {
     bot: BotHooks;
@@ -62,12 +64,17 @@ class PresidentsMain {
     }
 
     private async waitForTurn(player: Player) {
-        let promise: Promise<DiscordCommandEvent> = new Promise(function (resolve) {
+        let promise: Promise<MessageEvent> = new Promise(function (resolve) {
             player.waitForOneMessage(resolve);
         });
 
         let message = await promise;
-        this.messageParser.parse(player, message);
+
+        if (message.type == MessageType.pass) {
+            this.messageParser.parse_pass(player, message.message);
+        } else if (message.type == MessageType.use) {
+            this.messageParser.parse_use(player, message.message);
+        }
     }
 
     private handlePlayerTurnError(error: Error, player: Player) {
@@ -101,11 +108,24 @@ class PresidentsMain {
             return false;
         }
 
-        for (let player of this.playerHandler.players) {
-            player.tell("It's your turn!");
+        for (let i = 0; i < this.playerHandler.players.length; i++) {
+            const player = this.playerHandler.players[i];
+
+            if (this.logic.wasBurned && !this.logic.pileEmpty) {
+                player.tell("Burned! It's your turn!");
+            } else {
+                player.tell("It's your turn!");
+            }
+
             await this.waitForValidTurn(player);
+
             this.updatePile();
             player.tellCards();
+
+            if (this.logic.wasBurned) {
+                i--;
+                continue;
+            }
         }
 
         return true;
@@ -118,13 +138,14 @@ class PresidentsMain {
 
             if (topSet) {
                 msg = topSet.toShortMDs().join("");
+
+                if (this.logic.wasBurned) {
+                    msg += " _(burned)_";
+                }
             } else {
                 msg = "_No cards_";
             }
 
-            if (this.logic.wasBurned) {
-                msg += " _(burned)_";
-            }
 
             this.pileMessage.edit(msg);
         } else {

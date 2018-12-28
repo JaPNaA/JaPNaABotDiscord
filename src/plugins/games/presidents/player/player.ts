@@ -3,8 +3,10 @@ import { DiscordCommandEvent } from "../../../../main/events";
 import PlayerCards from "./cards";
 import PlayerAction from "./action";
 import PresidentsMain from "../game";
+import MessageType from "../messageType";
+import MessageEvent from "../messageEvent";
 
-type MessageCallback = (event: DiscordCommandEvent) => void;
+type MessageCallback = (event: MessageEvent) => void;
 
 class Player {
     bot: BotHooks;
@@ -38,11 +40,11 @@ class Player {
         this.messageCallbacks.push(callback);
     }
 
-    onMessage(message: DiscordCommandEvent) {
+    onMessage(message: DiscordCommandEvent, type: MessageType) {
         while (true) {
             const messageCallback = this.messageCallbacks.pop();
             if (!messageCallback) break;
-            messageCallback(message);
+            messageCallback({message, type});
         }
     }
 }
