@@ -94,6 +94,7 @@ declare class Default extends BotPlugin {
      */
     _actuallyUpdateBot(bot: BotHooks, event: DiscordCommandEvent): void;
     _endBotProcess(): void;
+    uptime(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
     _start(): void;
     _stop(): void;
 }

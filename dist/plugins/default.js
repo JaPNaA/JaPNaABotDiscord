@@ -225,12 +225,14 @@ class Default extends plugin_js_1.default {
         if (help.fromPlugin) {
             description = "_From plugin '" + help.fromPlugin + "'_\n" + description;
         }
-        return { embed: {
+        return {
+            embed: {
                 color: bot.config.themeColor,
                 title: title,
                 description: description,
                 fields: fields
-            } };
+            }
+        };
     }
     /**
      * Appends the permissions for a command in help in embed
@@ -592,6 +594,17 @@ class Default extends plugin_js_1.default {
         logger_js_1.default.log("Exiting process...");
         japnaabot.stop(10000).then(() => process.exit(0));
     }
+    uptime(bot, event, args) {
+        childProcess.exec("uptime", function (error, stdout, stderr) {
+            if (error) {
+                logger_js_1.default.error(error);
+                bot.send(event.channelId, "Failed to get uptime.");
+            }
+            else {
+                bot.send(event.channelId, "```" + stdout + "```");
+            }
+        });
+    }
     _start() {
         this._registerDefaultCommand("eval", this.eval, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",
@@ -768,6 +781,12 @@ class Default extends plugin_js_1.default {
         this._registerDefaultCommand("update bot", this.update_bot, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Updates the 'japnaabot' node module to the newest version"
+            }),
+            group: "Other"
+        }));
+        this._registerDefaultCommand("uptime", this.uptime, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
+                description: "Tells you how long the computer on which JaPNaABot runs on has been up for"
             }),
             group: "Other"
         }));

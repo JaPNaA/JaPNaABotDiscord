@@ -12,6 +12,7 @@ import { DiscordCommandEvent } from "../events.js";
 import PrecommandManager from "./precommand/manager/precommandManager.js";
 import { Precommand, PrecommandWithoutCallback } from "./precommand/precommand.js";
 import PluginManager from "./plugin/manager/pluginManager.js";
+import BotCommandHelp from "./command/commandHelp.js";
 
 class Bot {
     restartFunc: Function;
@@ -143,7 +144,11 @@ class Bot {
         precommand.commandManager.register(
             "restart", "bot", this.restart.bind(this),
             new BotCommandOptions({
-                requiredPermission: "BOT_ADMINISTRATOR"
+                help: new BotCommandHelp({
+                    description: "Restarts the bot"
+                }),
+                requiredPermission: "BOT_ADMINISTRATOR",
+                group: "Utils"
             })
         );
 

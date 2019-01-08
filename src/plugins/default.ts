@@ -261,12 +261,14 @@ class Default extends BotPlugin {
             description = "_From plugin '" + help.fromPlugin + "'_\n" + description;
         }
 
-        return { embed: {
-            color: bot.config.themeColor,
-            title: title,
-            description: description,
-            fields: fields
-        }};
+        return {
+            embed: {
+                color: bot.config.themeColor,
+                title: title,
+                description: description,
+                fields: fields
+            }
+        };
     }
 
     /**
@@ -455,11 +457,11 @@ class Default extends BotPlugin {
         }
 
         /** Namespace (channel, server, global) */
-        let ns : string = args[0][0].toLowerCase();
+        let ns: string = args[0][0].toLowerCase();
         /** Type (user, role) */
-        let type : string = args[1][0].toLowerCase();
+        let type: string = args[1][0].toLowerCase();
         /** Action (add, remove) */
-        let action : string = args[2][0].toLowerCase();
+        let action: string = args[2][0].toLowerCase();
         /** Id of user or role */
         let id: string | null = getSnowflakeNum(args[3]);
         if (!id) { return; } // tODO: tell invalid, get help
@@ -611,7 +613,7 @@ class Default extends BotPlugin {
             }
         }
 
-        bot.send(event.channelId, 
+        bot.send(event.channelId,
             "Confirm updating the bot with `" + event.precommandName.name +
             "update bot confirm`.\n" +
             "**The bot process will exit after the update.**"
@@ -646,6 +648,20 @@ class Default extends BotPlugin {
     _endBotProcess() {
         Logger.log("Exiting process...");
         japnaabot.stop(10000).then(() => process.exit(0));
+    }
+
+    uptime(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+        childProcess.exec(
+            "uptime",
+            function (error: childProcess.ExecException | null, stdout: string, stderr: string) {
+                if (error) {
+                    Logger.error(error);
+                    bot.send(event.channelId, "Failed to get uptime.");
+                } else {
+                    bot.send(event.channelId, "```" + stdout + "```");
+                }
+            }
+        );
     }
 
     _start(): void {
@@ -835,6 +851,13 @@ class Default extends BotPlugin {
         this._registerDefaultCommand("update bot", this.update_bot, new BotCommandOptions({
             help: new BotCommandHelp({
                 description: "Updates the 'japnaabot' node module to the newest version"
+            }),
+            group: "Other"
+        }));
+
+        this._registerDefaultCommand("uptime", this.uptime, new BotCommandOptions({
+            help: new BotCommandHelp({
+                description: "Tells you how long the computer on which JaPNaABot runs on has been up for"
             }),
             group: "Other"
         }));
