@@ -237,14 +237,14 @@ function getDefaultConfig() {
 }
 exports.getDefaultConfig = getDefaultConfig;
 const classes = {
-    Bot: require("./bot/bot.js"),
-    BotCommand: require("./bot/command/command.js"),
-    BotCommandOptions: require("./bot/command/commandOptions.js"),
-    BotCommandHelp: require("./bot/command/commandHelp.js"),
+    Bot: require("./bot/bot.js").default,
+    BotCommand: require("./bot/command/command.js").default,
+    BotCommandOptions: require("./bot/command/commandOptions.js").default,
+    BotCommandHelp: require("./bot/command/commandHelp.js").default,
     events: require("./events.js"),
-    Logger: require("./logger.js"),
-    Permissions: require("./permissions.js"),
-    BotPlugin: require("./bot/plugin/plugin.js"),
+    Logger: require("./logger.js").default,
+    Permissions: require("./permissions.js").default,
+    BotPlugin: require("./bot/plugin/plugin.js").default,
     utils: require("./utils.js")
 };
 exports.classes = classes;
