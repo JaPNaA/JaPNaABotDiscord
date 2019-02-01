@@ -1,6 +1,6 @@
 import BotHooks from "./botHooks.js";
 import EventName from "./eventName.js";
-declare type EventHandler = (botHooks: BotHooks, event: any) => void;
+import EventHandler from "./eventHandler.js";
 declare class BotEvent {
     events: {
         [x: string]: Function[];

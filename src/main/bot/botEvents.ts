@@ -3,8 +3,7 @@ import EventName from "./eventName.js";
 
 import { tryRun } from "../utils.js";
 import Logger from "../logger.js";
-
-type EventHandler = (botHooks: BotHooks, event: any) => void;
+import EventHandler from "./eventHandler.js";
 
 class BotEvent {
     events: { [x: string]: Function[] } = {

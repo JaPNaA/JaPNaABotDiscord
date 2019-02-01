@@ -113,6 +113,9 @@ class BotHooks {
     doneAsyncRequest() {
         this.bot.doneAsyncRequest();
     }
+    addEventListener(name, callback) {
+        this.bot.events.on(name, callback);
+    }
     dispatchEvent(name, event) {
         this.bot.events.dispatch(name, event);
     }

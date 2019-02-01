@@ -12,6 +12,7 @@ import PrecommandManager from "./precommand/manager/precommandManager";
 import PluginManager from "./plugin/manager/pluginManager";
 import { PrecommandWithoutCallback } from "./precommand/precommand";
 import MessageObject from "./messageObject";
+import EventHandler from "./eventHandler";
 declare class BotHooks {
     memory: Memory;
     config: Config;
@@ -83,6 +84,7 @@ declare class BotHooks {
     attachClient(client: BotClient): void;
     newAsyncRequest(): void;
     doneAsyncRequest(): void;
+    addEventListener(name: EventName, callback: EventHandler): void;
     dispatchEvent(name: EventName, event: any): void;
 }
 export default BotHooks;

@@ -12,6 +12,7 @@ import PrecommandManager from "./precommand/manager/precommandManager";
 import PluginManager from "./plugin/manager/pluginManager";
 import { PrecommandWithoutCallback } from "./precommand/precommand";
 import MessageObject from "./messageObject";
+import EventHandler from "./eventHandler";
 
 
 class BotHooks {
@@ -156,6 +157,10 @@ class BotHooks {
         this.bot.doneAsyncRequest();
     }
 
+
+    addEventListener(name: EventName, callback: EventHandler) {
+        this.bot.events.on(name, callback);
+    }
 
     dispatchEvent(name: EventName, event: any): void {
         this.bot.events.dispatch(name, event);
