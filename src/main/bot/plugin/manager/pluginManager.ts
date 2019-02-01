@@ -1,4 +1,4 @@
-import BotHooks from "../../botHooks";
+import BotHooks from "../../bot/botHooks";
 import BotPlugin from "../plugin";
 
 class PluginManager {

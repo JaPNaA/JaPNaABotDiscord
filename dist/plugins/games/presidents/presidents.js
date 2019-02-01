@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const game_1 = __importDefault(require("../game"));
-const specialUtils_1 = require("../../../main/specialUtils");
+const specialUtils_1 = require("../../../main/utils/specialUtils");
 const game_2 = __importDefault(require("./game"));
 const errors_1 = require("./errors");
 const messageType_1 = __importDefault(require("./messageType"));

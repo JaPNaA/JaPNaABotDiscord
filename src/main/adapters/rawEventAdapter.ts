@@ -1,6 +1,6 @@
-import BotHooks from "../bot/botHooks.js";
+import BotHooks from "../bot/bot/botHooks.js";
 import { TextChannel, DMChannel } from "discord.js";
-import { DiscordMessageEvent } from "../events.js";
+import DiscordMessageEvent from "../bot/types/discordMessageEvent";
 import IMessage from "./IMessage.js";
 import PrecommandName from "../bot/precommand/precommandName.js";
 

@@ -1,7 +1,7 @@
 import Game from "../game";
-import BotHooks from "../../../main/bot/botHooks";
+import BotHooks from "../../../main/bot/bot/botHooks";
 import Games from "../../games";
-import { DiscordCommandEvent } from "../../../main/events";
+import DiscordCommandEvent from "../../../main/bot/types/discordCommandEvent";
 import PresidentsMain from "./game";
 /**
  * Handles leaving and joining of Presidents, as long as some aliases to other

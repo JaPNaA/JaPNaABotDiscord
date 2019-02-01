@@ -1,9 +1,9 @@
-import BotHooks from "../../botHooks.js";
-import { DiscordCommandEvent } from "../../../events.js";
+import BotHooks from "../../bot/botHooks.js";
+import DiscordCommandEvent from "../../types/discordCommandEvent.js";
 import CommandManager from "./commandManager.js";
 
 import BotCommand from "../command.js";
-import { mention } from "../../../specialUtils.js";
+import { mention } from "../../../utils/specialUtils.js";
 
 class CommandDispatcher {
     botHooks: BotHooks;

@@ -1,4 +1,4 @@
-import { DiscordCommandEvent } from "../../../main/events";
+import DiscordCommandEvent from "../../../main/bot/types/discordCommandEvent";
 import MessageType from "./messageType";
 interface MessageEvent {
     message: DiscordCommandEvent;

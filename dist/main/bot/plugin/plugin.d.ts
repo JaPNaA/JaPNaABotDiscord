@@ -1,6 +1,6 @@
-import BotHooks from "../botHooks";
+import BotHooks from "../bot/botHooks";
 import BotCommandOptions from "../command/commandOptions";
-import EventName from "../eventName";
+import EventName from "../types/eventName";
 import { PrecommandWithoutCallback, PrecommandWithCallback } from "../precommand/precommand";
 import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
 import CommandManager from "../command/manager/commandManager";

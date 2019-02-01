@@ -3,10 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const logger_js_1 = __importDefault(require("../../logger.js"));
-const utils_js_1 = require("../../utils.js");
+const logger_js_1 = __importDefault(require("../../utils/logger.js"));
+const utils_js_1 = require("../../utils/utils.js");
 const util_1 = require("util");
-const specialUtils_js_1 = require("../../specialUtils.js");
+const specialUtils_js_1 = require("../../utils/specialUtils.js");
 const whitespaceRegex = /\s/;
 class BotCommand {
     constructor(bot, commandName, pluginName, func, options) {

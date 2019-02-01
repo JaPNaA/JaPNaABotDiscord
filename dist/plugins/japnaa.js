@@ -6,10 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
-const logger_js_1 = __importDefault(require("../main/logger.js"));
-const utils_js_1 = require("../main/utils.js");
-const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
-const specialUtils_js_1 = require("../main/specialUtils.js");
+const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
+const utils_js_1 = require("../main/utils/utils.js");
+const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
+const specialUtils_js_1 = require("../main/utils/specialUtils.js");
 /**
  * Commonly used commands made by me, JaPNaA
  */

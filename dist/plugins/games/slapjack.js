@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const deck_1 = __importDefault(require("./cards/deck"));
 const game_1 = __importDefault(require("../games/game"));
-const utils_1 = require("../../main/utils");
+const utils_1 = require("../../main/utils/utils");
 const cardUtils_1 = require("./cards/cardUtils");
-const specialUtils_1 = require("../../main/specialUtils");
+const specialUtils_1 = require("../../main/utils/specialUtils");
 class SlapJack extends game_1.default {
     constructor(botHooks, parentPlugin, channelId) {
         super(botHooks, parentPlugin);

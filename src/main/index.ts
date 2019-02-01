@@ -2,9 +2,9 @@ import FS from "fs";
 import PATH from "path";
 import DISCORD from "discord.js";
 import STRIP_JSON_COMMENTS from "strip-json-comments";
-import Logger from "./logger.js";
-import Bot from "./bot/bot.js";
-import BotHooks from "./bot/botHooks.js";
+import Logger from "./utils/logger.js";
+import Bot from "./bot/bot/bot.js";
+import BotHooks from "./bot/bot/botHooks.js";
 import BotPlugin from "./bot/plugin/plugin.js";
 
 let client: DISCORD.Client;
@@ -290,10 +290,11 @@ export {
     start, stop,
     getBot, getDefaultConfig,
 
-    classes    
+    classes
 };
 
-// @ts-ignore
-if (require.main === module) { // if not being 'require'-d into something else
+if (process.argv.slice(2).includes("--msgDebugMode")) {
+    require("./msgDebugMode");
+} else if (require.main === module) { // if not being 'require'-d into something else
     require("./run-standalone");
 }

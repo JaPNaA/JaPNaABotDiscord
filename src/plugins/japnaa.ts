@@ -1,18 +1,18 @@
-import BotHooks from "../main/bot/botHooks.js";
+import BotHooks from "../main/bot/bot/botHooks.js";
 
-import { DiscordMessageEvent } from "../main/events.js";
+import DiscordMessageEvent from "../main/bot/types/discordCommandEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";
-import Logger from "../main/logger.js";
+import Logger from "../main/utils/logger.js";
 
-import { stringToArgs, random, getSnowflakeNum } from "../main/utils.js";
+import { stringToArgs, random, getSnowflakeNum } from "../main/utils/utils.js";
 
-import createKey from "../main/bot/locationKeyCreator.js";
-import { JSONObject } from "../main/jsonObject.js";
+import createKey from "../main/bot/utils/locationKeyCreator.js";
+import { JSONObject } from "../main/types/jsonObject.js";
 import { Guild } from "discord.js";
-import { mention } from "../main/specialUtils.js";
+import { mention } from "../main/utils/specialUtils.js";
 
 type SpamCallback = () => boolean;
 

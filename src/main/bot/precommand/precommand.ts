@@ -1,8 +1,8 @@
 import PrecommandCallback from "./precommandCallback.js";
-import BotHooks from "../botHooks.js";
-import { toArray } from "../../utils.js";
+import BotHooks from "../bot/botHooks.js";
+import { toArray } from "../../utils/utils.js";
 import PrecommandName from "./precommandName.js";
-import BotPermissions from "../botPermissions.js";
+import BotPermissions from "../bot/botPermissions.js";
 import CommandManager from "../command/manager/commandManager.js";
 
 abstract class Precommand {

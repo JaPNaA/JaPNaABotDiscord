@@ -1,5 +1,5 @@
 import PresidentsMain from "./game";
-import { DiscordMessageEvent, DiscordCommandEvent } from "../../../main/events";
+import DiscordCommandEvent from "../../../main/bot/types/discordCommandEvent";
 import { Rank } from "../cards/cardUtils";
 import { MessageActionError, MessageSyntaxError } from "./errors";
 import Player from "./player/player";

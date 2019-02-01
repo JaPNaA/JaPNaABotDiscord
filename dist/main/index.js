@@ -7,8 +7,8 @@ const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const discord_js_1 = __importDefault(require("discord.js"));
 const strip_json_comments_1 = __importDefault(require("strip-json-comments"));
-const logger_js_1 = __importDefault(require("./logger.js"));
-const bot_js_1 = __importDefault(require("./bot/bot.js"));
+const logger_js_1 = __importDefault(require("./utils/logger.js"));
+const bot_js_1 = __importDefault(require("./bot/bot/bot.js"));
 let client;
 let bot;
 let botHooks;
@@ -248,7 +248,9 @@ const classes = {
     utils: require("./utils.js")
 };
 exports.classes = classes;
-// @ts-ignore
-if (require.main === module) { // if not being 'require'-d into something else
+if (process.argv.slice(2).includes("--msgDebugMode")) {
+    require("./msgDebugMode");
+}
+else if (require.main === module) { // if not being 'require'-d into something else
     require("./run-standalone");
 }

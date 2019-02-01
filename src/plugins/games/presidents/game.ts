@@ -1,5 +1,5 @@
 import PlayerHandler from "./playerHandler";
-import BotHooks from "../../../main/bot/botHooks";
+import BotHooks from "../../../main/bot/bot/botHooks";
 import Dealer from "./dealer";
 import Games from "../../games";
 import MessageHandler from "./messageHandler";
@@ -9,7 +9,7 @@ import MessageParser from "./messageParser";
 import { MessageSyntaxError, MessageActionError } from "./errors";
 import Logic from "./logic";
 import { Message } from "discord.js";
-import { toOne } from "../../../main/utils";
+import { toOne } from "../../../main/utils/utils";
 import MessageEvent from "./messageEvent";
 import MessageType from "./messageType";
 

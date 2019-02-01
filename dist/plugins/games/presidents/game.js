@@ -17,7 +17,7 @@ const messageHandler_1 = __importDefault(require("./messageHandler"));
 const messageParser_1 = __importDefault(require("./messageParser"));
 const errors_1 = require("./errors");
 const logic_1 = __importDefault(require("./logic"));
-const utils_1 = require("../../../main/utils");
+const utils_1 = require("../../../main/utils/utils");
 const messageType_1 = __importDefault(require("./messageType"));
 class PresidentsMain {
     constructor(botHooks, parentGame, presidentsGame) {

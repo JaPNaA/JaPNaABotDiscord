@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const specialUtils_js_1 = require("../../../specialUtils.js");
+const specialUtils_js_1 = require("../../../utils/specialUtils.js");
 class CommandDispatcher {
     constructor(botHooks, manager) {
         this.botHooks = botHooks;

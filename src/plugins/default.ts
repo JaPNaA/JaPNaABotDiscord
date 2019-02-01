@@ -1,18 +1,18 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";
-import Logger from "../main/logger.js";
+import Logger from "../main/utils/logger.js";
 
-import { getSnowflakeNum, stringToArgs } from "../main/utils.js";
+import { getSnowflakeNum, stringToArgs } from "../main/utils/utils.js";
 import { inspect } from "util";
 
-import createKey from "../main/bot/locationKeyCreator.js";
-import Permissions from "../main/permissions.js";
-import BotHooks from "../main/bot/botHooks.js";
-import { DiscordCommandEvent, DiscordMessageEvent } from "../main/events.js";
+import createKey from "../main/bot/utils/locationKeyCreator.js";
+import Permissions from "../main/types/permissions.js";
+import BotHooks from "../main/bot/bot/botHooks.js";
+import DiscordCommandEvent from "../main/bot/types/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
 import { TextChannel, Message, Guild, User, Channel, GuildMember } from "discord.js";
-import { fakeMessage, mention } from "../main/specialUtils.js";
+import { fakeMessage, mention } from "../main/utils/specialUtils.js";
 
 import * as childProcess from "child_process";
 import * as japnaabot from "../main/index";

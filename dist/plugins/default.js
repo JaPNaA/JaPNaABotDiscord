@@ -13,12 +13,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
-const logger_js_1 = __importDefault(require("../main/logger.js"));
-const utils_js_1 = require("../main/utils.js");
+const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
+const utils_js_1 = require("../main/utils/utils.js");
 const util_1 = require("util");
-const locationKeyCreator_js_1 = __importDefault(require("../main/bot/locationKeyCreator.js"));
-const permissions_js_1 = __importDefault(require("../main/permissions.js"));
-const specialUtils_js_1 = require("../main/specialUtils.js");
+const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
+const permissions_js_1 = __importDefault(require("../main/types/permissions.js"));
+const specialUtils_js_1 = require("../main/utils/specialUtils.js");
 const childProcess = __importStar(require("child_process"));
 const japnaabot = __importStar(require("../main/index"));
 /**

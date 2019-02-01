@@ -1,5 +1,5 @@
 import Player from "./player/player";
-import BotHooks from "../../../main/bot/botHooks";
+import BotHooks from "../../../main/bot/bot/botHooks";
 import Games from "../../games";
 import Presidents from "./presidents";
 import { AlreadyJoinedError, DMAlreadyLockedError } from "./errors";

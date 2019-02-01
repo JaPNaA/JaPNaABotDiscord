@@ -1,5 +1,5 @@
-import BotHooks from "../main/bot/botHooks.js";
-import { DiscordMessageEvent } from "../main/events.js";
+import BotHooks from "../main/bot/bot/botHooks.js";
+import DiscordMessageEvent from "../main/bot/types/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import { User } from "discord.js";

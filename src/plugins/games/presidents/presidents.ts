@@ -1,8 +1,8 @@
 import Game from "../game";
-import BotHooks from "../../../main/bot/botHooks";
+import BotHooks from "../../../main/bot/bot/botHooks";
 import Games from "../../games";
-import { DiscordCommandEvent } from "../../../main/events";
-import { mention } from "../../../main/specialUtils";
+import DiscordCommandEvent from "../../../main/bot/types/discordCommandEvent";
+import { mention } from "../../../main/utils/specialUtils";
 import PresidentsMain from "./game";
 import { AlreadyJoinedError, DMAlreadyLockedError } from "./errors";
 import MessageType from "./messageType";

@@ -1,7 +1,10 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
-const events_js_1 = require("../events.js");
+const discordMessageEvent_1 = __importDefault(require("../bot/types/discordMessageEvent"));
 class RawEventAdapter {
     constructor(botHooks) {
         this.botHooks = botHooks;
@@ -20,7 +23,7 @@ class RawEventAdapter {
         else {
             isDM = false;
         }
-        const messageEvent = new events_js_1.DiscordMessageEvent({
+        const messageEvent = new discordMessageEvent_1.default({
             username: message.author && message.author.username,
             userId: message.author && message.author.id,
             channelId: message.channel && message.channel.id,

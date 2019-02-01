@@ -1,8 +1,8 @@
 /// <reference types="node" />
-import BotHooks from "../main/bot/botHooks.js";
-import { DiscordMessageEvent } from "../main/events.js";
+import BotHooks from "../main/bot/bot/botHooks.js";
+import DiscordMessageEvent from "../main/bot/types/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import { JSONObject } from "../main/jsonObject.js";
+import { JSONObject } from "../main/types/jsonObject.js";
 declare type SpamCallback = () => boolean;
 /**
  * Commonly used commands made by me, JaPNaA

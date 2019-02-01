@@ -1,11 +1,11 @@
-import BotHooks from "../../botHooks.js";
+import BotHooks from "../../bot/botHooks.js";
 import CommandDispatcher from "./commandDispatcher.js";
 import BotCommandHelp from "../commandHelp.js";
 import BotCommand from "../command.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
-import createKey from "../../locationKeyCreator.js";
-import { ObjectStrMap } from "../../types.js";
+import createKey from "../../utils/locationKeyCreator.js";
+import ObjectStrMap from "../../../types/objectStrMap";
 import UnknownCommandHandler from "./unknownCommandHandler.js";
 
 class CommandManager {

@@ -1,5 +1,5 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import BotHooks from "../main/bot/botHooks.js";
+import BotHooks from "../main/bot/bot/botHooks.js";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
 import Game from "./games/game.js";
 interface GameClass {

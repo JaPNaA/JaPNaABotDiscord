@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const commandDispatcher_js_1 = __importDefault(require("./commandDispatcher.js"));
 const command_js_1 = __importDefault(require("../command.js"));
-const locationKeyCreator_js_1 = __importDefault(require("../../locationKeyCreator.js"));
+const locationKeyCreator_js_1 = __importDefault(require("../../utils/locationKeyCreator.js"));
 class CommandManager {
     constructor(botHooks) {
         this.botHooks = botHooks;

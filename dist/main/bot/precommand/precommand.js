@@ -3,9 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_js_1 = require("../../utils.js");
+const utils_js_1 = require("../../utils/utils.js");
 const precommandName_js_1 = __importDefault(require("./precommandName.js"));
-const botPermissions_js_1 = __importDefault(require("../botPermissions.js"));
+const botPermissions_js_1 = __importDefault(require("../bot/botPermissions.js"));
 const commandManager_js_1 = __importDefault(require("../command/manager/commandManager.js"));
 class Precommand {
     /**

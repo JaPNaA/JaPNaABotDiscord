@@ -1,4 +1,4 @@
-import BotHooks from "../../botHooks.js";
+import BotHooks from "../../bot/botHooks.js";
 import CommandDispatcher from "./commandDispatcher.js";
 import BotCommandHelp from "../commandHelp.js";
 import BotCommand from "../command.js";

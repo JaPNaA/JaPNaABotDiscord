@@ -1,13 +1,13 @@
-import Logger from "../../logger.js";
-import { createErrorString } from "../../utils.js";
+import Logger from "../../utils/logger.js";
+import { createErrorString } from "../../utils/utils.js";
 import { inspect } from "util";
 import BotCommandHelp from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
-import BotHooks from "../botHooks.js";
-import { DiscordCommandEvent } from "../../events.js";
+import BotHooks from "../bot/botHooks.js";
+import DiscordCommandEvent from "../types/discordCommandEvent";
 import BotCommandCallback from "./commandCallback.js";
-import Permissions from "../../permissions.js";
-import { mention } from "../../specialUtils.js";
+import Permissions from "../../types/permissions.js";
+import { mention } from "../../utils/specialUtils.js";
 
 type CleanCommandContent = {
     /** The cleaned message */

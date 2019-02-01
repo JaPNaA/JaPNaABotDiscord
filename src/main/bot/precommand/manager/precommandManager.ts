@@ -1,6 +1,6 @@
 import PrecommandDispatcher from "./precommandDispatcher";
 import { Precommand, PrecommandWithCallback, PrecommandWithoutCallback } from "../precommand";
-import BotHooks from "../../botHooks";
+import BotHooks from "../../bot/botHooks";
 import PrecommandCallback from "../precommandCallback";
 import PrecommandName from "../precommandName";
 

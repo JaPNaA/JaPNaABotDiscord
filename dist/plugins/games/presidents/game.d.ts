@@ -1,5 +1,5 @@
 import PlayerHandler from "./playerHandler";
-import BotHooks from "../../../main/bot/botHooks";
+import BotHooks from "../../../main/bot/bot/botHooks";
 import Dealer from "./dealer";
 import Games from "../../games";
 import MessageHandler from "./messageHandler";

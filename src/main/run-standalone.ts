@@ -5,7 +5,7 @@ const CONFIG_PATH: string = "./data/config.jsonc";
 const ENV_PATH: string = "./data/.env";
 
 /** get environment variables */
-import ENVFunc from "./readenv.js";
+import ENVFunc from "./utils/readenv.js";
 const ENV: { [x: string]: string } = ENVFunc(ENV_PATH);
 
 jbot.start(ENV.token, CONFIG_PATH, MEMORY_PATH);

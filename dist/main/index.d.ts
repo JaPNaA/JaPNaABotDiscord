@@ -1,4 +1,4 @@
-import Bot from "./bot/bot.js";
+import Bot from "./bot/bot/bot.js";
 /**
  * Registers a plugin to auto-load
  * @param path path to plugin

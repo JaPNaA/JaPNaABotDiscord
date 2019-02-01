@@ -1,8 +1,9 @@
-import BotHooks from "../../botHooks";
-import { DiscordMessageEvent, DiscordCommandEvent } from "../../../events";
+import BotHooks from "../../bot/botHooks";
+import DiscordMessageEvent from "../../types/discordMessageEvent";
 import PrecommandManager from "./precommandManager";
-import Logger from "../../../logger";
+import Logger from "../../../utils/logger";
 import PrecommandName from "../precommandName";
+import DiscordCommandEvent from "../../types/discordCommandEvent";
 
 class PrecommandDispatcher {
     botHooks: BotHooks;

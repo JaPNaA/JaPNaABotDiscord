@@ -1,5 +1,5 @@
 import PresidentsMain from "./game";
-import { DiscordCommandEvent } from "../../../main/events";
+import DiscordCommandEvent from "../../../main/bot/types/discordCommandEvent";
 import MessageType from "./messageType";
 declare class MessageHandler {
     game: PresidentsMain;
