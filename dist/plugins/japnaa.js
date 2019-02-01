@@ -188,15 +188,15 @@ class Japnaa extends plugin_js_1.default {
      */
     _getSpamLimit(bot, event) {
         let userLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.user_server(event.serverId, event.userId));
-        if (userLimit !== undefined) {
+        if (userLimit !== null) {
             return userLimit;
         }
         let channelLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.channel(event.serverId, event.channelId));
-        if (channelLimit !== undefined) {
+        if (channelLimit !== null) {
             return channelLimit;
         }
         let serverLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
-        if (serverLimit !== undefined) {
+        if (serverLimit !== null) {
             return serverLimit;
         }
         let defaultLimit = this.config["spam.defaultLimit"];

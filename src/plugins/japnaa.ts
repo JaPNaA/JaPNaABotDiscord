@@ -226,17 +226,17 @@ class Japnaa extends BotPlugin {
         let userLimit: number = bot.memory.get(this._pluginName,
             this.memorySpamLimit + createKey.delimiter() + createKey.user_server(event.serverId, event.userId)
         );
-        if (userLimit !== undefined) { return userLimit; }
+        if (userLimit !== null) { return userLimit; }
 
         let channelLimit: number = bot.memory.get(this._pluginName,
             this.memorySpamLimit + createKey.delimiter() + createKey.channel(event.serverId, event.channelId)
         );
-        if (channelLimit !== undefined) { return channelLimit; }
+        if (channelLimit !== null) { return channelLimit; }
 
         let serverLimit: number = bot.memory.get(this._pluginName,
             this.memorySpamLimit + createKey.delimiter() + createKey.server(event.serverId)
         );
-        if (serverLimit !== undefined) { return serverLimit; }
+        if (serverLimit !== null) { return serverLimit; }
 
         let defaultLimit: number = this.config["spam.defaultLimit"] as number;
         return defaultLimit;
