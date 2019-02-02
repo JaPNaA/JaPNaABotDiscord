@@ -15,6 +15,7 @@ import createKey from "../main/bot/utils/locationKeyCreator.js";
 import { JSONObject } from "../main/types/jsonObject.js";
 import { Guild } from "discord.js";
 import { mention } from "../main/utils/specialUtils.js";
+import randomString from "../main/utils/randomString.js";
 
 type SpamCallback = () => boolean;
 
@@ -72,21 +73,6 @@ class Japnaa extends BotPlugin {
     }
 
     /**
-     * Generates a 128 character radom string
-     */
-    _randomString(): string {
-        const min: number = 32;
-        const max: number = 127;
-        let rands: number[] = [];
-
-        for (let i: number = 0; i < 128; i++) {
-            rands.push(random(min, max, 1));
-        }
-
-        return String.fromCharCode(...rands);
-    }
-
-    /**
      * Generates random stuff
      */
     random(bot: BotHooks, event: DiscordMessageEvent, argString: string): void {
@@ -96,8 +82,7 @@ class Japnaa extends BotPlugin {
         if (args[0] && args[0].toLowerCase() === "string") {
             bot.send(event.channelId,
                 "```" +
-                this._randomString()
-                    .replace(/`$/g, "` ") // because discord markup
+                randomString(128).replace(/`$/g, "` ") // because discord markup
                 + "```"
             );
             return;
@@ -113,26 +98,26 @@ class Japnaa extends BotPlugin {
 
         // do different things with different amount of arguments
         switch (args.length) {
-        case 0:
-            max = 1;
-            min = 0;
-            step = 0;
-            break;
-        case 1:
-            max = parseFloat(args[0]);
-            min = 0;
-            step = 1;
-            break;
-        case 2:
-            max = parseFloat(args[0]);
-            min = parseFloat(args[1]);
-            step = 1;
-            break;
-        case 3:
-            max = parseFloat(args[0]);
-            min = parseFloat(args[1]);
-            step = parseFloat(args[2]);
-            break;
+            case 0:
+                max = 1;
+                min = 0;
+                step = 0;
+                break;
+            case 1:
+                max = parseFloat(args[0]);
+                min = 0;
+                step = 1;
+                break;
+            case 2:
+                max = parseFloat(args[0]);
+                min = parseFloat(args[1]);
+                step = 1;
+                break;
+            case 3:
+                max = parseFloat(args[0]);
+                min = parseFloat(args[1]);
+                step = parseFloat(args[2]);
+                break;
         }
 
         // check if arguments are valid
@@ -294,28 +279,28 @@ class Japnaa extends BotPlugin {
         const cleanArgs: string = args.trim().toLowerCase();
 
         switch (cleanArgs) {
-        case "stop":
-            this._stopSpam(event.serverId);
-            bot.send(event.channelId, "All spam on this server stopped");
-            return;
-        case "stop all":
-            if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
-                this._stopAllSpam();
-                bot.send(event.channelId, "All spam on every server stopped");
-            } else {
-                bot.send(event.channelId, mention(event.userId) + ", you don't have the permissions to do that.");
-            }
-            return;
-        case "limit":
-            bot.send(event.channelId,
-                "Your spam limit is: " + this._getSpamLimit(bot, event)
-            );
-            return;
-        case "que limit":
-            bot.send(event.channelId,
-                "Server que limit: " + this._getSpamQueLimit(bot, event)
-            );
-            return;
+            case "stop":
+                this._stopSpam(event.serverId);
+                bot.send(event.channelId, "All spam on this server stopped");
+                return;
+            case "stop all":
+                if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
+                    this._stopAllSpam();
+                    bot.send(event.channelId, "All spam on every server stopped");
+                } else {
+                    bot.send(event.channelId, mention(event.userId) + ", you don't have the permissions to do that.");
+                }
+                return;
+            case "limit":
+                bot.send(event.channelId,
+                    "Your spam limit is: " + this._getSpamLimit(bot, event)
+                );
+                return;
+            case "que limit":
+                bot.send(event.channelId,
+                    "Server que limit: " + this._getSpamQueLimit(bot, event)
+                );
+                return;
         }
 
         let [amountArg, counterArg, ...messageArg] = stringToArgs(args);
