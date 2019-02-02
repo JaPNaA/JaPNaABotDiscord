@@ -225,7 +225,7 @@ exports.stop = stop;
  * @returns bot
  */
 function getBot() {
-    return bot;
+    return bot.hooks;
 }
 exports.getBot = getBot;
 /**

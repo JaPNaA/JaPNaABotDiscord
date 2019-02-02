@@ -1,4 +1,4 @@
-import Bot from "./bot/bot/bot.js";
+import BotHooks from "./bot/bot/botHooks.js";
 /**
  * Registers a plugin to auto-load
  * @param path path to plugin
@@ -42,7 +42,7 @@ declare function stop(timeout?: number): Promise<any>;
  * Gets the local variable, bot
  * @returns bot
  */
-declare function getBot(): Bot;
+declare function getBot(): BotHooks;
 /**
  * Gets the default config
  * @returns default bot config

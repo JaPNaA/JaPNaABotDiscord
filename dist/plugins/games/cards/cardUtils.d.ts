@@ -30,7 +30,7 @@ declare function suitToString(suit: Suit): "Spades" | "Diamonds" | "Hearts" | "C
 declare function suitToSymbol(suit: Suit): "♠" | "♦" | "♥" | "♣";
 declare function suitToInt(suit: Suit): 10 | 11 | 12 | 13;
 declare function rankToString(rank: Rank): "Ace" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "Jack" | "Knight" | "Queen" | "King";
-declare function rankToInt(rank: Rank): 2 | 4 | 3 | 1 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
+declare function rankToInt(rank: Rank): 4 | 3 | 2 | 1 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14;
 declare function rankToShortString(rank: Rank): "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "A" | "J" | "C" | "Q" | "K";
 declare function toSymbol(suit: Suit, rank: Rank): string;
 export { Type, Suit, SuitKeys, suitToString, suitToSymbol, suitToInt, Rank, RankKeys, rankToString, rankToShortString, rankToInt, toSymbol };

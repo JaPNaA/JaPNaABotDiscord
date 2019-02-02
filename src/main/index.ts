@@ -260,8 +260,8 @@ function stop(timeout?: number): Promise<any> {
  * Gets the local variable, bot
  * @returns bot
  */
-function getBot(): Bot {
-    return bot;
+function getBot(): BotHooks {
+    return bot.hooks;
 }
 
 /**
