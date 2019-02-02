@@ -268,7 +268,7 @@ function getBot(): BotHooks {
  * Gets the default config
  * @returns default bot config
  */
-function getDefaultConfig(): object {
+function getDefaultConfig(): { [x: string]: any } {
     return defaultConfig;
 }
 
@@ -296,8 +296,10 @@ export {
     classes
 };
 
-if (process.argv.slice(2).includes("--msgDebugMode")) {
+if (process.argv.slice(2).includes("--msg-debug-mode")) {
     require("./msgDebugMode");
-} else if (require.main === module) { // if not being 'require'-d into something else
+}
+
+if (require.main === module) { // if not being 'require'-d into something else
     require("./run-standalone");
 }

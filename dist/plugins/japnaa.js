@@ -12,6 +12,7 @@ const random_1 = __importDefault(require("../main/utils/random"));
 const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
 const specialUtils_js_1 = require("../main/utils/specialUtils.js");
+const randomString_js_1 = __importDefault(require("../main/utils/randomString.js"));
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -55,18 +56,6 @@ class Japnaa extends plugin_js_1.default {
         }
     }
     /**
-     * Generates a 128 character radom string
-     */
-    _randomString() {
-        const min = 32;
-        const max = 127;
-        let rands = [];
-        for (let i = 0; i < 128; i++) {
-            rands.push(random_1.default(min, max, 1));
-        }
-        return String.fromCharCode(...rands);
-    }
-    /**
      * Generates random stuff
      */
     random(bot, event, argString) {
@@ -74,8 +63,7 @@ class Japnaa extends plugin_js_1.default {
         // !random string
         if (args[0] && args[0].toLowerCase() === "string") {
             bot.send(event.channelId, "```" +
-                this._randomString()
-                    .replace(/`$/g, "` ") // because discord markup
+                randomString_js_1.default(128).replace(/`$/g, "` ") // because discord markup
                 + "```");
             return;
         }

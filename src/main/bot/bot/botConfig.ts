@@ -22,6 +22,10 @@ class Config {
     gitlabLink: string;
     /** Link to add bot to server */
     addLink: string;
+    /** Is the bot in debug mode? */
+    debugMode: boolean;
+    /** Debug mode precommand, only exists if debugMode is true */
+    debugPrecommand: string;
 
     constructor(botHooks: BotHooks, config: object) {
         this.config = config as JSONObject;
@@ -34,6 +38,8 @@ class Config {
         this.autoWriteTimeInterval = (this.config["memory.autoWriteInterval"] || 60 * 1000 /* Every minute */) as number;
         this.gitlabLink = (this.config.gitlabLink || "... oh wait hold on I don't have it...") as string;
         this.addLink = (this.config.addLink || "... oh wait I don't know how to...") as string;
+        this.debugMode = this.config.__debug as boolean;
+        this.debugPrecommand = this.config.__debugPrecommand as string;
     }
 
     get(key: string): JSONType | undefined {

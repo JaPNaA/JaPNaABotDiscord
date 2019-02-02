@@ -15,6 +15,8 @@ class Config {
         this.autoWriteTimeInterval = (this.config["memory.autoWriteInterval"] || 60 * 1000 /* Every minute */);
         this.gitlabLink = (this.config.gitlabLink || "... oh wait hold on I don't have it...");
         this.addLink = (this.config.addLink || "... oh wait I don't know how to...");
+        this.debugMode = this.config.__debug;
+        this.debugPrecommand = this.config.__debugPrecommand;
     }
     get(key) {
         return this.config[key];

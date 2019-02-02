@@ -251,9 +251,9 @@ const classes = {
     utils: require("./utils/allUtils.js")
 };
 exports.classes = classes;
-if (process.argv.slice(2).includes("--msgDebugMode")) {
+if (process.argv.slice(2).includes("--msg-debug-mode")) {
     require("./msgDebugMode");
 }
-else if (require.main === module) { // if not being 'require'-d into something else
+if (require.main === module) { // if not being 'require'-d into something else
     require("./run-standalone");
 }

@@ -29,10 +29,6 @@ declare class Japnaa extends BotPlugin {
      */
     echo(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
     /**
-     * Generates a 128 character radom string
-     */
-    _randomString(): string;
-    /**
      * Generates random stuff
      */
     random(bot: BotHooks, event: DiscordMessageEvent, argString: string): void;

@@ -36,7 +36,13 @@ declare class Bot {
     hasActiveAsyncRequests(): boolean;
     /** Starts the bot */
     start(): void;
-    registerDefaultPrecommands(): void;
+    private startNormally;
+    private startDebugMode;
+    private listenForClientReady;
+    private registerDefaultPrecommands;
+    private registerDefaultCommands;
+    private registerDebugPrecommands;
+    private debugPrecommandCallback;
     /**
      * Stops the bot (async)
      */
@@ -46,6 +52,6 @@ declare class Bot {
     /**
      * ready callback
      */
-    onReady(): void;
+    private onReady;
 }
 export default Bot;

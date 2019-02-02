@@ -1,11 +1,19 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const logger_1 = __importDefault(require("../../../utils/logger"));
 class PluginManager {
     constructor(botHooks) {
         this.botHooks = botHooks;
         this.plugins = [];
     }
     register(plugin) {
+        if (this.botHooks.config.debugMode) {
+            logger_1.default.log("Refusing to load plugin in debug mode");
+            return;
+        }
         this.plugins.push(plugin);
         plugin._start();
     }

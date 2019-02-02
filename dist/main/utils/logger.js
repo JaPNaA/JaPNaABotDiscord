@@ -29,5 +29,5 @@ class Logger {
         Logger.level = level;
     }
 }
-Logger.level = 0;
+Logger.level = 4;
 exports.default = Logger;

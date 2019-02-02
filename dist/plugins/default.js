@@ -22,6 +22,7 @@ const childProcess = __importStar(require("child_process"));
 const japnaabot = __importStar(require("../main/index"));
 const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
 const stringToArgs_js_1 = __importDefault(require("../main/utils/stringToArgs.js"));
+const ellipsisize_js_1 = __importDefault(require("../main/utils/ellipsisize.js"));
 /**
  * Normal commands every bot shoud have
  */
@@ -36,10 +37,7 @@ class Default extends plugin_js_1.default {
     }
     eval(bot, event, args) {
         let str = util_1.inspect(eval(args));
-        str = str.replace(/ {4}/g, "\t");
-        if (str.length > 1994) {
-            str = str.slice(0, 1991) + "...";
-        }
+        str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
         bot.send(event.channelId, "```" + str + "```");
     }
     /**
@@ -577,7 +575,7 @@ class Default extends plugin_js_1.default {
      * Actually updates the bot
      */
     _actuallyUpdateBot(bot, event) {
-        childProcess.exec("npm install --save gitlab:japnaa/japnaabotdiscord", callback.bind(this));
+        childProcess.exec("npm install gitlab:japnaa/japnaabotdiscord", callback.bind(this));
         function callback(error, stdout, stderr) {
             if (error) {
                 logger_js_1.default.error(error);

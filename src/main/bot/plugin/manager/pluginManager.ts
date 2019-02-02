@@ -1,5 +1,6 @@
 import BotHooks from "../../bot/botHooks";
 import BotPlugin from "../plugin";
+import Logger from "../../../utils/logger";
 
 class PluginManager {
     botHooks: BotHooks;
@@ -11,6 +12,11 @@ class PluginManager {
     }
 
     register(plugin: BotPlugin): void {
+        if (this.botHooks.config.debugMode) {
+            Logger.log("Refusing to load plugin in debug mode");
+            return;
+        }
+
         this.plugins.push(plugin);
         plugin._start();
     }

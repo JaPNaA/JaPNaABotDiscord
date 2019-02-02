@@ -1,5 +1,5 @@
 class Logger {
-    static level: number = 0;
+    static level: number = 4;
 
     static log_message(...args: any[]): void {
         if (Logger.level >= 4) {

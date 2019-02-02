@@ -20,6 +20,10 @@ declare class Config {
     gitlabLink: string;
     /** Link to add bot to server */
     addLink: string;
+    /** Is the bot in debug mode? */
+    debugMode: boolean;
+    /** Debug mode precommand, only exists if debugMode is true */
+    debugPrecommand: string;
     constructor(botHooks: BotHooks, config: object);
     get(key: string): JSONType | undefined;
     /** Gets config for plugin */

@@ -16,6 +16,8 @@ const precommandManager_js_1 = __importDefault(require("../precommand/manager/pr
 const precommand_js_1 = require("../precommand/precommand.js");
 const pluginManager_js_1 = __importDefault(require("../plugin/manager/pluginManager.js"));
 const commandHelp_js_1 = __importDefault(require("../command/commandHelp.js"));
+const util_1 = require("util");
+const ellipsisize_js_1 = __importDefault(require("../../utils/ellipsisize.js"));
 class Bot {
     constructor(config, memory, memoryPath, client, restartFunc) {
         /**
@@ -92,10 +94,27 @@ class Bot {
     }
     /** Starts the bot */
     start() {
+        if (this.config.debugMode) {
+            this.startDebugMode();
+        }
+        else {
+            this.startNormally();
+        }
+    }
+    startNormally() {
         logger_js_1.default.log("Bot starting...");
         this.registerDefaultPrecommands();
         logger_js_1.default.setLevel(this.config.loggingLevel);
         this.memory.startAutoWrite();
+        this.listenForClientReady();
+    }
+    startDebugMode() {
+        logger_js_1.default.log("Bot starting in debug mode...");
+        this.registerDebugPrecommands();
+        logger_js_1.default.setLevel(4);
+        this.listenForClientReady();
+    }
+    listenForClientReady() {
         if (this.client.isReady()) {
             this.onReady();
         }
@@ -104,19 +123,38 @@ class Bot {
         }
     }
     registerDefaultPrecommands() {
-        // TODO: refactor
         const precommandStrs = this.config.precommands;
         const precommand = precommand_js_1.Precommand.create(this.hooks, precommandStrs);
-        precommand.commandManager.register("restart", "bot", this.restart.bind(this), new commandOptions_js_1.default({
+        this.defaultPrecommand = precommand;
+        this.precommandManager.register(precommand);
+        this.hooks.attachDefaultPrecommand(precommand);
+        this.registerDefaultCommands();
+    }
+    registerDefaultCommands() {
+        this.defaultPrecommand.commandManager.register("restart", "bot", this.restart.bind(this), new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({
                 description: "Restarts the bot"
             }),
             requiredPermission: "BOT_ADMINISTRATOR",
             group: "Utils"
         }));
-        this.defaultPrecommand = precommand;
+    }
+    registerDebugPrecommands() {
+        const precommand = precommand_js_1.Precommand.create(this.hooks, this.config.debugPrecommand, this.debugPrecommandCallback.bind(this));
         this.precommandManager.register(precommand);
-        this.hooks.attachDefaultPrecommand(precommand);
+    }
+    debugPrecommandCallback(event) {
+        try {
+            const fs = require("fs");
+            let str = util_1.inspect(eval(event.commandContent));
+            str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
+            this.hooks.send(event.channelId, "```" + str + "```");
+        }
+        catch (err) {
+            let str = err.stack;
+            str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
+            this.hooks.send(event.channelId, "```" + str + "```");
+        }
     }
     /**
      * Stops the bot (async)

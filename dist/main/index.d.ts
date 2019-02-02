@@ -47,7 +47,9 @@ declare function getBot(): BotHooks;
  * Gets the default config
  * @returns default bot config
  */
-declare function getDefaultConfig(): object;
+declare function getDefaultConfig(): {
+    [x: string]: any;
+};
 declare const classes: {
     Bot: any;
     BotCommand: any;

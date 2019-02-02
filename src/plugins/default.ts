@@ -17,6 +17,7 @@ import * as childProcess from "child_process";
 import * as japnaabot from "../main/index";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum";
 import stringToArgs from "../main/utils/stringToArgs.js";
+import ellipsisize from "../main/utils/ellipsisize.js";
 
 /**
  * Normal commands every bot shoud have
@@ -36,12 +37,7 @@ class Default extends BotPlugin {
 
     eval(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
         let str: string = inspect(eval(args));
-        str = str.replace(/ {4}/g, "\t");
-
-        if (str.length > 1994) {
-            str = str.slice(0, 1991) + "...";
-        }
-
+        str = ellipsisize(str.replace(/ {4}/g, "\t"), 1994);
         bot.send(event.channelId, "```" + str + "```");
     }
 
@@ -628,7 +624,7 @@ class Default extends BotPlugin {
      */
     _actuallyUpdateBot(bot: BotHooks, event: DiscordCommandEvent) {
         childProcess.exec(
-            "npm install --save gitlab:japnaa/japnaabotdiscord",
+            "npm install gitlab:japnaa/japnaabotdiscord",
             callback.bind(this)
         );
 
