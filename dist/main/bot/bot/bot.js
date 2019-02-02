@@ -17,7 +17,7 @@ const precommand_js_1 = require("../precommand/precommand.js");
 const pluginManager_js_1 = __importDefault(require("../plugin/manager/pluginManager.js"));
 const commandHelp_js_1 = __importDefault(require("../command/commandHelp.js"));
 const util_1 = require("util");
-const ellipsisize_js_1 = __importDefault(require("../../utils/ellipsisize.js"));
+const ellipsisize_js_1 = __importDefault(require("../../utils/str/ellipsisize.js"));
 class Bot {
     constructor(config, memory, memoryPath, client, restartFunc) {
         /**

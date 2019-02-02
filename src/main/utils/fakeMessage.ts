@@ -1,4 +1,4 @@
-import { User, TextChannel, Guild } from "discord.js";
+import { TextChannel, User, Guild } from "discord.js";
 import IMessage from "../adapters/IMessage";
 
 function fakeMessage(data: {
@@ -16,10 +16,4 @@ function fakeMessage(data: {
     }
 }
 
-export { fakeMessage };
-
-function mention(userId: string) {
-    return "<@" + userId +">";
-}
-
-export { mention };
+export default fakeMessage;

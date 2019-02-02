@@ -14,7 +14,7 @@ import { Precommand, PrecommandWithoutCallback, PrecommandWithCallback } from ".
 import PluginManager from "../plugin/manager/pluginManager.js";
 import BotCommandHelp from "../command/commandHelp.js";
 import { inspect } from "util";
-import ellipsisize from "../../utils/ellipsisize.js";
+import ellipsisize from "../../utils/str/ellipsisize.js";
 
 class Bot {
     restartFunc: Function;

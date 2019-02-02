@@ -7,12 +7,12 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
-const stringToArgs_1 = __importDefault(require("../main/utils/stringToArgs"));
-const random_1 = __importDefault(require("../main/utils/random"));
+const stringToArgs_1 = __importDefault(require("../main/utils/str/stringToArgs"));
+const random_1 = __importDefault(require("../main/utils/random/random"));
 const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
-const specialUtils_js_1 = require("../main/utils/specialUtils.js");
-const randomString_js_1 = __importDefault(require("../main/utils/randomString.js"));
+const mention_1 = __importDefault(require("../main/utils/str/mention"));
+const randomString_js_1 = __importDefault(require("../main/utils/random/randomString.js"));
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -247,7 +247,7 @@ class Japnaa extends plugin_js_1.default {
                     bot.send(event.channelId, "All spam on every server stopped");
                 }
                 else {
-                    bot.send(event.channelId, specialUtils_js_1.mention(event.userId) + ", you don't have the permissions to do that.");
+                    bot.send(event.channelId, mention_1.default(event.userId) + ", you don't have the permissions to do that.");
                 }
                 return;
             case "limit":
@@ -366,13 +366,13 @@ class Japnaa extends plugin_js_1.default {
         }
         let message = args.slice(tagMatch[0].length);
         bot.sendDM(user, {
-            message: specialUtils_js_1.mention(event.userId) + " told you",
+            message: mention_1.default(event.userId) + " told you",
             embed: {
                 color: bot.config.themeColor,
                 description: message
             }
         }, function () {
-            bot.send(event.channelId, "Failed to tell " + specialUtils_js_1.mention(user));
+            bot.send(event.channelId, "Failed to tell " + mention_1.default(user));
         });
     }
     _stop() {

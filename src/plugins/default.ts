@@ -11,13 +11,14 @@ import BotHooks from "../main/bot/bot/botHooks.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
 import { TextChannel, Guild, User, Channel, GuildMember } from "discord.js";
-import { fakeMessage, mention } from "../main/utils/specialUtils.js";
 
 import * as childProcess from "child_process";
 import * as japnaabot from "../main/index";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum";
-import stringToArgs from "../main/utils/stringToArgs.js";
-import ellipsisize from "../main/utils/ellipsisize.js";
+import stringToArgs from "../main/utils/str/stringToArgs.js";
+import ellipsisize from "../main/utils/str/ellipsisize.js";
+import mention from "../main/utils/str/mention.js";
+import fakeMessage from "../main/utils/fakeMessage.js";
 
 /**
  * Normal commands every bot shoud have

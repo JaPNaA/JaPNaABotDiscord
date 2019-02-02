@@ -7,15 +7,15 @@ import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import Logger from "../main/utils/logger.js";
 
-import stringToArgs from "../main/utils/stringToArgs";
-import random from "../main/utils/random";
+import stringToArgs from "../main/utils/str/stringToArgs";
+import random from "../main/utils/random/random";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum";
 
 import createKey from "../main/bot/utils/locationKeyCreator.js";
 import { JSONObject } from "../main/types/jsonObject.js";
 import { Guild } from "discord.js";
-import { mention } from "../main/utils/specialUtils.js";
-import randomString from "../main/utils/randomString.js";
+import mention from "../main/utils/str/mention"
+import randomString from "../main/utils/random/randomString.js";
 
 type SpamCallback = () => boolean;
 

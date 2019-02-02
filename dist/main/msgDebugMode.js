@@ -11,7 +11,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jbot = __importStar(require("./index"));
-const randomString_1 = __importDefault(require("./utils/randomString"));
+const randomString_1 = __importDefault(require("./utils/random/randomString"));
 const debugPrecommand = randomString_1.default(12) + " ";
 console.log("Debug precommand: " + debugPrecommand);
 console.log("The bot will only respond to this command while in debug mode");

@@ -17,12 +17,13 @@ const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const util_1 = require("util");
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
 const permissions_js_1 = __importDefault(require("../main/types/permissions.js"));
-const specialUtils_js_1 = require("../main/utils/specialUtils.js");
 const childProcess = __importStar(require("child_process"));
 const japnaabot = __importStar(require("../main/index"));
 const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
-const stringToArgs_js_1 = __importDefault(require("../main/utils/stringToArgs.js"));
-const ellipsisize_js_1 = __importDefault(require("../main/utils/ellipsisize.js"));
+const stringToArgs_js_1 = __importDefault(require("../main/utils/str/stringToArgs.js"));
+const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
+const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
+const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
 /**
  * Normal commands every bot shoud have
  */
@@ -328,7 +329,7 @@ class Default extends plugin_js_1.default {
         let user = bot.getUser(userId);
         let message = args.slice(tagMatch[0].length).trim();
         if (!user) {
-            bot.send(event.channelId, "Could not find user" + specialUtils_js_1.mention(userId));
+            bot.send(event.channelId, "Could not find user" + mention_js_1.default(userId));
             return;
         }
         let channel = bot.getChannel(event.channelId);
@@ -336,7 +337,7 @@ class Default extends plugin_js_1.default {
         if (!guild) {
             throw new Error("Unknown error");
         }
-        bot.rawEventAdapter.onMessage(specialUtils_js_1.fakeMessage({
+        bot.rawEventAdapter.onMessage(fakeMessage_js_1.default({
             author: user,
             channel: channel,
             guild: guild,
@@ -368,7 +369,7 @@ class Default extends plugin_js_1.default {
         if (!author || !guild) {
             return; // tODO: Tell invalid, get help
         }
-        bot.rawEventAdapter.onMessage(specialUtils_js_1.fakeMessage({
+        bot.rawEventAdapter.onMessage(fakeMessage_js_1.default({
             author: author,
             channel: channel,
             guild: guild,
@@ -428,11 +429,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this channel");
+                    bot.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this channel.");
+                    bot.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -441,11 +442,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given role" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this channel.");
+                    bot.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel.");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed role" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this channel.");
+                    bot.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -463,11 +464,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this server");
+                    bot.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this server");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this server.");
+                    bot.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -476,11 +477,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given role" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` in this server.");
+                    bot.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this server.");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed role" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) from this server.");
+                    bot.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -502,11 +503,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_global(id, permission, true);
-                    bot.send(event.channelId, "Given" + specialUtils_js_1.mention(id) + " the permission `" + permission + "` everywhere");
+                    bot.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` everywhere");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_global(id, permission, false);
-                    bot.send(event.channelId, "Removed" + specialUtils_js_1.mention(id) + "'s permission (`" + permission + "`) everywhere.");
+                    bot.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) everywhere.");
                 }
                 else {
                     sendHelp();

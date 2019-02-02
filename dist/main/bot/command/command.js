@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
-const createErrorString_1 = __importDefault(require("../../utils/createErrorString"));
+const createErrorString_1 = __importDefault(require("../../utils/str/createErrorString"));
 const util_1 = require("util");
-const specialUtils_js_1 = require("../../utils/specialUtils.js");
+const mention_1 = __importDefault(require("../../utils/str/mention"));
 const whitespaceRegex = /\s/;
 class BotCommand {
     constructor(bot, commandName, pluginName, func, options) {
@@ -55,7 +55,7 @@ class BotCommand {
             if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
                 return {
                     canRun: false,
-                    reasonCannotRun: specialUtils_js_1.mention(commandEvent.userId) + " **You must have `" +
+                    reasonCannotRun: mention_1.default(commandEvent.userId) + " **You must have `" +
                         this.requiredPermission + "` permissions to run this command.**"
                 };
             }

@@ -1,4 +1,4 @@
-import createErrorString from "./createErrorString";
+import createErrorString from "./str/createErrorString";
 
 /**
  * Tries to run a function

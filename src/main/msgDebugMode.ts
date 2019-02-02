@@ -1,5 +1,5 @@
 import * as jbot from "./index";
-import randomString from "./utils/randomString";
+import randomString from "./utils/random/randomString";
 
 const debugPrecommand = randomString(12) + " ";
 
