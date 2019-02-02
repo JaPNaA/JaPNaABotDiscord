@@ -1,7 +1,7 @@
 import BotHooks from "./botHooks.js";
 import EventName from "../types/eventName.js";
 
-import { tryRun } from "../../utils/utils.js";
+import tryRun from "../../utils/tryRun";
 import Logger from "../../utils/logger.js";
 import EventHandler from "../types/eventHandler.js";
 

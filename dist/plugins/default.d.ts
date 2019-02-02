@@ -1,7 +1,7 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import BotHooks from "../main/bot/bot/botHooks.js";
-import DiscordCommandEvent from "../main/bot/types/discordCommandEvent";
+import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
 /**
  * Normal commands every bot shoud have

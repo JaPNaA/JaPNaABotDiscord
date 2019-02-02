@@ -3,19 +3,20 @@ import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import Logger from "../main/utils/logger.js";
 
-import { getSnowflakeNum, stringToArgs } from "../main/utils/utils.js";
 import { inspect } from "util";
 
 import createKey from "../main/bot/utils/locationKeyCreator.js";
 import Permissions from "../main/types/permissions.js";
 import BotHooks from "../main/bot/bot/botHooks.js";
-import DiscordCommandEvent from "../main/bot/types/discordCommandEvent";
+import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
-import { TextChannel, Message, Guild, User, Channel, GuildMember } from "discord.js";
+import { TextChannel, Guild, User, Channel, GuildMember } from "discord.js";
 import { fakeMessage, mention } from "../main/utils/specialUtils.js";
 
 import * as childProcess from "child_process";
 import * as japnaabot from "../main/index";
+import getSnowflakeNum from "../main/utils/getSnowflakeNum";
+import stringToArgs from "../main/utils/stringToArgs.js";
 
 /**
  * Normal commands every bot shoud have

@@ -1,7 +1,7 @@
 import BotCommandHelp from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
 import BotHooks from "../bot/botHooks.js";
-import DiscordCommandEvent from "../types/discordCommandEvent";
+import DiscordCommandEvent from "../events/discordCommandEvent";
 import BotCommandCallback from "./commandCallback.js";
 declare type CleanCommandContent = {
     /** The cleaned message */

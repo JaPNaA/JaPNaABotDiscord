@@ -1,11 +1,11 @@
 import Deck from "./cards/deck";
 import Game from "../games/game";
 import BotHooks from "../../main/bot/bot/botHooks";
-import { toOne } from "../../main/utils/utils";
+import toOne from "../../main/utils/toOne";
 import { Message } from "discord.js";
 import { Rank } from "./cards/cardUtils";
 import { Card } from "./cards/card";
-import DiscordCommandEvent from "../../main/bot/types/discordCommandEvent";
+import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 import { mention } from "../../main/utils/specialUtils";
 

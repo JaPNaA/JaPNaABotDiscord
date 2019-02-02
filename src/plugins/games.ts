@@ -1,6 +1,6 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotHooks from "../main/bot/bot/botHooks.js";
-import DiscordCommandEvent from "../main/bot/types/discordCommandEvent";
+import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
 
 import Game from "./games/game.js";

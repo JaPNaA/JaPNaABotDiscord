@@ -8,6 +8,7 @@
     "build": "tsc",
     "build-w": "tsc -w",
     "clean": "rm dist/* -r",
+    "cleanbuild": "npm run clean; npm run build;",
     "start": "node ./dist/main/index.js"
   },
   "keywords": [

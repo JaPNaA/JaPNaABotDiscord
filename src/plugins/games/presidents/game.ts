@@ -9,7 +9,7 @@ import MessageParser from "./messageParser";
 import { MessageSyntaxError, MessageActionError } from "./errors";
 import Logic from "./logic";
 import { Message } from "discord.js";
-import { toOne } from "../../../main/utils/utils";
+import toOne from "../../../main/utils/toOne";
 import MessageEvent from "./messageEvent";
 import MessageType from "./messageType";
 

@@ -14,13 +14,14 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
-const utils_js_1 = require("../main/utils/utils.js");
 const util_1 = require("util");
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
 const permissions_js_1 = __importDefault(require("../main/types/permissions.js"));
 const specialUtils_js_1 = require("../main/utils/specialUtils.js");
 const childProcess = __importStar(require("child_process"));
 const japnaabot = __importStar(require("../main/index"));
+const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
+const stringToArgs_js_1 = __importDefault(require("../main/utils/stringToArgs.js"));
 /**
  * Normal commands every bot shoud have
  */
@@ -51,7 +52,7 @@ class Default extends plugin_js_1.default {
         let userId = event.userId;
         let response = [];
         if (args) {
-            let newUserId = utils_js_1.getSnowflakeNum(args);
+            let newUserId = getSnowflakeNum_1.default(args);
             if (newUserId) {
                 userId = newUserId;
             }
@@ -321,7 +322,7 @@ class Default extends plugin_js_1.default {
                 event.precommandName.name + "help pretend get` for help");
             return;
         }
-        let userId = utils_js_1.getSnowflakeNum(tagMatch[0]);
+        let userId = getSnowflakeNum_1.default(tagMatch[0]);
         if (!userId) {
             bot.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
             return;
@@ -353,7 +354,7 @@ class Default extends plugin_js_1.default {
             return;
         } // tODO: Tell invalid, get help
         let tagMatch = args.slice(0, firstWhitespaceMatch.index);
-        let channelId = utils_js_1.getSnowflakeNum(tagMatch);
+        let channelId = getSnowflakeNum_1.default(tagMatch);
         if (!channelId) {
             return;
         } // tODO: Tell invalid, get help
@@ -386,7 +387,7 @@ class Default extends plugin_js_1.default {
      * @param argString arguments ns, type, action, id, permission
      */
     edit_permission(bot, event, argString) {
-        let args = utils_js_1.stringToArgs(argString);
+        let args = stringToArgs_js_1.default(argString);
         function sendHelp() {
             bot.send(event.channelId, "Invalid amount of arguments. See `" +
                 event.precommandName.name + "help edit permission` for help");
@@ -402,7 +403,7 @@ class Default extends plugin_js_1.default {
         /** Action (add, remove) */
         let action = args[2][0].toLowerCase();
         /** Id of user or role */
-        let id = utils_js_1.getSnowflakeNum(args[3]);
+        let id = getSnowflakeNum_1.default(args[3]);
         if (!id) {
             return;
         } // tODO: tell invalid, get help

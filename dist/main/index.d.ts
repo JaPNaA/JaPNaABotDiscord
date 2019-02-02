@@ -53,7 +53,10 @@ declare const classes: {
     BotCommand: any;
     BotCommandOptions: any;
     BotCommandHelp: any;
-    events: any;
+    events: {
+        DiscordCommandEvent: any;
+        DiscordMessageEvent: any;
+    };
     Logger: any;
     Permissions: any;
     BotPlugin: any;

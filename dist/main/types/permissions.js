@@ -1,6 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_js_1 = require("../utils/utils.js");
+const getBit_1 = __importDefault(require("../utils/getBit"));
 class Permissions {
     /**
      * Permissions Constructor
@@ -13,66 +16,66 @@ class Permissions {
             this.num |= extendsPermissions.num;
         }
         /** Allows creation of instant invites */
-        this.CREATE_INSTANT_INVITE = utils_js_1.getBit(this.num, 0);
+        this.CREATE_INSTANT_INVITE = getBit_1.default(this.num, 0);
         /** Allows kicking members */
-        this.KICK_MEMBERS = utils_js_1.getBit(this.num, 1);
+        this.KICK_MEMBERS = getBit_1.default(this.num, 1);
         /** Allows banning members */
-        this.BAN_MEMBERS = utils_js_1.getBit(this.num, 2);
+        this.BAN_MEMBERS = getBit_1.default(this.num, 2);
         /** Allows all permissions and bypasses channel permission overwrites */
-        this.ADMINISTRATOR = utils_js_1.getBit(this.num, 3);
+        this.ADMINISTRATOR = getBit_1.default(this.num, 3);
         /** Allows management and editing of channels */
-        this.MANAGE_CHANNELS = utils_js_1.getBit(this.num, 4);
+        this.MANAGE_CHANNELS = getBit_1.default(this.num, 4);
         /** Allows management and editing of the guild */
-        this.MANAGE_GUILD = utils_js_1.getBit(this.num, 5);
+        this.MANAGE_GUILD = getBit_1.default(this.num, 5);
         /** Allows for the addition of reactions to messages */
-        this.ADD_REACTIONS = utils_js_1.getBit(this.num, 6);
+        this.ADD_REACTIONS = getBit_1.default(this.num, 6);
         /** Allows for viewing of audit logs */
-        this.VIEW_AUDIT_LOG = utils_js_1.getBit(this.num, 7);
+        this.VIEW_AUDIT_LOG = getBit_1.default(this.num, 7);
         /** Allows guild members to view a channel, which includes reading messages in text channels */
-        this.VIEW_CHANNEL = utils_js_1.getBit(this.num, 8);
+        this.VIEW_CHANNEL = getBit_1.default(this.num, 8);
         /** Allows for sending messages in a channel */
-        this.SEND_MESSAGES = utils_js_1.getBit(this.num, 9);
+        this.SEND_MESSAGES = getBit_1.default(this.num, 9);
         /** Allows for sending of /tts messages */
-        this.SEND_TTS_MESSAGES = utils_js_1.getBit(this.num, 10);
+        this.SEND_TTS_MESSAGES = getBit_1.default(this.num, 10);
         /** Allows for deletion of other users messages */
-        this.MANAGE_MESSAGES = utils_js_1.getBit(this.num, 11);
+        this.MANAGE_MESSAGES = getBit_1.default(this.num, 11);
         /** Links sent by users with this permission will be auto-embedded */
-        this.EMBED_LINKS = utils_js_1.getBit(this.num, 12);
+        this.EMBED_LINKS = getBit_1.default(this.num, 12);
         /** Allows for uploading images and files */
-        this.ATTACH_FILES = utils_js_1.getBit(this.num, 13);
+        this.ATTACH_FILES = getBit_1.default(this.num, 13);
         /** Allows for reading of message history */
-        this.READ_MESSAGE_HISTORY = utils_js_1.getBit(this.num, 14);
+        this.READ_MESSAGE_HISTORY = getBit_1.default(this.num, 14);
         /**
          * Allows for using the @everyone tag to notify all users in a channel,
          * and the @here tag to notify all online users in a channel
          */
-        this.MENTION_EVERYONE = utils_js_1.getBit(this.num, 15);
+        this.MENTION_EVERYONE = getBit_1.default(this.num, 15);
         /** Allows the usage of custom emojis from other servers */
-        this.USE_EXTERNAL_EMOJIS = utils_js_1.getBit(this.num, 16);
+        this.USE_EXTERNAL_EMOJIS = getBit_1.default(this.num, 16);
         /** Allows for joining of a voice channel */
-        this.CONNECT = utils_js_1.getBit(this.num, 17);
+        this.CONNECT = getBit_1.default(this.num, 17);
         /** Allows for speaking in a voice channel */
-        this.SPEAK = utils_js_1.getBit(this.num, 18);
+        this.SPEAK = getBit_1.default(this.num, 18);
         /** Allows for muting members in a voice channel */
-        this.MUTE_MEMBERS = utils_js_1.getBit(this.num, 19);
+        this.MUTE_MEMBERS = getBit_1.default(this.num, 19);
         /** Allows for deafening of members in a voice channel */
-        this.DEAFEN_MEMBERS = utils_js_1.getBit(this.num, 20);
+        this.DEAFEN_MEMBERS = getBit_1.default(this.num, 20);
         /** Allows for moving of members between voice channels */
-        this.MOVE_MEMBERS = utils_js_1.getBit(this.num, 21);
+        this.MOVE_MEMBERS = getBit_1.default(this.num, 21);
         /** Allows for using voice-activity-detection in a voice channel */
-        this.USE_VAD = utils_js_1.getBit(this.num, 22);
+        this.USE_VAD = getBit_1.default(this.num, 22);
         /** Allows for using priority speaker in a voice channel */
-        this.PRIORITY_SPEAKER = utils_js_1.getBit(this.num, 23);
+        this.PRIORITY_SPEAKER = getBit_1.default(this.num, 23);
         /** Allows for modification of own nickname */
-        this.CHANGE_NICKNAME = utils_js_1.getBit(this.num, 24);
+        this.CHANGE_NICKNAME = getBit_1.default(this.num, 24);
         /** Allows for modification of other users nicknames */
-        this.MANAGE_NICKNAMES = utils_js_1.getBit(this.num, 25);
+        this.MANAGE_NICKNAMES = getBit_1.default(this.num, 25);
         /** Allows management and editing of roles */
-        this.MANAGE_ROLES = utils_js_1.getBit(this.num, 26);
+        this.MANAGE_ROLES = getBit_1.default(this.num, 26);
         /** Allows management and editing of webhooks */
-        this.MANAGE_WEBHOOKS = utils_js_1.getBit(this.num, 27);
+        this.MANAGE_WEBHOOKS = getBit_1.default(this.num, 27);
         /** Allows management and editing of emojis */
-        this.MANAGE_EMOJIS = utils_js_1.getBit(this.num, 28);
+        this.MANAGE_EMOJIS = getBit_1.default(this.num, 28);
         if (this.ADMINISTRATOR) {
             this.setAllPermissionsTrue();
         }

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_js_1 = require("../../utils/utils.js");
+const toArray_1 = __importDefault(require("../../utils/toArray"));
 const precommandName_js_1 = __importDefault(require("./precommandName.js"));
 const botPermissions_js_1 = __importDefault(require("../bot/botPermissions.js"));
 const commandManager_js_1 = __importDefault(require("../command/manager/commandManager.js"));
@@ -14,10 +14,10 @@ class Precommand {
      */
     constructor(botHooks, name) {
         this.botHooks = botHooks;
-        this.names = utils_js_1.toArray(name);
+        this.names = toArray_1.default(name);
     }
     static create(botHooks, name, callback) {
-        let nameArr = utils_js_1.toArray(name);
+        let nameArr = toArray_1.default(name);
         if (callback) {
             return new PrecommandWithCallback(botHooks, nameArr, callback);
         }
@@ -42,7 +42,7 @@ exports.Precommand = Precommand;
 class PrecommandWithCallback extends Precommand {
     constructor(botHooks, name, callback) {
         super(botHooks, name);
-        this.names = utils_js_1.toArray(name);
+        this.names = toArray_1.default(name);
         this.callback = callback;
     }
 }

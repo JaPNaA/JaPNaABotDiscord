@@ -1,13 +1,15 @@
 import BotHooks from "../main/bot/bot/botHooks.js";
 
-import DiscordMessageEvent from "../main/bot/types/discordCommandEvent";
+import DiscordMessageEvent from "../main/bot/events/discordCommandEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import Logger from "../main/utils/logger.js";
 
-import { stringToArgs, random, getSnowflakeNum } from "../main/utils/utils.js";
+import stringToArgs from "../main/utils/stringToArgs";
+import random from "../main/utils/random";
+import getSnowflakeNum from "../main/utils/getSnowflakeNum";
 
 import createKey from "../main/bot/utils/locationKeyCreator.js";
 import { JSONObject } from "../main/types/jsonObject.js";

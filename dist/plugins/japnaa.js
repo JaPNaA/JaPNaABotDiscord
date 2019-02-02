@@ -7,7 +7,9 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
-const utils_js_1 = require("../main/utils/utils.js");
+const stringToArgs_1 = __importDefault(require("../main/utils/stringToArgs"));
+const random_1 = __importDefault(require("../main/utils/random"));
+const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
 const specialUtils_js_1 = require("../main/utils/specialUtils.js");
 /**
@@ -60,7 +62,7 @@ class Japnaa extends plugin_js_1.default {
         const max = 127;
         let rands = [];
         for (let i = 0; i < 128; i++) {
-            rands.push(utils_js_1.random(min, max, 1));
+            rands.push(random_1.default(min, max, 1));
         }
         return String.fromCharCode(...rands);
     }
@@ -68,7 +70,7 @@ class Japnaa extends plugin_js_1.default {
      * Generates random stuff
      */
     random(bot, event, argString) {
-        const args = utils_js_1.stringToArgs(argString);
+        const args = stringToArgs_1.default(argString);
         // !random string
         if (args[0] && args[0].toLowerCase() === "string") {
             bot.send(event.channelId, "```" +
@@ -110,7 +112,7 @@ class Japnaa extends plugin_js_1.default {
             bot.send(event.channelId, "**Invalid arguments**");
         }
         else {
-            result = utils_js_1.random(min, max, step);
+            result = random_1.default(min, max, step);
         }
         bot.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
     }
@@ -267,7 +269,7 @@ class Japnaa extends plugin_js_1.default {
                 bot.send(event.channelId, "Server que limit: " + this._getSpamQueLimit(bot, event));
                 return;
         }
-        let [amountArg, counterArg, ...messageArg] = utils_js_1.stringToArgs(args);
+        let [amountArg, counterArg, ...messageArg] = stringToArgs_1.default(args);
         /**
          * Amount of spam
          */
@@ -369,7 +371,7 @@ class Japnaa extends plugin_js_1.default {
                 event.precommandName + "help tell` for help");
             return;
         }
-        let user = utils_js_1.getSnowflakeNum(tagMatch[0]);
+        let user = getSnowflakeNum_1.default(tagMatch[0]);
         if (!user) {
             bot.send(event.channelId, "User does not exist.");
             return;

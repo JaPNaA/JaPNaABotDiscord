@@ -17,7 +17,7 @@ const messageHandler_1 = __importDefault(require("./messageHandler"));
 const messageParser_1 = __importDefault(require("./messageParser"));
 const errors_1 = require("./errors");
 const logic_1 = __importDefault(require("./logic"));
-const utils_1 = require("../../../main/utils/utils");
+const toOne_1 = __importDefault(require("../../../main/utils/toOne"));
 const messageType_1 = __importDefault(require("./messageType"));
 class PresidentsMain {
     constructor(botHooks, parentGame, presidentsGame) {
@@ -99,7 +99,7 @@ class PresidentsMain {
     }
     sendPile() {
         return __awaiter(this, void 0, void 0, function* () {
-            const message = utils_1.toOne(yield this.announce("Loading..."));
+            const message = toOne_1.default(yield this.announce("Loading..."));
             this.pileMessage = message;
             this.updatePile();
         });

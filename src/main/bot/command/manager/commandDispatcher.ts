@@ -1,5 +1,5 @@
 import BotHooks from "../../bot/botHooks.js";
-import DiscordCommandEvent from "../../types/discordCommandEvent.js";
+import DiscordCommandEvent from "../../events/discordCommandEvent.js";
 import CommandManager from "./commandManager.js";
 
 import BotCommand from "../command.js";

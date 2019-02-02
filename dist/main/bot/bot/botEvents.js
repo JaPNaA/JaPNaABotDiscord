@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_js_1 = require("../../utils/utils.js");
+const tryRun_1 = __importDefault(require("../../utils/tryRun"));
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 class BotEvent {
     constructor(botHooks) {
@@ -30,7 +30,7 @@ class BotEvent {
         let errors = [];
         logger_js_1.default.log_message("Event: " + name);
         for (let handler of this.events[name]) {
-            let error = utils_js_1.tryRun(() => handler(this.botHooks, event));
+            let error = tryRun_1.default(() => handler(this.botHooks, event));
             if (error) {
                 errors.push(error);
                 logger_js_1.default.warn(error);

@@ -4,7 +4,7 @@ import Game from "../games/game";
 import BotHooks from "../../main/bot/bot/botHooks";
 import { Message } from "discord.js";
 import { Rank } from "./cards/cardUtils";
-import DiscordCommandEvent from "../../main/bot/types/discordCommandEvent";
+import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 declare class SlapJack extends Game {
     _gamePluginName: string;

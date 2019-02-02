@@ -6,7 +6,7 @@ import BotConfig from "./botConfig.js";
 import BotPermissions from "./botPermissions.js";
 import BotEvents from "./botEvents.js";
 import BotClient from "./botClient.js";
-import DiscordCommandEvent from "../types/discordCommandEvent.js";
+import DiscordCommandEvent from "../events/discordCommandEvent.js";
 import PrecommandManager from "../precommand/manager/precommandManager.js";
 import { PrecommandWithoutCallback } from "../precommand/precommand.js";
 import PluginManager from "../plugin/manager/pluginManager.js";

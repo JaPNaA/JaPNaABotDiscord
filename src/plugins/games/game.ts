@@ -1,7 +1,7 @@
 import BotHooks from "../../main/bot/bot/botHooks";
 import CommandManager from "../../main/bot/command/manager/commandManager";
 import BotPlugin from "../../main/bot/plugin/plugin";
-import DiscordCommandEvent from "../../main/bot/types/discordCommandEvent";
+import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 
 abstract class Game extends BotPlugin {

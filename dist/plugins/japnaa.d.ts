@@ -1,6 +1,6 @@
 /// <reference types="node" />
 import BotHooks from "../main/bot/bot/botHooks.js";
-import DiscordMessageEvent from "../main/bot/types/discordCommandEvent";
+import DiscordMessageEvent from "../main/bot/events/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import { JSONObject } from "../main/types/jsonObject.js";
 declare type SpamCallback = () => boolean;

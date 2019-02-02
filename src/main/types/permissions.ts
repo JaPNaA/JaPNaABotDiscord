@@ -1,4 +1,4 @@
-import { getBit } from "../utils/utils.js";
+import getBit from "../utils/getBit";
 
 class Permissions {
     static keys: string[] = [

@@ -1,5 +1,5 @@
 import BotHooks from "../../../../main/bot/bot/botHooks";
-import DiscordCommandEvent from "../../../../main/bot/types/discordCommandEvent";
+import DiscordCommandEvent from "../../../../main/bot/events/discordCommandEvent";
 import PlayerCards from "./cards";
 import PlayerAction from "./action";
 import PresidentsMain from "../game";
