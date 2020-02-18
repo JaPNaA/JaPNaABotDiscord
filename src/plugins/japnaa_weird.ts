@@ -9,6 +9,7 @@ import { User } from "discord.js";
  */
 class JapnaaWeird extends BotPlugin {
     lolRegexp: RegExp = /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i;
+    l$wlRegexp: RegExp = /(l|\|)\s*(e|3)\s*(w|(vv))\s*(l|\|)\s*/g;
 
     constructor(bot: BotHooks) {
         super(bot);
@@ -45,14 +46,36 @@ class JapnaaWeird extends BotPlugin {
      * Listens for messages with 'lol' and deviations
      */
     onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent): void {
-        const user: User | undefined = bot.getUser(event.userId);
         if (
-            !event.precommandName && // is not a command
-            user && !user.bot && // sender is not a bot
+            this._isNaturalMessage(bot, event) &&
             this.lolRegexp.test(event.message) // contains valid 'lol'
         ) {
             bot.send(event.channelId, "lol");
         }
+    }
+
+    onmessageHandler_l$wl(bot: BotHooks, event: DiscordMessageEvent): void {
+        if (this._isNaturalMessage(bot, event)) {
+            let numL$wl = this._countL$wl(event.message);
+            if (numL$wl <= 0) { return; }
+
+            let str = "no ".repeat(numL$wl);
+            bot.send(event.channelId, str);
+        }
+    }
+
+    _countL$wl(str: string): number {
+        let i = 0;
+        for (let match; match = this.l$wlRegexp.exec(str); i++) { }
+        return i;
+    }
+
+    _isNaturalMessage(bot: BotHooks, event: DiscordMessageEvent): boolean {
+        const user: User | undefined = bot.getUser(event.userId);
+        return Boolean(
+            !event.precommandName && // is not a command
+            user && !user.bot
+        );
     }
 
     _start(): void {
@@ -61,6 +84,7 @@ class JapnaaWeird extends BotPlugin {
         this._registerDefaultCommand("your", this.your);
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
+        this._registerEventHandler("message", this.onmessageHandler_l$wl);
 
         this.bot.events.on("start",
             function (this: JapnaaWeird): void {
