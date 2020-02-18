@@ -33,7 +33,7 @@ declare class Memory {
      * Callback when memory is written
      * @param error, if any
      */
-    _doneWriteMemory(error: NodeJS.ErrnoException): void;
+    _doneWriteMemory(error: any): void;
     /**
      * Starts automatically writing out
      */

@@ -1,12 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -33,44 +25,38 @@ class PresidentsMain {
     start() {
         this.startMainLoop();
     }
-    startMainLoop() {
-        return __awaiter(this, void 0, void 0, function* () {
-            this.dealer.distributeCards(this.playerHandler.players);
-            this.sortEveryonesDecks();
-            this.tellEveryoneTheirDecksAndInstructions();
-            yield this.sendPile();
-            while (yield this.mainLoopTick()) { }
-        });
+    async startMainLoop() {
+        this.dealer.distributeCards(this.playerHandler.players);
+        this.sortEveryonesDecks();
+        this.tellEveryoneTheirDecksAndInstructions();
+        await this.sendPile();
+        while (await this.mainLoopTick()) { }
     }
-    waitForValidTurn(player) {
-        return __awaiter(this, void 0, void 0, function* () {
-            while (true) {
-                try {
-                    yield this.waitForTurn(player);
-                    break;
-                }
-                catch (err) {
-                    this.handlePlayerTurnError(err, player);
-                }
+    async waitForValidTurn(player) {
+        while (true) {
+            try {
+                await this.waitForTurn(player);
+                break;
             }
-        });
+            catch (err) {
+                this.handlePlayerTurnError(err, player);
+            }
+        }
     }
-    waitForTurn(player) {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (player.done) {
-                return;
-            }
-            let promise = new Promise(function (resolve) {
-                player.waitForOneMessage(resolve);
-            });
-            let message = yield promise;
-            if (message.type == messageType_1.default.pass) {
-                this.messageParser.parse_pass(player, message.message);
-            }
-            else if (message.type == messageType_1.default.use) {
-                this.messageParser.parse_use(player, message.message);
-            }
+    async waitForTurn(player) {
+        if (player.done) {
+            return;
+        }
+        let promise = new Promise(function (resolve) {
+            player.waitForOneMessage(resolve);
         });
+        let message = await promise;
+        if (message.type == messageType_1.default.pass) {
+            this.messageParser.parse_pass(player, message.message);
+        }
+        else if (message.type == messageType_1.default.use) {
+            this.messageParser.parse_use(player, message.message);
+        }
     }
     handlePlayerTurnError(error, player) {
         if (error instanceof errors_1.MessageSyntaxError) {
@@ -97,12 +83,10 @@ class PresidentsMain {
             this.bot.sendDM(player.userId, str);
         }
     }
-    sendPile() {
-        return __awaiter(this, void 0, void 0, function* () {
-            const message = toOne_1.default(yield this.announce("Loading..."));
-            this.pileMessage = message;
-            this.updatePile();
-        });
+    async sendPile() {
+        const message = toOne_1.default(await this.announce("Loading..."));
+        this.pileMessage = message;
+        this.updatePile();
     }
     updatePile() {
         if (this.pileMessage) {
@@ -123,29 +107,27 @@ class PresidentsMain {
             this.sendPile();
         }
     }
-    mainLoopTick() {
-        return __awaiter(this, void 0, void 0, function* () {
-            if (this.playerHandler.players.length <= 0) {
+    async mainLoopTick() {
+        if (this.playerHandler.players.length <= 0) {
+            return false;
+        }
+        for (let i = 0; i < this.playerHandler.players.length; i++) {
+            const player = this.playerHandler.players[i];
+            player.action.beforeTurn();
+            this.sendPlayerCards(player);
+            this.updatePile();
+            await this.waitForValidTurn(player);
+            player.tellCards();
+            this.checkDone(player);
+            if (this.hasGameEnded()) {
                 return false;
             }
-            for (let i = 0; i < this.playerHandler.players.length; i++) {
-                const player = this.playerHandler.players[i];
-                player.action.beforeTurn();
-                this.sendPlayerCards(player);
-                this.updatePile();
-                yield this.waitForValidTurn(player);
-                player.tellCards();
-                this.checkDone(player);
-                if (this.hasGameEnded()) {
-                    return false;
-                }
-                if (this.logic.wasBurned) {
-                    i--;
-                    continue;
-                }
+            if (this.logic.wasBurned) {
+                i--;
+                continue;
             }
-            return true;
-        });
+        }
+        return true;
     }
     sendPlayerCards(player) {
         if (player.done) {

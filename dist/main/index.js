@@ -45,7 +45,7 @@ function _init() {
  * @returns concated object
  */
 function _concatObject(base, override) {
-    let c = Object.assign({}, base);
+    let c = { ...base };
     let overrideKeys = Object.keys(override);
     for (let key of overrideKeys) {
         let baseVal = base[key];
@@ -69,7 +69,10 @@ function _getConfigFromPath() {
         return;
     }
     let fileConfig = JSON.parse(strip_json_comments_1.default(fs_1.default.readFileSync(configPath).toString()));
-    config = Object.assign({}, defaultConfig, _concatObject(fileConfig, runtimeConfig));
+    config = {
+        ...defaultConfig,
+        ..._concatObject(fileConfig, runtimeConfig)
+    };
 }
 /**
  * Registers a plugin to auto-load
@@ -163,7 +166,10 @@ function start(apiToken, botConfig, pathToMemoryFile) {
         configPath = botConfig;
     }
     else {
-        config = Object.assign({}, defaultConfig, botConfig);
+        config = {
+            ...defaultConfig,
+            ...botConfig
+        };
     }
     memoryPath = pathToMemoryFile;
     client = new discord_js_1.default.Client();

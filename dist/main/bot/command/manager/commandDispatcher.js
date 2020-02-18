@@ -1,6 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const specialUtils_js_1 = require("../../../utils/specialUtils.js");
+const mention_1 = __importDefault(require("../../../utils/str/mention"));
 class CommandDispatcher {
     constructor(botHooks, manager) {
         this.botHooks = botHooks;
@@ -28,7 +31,7 @@ class CommandDispatcher {
                 this.manager.unknownCommandHandler(this.botHooks, commandEvent);
             }
             else if (this.botHooks.config.doAlertCommandDoesNotExist) {
-                this.botHooks.client.send(commandEvent.channelId, specialUtils_js_1.mention(commandEvent.userId) + ", that command doesn't exist");
+                this.botHooks.client.send(commandEvent.channelId, mention_1.default(commandEvent.userId) + ", that command doesn't exist");
             }
         }
     }
