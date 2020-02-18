@@ -7,7 +7,7 @@ import { Rank } from "./cards/cardUtils";
 import { Card } from "./cards/card";
 import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
-import { mention } from "../../main/utils/specialUtils";
+import mention from "../../main/utils/str/mention";
 
 class SlapJack extends Game {
     _gamePluginName: string = "slapjack"

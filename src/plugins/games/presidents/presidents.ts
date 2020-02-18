@@ -2,7 +2,7 @@ import Game from "../game";
 import BotHooks from "../../../main/bot/bot/botHooks";
 import Games from "../../games";
 import DiscordCommandEvent from "../../../main/bot/events/discordCommandEvent";
-import { mention } from "../../../main/utils/specialUtils";
+import mention from "../../../main/utils/str/mention";
 import PresidentsMain from "./game";
 import { AlreadyJoinedError, DMAlreadyLockedError } from "./errors";
 import MessageType from "./messageType";

@@ -73,7 +73,7 @@ class Memory {
      * Callback when memory is written
      * @param error, if any
      */
-    _doneWriteMemory(error: NodeJS.ErrnoException): void {
+    _doneWriteMemory(error: any): void {
         this.botHook.doneAsyncRequest();
         if (error) {
             Logger.error("Failed to write to memory", error);

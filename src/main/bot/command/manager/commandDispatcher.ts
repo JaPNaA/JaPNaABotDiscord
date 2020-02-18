@@ -3,7 +3,7 @@ import DiscordCommandEvent from "../../events/discordCommandEvent.js";
 import CommandManager from "./commandManager.js";
 
 import BotCommand from "../command.js";
-import { mention } from "../../../utils/specialUtils.js";
+import mention from "../../../utils/str/mention";
 
 class CommandDispatcher {
     botHooks: BotHooks;
