@@ -1,5 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.AlreadyJoinedError = exports.DMAlreadyLockedError = exports.MessageActionError = exports.MessageSyntaxError = void 0;
 class MessageSyntaxError extends Error {
     constructor(message) {
         let str = "Message Syntax Error";

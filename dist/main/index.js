@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.classes = exports.getDefaultConfig = exports.getBot = exports.stop = exports.start = exports.registerAutoloadBuiltinPlugin = exports.registerAutoloadPlugin = exports.loadBuiltinPlugin = exports.loadPlugin = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const discord_js_1 = __importDefault(require("discord.js"));

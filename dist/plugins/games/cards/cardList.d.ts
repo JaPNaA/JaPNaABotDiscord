@@ -15,6 +15,6 @@ declare class CardList {
     takeTop(): Card | undefined;
     remove(card: Card): Card;
     get(index: number): Card;
-    readonly size: number;
+    get size(): number;
 }
 export default CardList;

@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PrecommandWithoutCallback = exports.PrecommandWithCallback = exports.Precommand = void 0;
 const toArray_1 = __importDefault(require("../../utils/toArray"));
 const precommandName_js_1 = __importDefault(require("./precommandName.js"));
 const botPermissions_js_1 = __importDefault(require("../bot/botPermissions.js"));
