@@ -121,7 +121,7 @@ class Games extends BotPlugin {
     }
 
     private _sendDoesntExist(bot: BotHooks, event: DiscordCommandEvent) {
-        bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+        bot.send(event.channelId, "No game is running...");
     }
 
     private _listGames(): string[] {

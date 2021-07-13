@@ -29,7 +29,7 @@ abstract class Game extends BotPlugin {
     unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
         bot.send(
             event.channelId, 
-            "lol that command doesn't exist!!1!\n" + 
+            "That command doesn't exist!\n" + 
             "(You're playing " + this.gameName + ")"
         );
     }

@@ -95,7 +95,7 @@ class Games extends plugin_js_1.default {
         }
     }
     _sendDoesntExist(bot, event) {
-        bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+        bot.send(event.channelId, "No game is running...");
     }
     _listGames() {
         const set = new Set();

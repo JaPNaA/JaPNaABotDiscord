@@ -17,7 +17,7 @@ class Game extends plugin_1.default {
         this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
     }
     unknownCommandHandler(bot, event) {
-        bot.send(event.channelId, "lol that command doesn't exist!!1!\n" +
+        bot.send(event.channelId, "That command doesn't exist!\n" +
             "(You're playing " + this.gameName + ")");
     }
 }
