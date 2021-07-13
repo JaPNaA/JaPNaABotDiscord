@@ -29,6 +29,7 @@ declare class Games extends BotPlugin {
     private _forwardToGameInChannel;
     private _forwardToGameFromDM;
     private _sendDoesntExist;
+    private _listGames;
     _stop(): void;
 }
 export default Games;

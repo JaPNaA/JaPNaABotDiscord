@@ -56,7 +56,7 @@ class Games extends plugin_js_1.default {
         }
         else {
             bot.send(event.channelId, "That game doesn't exist :confused:\n" +
-                "```c\n// TODO: add way to list all games```");
+                "Games available: " + this._listGames().join(", "));
         }
     }
     _getGame(name) {
@@ -96,6 +96,18 @@ class Games extends plugin_js_1.default {
     }
     _sendDoesntExist(bot, event) {
         bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+    }
+    _listGames() {
+        const set = new Set();
+        const names = [];
+        const potentialNames = Object.keys(this.gameAliases);
+        for (const name of potentialNames) {
+            if (!set.has(this.gameAliases[name])) {
+                names.push(name);
+                set.add(this.gameAliases[name]);
+            }
+        }
+        return names;
     }
     _stop() {
         // do nothing

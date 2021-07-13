@@ -69,15 +69,15 @@ class Games extends BotPlugin {
         let cleanedArgs = args.trim().toLowerCase();
 
         const gameClass = this._getGame(cleanedArgs);
-        
+
         if (gameClass) {
             let game = new gameClass(this.bot, this, event.channelId, event.userId);
             this.currentGames.set(event.channelId, game);
             game._start();
         } else {
-            bot.send(event.channelId, 
+            bot.send(event.channelId,
                 "That game doesn't exist :confused:\n" +
-                "```c\n// TODO: add way to list all games```"
+                "Games available: " + this._listGames().join(", ")
             );
         }
     }
@@ -122,6 +122,21 @@ class Games extends BotPlugin {
 
     private _sendDoesntExist(bot: BotHooks, event: DiscordCommandEvent) {
         bot.send(event.channelId, "lol that doesn't exist!1!! (and no game is running)!!");
+    }
+
+    private _listGames(): string[] {
+        const set = new Set();
+        const names = [];
+        const potentialNames = Object.keys(this.gameAliases);
+
+        for (const name of potentialNames) {
+            if (!set.has(this.gameAliases[name])) {
+                names.push(name);
+                set.add(this.gameAliases[name]);
+            }
+        }
+
+        return names;
     }
 
     _stop(): void {
