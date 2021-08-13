@@ -12,7 +12,7 @@ class JapnaaWeird extends plugin_js_1.default {
         super(bot);
         this.lolRegexp = /(\W|^)([l1|\\!/]+)+\s*((h|w)*([aeiouy0.=])+(h|w)*)\s*[l1|\\!/]+(\W|$)/;
         // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
-        this.l$wlRegexp = /(l|\|)\s*(e|3)\s*(w|(vv))\s*(l|\|)\s*/gi;
+        this.l$wlRegexp = /[l1|\\!/]\s*(e|3)\s*(w|(vv))\s*[l1|\\!/]\s*/gi;
         this._pluginName = "japnaaweird";
     }
     /**

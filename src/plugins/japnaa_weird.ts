@@ -10,7 +10,7 @@ import { User } from "discord.js";
 class JapnaaWeird extends BotPlugin {
     lolRegexp: RegExp = /(\W|^)([l1|\\!/]+)+\s*((h|w)*([aeiouy0.=])+(h|w)*)\s*[l1|\\!/]+(\W|$)/;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
-    l$wlRegexp: RegExp = /(l|\|)\s*(e|3)\s*(w|(vv))\s*(l|\|)\s*/gi;
+    l$wlRegexp: RegExp = /[l1|\\!/]\s*(e|3)\s*(w|(vv))\s*[l1|\\!/]\s*/gi;
 
     constructor(bot: BotHooks) {
         super(bot);
