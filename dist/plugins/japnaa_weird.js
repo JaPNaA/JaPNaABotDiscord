@@ -10,8 +10,9 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 class JapnaaWeird extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
-        this.lolRegexp = /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i;
-        this.l$wlRegexp = /(l|\|)\s*(e|3)\s*(w|(vv))\s*(l|\|)\s*/g;
+        this.lolRegexp = /(\W|^)([l1|\\!/]+)+\s*((h|w)*([aeiouy0.=])+(h|w)*)\s*[l1|\\!/]+(\W|$)/;
+        // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
+        this.l$wlRegexp = /(l|\|)\s*(e|3)\s*(w|(vv))\s*(l|\|)\s*/gi;
         this._pluginName = "japnaaweird";
     }
     /**
@@ -41,20 +42,16 @@ class JapnaaWeird extends plugin_js_1.default {
      * Listens for messages with 'lol' and deviations
      */
     onmessageHandler_lol(bot, event) {
-        if (this._isNaturalMessage(bot, event) &&
-            this.lolRegexp.test(event.message) // contains valid 'lol'
-        ) {
-            bot.send(event.channelId, "lol");
+        if (!this._isNaturalMessage(bot, event)) {
+            return;
         }
-    }
-    onmessageHandler_l$wl(bot, event) {
-        if (this._isNaturalMessage(bot, event)) {
-            let numL$wl = this._countL$wl(event.message);
-            if (numL$wl <= 0) {
-                return;
-            }
+        const numL$wl = this._countL$wl(event.message);
+        if (numL$wl) {
             let str = "no ".repeat(numL$wl);
             bot.send(event.channelId, str);
+        }
+        else if (this.lolRegexp.test(event.message)) { // contains valid 'lol'
+            bot.send(event.channelId, "lol");
         }
     }
     _countL$wl(str) {
@@ -72,7 +69,6 @@ class JapnaaWeird extends plugin_js_1.default {
         this._registerDefaultCommand("tetris", this.tetris);
         this._registerDefaultCommand("your", this.your);
         this._registerEventHandler("message", this.onmessageHandler_lol);
-        this._registerEventHandler("message", this.onmessageHandler_l$wl);
         this.bot.events.on("start", function () {
             // this.bot.client.presence.setWatch("you");
             this.bot.client.presence.setGame("development");

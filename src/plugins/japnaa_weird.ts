@@ -47,21 +47,15 @@ class JapnaaWeird extends BotPlugin {
      * Listens for messages with 'lol' and deviations
      */
     onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent): void {
-        if (
-            this._isNaturalMessage(bot, event) &&
-            this.lolRegexp.test(event.message) // contains valid 'lol'
-        ) {
-            bot.send(event.channelId, "lol");
-        }
-    }
+        if (!this._isNaturalMessage(bot, event)) { return; }
 
-    onmessageHandler_l$wl(bot: BotHooks, event: DiscordMessageEvent): void {
-        if (this._isNaturalMessage(bot, event)) {
-            let numL$wl = this._countL$wl(event.message);
-            if (numL$wl <= 0) { return; }
+        const numL$wl = this._countL$wl(event.message);
 
+        if (numL$wl) {
             let str = "no ".repeat(numL$wl);
             bot.send(event.channelId, str);
+        } else if (this.lolRegexp.test(event.message)) { // contains valid 'lol'
+            bot.send(event.channelId, "lol");
         }
     }
 
@@ -85,7 +79,6 @@ class JapnaaWeird extends BotPlugin {
         this._registerDefaultCommand("your", this.your);
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
-        this._registerEventHandler("message", this.onmessageHandler_l$wl);
 
         this.bot.events.on("start",
             function (this: JapnaaWeird): void {
