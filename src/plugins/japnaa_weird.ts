@@ -8,8 +8,9 @@ import { User } from "discord.js";
  * The weirder side of JaPNaABot
  */
 class JapnaaWeird extends BotPlugin {
-    lolRegexp: RegExp = /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i;
-    l$wlRegexp: RegExp = /(l|\|)\s*(e|3)\s*(w|(vv))\s*(l|\|)\s*/g;
+    lolRegexp: RegExp = /(\W|^)([l1|\\!/]+)+\s*((h|w)*([aeiouy0.=])+(h|w)*)\s*[l1|\\!/]+(\W|$)/;
+    // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
+    l$wlRegexp: RegExp = /(l|\|)\s*(e|3)\s*(w|(vv))\s*(l|\|)\s*/gi;
 
     constructor(bot: BotHooks) {
         super(bot);
