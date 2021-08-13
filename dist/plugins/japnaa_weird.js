@@ -10,7 +10,7 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 class JapnaaWeird extends plugin_js_1.default {
     constructor(bot) {
         super(bot);
-        this.lolRegexp = /(\W|^)([l1|\\!/]+)+\s*((h|w)*([aeiouy0.=])+(h|w)*)\s*[l1|\\!/]+(\W|$)/;
+        this.lolRegexp = /(\W|^)([l1|\\!/]+)+\s*((h|w)*([aeiouy0.=])+(h|w)*)\s*[l1|\\!/]+(\W|$)/i;
         // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
         this.l$wlRegexp = /[l1|\\!/]\s*(e|3)\s*(w|(vv))\s*[l1|\\!/]\s*/gi;
         this._pluginName = "japnaaweird";
