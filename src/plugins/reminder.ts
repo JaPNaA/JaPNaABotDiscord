@@ -39,12 +39,13 @@ class Reminders extends BotPlugin {
         "days": 8.64e7
     };
 
-    private _reminders: Reminder[] = [];
+    private _reminders: Reminder[];
     private _remindersTimeoutId: NodeJS.Timeout | null = null;
 
     constructor(bot: BotHooks) {
         super(bot);
         this._pluginName = "reminder";
+        this._reminders = this.bot.memory.get(this._pluginName, "reminders") || [];
     }
 
     set_reminder(bot: BotHooks, event: DiscordMessageEvent, argStr: string) {
@@ -79,10 +80,56 @@ class Reminders extends BotPlugin {
         bot.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
     }
 
+    list_reminders(bot: BotHooks, event: DiscordMessageEvent) {
+        const reminders = this._getChannelReminders(event.channelId);
+
+        const strArr = [];
+        let index = 1;
+        for (const reminder of reminders) {
+            strArr.push(
+                `${index++}. ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`
+            );
+        }
+        bot.send(event.channelId, strArr.join("\n"));
+    }
+
+    cancel_reminder(bot: BotHooks, event: DiscordMessageEvent, argStr: string) {
+        const index = parseInt(argStr) - 1;
+        if (isNaN(index)) {
+            bot.send(event.channelId, "Invalid index. Specify an integer");
+            return;
+        }
+
+        const reminder = this._getChannelReminders(event.channelId)[index];
+        if (!reminder) {
+            bot.send(event.channelId, "No reminder is at index " + argStr);
+            return;
+        }
+
+        const actualIndex = this._reminders.indexOf(reminder);
+        if (actualIndex < 0) { throw new Error("Reminder not found in database"); }
+        this._reminders.splice(actualIndex, 1);
+        bot.send(event.channelId,
+            "Reminder **" + reminder.title + "** from " +
+            mention(reminder.setterUserId) + "was canceled."
+        );
+    }
+
     _addReminder(reminder: Reminder) {
+        if (this._reminders.length >= 1e4) { throw new Error("Too many reminders scheduled"); }
         this._reminders.push(reminder);
         this._reminders.sort((a, b) => a.targetTime - b.targetTime);
         this._updateReminders();
+    }
+
+    _getChannelReminders(channelId: string) {
+        const reminders = [];
+        for (const reminder of this._reminders) {
+            if (reminder.channelId == channelId) {
+                reminders.push(reminder);
+            }
+        }
+        return reminders;
     }
 
     _updateReminders() {
@@ -92,8 +139,6 @@ class Reminders extends BotPlugin {
 
         const nextReminder = this._reminders[0];
         if (!nextReminder) { return; }
-
-        console.log(nextReminder, nextReminder.targetTime - Date.now());
 
         this._remindersTimeoutId = setTimeout(() => {
             this._sendReminder(nextReminder);
@@ -119,10 +164,7 @@ class Reminders extends BotPlugin {
     }
 
     _start(): void {
-        const existingReminders = this.bot.memory.get(this._pluginName, "reminders");
-        if (existingReminders) {
-            this._reminders = existingReminders;
-
+        if (this._reminders.length > 0) {
             if (this.bot.client.isReady()) {
                 this._updateReminders();
             } else {
@@ -145,6 +187,26 @@ class Reminders extends BotPlugin {
                     "[number]": "Optional. Number of (unit)s later to set reminder",
                     "[unit]": "Optional. The units of number",
                     "...title": "The title of the reminder"
+                }]
+            })
+        }));
+
+        this._registerDefaultCommand("list reminders", this.list_reminders, new BotCommandOptions({
+            group: "Reminders",
+            help: new BotCommandHelp({
+                description: "Lists the reminders in a channel"
+            })
+        }))
+
+        this._registerDefaultCommand("cancel reminder", this.cancel_reminder, new BotCommandOptions({
+            group: "Reminders",
+            help: new BotCommandHelp({
+                description: "Cancel a reminder given index in channel",
+                examples: [
+                    ["cancel reminder 1", "Cancels the first reminder"]
+                ],
+                overloads: [{
+                    "<index>": "Number. The index of the event from the `list reminders` command."
                 }]
             })
         }));

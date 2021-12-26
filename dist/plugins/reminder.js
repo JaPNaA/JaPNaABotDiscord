@@ -40,9 +40,9 @@ class Reminders extends plugin_js_1.default {
             "day": 8.64e7,
             "days": 8.64e7
         };
-        this._reminders = [];
         this._remindersTimeoutId = null;
         this._pluginName = "reminder";
+        this._reminders = this.bot.memory.get(this._pluginName, "reminders") || [];
     }
     set_reminder(bot, event, argStr) {
         const args = allUtils_js_1.stringToArgs(argStr);
@@ -70,10 +70,50 @@ class Reminders extends plugin_js_1.default {
         this._addReminder(reminder);
         bot.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
     }
+    list_reminders(bot, event) {
+        const reminders = this._getChannelReminders(event.channelId);
+        const strArr = [];
+        let index = 1;
+        for (const reminder of reminders) {
+            strArr.push(`${index++}. ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
+        }
+        bot.send(event.channelId, strArr.join("\n"));
+    }
+    cancel_reminder(bot, event, argStr) {
+        const index = parseInt(argStr) - 1;
+        if (isNaN(index)) {
+            bot.send(event.channelId, "Invalid index. Specify an integer");
+            return;
+        }
+        const reminder = this._getChannelReminders(event.channelId)[index];
+        if (!reminder) {
+            bot.send(event.channelId, "No reminder is at index " + argStr);
+            return;
+        }
+        const actualIndex = this._reminders.indexOf(reminder);
+        if (actualIndex < 0) {
+            throw new Error("Reminder not found in database");
+        }
+        this._reminders.splice(actualIndex, 1);
+        bot.send(event.channelId, "Reminder **" + reminder.title + "** from " +
+            mention_js_1.default(reminder.setterUserId) + "was canceled.");
+    }
     _addReminder(reminder) {
+        if (this._reminders.length >= 1e4) {
+            throw new Error("Too many reminders scheduled");
+        }
         this._reminders.push(reminder);
         this._reminders.sort((a, b) => a.targetTime - b.targetTime);
         this._updateReminders();
+    }
+    _getChannelReminders(channelId) {
+        const reminders = [];
+        for (const reminder of this._reminders) {
+            if (reminder.channelId == channelId) {
+                reminders.push(reminder);
+            }
+        }
+        return reminders;
     }
     _updateReminders() {
         this._stopReminderTimeout();
@@ -82,7 +122,6 @@ class Reminders extends plugin_js_1.default {
         if (!nextReminder) {
             return;
         }
-        console.log(nextReminder, nextReminder.targetTime - Date.now());
         this._remindersTimeoutId = setTimeout(() => {
             this._sendReminder(nextReminder);
             this._updateReminders();
@@ -104,9 +143,7 @@ class Reminders extends plugin_js_1.default {
         this.bot.send(reminder.channelId, `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${mention_js_1.default(reminder.setterUserId)}`);
     }
     _start() {
-        const existingReminders = this.bot.memory.get(this._pluginName, "reminders");
-        if (existingReminders) {
-            this._reminders = existingReminders;
+        if (this._reminders.length > 0) {
             if (this.bot.client.isReady()) {
                 this._updateReminders();
             }
@@ -129,6 +166,24 @@ class Reminders extends plugin_js_1.default {
                         "[number]": "Optional. Number of (unit)s later to set reminder",
                         "[unit]": "Optional. The units of number",
                         "...title": "The title of the reminder"
+                    }]
+            })
+        }));
+        this._registerDefaultCommand("list reminders", this.list_reminders, new commandOptions_js_1.default({
+            group: "Reminders",
+            help: new commandHelp_js_1.default({
+                description: "Lists the reminders in a channel"
+            })
+        }));
+        this._registerDefaultCommand("cancel reminder", this.cancel_reminder, new commandOptions_js_1.default({
+            group: "Reminders",
+            help: new commandHelp_js_1.default({
+                description: "Cancel a reminder given index in channel",
+                examples: [
+                    ["cancel reminder 1", "Cancels the first reminder"]
+                ],
+                overloads: [{
+                        "<index>": "Number. The index of the event from the `list reminders` command."
                     }]
             })
         }));
