@@ -197,7 +197,7 @@ class Default extends BotPlugin {
         fields.push({
             name: "---",
             value: "*Any commands in bold are ones you can run " + (event.isDM ? "here" : "there") + "*\n" +
-                "*You can type " + event.precommandName + "help [commandName] to get more information on a command.*"
+                "*You can type " + event.precommandName.precommand + "help [commandName] to get more information on a command.*"
         });
 
         if (event.isDM) {
