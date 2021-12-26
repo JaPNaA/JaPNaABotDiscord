@@ -35,7 +35,8 @@
   "builtinPlugins": [
     "default",
     "japnaa",
-    "games"
+    "games",
+    "reminder"
   ],
 
   // Plugins running in bot (external)

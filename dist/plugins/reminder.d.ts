@@ -1,0 +1,27 @@
+import BotHooks from "../main/bot/bot/botHooks.js";
+import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
+import BotPlugin from "../main/bot/plugin/plugin.js";
+/**
+ * Reminders plugin
+ */
+declare class Reminders extends BotPlugin {
+    private _timeUnits;
+    private _reminders;
+    private _remindersTimeoutId;
+    constructor(bot: BotHooks);
+    set_reminder(bot: BotHooks, event: DiscordMessageEvent, argStr: string): void;
+    _addReminder(reminder: Reminder): void;
+    _updateReminders(): void;
+    _stopReminderTimeout(): void;
+    _sendReminder(reminder: Reminder): void;
+    _start(): void;
+    _stop(): void;
+}
+interface Reminder {
+    title: string;
+    targetTime: number;
+    channelId: string;
+    setterUserId: string;
+    setTime: number;
+}
+export default Reminders;
