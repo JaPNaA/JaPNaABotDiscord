@@ -177,7 +177,7 @@ class Reminders extends BotPlugin {
         this._registerDefaultCommand("set reminder", this.set_reminder, new BotCommandOptions({
             group: "Reminders",
             help: new BotCommandHelp({
-                description: "Sets a reminder. The bot will send a message in the channel the reminder was set on the set time.",
+                description: "Sets a reminder. The bot will send a message in the channel the reminder was set on the set time. (For weird technical limitations, the command is disabled in DMs)",
                 examples: [
                     ["set reminder 10 mins check the oven", "Sets a reminder in 10 minutes with the title 'check the oven'"],
                     ["set reminder 10 check the oven", "Sets a reminder in 10 **hours** with the title 'check the oven'"],
@@ -188,7 +188,8 @@ class Reminders extends BotPlugin {
                     "[unit]": "Optional. The units of number",
                     "...title": "The title of the reminder"
                 }]
-            })
+            }),
+            noDM: true
         }));
 
         this._registerDefaultCommand("list reminders", this.list_reminders, new BotCommandOptions({
