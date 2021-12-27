@@ -29,7 +29,7 @@
   },
   "private": true,
   "dependencies": {
-    "discord.js": "^11.4.2",
+    "discord.js": "^11.6.4",
     "strip-json-comments": "^2.0.1"
   },
   "devDependencies": {
