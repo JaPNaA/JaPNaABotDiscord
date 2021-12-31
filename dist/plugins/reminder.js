@@ -65,7 +65,7 @@ class Reminders extends plugin_js_1.default {
             setTime: now,
             setterUserId: event.userId,
             targetTime: now + timeValue * unitsValue,
-            title: title.join(" ")
+            title: title.filter(e => e).join(" ")
         };
         this._addReminder(reminder);
         bot.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
@@ -141,6 +141,7 @@ class Reminders extends plugin_js_1.default {
         }
         this._reminders.splice(index, 1);
         this.bot.send(reminder.channelId, `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${mention_js_1.default(reminder.setterUserId)}`);
+        this._updateReminders();
     }
     _start() {
         if (this._reminders.length > 0) {

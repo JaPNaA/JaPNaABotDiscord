@@ -72,7 +72,7 @@ class Reminders extends BotPlugin {
             setTime: now,
             setterUserId: event.userId,
             targetTime: now + timeValue * unitsValue,
-            title: title.join(" ")
+            title: title.filter(e => e).join(" ")
         };
 
         this._addReminder(reminder);
@@ -161,6 +161,7 @@ class Reminders extends BotPlugin {
         this.bot.send(reminder.channelId,
             `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${mention(reminder.setterUserId)}`
         );
+        this._updateReminders();
     }
 
     _start(): void {
