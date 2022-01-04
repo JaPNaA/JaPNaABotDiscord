@@ -140,10 +140,14 @@ class Reminders extends BotPlugin {
         const nextReminder = this._reminders[0];
         if (!nextReminder) { return; }
 
+        const MAX_TIMEOUT_INTERVAL = 2147483647;
+
         this._remindersTimeoutId = setTimeout(() => {
-            this._sendReminder(nextReminder);
+            if (Date.now() >= nextReminder.targetTime) {
+                this._sendReminder(nextReminder);
+            }
             this._updateReminders();
-        }, nextReminder.targetTime - Date.now());
+        }, Math.min(nextReminder.targetTime - Date.now(), MAX_TIMEOUT_INTERVAL));
     }
 
     _stopReminderTimeout() {
