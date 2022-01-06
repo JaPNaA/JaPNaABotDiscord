@@ -96,9 +96,9 @@ class BotCommand {
         logger_js_1.default.warn(message);
     }
     /** Tries to run command, and sends an error message if fails */
-    tryRunCommand(commandEvent, argString) {
+    async tryRunCommand(commandEvent, argString) {
         try {
-            this.func(this.botHooks, commandEvent, argString);
+            await this.func(this.botHooks, commandEvent, argString);
         }
         catch (error) {
             this.sendError(commandEvent, argString, error);

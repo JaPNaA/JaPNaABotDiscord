@@ -154,9 +154,9 @@ class BotCommand {
     }
 
     /** Tries to run command, and sends an error message if fails */
-    tryRunCommand(commandEvent: DiscordCommandEvent, argString: string): void {
+    async tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
         try {
-            this.func(this.botHooks, commandEvent, argString);
+            await this.func(this.botHooks, commandEvent, argString);
         } catch (error) {
             this.sendError(commandEvent, argString, error);
         }

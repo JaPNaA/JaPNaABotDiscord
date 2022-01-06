@@ -54,6 +54,6 @@ declare class BotCommand {
     testAndRun(commandEvent: DiscordCommandEvent): Promise<boolean>;
     sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error): void;
     /** Tries to run command, and sends an error message if fails */
-    tryRunCommand(commandEvent: DiscordCommandEvent, argString: string): void;
+    tryRunCommand(commandEvent: DiscordCommandEvent, argString: string): Promise<void>;
 }
 export default BotCommand;
