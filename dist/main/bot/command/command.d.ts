@@ -45,13 +45,13 @@ declare class BotCommand {
      * @param commandEvent the event to test
      * @returns Error string
      */
-    test(commandEvent: DiscordCommandEvent): TestResults;
+    test(commandEvent: DiscordCommandEvent): Promise<TestResults>;
     /**
      * Tests if the commandWord matches, and runs the command if it does.
      * @param commandEvent the event triggering function
      * @returns Did the command run OR not have enough permissions to run
      */
-    testAndRun(commandEvent: DiscordCommandEvent): boolean;
+    testAndRun(commandEvent: DiscordCommandEvent): Promise<boolean>;
     sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error): void;
     /** Tries to run command, and sends an error message if fails */
     tryRunCommand(commandEvent: DiscordCommandEvent, argString: string): void;

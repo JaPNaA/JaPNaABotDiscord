@@ -5,7 +5,7 @@ import BotPermissions from "./botPermissions";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../../adapters/rawEventAdapter";
-import { Channel, Guild, Role, User, GuildMember, Message } from "discord.js";
+import { Channel, Guild, Role, User, GuildMember, Message, AnyChannel } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "../types/eventName";
 import PrecommandManager from "../precommand/manager/precommandManager";
@@ -53,7 +53,7 @@ class BotHooks {
     /**
      * Gets the channel with channelId
      */
-    getChannel(channelId: string): Channel | undefined {
+    getChannel(channelId: string): Promise<AnyChannel | null> {
         return this.bot.client.getChannel(channelId);
     }
 
@@ -61,7 +61,7 @@ class BotHooks {
      * Gets server from channelId
      * @param channelId id of channel
      */
-    getServerFromChannel(channelId: string): Guild | undefined {
+    getServerFromChannel(channelId: string): Promise<Guild | undefined> {
         return this.bot.client.getServerFromChannel(channelId);
     }
 
@@ -69,7 +69,7 @@ class BotHooks {
      * Gets the server with serverId
      * @param serverId id of server
      */
-    getServer(serverId: string): Guild | undefined {
+    getServer(serverId: string): Promise<Guild | undefined> {
         return this.bot.client.getServer(serverId);
     }
 
@@ -77,7 +77,7 @@ class BotHooks {
      * Gets user
      * @param userId id of user
      */
-    getUser(userId: string): User | undefined {
+    getUser(userId: string): Promise<User | undefined> {
         return this.bot.client.getUser(userId);
     }
 
@@ -86,7 +86,7 @@ class BotHooks {
      * @param roleId id of role
      * @param serverId id of server
      */
-    getRole(roleId: string, serverId: string): Role | undefined {
+    getRole(roleId: string, serverId: string): Promise<Role | null> {
         return this.bot.client.getRole(roleId, serverId);
     }
 
@@ -95,7 +95,7 @@ class BotHooks {
      * @param userId id of user
      * @param serverId id of server
      */
-    getMemberFromServer(userId: string, serverId: string): GuildMember | undefined {
+    getMemberFromServer(userId: string, serverId: string): Promise<GuildMember | undefined> {
         return this.bot.client.getMemberFromServer(userId, serverId);
     }
 

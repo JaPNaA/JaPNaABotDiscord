@@ -46,8 +46,8 @@ class JapnaaWeird extends BotPlugin {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent): void {
-        if (!this._isNaturalMessage(bot, event)) { return; }
+    async onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent) {
+        if (!await this._isNaturalMessage(bot, event)) { return; }
 
         const numL$wl = this._countL$wl(event.message);
 
@@ -65,8 +65,8 @@ class JapnaaWeird extends BotPlugin {
         return i;
     }
 
-    _isNaturalMessage(bot: BotHooks, event: DiscordMessageEvent): boolean {
-        const user: User | undefined = bot.getUser(event.userId);
+    async _isNaturalMessage(bot: BotHooks, event: DiscordMessageEvent): Promise<boolean> {
+        const user = await bot.getUser(event.userId);
         return Boolean(
             !event.precommandName && // is not a command
             user && !user.bot

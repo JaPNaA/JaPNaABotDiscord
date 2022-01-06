@@ -22,7 +22,7 @@ class Permissions {
 
     [x: string]: any;
 
-    num: number;
+    num: bigint;
 
     CREATE_INSTANT_INVITE: boolean;
     KICK_MEMBERS: boolean;
@@ -64,74 +64,74 @@ class Permissions {
      * @param permissionsNumber permission number
      * @param extendsPermissions extends other permissions
      */
-    constructor(permissionsNumber?: number, extendsPermissions?: Permissions) {
-        this.num = permissionsNumber || 0;
+    constructor(permissionsNumber?: bigint, extendsPermissions?: Permissions) {
+        this.num = permissionsNumber || 0n;
 
         if (extendsPermissions) {
             this.num |= extendsPermissions.num;
         }
 
         /** Allows creation of instant invites */
-        this.CREATE_INSTANT_INVITE = getBit(this.num, 0);
+        this.CREATE_INSTANT_INVITE = getBit(this.num, 0n);
         /** Allows kicking members */
-        this.KICK_MEMBERS = getBit(this.num, 1);
+        this.KICK_MEMBERS = getBit(this.num, 1n);
         /** Allows banning members */
-        this.BAN_MEMBERS = getBit(this.num, 2);
+        this.BAN_MEMBERS = getBit(this.num, 2n);
         /** Allows all permissions and bypasses channel permission overwrites */
-        this.ADMINISTRATOR = getBit(this.num, 3);
+        this.ADMINISTRATOR = getBit(this.num, 3n);
         /** Allows management and editing of channels */
-        this.MANAGE_CHANNELS = getBit(this.num, 4);
+        this.MANAGE_CHANNELS = getBit(this.num, 4n);
         /** Allows management and editing of the guild */
-        this.MANAGE_GUILD = getBit(this.num, 5);
+        this.MANAGE_GUILD = getBit(this.num, 5n);
         /** Allows for the addition of reactions to messages */
-        this.ADD_REACTIONS = getBit(this.num, 6);
+        this.ADD_REACTIONS = getBit(this.num, 6n);
         /** Allows for viewing of audit logs */
-        this.VIEW_AUDIT_LOG = getBit(this.num, 7);
+        this.VIEW_AUDIT_LOG = getBit(this.num, 7n);
         /** Allows guild members to view a channel, which includes reading messages in text channels */
-        this.VIEW_CHANNEL = getBit(this.num, 8);
+        this.VIEW_CHANNEL = getBit(this.num, 8n);
         /** Allows for sending messages in a channel */
-        this.SEND_MESSAGES = getBit(this.num, 9);
+        this.SEND_MESSAGES = getBit(this.num, 9n);
         /** Allows for sending of /tts messages */
-        this.SEND_TTS_MESSAGES = getBit(this.num, 10);
+        this.SEND_TTS_MESSAGES = getBit(this.num, 10n);
         /** Allows for deletion of other users messages */
-        this.MANAGE_MESSAGES = getBit(this.num, 11);
+        this.MANAGE_MESSAGES = getBit(this.num, 11n);
         /** Links sent by users with this permission will be auto-embedded */
-        this.EMBED_LINKS = getBit(this.num, 12);
+        this.EMBED_LINKS = getBit(this.num, 12n);
         /** Allows for uploading images and files */
-        this.ATTACH_FILES = getBit(this.num, 13);
+        this.ATTACH_FILES = getBit(this.num, 13n);
         /** Allows for reading of message history */
-        this.READ_MESSAGE_HISTORY = getBit(this.num, 14);
+        this.READ_MESSAGE_HISTORY = getBit(this.num, 14n);
         /**
          * Allows for using the @everyone tag to notify all users in a channel,
          * and the @here tag to notify all online users in a channel
          */
-        this.MENTION_EVERYONE = getBit(this.num, 15);
+        this.MENTION_EVERYONE = getBit(this.num, 15n);
         /** Allows the usage of custom emojis from other servers */
-        this.USE_EXTERNAL_EMOJIS = getBit(this.num, 16);
+        this.USE_EXTERNAL_EMOJIS = getBit(this.num, 16n);
         /** Allows for joining of a voice channel */
-        this.CONNECT = getBit(this.num, 17);
+        this.CONNECT = getBit(this.num, 17n);
         /** Allows for speaking in a voice channel */
-        this.SPEAK = getBit(this.num, 18);
+        this.SPEAK = getBit(this.num, 18n);
         /** Allows for muting members in a voice channel */
-        this.MUTE_MEMBERS = getBit(this.num, 19);
+        this.MUTE_MEMBERS = getBit(this.num, 19n);
         /** Allows for deafening of members in a voice channel */
-        this.DEAFEN_MEMBERS = getBit(this.num, 20);
+        this.DEAFEN_MEMBERS = getBit(this.num, 20n);
         /** Allows for moving of members between voice channels */
-        this.MOVE_MEMBERS = getBit(this.num, 21);
+        this.MOVE_MEMBERS = getBit(this.num, 21n);
         /** Allows for using voice-activity-detection in a voice channel */
-        this.USE_VAD = getBit(this.num, 22);
+        this.USE_VAD = getBit(this.num, 22n);
         /** Allows for using priority speaker in a voice channel */
-        this.PRIORITY_SPEAKER = getBit(this.num, 23);
+        this.PRIORITY_SPEAKER = getBit(this.num, 23n);
         /** Allows for modification of own nickname */
-        this.CHANGE_NICKNAME = getBit(this.num, 24);
+        this.CHANGE_NICKNAME = getBit(this.num, 24n);
         /** Allows for modification of other users nicknames */
-        this.MANAGE_NICKNAMES = getBit(this.num, 25);
+        this.MANAGE_NICKNAMES = getBit(this.num, 25n);
         /** Allows management and editing of roles */
-        this.MANAGE_ROLES = getBit(this.num, 26);
+        this.MANAGE_ROLES = getBit(this.num, 26n);
         /** Allows management and editing of webhooks */
-        this.MANAGE_WEBHOOKS = getBit(this.num, 27);
+        this.MANAGE_WEBHOOKS = getBit(this.num, 27n);
         /** Allows management and editing of emojis */
-        this.MANAGE_EMOJIS = getBit(this.num, 28);
+        this.MANAGE_EMOJIS = getBit(this.num, 28n);
 
         if (this.ADMINISTRATOR) {
             this.setAllPermissionsTrue();

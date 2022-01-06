@@ -10,35 +10,32 @@ class PresenceSetter {
         this.client = client;
     }
     setGame(name) {
-        this.client.user.setPresence({
-            game: {
-                name: name || undefined,
-                type: "PLAYING"
-            }
+        this.client.user?.setPresence({
+            activities: [{ name: name || undefined, type: 0 /* PLAYING */ }]
         });
     }
     setWatch(name) {
-        this.client.user.setPresence({
-            game: {
-                name: name || undefined,
-                type: "WATCHING"
-            }
+        this.client.user?.setPresence({
+            activities: [{
+                    name: name || undefined,
+                    type: 3 /* WATCHING */
+                }]
         });
     }
     setListen(name) {
-        this.client.user.setPresence({
-            game: {
-                name: name || undefined,
-                type: "LISTENING"
-            }
+        this.client.user?.setPresence({
+            activities: [{
+                    name: name || undefined,
+                    type: 2 /* LISTENING */
+                }]
         });
     }
     setStream(name) {
-        this.client.user.setPresence({
-            game: {
-                name: name || undefined,
-                type: "STREAMING"
-            }
+        this.client.user?.setPresence({
+            activities: [{
+                    name: name || undefined,
+                    type: 1 /* STREAMING */
+                }]
         });
     }
 }
@@ -111,11 +108,14 @@ class BotClient {
      * Send message
      * @returns A promise that resolves when sent
      */
-    send(channelId, message) {
+    async send(channelId, message) {
         logger_js_1.default.log_message(">>", message);
         let promise;
-        let textChannel = this.getChannel(channelId);
-        if (textChannel.type === "voice") {
+        let textChannel = await this.getChannel(channelId);
+        if (!textChannel) {
+            throw new Error("Cannot find channel");
+        }
+        if (textChannel.type === "GUILD_VOICE") {
             throw new TypeError("Cannot send to voice channel");
         }
         this.botHooks.events.dispatch("send", message);
@@ -126,12 +126,7 @@ class BotClient {
             promise = textChannel.send(message);
         }
         else if (typeof message === "object") {
-            if (message.hasOwnProperty("message")) {
-                promise = textChannel.send(message.message, message);
-            }
-            else {
-                promise = textChannel.send(message);
-            }
+            promise = textChannel.send(message);
         }
         else {
             throw new TypeError("Message is not of valid type");
@@ -146,13 +141,13 @@ class BotClient {
      * @param failCallback callback if failed
      * @returns A promise that resolves when message sends, rejcts if fail
      */
-    sendDM(userId, message, failCallback) {
+    async sendDM(userId, message, failCallback) {
         logger_js_1.default.log_message("D>", message);
-        let user = this.getUser(userId);
+        let user = await this.getUser(userId);
         let promise;
         if (user) {
             if (typeof message === "object" && message.hasOwnProperty("message")) {
-                promise = user.send(message.message, message);
+                promise = user.send(message);
             }
             else {
                 if (typeof message === "string" && message.trim().length === 0) {
@@ -171,37 +166,37 @@ class BotClient {
         return promise;
     }
     getChannel(channelId) {
-        return this.client.channels.get(channelId);
+        return this.client.channels.fetch(channelId);
     }
-    getServerFromChannel(channelId) {
-        let channel = this.getChannel(channelId);
+    async getServerFromChannel(channelId) {
+        let channel = await this.getChannel(channelId);
         if (!channel || !(channel instanceof discord_js_1.TextChannel)) {
             return;
         }
         return channel.guild;
     }
     getServer(serverId) {
-        return this.client.guilds.get(serverId);
+        return this.client.guilds.fetch(serverId);
     }
     getUser(userId) {
-        return this.client.users.get(userId);
+        return this.client.users.fetch(userId);
     }
-    getRole(roleId, serverId) {
-        let server = this.getServer(serverId);
+    async getRole(roleId, serverId) {
+        let server = await this.getServer(serverId);
+        if (!server) {
+            return null;
+        }
+        return server.roles.fetch(roleId);
+    }
+    async getMemberFromServer(userId, serverId) {
+        let server = await this.getServer(serverId);
         if (!server) {
             return;
         }
-        return server.roles.get(roleId);
-    }
-    getMemberFromServer(userId, serverId) {
-        let server = this.getServer(serverId);
-        if (!server) {
-            return;
-        }
-        return server.members.get(userId);
+        return server.members.fetch(userId);
     }
     getPing() {
-        return this.client.ping;
+        return this.client.ws.ping;
     }
 }
 exports.default = BotClient;

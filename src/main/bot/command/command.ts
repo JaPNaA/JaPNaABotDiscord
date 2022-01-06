@@ -77,7 +77,7 @@ class BotCommand {
      * @param commandEvent the event to test
      * @returns Error string
      */
-    test(commandEvent: DiscordCommandEvent): TestResults {
+    async test(commandEvent: DiscordCommandEvent): Promise<TestResults> {
         let cleanCommandContent: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
 
         if (
@@ -87,7 +87,7 @@ class BotCommand {
                 whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)
             )
         ) {
-            let permissions: Permissions =
+            let permissions: Permissions = await
                 this.botHooks.permissions.getPermissions_channel(
                     commandEvent.userId,
                     commandEvent.serverId,
@@ -120,8 +120,8 @@ class BotCommand {
      * @param commandEvent the event triggering function
      * @returns Did the command run OR not have enough permissions to run
      */
-    testAndRun(commandEvent: DiscordCommandEvent): boolean {
-        let results: TestResults = this.test(commandEvent);
+    async testAndRun(commandEvent: DiscordCommandEvent): Promise<boolean> {
+        let results: TestResults = await this.test(commandEvent);
         if (results.canRun) {
             let cleaned: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
             commandEvent.arguments = cleaned.args;

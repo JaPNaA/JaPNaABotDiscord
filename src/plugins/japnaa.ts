@@ -232,10 +232,10 @@ class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit que for server and user
      */
-    _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): number {
+    async _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): Promise<number> {
         let defaultLimit: number = this.config["spam.defaultQueLimit"] as number;
 
-        let server: Guild | undefined = bot.getServer(event.serverId);
+        let server = await bot.getServer(event.serverId);
         if (!server) { throw new Error("Unknown Error"); }
 
         let serverLimit: number = bot.memory.get(this._pluginName,
@@ -275,7 +275,7 @@ class Japnaa extends BotPlugin {
      * Makes the bot spam stuff
      * @param args "stop" | [amount, [counter], ...message]
      */
-    spam_command(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    async spam_command(bot: BotHooks, event: DiscordMessageEvent, args: string) {
         const cleanArgs: string = args.trim().toLowerCase();
 
         switch (cleanArgs) {
@@ -348,14 +348,14 @@ class Japnaa extends BotPlugin {
         // check against limits
         // ----------------------------------------------------------------------------------------
         let spamLimit: number = this._getSpamLimit(bot, event);
-        let spamQueLimit: number = this._getSpamQueLimit(bot, event);
+        let spamQueLimit: number = await this._getSpamQueLimit(bot, event);
 
         if (amount > spamLimit) {
             this.bot.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
             return;
         }
 
-        let server: Guild | undefined = bot.getServer(event.serverId);
+        let server = await bot.getServer(event.serverId);
         if (!server) { throw new Error("Unknown Error"); }
         if (
             this.spamQue[server.id] &&

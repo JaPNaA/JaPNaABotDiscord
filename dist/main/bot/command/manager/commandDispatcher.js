@@ -15,11 +15,11 @@ class CommandDispatcher {
     onMessage(message) {
         this.dispatchIfIsCommand(message);
     }
-    dispatchIfIsCommand(commandEvent) {
+    async dispatchIfIsCommand(commandEvent) {
         let someCommandRan = false;
         for (let i = this.manager.commands.length - 1; i >= 0; i--) {
             let command = this.manager.commands[i];
-            let ran = command.testAndRun(commandEvent);
+            let ran = await command.testAndRun(commandEvent);
             if (ran) {
                 someCommandRan = true;
                 break;

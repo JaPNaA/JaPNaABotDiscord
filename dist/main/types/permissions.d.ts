@@ -2,7 +2,7 @@ declare class Permissions {
     static keys: string[];
     static specialCustoms: string[];
     [x: string]: any;
-    num: number;
+    num: bigint;
     CREATE_INSTANT_INVITE: boolean;
     KICK_MEMBERS: boolean;
     BAN_MEMBERS: boolean;
@@ -40,7 +40,7 @@ declare class Permissions {
      * @param permissionsNumber permission number
      * @param extendsPermissions extends other permissions
      */
-    constructor(permissionsNumber?: number, extendsPermissions?: Permissions);
+    constructor(permissionsNumber?: bigint, extendsPermissions?: Permissions);
     /**
      * Sets all permissions to true
      */

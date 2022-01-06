@@ -1,4 +1,23 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -6,7 +25,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.classes = exports.getDefaultConfig = exports.getBot = exports.stop = exports.start = exports.registerAutoloadBuiltinPlugin = exports.registerAutoloadPlugin = exports.loadBuiltinPlugin = exports.loadPlugin = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const discord_js_1 = __importDefault(require("discord.js"));
+const discord_js_1 = __importStar(require("discord.js"));
 const strip_json_comments_1 = __importDefault(require("strip-json-comments"));
 const logger_js_1 = __importDefault(require("./utils/logger.js"));
 const bot_js_1 = __importDefault(require("./bot/bot/bot.js"));
@@ -173,10 +192,16 @@ function start(apiToken, botConfig, pathToMemoryFile) {
         };
     }
     memoryPath = pathToMemoryFile;
-    client = new discord_js_1.default.Client();
+    client = new discord_js_1.default.Client({
+        intents: [
+            discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_MESSAGES,
+            discord_js_1.Intents.FLAGS.DIRECT_MESSAGES
+        ],
+        partials: ["CHANNEL", "MESSAGE"]
+    });
     client.login(token);
     client.on("ready", () => botHooks.rawEventAdapter.onReady());
-    client.on("message", event => botHooks.rawEventAdapter.onMessage(event));
+    client.on("messageCreate", event => botHooks.rawEventAdapter.onMessage(event));
     // not required by discord.js
     // client.on("disconnect", function () {
     //     if (!shuttingDown) {

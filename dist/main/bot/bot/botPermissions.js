@@ -10,12 +10,12 @@ class BotPermissions {
         this.botHooks = botHooks;
         this.memory = this.botHooks.memory;
     }
-    getPermissions_role_channel(roleId, serverId, channelId) {
-        let role = this.botHooks.getRole(roleId, serverId);
+    async getPermissions_role_channel(roleId, serverId, channelId) {
+        const role = await this.botHooks.getRole(roleId, serverId);
         if (!role) {
             return new permissions_js_1.default();
         }
-        let permissions = new permissions_js_1.default(role.permissions);
+        let permissions = new permissions_js_1.default(role.permissions.bitfield);
         if (channelId) {
             permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId)));
         }
@@ -27,21 +27,21 @@ class BotPermissions {
         permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId)));
         return permissions;
     }
-    getPermissions_channel(userId, serverId, channelId) {
+    async getPermissions_channel(userId, serverId, channelId) {
         let server;
         let user;
         let roles;
-        let permissionsNum = 0;
+        let permissionsNum = 0n;
         if (serverId) {
-            server = this.botHooks.getServer(serverId);
+            server = await this.botHooks.getServer(serverId);
             if (!server) {
                 return new permissions_js_1.default();
             }
-            user = server.members.get(userId);
+            user = await server.members.fetch(userId);
             if (!user) {
                 return new permissions_js_1.default();
             }
-            roles = user.roles.array();
+            roles = Array.from(user.roles.cache.values());
             let permissions = user.permissions.bitfield;
             permissionsNum |= permissions;
         }
@@ -49,7 +49,7 @@ class BotPermissions {
         permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId)));
         if (roles) {
             for (let role of roles) {
-                permissions.importCustomPermissions(this.getPermissions_role_channel(role.id, serverId, channelId).getCustomPermissions());
+                permissions.importCustomPermissions((await this.getPermissions_role_channel(role.id, serverId, channelId)).getCustomPermissions());
             }
         }
         if (serverId) {
@@ -60,8 +60,8 @@ class BotPermissions {
         }
         return permissions;
     }
-    editPermissions_user_channel(userId, channelId, permissionName, value) {
-        let channel = this.botHooks.getChannel(channelId);
+    async editPermissions_user_channel(userId, channelId, permissionName, value) {
+        let channel = await this.botHooks.getChannel(channelId);
         let serverId = channel.guild.id;
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_channel(serverId, userId, channelId));
         let permissions = new permissions_js_1.default();
@@ -90,8 +90,8 @@ class BotPermissions {
             this.memory.write(locationKeyCreator_js_1.default.permissions(), locationKey, undefined, true);
         }
     }
-    editPermissions_role_channel(roleId, channelId, permissionName, value) {
-        let channel = this.botHooks.getChannel(channelId);
+    async editPermissions_role_channel(roleId, channelId, permissionName, value) {
+        let channel = await this.botHooks.getChannel(channelId);
         let serverId = channel.guild.id;
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId));
         let permissions = new permissions_js_1.default();

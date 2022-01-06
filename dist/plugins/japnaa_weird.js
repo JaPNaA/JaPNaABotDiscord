@@ -41,8 +41,8 @@ class JapnaaWeird extends plugin_js_1.default {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    onmessageHandler_lol(bot, event) {
-        if (!this._isNaturalMessage(bot, event)) {
+    async onmessageHandler_lol(bot, event) {
+        if (!await this._isNaturalMessage(bot, event)) {
             return;
         }
         const numL$wl = this._countL$wl(event.message);
@@ -59,8 +59,8 @@ class JapnaaWeird extends plugin_js_1.default {
         for (let match; match = this.l$wlRegexp.exec(str); i++) { }
         return i;
     }
-    _isNaturalMessage(bot, event) {
-        const user = bot.getUser(event.userId);
+    async _isNaturalMessage(bot, event) {
+        const user = await bot.getUser(event.userId);
         return Boolean(!event.precommandName && // is not a command
             user && !user.bot);
     }

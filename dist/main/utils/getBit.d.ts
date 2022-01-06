@@ -4,5 +4,5 @@
  * @param pos position of bit
  * @returns bit
  */
-declare function getBit(int: number, pos: number): boolean;
+declare function getBit(int: bigint, pos: bigint): boolean;
 export default getBit;

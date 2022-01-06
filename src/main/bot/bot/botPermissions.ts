@@ -13,11 +13,11 @@ class BotPermissions {
         this.memory = this.botHooks.memory as Memory;
     }
 
-    getPermissions_role_channel(roleId: string, serverId: string, channelId: string): Permissions {
-        let role: Role | undefined = this.botHooks.getRole(roleId, serverId);
+    async getPermissions_role_channel(roleId: string, serverId: string, channelId: string): Promise<Permissions> {
+        const role = await this.botHooks.getRole(roleId, serverId);
 
         if (!role) { return new Permissions(); }
-        let permissions: Permissions = new Permissions(role.permissions);
+        let permissions: Permissions = new Permissions(role.permissions.bitfield);
         if (channelId) {
             permissions.importCustomPermissions(
                 this.memory.get(createKey.permissions(),
@@ -41,21 +41,21 @@ class BotPermissions {
         return permissions;
     }
 
-    getPermissions_channel(userId: string, serverId: string, channelId: string): Permissions {
+    async getPermissions_channel(userId: string, serverId: string, channelId: string): Promise<Permissions> {
         let server: Guild | undefined;
         let user: GuildMember | undefined;
         let roles: Role[] | undefined;
-        let permissionsNum: number = 0;
+        let permissionsNum: bigint = 0n;
 
         if (serverId) {
-            server = this.botHooks.getServer(serverId);
+            server = await this.botHooks.getServer(serverId);
             if (!server) { return new Permissions(); }
-            user = server.members.get(userId);
+            user = await server.members.fetch(userId);
             if (!user) { return new Permissions(); }
 
-            roles = user.roles.array();
+            roles = Array.from(user.roles.cache.values());
 
-            let permissions: number = user.permissions.bitfield;
+            let permissions: bigint = user.permissions.bitfield;
 
             permissionsNum |= permissions;
         }
@@ -68,7 +68,7 @@ class BotPermissions {
         if (roles) {
             for (let role of roles) {
                 permissions.importCustomPermissions(
-                    this.getPermissions_role_channel(role.id, serverId, channelId).getCustomPermissions()
+                    (await this.getPermissions_role_channel(role.id, serverId, channelId)).getCustomPermissions()
                 );
             }
         }
@@ -90,8 +90,8 @@ class BotPermissions {
         return permissions;
     }
 
-    editPermissions_user_channel(userId: string, channelId: string, permissionName: string, value: boolean): void {
-        let channel: TextChannel = this.botHooks.getChannel(channelId) as TextChannel;
+    async editPermissions_user_channel(userId: string, channelId: string, permissionName: string, value: boolean) {
+        let channel: TextChannel = await this.botHooks.getChannel(channelId) as TextChannel;
         let serverId: string = channel.guild.id;
 
         let customPerms: any = this.memory.get(createKey.permissions(),
@@ -137,8 +137,8 @@ class BotPermissions {
         }
     }
 
-    editPermissions_role_channel(roleId: string, channelId: string, permissionName: string, value: boolean): void {
-        let channel: TextChannel = this.botHooks.getChannel(channelId) as TextChannel;
+    async editPermissions_role_channel(roleId: string, channelId: string, permissionName: string, value: boolean) {
+        let channel: TextChannel = await this.botHooks.getChannel(channelId) as TextChannel;
         let serverId: string = channel.guild.id;
 
         let customPerms: any = this.memory.get(createKey.permissions(),

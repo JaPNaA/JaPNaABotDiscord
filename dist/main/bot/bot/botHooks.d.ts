@@ -5,7 +5,7 @@ import BotPermissions from "./botPermissions";
 import BotClient from "./botClient";
 import Bot from "./bot";
 import RawEventAdapter from "../../adapters/rawEventAdapter";
-import { Channel, Guild, Role, User, GuildMember, Message } from "discord.js";
+import { Guild, Role, User, GuildMember, Message, AnyChannel } from "discord.js";
 import BotEvents from "./botEvents.js";
 import EventName from "../types/eventName";
 import PrecommandManager from "../precommand/manager/precommandManager";
@@ -37,34 +37,34 @@ declare class BotHooks {
     /**
      * Gets the channel with channelId
      */
-    getChannel(channelId: string): Channel | undefined;
+    getChannel(channelId: string): Promise<AnyChannel | null>;
     /**
      * Gets server from channelId
      * @param channelId id of channel
      */
-    getServerFromChannel(channelId: string): Guild | undefined;
+    getServerFromChannel(channelId: string): Promise<Guild | undefined>;
     /**
      * Gets the server with serverId
      * @param serverId id of server
      */
-    getServer(serverId: string): Guild | undefined;
+    getServer(serverId: string): Promise<Guild | undefined>;
     /**
      * Gets user
      * @param userId id of user
      */
-    getUser(userId: string): User | undefined;
+    getUser(userId: string): Promise<User | undefined>;
     /**
      * Gets a role in a server
      * @param roleId id of role
      * @param serverId id of server
      */
-    getRole(roleId: string, serverId: string): Role | undefined;
+    getRole(roleId: string, serverId: string): Promise<Role | null>;
     /**
      * Gets user from server
      * @param userId id of user
      * @param serverId id of server
      */
-    getMemberFromServer(userId: string, serverId: string): GuildMember | undefined;
+    getMemberFromServer(userId: string, serverId: string): Promise<GuildMember | undefined>;
     /**
      * @returns ping
      */

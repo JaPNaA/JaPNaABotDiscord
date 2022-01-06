@@ -59,7 +59,7 @@ declare class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit que for server and user
      */
-    _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): number;
+    _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): Promise<number>;
     /**
      * Actual spam function
      */
@@ -68,7 +68,7 @@ declare class Japnaa extends BotPlugin {
      * Makes the bot spam stuff
      * @param args "stop" | [amount, [counter], ...message]
      */
-    spam_command(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
+    spam_command(bot: BotHooks, event: DiscordMessageEvent, args: string): Promise<void>;
     /**
      * Throws an error
      * @param args error message

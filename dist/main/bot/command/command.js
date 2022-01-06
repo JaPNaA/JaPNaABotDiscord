@@ -40,12 +40,12 @@ class BotCommand {
      * @param commandEvent the event to test
      * @returns Error string
      */
-    test(commandEvent) {
+    async test(commandEvent) {
         let cleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
         if (cleanCommandContent.commandContent.startsWith(this.commandName) &&
             (!cleanCommandContent.nextCharAfterCommand ||
                 whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand))) {
-            let permissions = this.botHooks.permissions.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
+            let permissions = await this.botHooks.permissions.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
             if (this.noDM && commandEvent.isDM) {
                 return {
                     canRun: false,
@@ -68,8 +68,8 @@ class BotCommand {
      * @param commandEvent the event triggering function
      * @returns Did the command run OR not have enough permissions to run
      */
-    testAndRun(commandEvent) {
-        let results = this.test(commandEvent);
+    async testAndRun(commandEvent) {
+        let results = await this.test(commandEvent);
         if (results.canRun) {
             let cleaned = this._getCleanCommandContent(commandEvent.commandContent);
             commandEvent.arguments = cleaned.args;

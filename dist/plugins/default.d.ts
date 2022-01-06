@@ -15,18 +15,18 @@ declare class Default extends BotPlugin {
      * Logs a message to the console with a logging level of "log"
      */
     log_message(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
-    user_info(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    user_info(bot: BotHooks, event: DiscordCommandEvent, args: string): Promise<void>;
     /**
      * Converts all commands to a readable format
      * @param bot bot
      * @param event message event data
      * @param commands
      */
-    _commandsToReadable(bot: BotHooks, event: DiscordCommandEvent, commands: BotCommand[]): string;
+    _commandsToReadable(bot: BotHooks, event: DiscordCommandEvent, commands: BotCommand[]): Promise<string>;
     /**
      * Sends general help information (all commands)
      */
-    _sendGeneralHelp(bot: BotHooks, event: DiscordCommandEvent): void;
+    _sendGeneralHelp(bot: BotHooks, event: DiscordCommandEvent): Promise<void>;
     /**
      * Appends the overloads for help in embed
      */
@@ -62,16 +62,16 @@ declare class Default extends BotPlugin {
     /**
      * Pretends to recieve a message from soneone else
      */
-    pretend_get(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    pretend_get(bot: BotHooks, event: DiscordCommandEvent, args: string): Promise<void>;
     /**
      * Pretends to recieve a message from someone else
      */
-    forward_to(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    forward_to(bot: BotHooks, event: DiscordCommandEvent, args: string): Promise<void>;
     /**
      * Sends a message to a channel
      * @param argString arguments ns, type, action, id, permission
      */
-    edit_permission(bot: BotHooks, event: DiscordCommandEvent, argString: string): void;
+    edit_permission(bot: BotHooks, event: DiscordCommandEvent, argString: string): Promise<void>;
     /**
      * Sends a message to a channel
      * @param args arguments [channelId, ...message]

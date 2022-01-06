@@ -9,6 +9,6 @@ declare class CommandDispatcher {
      * Handles message event
      */
     onMessage(message: DiscordCommandEvent): void;
-    dispatchIfIsCommand(commandEvent: DiscordCommandEvent): void;
+    dispatchIfIsCommand(commandEvent: DiscordCommandEvent): Promise<void>;
 }
 export default CommandDispatcher;

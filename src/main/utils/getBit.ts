@@ -4,8 +4,8 @@
  * @param pos position of bit
  * @returns bit
  */
-function getBit(int: number, pos: number): boolean {
-    return Boolean(int >> pos & 1);
+function getBit(int: bigint, pos: bigint): boolean {
+    return Boolean(int >> pos & 1n);
 }
 
 export default getBit;

@@ -2,7 +2,6 @@ import BotHooks from "../main/bot/bot/botHooks.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import { User } from "discord.js";
 import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import { stringToArgs } from "../main/utils/allUtils.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";

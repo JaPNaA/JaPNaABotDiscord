@@ -59,7 +59,7 @@ class Default extends plugin_js_1.default {
     log_message(bot, event, args) {
         logger_js_1.default.log(args);
     }
-    user_info(bot, event, args) {
+    async user_info(bot, event, args) {
         let userId = event.userId;
         let response = [];
         if (args) {
@@ -72,44 +72,48 @@ class Default extends plugin_js_1.default {
                 return;
             }
         }
-        let user = bot.getUser(userId);
+        let user = await bot.getUser(userId);
         if (user) {
-            let avatarUrl = "https://cdn.discordapp.com/avatars/" + userId + "/" + user.avatar + ".png?size=1024";
             let userStr = "Username: " + user.username +
                 "\nDiscriminator: " + user.discriminator +
                 "\nId: " + user.id +
-                "\nAvatar: [" + user.avatar + "](" + avatarUrl + ")" +
-                "\nBot: " + user.bot +
-                "\nPresence: " + JSON.stringify(user.presence);
+                "\nAvatar: [" + user.avatar + "](" + user.avatarURL() + ")" +
+                (user.banner ?
+                    "\nBanner: [" + user.banner + "](" + user.bannerURL() + ")" :
+                    "") +
+                "\nAccent color:" + user.accentColor +
+                "\nCreated: " + user.createdAt.toLocaleString() +
+                "\nFlags: " + user.flags?.bitfield +
+                "\nBot: " + user.bot;
             response.push({
                 name: "User info",
                 value: userStr + "\n"
             });
             if (!event.isDM) {
-                let member = bot.getMemberFromServer(userId, event.serverId);
+                let member = await bot.getMemberFromServer(userId, event.serverId);
                 if (!member) {
                     throw new Error("Unknown error");
                 }
-                let rolesString = (member.roles.size >= 1 ?
-                    member.roles.map(role => "**" + role.name.replace(/@/g, "@\u200B") +
+                let rolesString = (member.roles.cache.size >= 1 ?
+                    member.roles.cache.map(role => "**" + role.name.replace(/@/g, "@\u200B") +
                         "** (" + role.id + ")").join(", ") :
                     "none");
                 if (rolesString.length > 750) {
                     rolesString = rolesString.slice(0, 750) + "...";
                 }
                 let userInServerStr = "Roles: " + rolesString +
-                    "\nIs mute: " + (member.mute ? "Yes" : "No") +
-                    "\nIs deaf: " + (member.deaf ? "Yes" : "No") +
+                    "\nIs mute: " + (member.voice.selfMute ? "Yes" : "No") +
+                    "\nIs deaf: " + (member.voice.selfDeaf ? "Yes" : "No") +
                     "\nId: " + member.id +
                     "\nJoined: " + member.joinedAt +
-                    "\nStatus: " + member.user.presence.status +
+                    "\nStatus: " + member.presence?.status +
                     "\nNick: " + member.nickname +
-                    "\nVoice Channel Id: " + member.voiceChannelID;
+                    "\nVoice Channel Id: " + member.voice.channelId;
                 response.push({
                     name: "User of server info",
                     value: userInServerStr + "\n"
                 });
-                const permissions = bot.permissions.getPermissions_channel(userId, event.serverId, event.channelId);
+                const permissions = await bot.permissions.getPermissions_channel(userId, event.serverId, event.channelId);
                 response.push({
                     name: "Permissions here",
                     value: permissions.toString() + "\n"
@@ -123,15 +127,15 @@ class Default extends plugin_js_1.default {
                 });
             }
             bot.send(event.channelId, {
-                embed: {
-                    color: bot.config.themeColor,
-                    author: {
-                        name: "Information for " + user.username,
-                        icon_url: avatarUrl + "?size=128"
-                    },
-                    fields: response,
-                    timestamp: new Date()
-                }
+                embeds: [{
+                        color: bot.config.themeColor,
+                        author: {
+                            name: "Information for " + user.username,
+                            icon_url: user.avatarURL({ size: 128 })
+                        },
+                        fields: response,
+                        timestamp: new Date()
+                    }]
             });
         }
         else {
@@ -144,13 +148,13 @@ class Default extends plugin_js_1.default {
      * @param event message event data
      * @param commands
      */
-    _commandsToReadable(bot, event, commands) {
+    async _commandsToReadable(bot, event, commands) {
+        const permissions = await bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
         return commands.map(command => {
             let name = command.commandName;
             let canRun = true;
             if (command.requiredPermission !== undefined &&
-                !bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId)
-                    .has(command.requiredPermission)) {
+                !permissions.has(command.requiredPermission)) {
                 canRun = false;
             }
             if (command.noDM && event.isDM) {
@@ -167,7 +171,7 @@ class Default extends plugin_js_1.default {
     /**
      * Sends general help information (all commands)
      */
-    _sendGeneralHelp(bot, event) {
+    async _sendGeneralHelp(bot, event) {
         let fields = [];
         let embed = {
             color: bot.config.themeColor,
@@ -177,7 +181,7 @@ class Default extends plugin_js_1.default {
         for (let [groupName, commands] of bot.defaultPrecommand.commandManager.commandGroups) {
             fields.push({
                 name: groupName || "Other",
-                value: this._commandsToReadable(bot, event, commands)
+                value: await this._commandsToReadable(bot, event, commands)
             });
         }
         fields.push({
@@ -186,12 +190,12 @@ class Default extends plugin_js_1.default {
                 "*You can type " + event.precommandName.precommand + "help [commandName] to get more information on a command.*"
         });
         if (event.isDM) {
-            bot.send(event.channelId, { embed });
+            bot.send(event.channelId, { embeds: [embed] });
         }
         else {
             // is server
             bot.send(event.channelId, "I've sent you some help!");
-            bot.sendDM(event.userId, { embed });
+            bot.sendDM(event.userId, { embeds: [embed] });
         }
     }
     /**
@@ -238,12 +242,12 @@ class Default extends plugin_js_1.default {
             description = "_From plugin '" + help.fromPlugin + "'_\n" + description;
         }
         return {
-            embed: {
-                color: bot.config.themeColor,
-                title: title,
-                description: description,
-                fields: fields
-            }
+            embeds: [{
+                    color: bot.config.themeColor,
+                    title: title,
+                    description: description,
+                    fields: fields
+                }]
         };
     }
     /**
@@ -263,18 +267,18 @@ class Default extends plugin_js_1.default {
      * Sends a help embed about a command
      */
     _sendHelpAboutCommand(bot, event, command, help) {
-        let fields = [];
+        const fields = [];
         this._appendHelpOverloads(fields, help, event, command);
         this._appendHelpExamples(fields, help, event);
         this._appendHelpPermissions(fields, help);
-        let embed = this._createHelpEmbedObject(fields, help, event, command, bot);
+        const message = this._createHelpEmbedObject(fields, help, event, command, bot);
         if (event.isDM) {
-            bot.send(event.channelId, embed);
+            bot.send(event.channelId, message);
         }
         else {
             // is server
             bot.send(event.channelId, "I've sent you some help!");
-            bot.sendDM(event.userId, embed);
+            bot.sendDM(event.userId, message);
         }
     }
     /**
@@ -326,7 +330,7 @@ class Default extends plugin_js_1.default {
     /**
      * Pretends to recieve a message from soneone else
      */
-    pretend_get(bot, event, args) {
+    async pretend_get(bot, event, args) {
         let tagMatch = args.match(/^\s*<@[!@&]]?\d+>\s*/);
         if (!tagMatch) {
             bot.send(event.channelId, "Invalid amount of arguments. See `" +
@@ -338,14 +342,14 @@ class Default extends plugin_js_1.default {
             bot.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
             return;
         }
-        let user = bot.getUser(userId);
+        let user = await bot.getUser(userId);
         let message = args.slice(tagMatch[0].length).trim();
         if (!user) {
             bot.send(event.channelId, "Could not find user" + mention_js_1.default(userId));
             return;
         }
-        let channel = bot.getChannel(event.channelId);
-        let guild = bot.getServer(event.serverId);
+        let channel = await bot.getChannel(event.channelId);
+        let guild = await bot.getServer(event.serverId);
         if (!guild) {
             throw new Error("Unknown error");
         }
@@ -359,7 +363,7 @@ class Default extends plugin_js_1.default {
     /**
      * Pretends to recieve a message from someone else
      */
-    forward_to(bot, event, args) {
+    async forward_to(bot, event, args) {
         let firstWhitespaceMatch = args.match(/\s/);
         if (!firstWhitespaceMatch) {
             return;
@@ -369,15 +373,15 @@ class Default extends plugin_js_1.default {
         if (!channelId) {
             return;
         } // tODO: Tell invalid, get help
-        let channel = bot.getChannel(channelId);
+        let channel = await bot.getChannel(channelId);
         let message = args.slice(tagMatch.length).trim();
         if (!channel) {
             bot.send(event.channelId, "Could not find channel " + channelId);
             return;
         }
         bot.client.sentMessageRecorder.startRecordingMessagesSentToChannel(event.channelId);
-        let author = bot.getUser(event.userId);
-        let guild = bot.getServer(event.serverId);
+        let author = await bot.getUser(event.userId);
+        let guild = await bot.getServer(event.serverId);
         if (!author || !guild) {
             return; // tODO: Tell invalid, get help
         }
@@ -397,7 +401,7 @@ class Default extends plugin_js_1.default {
      * Sends a message to a channel
      * @param argString arguments ns, type, action, id, permission
      */
-    edit_permission(bot, event, argString) {
+    async edit_permission(bot, event, argString) {
         let args = stringToArgs_js_1.default(argString);
         function sendHelp() {
             bot.send(event.channelId, "Invalid amount of arguments. See `" +
@@ -421,7 +425,7 @@ class Default extends plugin_js_1.default {
         /** Permission name */
         let permission = args[4].trim().toUpperCase();
         /** Permissions for assigner */
-        let assignerPermissions = this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
+        let assignerPermissions = await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
         // check if can assign permission
         if (permissions_js_1.default.specialCustoms.includes(permission) && // if special permission
             !assignerPermissions.has("BOT_ADMINISTRATOR") // and is not admin

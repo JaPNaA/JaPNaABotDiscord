@@ -195,9 +195,9 @@ class Japnaa extends plugin_js_1.default {
     /**
      * Gets the spam limit que for server and user
      */
-    _getSpamQueLimit(bot, event) {
+    async _getSpamQueLimit(bot, event) {
         let defaultLimit = this.config["spam.defaultQueLimit"];
-        let server = bot.getServer(event.serverId);
+        let server = await bot.getServer(event.serverId);
         if (!server) {
             throw new Error("Unknown Error");
         }
@@ -234,7 +234,7 @@ class Japnaa extends plugin_js_1.default {
      * Makes the bot spam stuff
      * @param args "stop" | [amount, [counter], ...message]
      */
-    spam_command(bot, event, args) {
+    async spam_command(bot, event, args) {
         const cleanArgs = args.trim().toLowerCase();
         switch (cleanArgs) {
             case "stop":
@@ -297,12 +297,12 @@ class Japnaa extends plugin_js_1.default {
         // check against limits
         // ----------------------------------------------------------------------------------------
         let spamLimit = this._getSpamLimit(bot, event);
-        let spamQueLimit = this._getSpamQueLimit(bot, event);
+        let spamQueLimit = await this._getSpamQueLimit(bot, event);
         if (amount > spamLimit) {
             this.bot.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
             return;
         }
-        let server = bot.getServer(event.serverId);
+        let server = await bot.getServer(event.serverId);
         if (!server) {
             throw new Error("Unknown Error");
         }

@@ -7,6 +7,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
  * @returns bit
  */
 function getBit(int, pos) {
-    return Boolean(int >> pos & 1);
+    return Boolean(int >> pos & 1n);
 }
 exports.default = getBit;

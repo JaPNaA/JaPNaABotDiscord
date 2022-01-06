@@ -1,6 +1,6 @@
 import FS from "fs";
 import PATH from "path";
-import DISCORD from "discord.js";
+import DISCORD, { Intents } from "discord.js";
 import STRIP_JSON_COMMENTS from "strip-json-comments";
 import Logger from "./utils/logger.js";
 import Bot from "./bot/bot/bot.js";
@@ -191,13 +191,19 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
 
     memoryPath = pathToMemoryFile;
 
-    client = new DISCORD.Client();
+    client = new DISCORD.Client({
+        intents: [
+            Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES,
+            Intents.FLAGS.DIRECT_MESSAGES
+        ],
+        partials: ["CHANNEL", "MESSAGE"]
+    });
     client.login(token);
 
     client.on("ready", () =>
         botHooks.rawEventAdapter.onReady()
     );
-    client.on("message", event =>
+    client.on("messageCreate", event =>
         botHooks.rawEventAdapter.onMessage(event)
     );
 

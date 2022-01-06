@@ -21,12 +21,12 @@ class CommandDispatcher {
         this.dispatchIfIsCommand(message);
     }
 
-    dispatchIfIsCommand(commandEvent: DiscordCommandEvent): void {
+    async dispatchIfIsCommand(commandEvent: DiscordCommandEvent) {
         let someCommandRan: boolean = false;
 
         for (let i: number = this.manager.commands.length - 1; i >= 0; i--) {
             let command: BotCommand = this.manager.commands[i];
-            let ran: boolean = command.testAndRun(commandEvent);
+            let ran: boolean = await command.testAndRun(commandEvent);
             if (ran) {
                 someCommandRan = true;
                 break;
