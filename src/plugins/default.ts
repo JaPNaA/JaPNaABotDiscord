@@ -636,12 +636,12 @@ class Default extends BotPlugin {
             callback.bind(this)
         );
 
-        function callback(this: Default, error: childProcess.ExecException | null, stdout: string, stderr: string) {
+        async function callback(this: Default, error: childProcess.ExecException | null, stdout: string, stderr: string) {
             if (error) {
                 Logger.error(error);
-                bot.client.send(event.channelId, "Error updating bot. See logs.");
+                await this.bot.client.send(event.channelId, "Error updating bot. See logs.");
             } else {
-                bot.client.send(event.channelId, "Update successful. Stopping...");
+                await this.bot.client.send(event.channelId, "Update successful. Stopping...");
             }
 
             Logger.log(stdout);

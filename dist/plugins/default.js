@@ -40,6 +40,7 @@ const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js")
  * Normal commands every bot shoud have
  */
 class Default extends plugin_js_1.default {
+    sawUpdateBotWarning;
     constructor(bot) {
         super(bot);
         this._pluginName = "default";
@@ -49,8 +50,8 @@ class Default extends plugin_js_1.default {
         this.bot.client.send(event.channelId, "Pong! Took " + Math.round(this.bot.client.getPing()) + "ms"); // * should be using abstraction
     }
     eval(event) {
-        let str = util_1.inspect(eval(event.arguments));
-        str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
+        let str = (0, util_1.inspect)(eval(event.arguments));
+        str = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 1994);
         this.bot.client.send(event.channelId, "```" + str + "```");
     }
     /**
@@ -63,7 +64,7 @@ class Default extends plugin_js_1.default {
         let userId = event.userId;
         let response = [];
         if (event.arguments) {
-            let newUserId = getSnowflakeNum_1.default(event.arguments);
+            let newUserId = (0, getSnowflakeNum_1.default)(event.arguments);
             if (newUserId) {
                 userId = newUserId;
             }
@@ -337,7 +338,7 @@ class Default extends plugin_js_1.default {
                 event.precommandName.name + "help pretend get` for help");
             return;
         }
-        let userId = getSnowflakeNum_1.default(tagMatch[0]);
+        let userId = (0, getSnowflakeNum_1.default)(tagMatch[0]);
         if (!userId) {
             this.bot.client.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
             return;
@@ -345,7 +346,7 @@ class Default extends plugin_js_1.default {
         let user = await this.bot.client.getUser(userId);
         let message = event.arguments.slice(tagMatch[0].length).trim();
         if (!user) {
-            this.bot.client.send(event.channelId, "Could not find user" + mention_js_1.default(userId));
+            this.bot.client.send(event.channelId, "Could not find user" + (0, mention_js_1.default)(userId));
             return;
         }
         let channel = await this.bot.client.getChannel(event.channelId);
@@ -353,7 +354,7 @@ class Default extends plugin_js_1.default {
         if (!guild) {
             throw new Error("Unknown error");
         }
-        this.bot.rawEventAdapter.onMessage(fakeMessage_js_1.default({
+        this.bot.rawEventAdapter.onMessage((0, fakeMessage_js_1.default)({
             author: user,
             channel: channel,
             guild: guild,
@@ -370,7 +371,7 @@ class Default extends plugin_js_1.default {
             return;
         } // tODO: Tell invalid, get help
         let tagMatch = event.arguments.slice(0, firstWhitespaceMatch.index);
-        let channelId = getSnowflakeNum_1.default(tagMatch);
+        let channelId = (0, getSnowflakeNum_1.default)(tagMatch);
         if (!channelId) {
             return;
         } // tODO: Tell invalid, get help
@@ -386,7 +387,7 @@ class Default extends plugin_js_1.default {
         if (!author || !guild) {
             return; // tODO: Tell invalid, get help
         }
-        this.bot.rawEventAdapter.onMessage(fakeMessage_js_1.default({
+        this.bot.rawEventAdapter.onMessage((0, fakeMessage_js_1.default)({
             author: author,
             channel: channel,
             guild: guild,
@@ -404,7 +405,7 @@ class Default extends plugin_js_1.default {
      * @param argString arguments ns, type, action, id, permission
      */
     async edit_permission(event) {
-        const args = stringToArgs_js_1.default(event.arguments);
+        const args = (0, stringToArgs_js_1.default)(event.arguments);
         const _bot = this.bot;
         function sendHelp() {
             _bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
@@ -421,7 +422,7 @@ class Default extends plugin_js_1.default {
         /** Action (add, remove) */
         let action = args[2][0].toLowerCase();
         /** Id of user or role */
-        let id = getSnowflakeNum_1.default(args[3]);
+        let id = (0, getSnowflakeNum_1.default)(args[3]);
         if (!id) {
             return;
         } // tODO: tell invalid, get help
@@ -448,11 +449,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     this.bot.permissions.editPermissions_user_channel(id, event.channelId, permission, true);
-                    this.bot.client.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel");
+                    this.bot.client.send(event.channelId, "Given" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this channel");
                 }
                 else if (action === "r") { // remove
                     this.bot.permissions.editPermissions_user_channel(id, event.channelId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
+                    this.bot.client.send(event.channelId, "Removed" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -461,11 +462,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     this.bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
-                    this.bot.client.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel.");
+                    this.bot.client.send(event.channelId, "Given role" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this channel.");
                 }
                 else if (action === "r") { // remove
                     this.bot.permissions.editPermissions_role_channel(id, event.channelId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
+                    this.bot.client.send(event.channelId, "Removed role" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -483,11 +484,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     this.bot.permissions.editPermissions_user_server(id, event.serverId, permission, true);
-                    this.bot.client.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this server");
+                    this.bot.client.send(event.channelId, "Given" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this server");
                 }
                 else if (action === "r") { // remove
                     this.bot.permissions.editPermissions_user_server(id, event.serverId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
+                    this.bot.client.send(event.channelId, "Removed" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -496,11 +497,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     this.bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
-                    this.bot.client.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this server.");
+                    this.bot.client.send(event.channelId, "Given role" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this server.");
                 }
                 else if (action === "r") { // remove
                     this.bot.permissions.editPermissions_role_server(id, event.serverId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
+                    this.bot.client.send(event.channelId, "Removed role" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -522,11 +523,11 @@ class Default extends plugin_js_1.default {
                 }
                 if (action === "a") { // add
                     this.bot.permissions.editPermissions_user_global(id, permission, true);
-                    this.bot.client.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` everywhere");
+                    this.bot.client.send(event.channelId, "Given" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` everywhere");
                 }
                 else if (action === "r") { // remove
                     this.bot.permissions.editPermissions_user_global(id, permission, false);
-                    this.bot.client.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) everywhere.");
+                    this.bot.client.send(event.channelId, "Removed" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) everywhere.");
                 }
                 else {
                     sendHelp();
@@ -596,13 +597,13 @@ class Default extends plugin_js_1.default {
      */
     _actuallyUpdateBot(bot, event) {
         childProcess.exec("npm install gitlab:japnaa/japnaabotdiscord", callback.bind(this));
-        function callback(error, stdout, stderr) {
+        async function callback(error, stdout, stderr) {
             if (error) {
                 logger_js_1.default.error(error);
-                bot.client.send(event.channelId, "Error updating bot. See logs.");
+                await this.bot.client.send(event.channelId, "Error updating bot. See logs.");
             }
             else {
-                bot.client.send(event.channelId, "Update successful. Stopping...");
+                await this.bot.client.send(event.channelId, "Update successful. Stopping...");
             }
             logger_js_1.default.log(stdout);
             logger_js_1.default.log(stderr);
