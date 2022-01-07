@@ -77,8 +77,8 @@ class SentMessageRecorder {
     }
 }
 class BotClient {
-    constructor(botHooks, client) {
-        this.botHooks = botHooks;
+    constructor(bot, client) {
+        this.bot = bot;
         /** Discord.io Client */
         this.client = client;
         /** Maps userId to DM Channel Id */
@@ -89,7 +89,7 @@ class BotClient {
         this.client.on("error", function (error) {
             logger_js_1.default.error(error);
         });
-        this.botHooks.events.on("ready", this.onReady.bind(this));
+        this.bot.events.on("ready", this.onReady.bind(this));
     }
     onReady() {
         this.id = this.client.user.id;
@@ -118,7 +118,7 @@ class BotClient {
         if (!textChannel.isText()) {
             throw new TypeError("Cannot send to non-text channel");
         }
-        this.botHooks.events.dispatch("send", message);
+        this.bot.events.dispatch("send", message);
         if (typeof message === "string") {
             if (message.trim().length === 0) {
                 message = "_This message is empty_";
@@ -162,7 +162,7 @@ class BotClient {
         if (failCallback) {
             promise.catch(() => failCallback());
         }
-        this.botHooks.events.dispatch("senddm", this);
+        this.bot.events.dispatch("senddm", this);
         return promise;
     }
     getChannel(channelId) {

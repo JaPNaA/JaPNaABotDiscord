@@ -1,4 +1,4 @@
-import BotHooks from "../../main/bot/bot/botHooks";
+import Bot from "../../main/bot/bot/bot";
 import CommandManager from "../../main/bot/command/manager/commandManager";
 import BotPlugin from "../../main/bot/plugin/plugin";
 import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
@@ -9,7 +9,7 @@ declare abstract class Game extends BotPlugin {
     _gamePluginName: string;
     gameName: string;
     gameEnded: boolean;
-    constructor(botHooks: BotHooks, parentPlugin: Games);
-    unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent): void;
+    constructor(bot: Bot, parentPlugin: Games);
+    unknownCommandHandler(bot: Bot, event: DiscordCommandEvent): void;
 }
 export default Game;

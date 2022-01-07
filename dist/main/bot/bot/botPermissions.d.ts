@@ -1,10 +1,10 @@
 import Permissions from "../../types/permissions.js";
 import Memory from "./botMemory.js";
-import BotHooks from "./botHooks.js";
+import Bot from "./bot.js";
 declare class BotPermissions {
-    botHooks: BotHooks;
+    private bot;
     memory: Memory;
-    constructor(botHooks: BotHooks);
+    constructor(bot: Bot);
     getPermissions_role_channel(roleId: string, serverId: string, channelId: string): Promise<Permissions>;
     getPermissions_global(userId: string): Permissions;
     getPermissions_channel(userId: string, serverId: string, channelId: string): Promise<Permissions>;

@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const locationKeyCreator_js_1 = __importDefault(require("../utils/locationKeyCreator.js"));
 class Config {
-    constructor(botHooks, config) {
+    constructor(bot, config) {
         this.config = config;
         this.precommands = (this.config["bot.precommand"] || ["!"]);
         this.themeColor = parseInt(this.config["bot.themeColor"], 16);

@@ -19,13 +19,13 @@ class JapnaaWeird extends plugin_js_1.default {
      * Tetris is a racing game.
      */
     tetris(bot, event, args) {
-        bot.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
+        bot.client.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
     }
     /**
      * JaP is kewl
      */
     jap(bot, event, args) {
-        bot.send(event.channelId, {
+        bot.client.send(event.channelId, {
             embed: {
                 color: bot.config.themeColor,
                 description: "**JaP is " + (args || "kewl") + "**"
@@ -36,7 +36,7 @@ class JapnaaWeird extends plugin_js_1.default {
      * ebola your parabola
      */
     your(bot, event) {
-        bot.send(event.channelId, "parabola");
+        bot.client.send(event.channelId, "parabola");
     }
     /**
      * Listens for messages with 'lol' and deviations
@@ -48,10 +48,10 @@ class JapnaaWeird extends plugin_js_1.default {
         const numL$wl = this._countL$wl(event.message);
         if (numL$wl) {
             let str = "no ".repeat(numL$wl);
-            bot.send(event.channelId, str);
+            bot.client.send(event.channelId, str);
         }
         else if (this.lolRegexp.test(event.message)) { // contains valid 'lol'
-            bot.send(event.channelId, "lol");
+            bot.client.send(event.channelId, "lol");
         }
     }
     _countL$wl(str) {
@@ -60,7 +60,7 @@ class JapnaaWeird extends plugin_js_1.default {
         return i;
     }
     async _isNaturalMessage(bot, event) {
-        const user = await bot.getUser(event.userId);
+        const user = await bot.client.getUser(event.userId);
         return Boolean(!event.precommandName && // is not a command
             user && !user.bot);
     }

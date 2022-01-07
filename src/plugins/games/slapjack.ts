@@ -1,6 +1,6 @@
 import Deck from "./cards/deck";
 import Game from "../games/game";
-import BotHooks from "../../main/bot/bot/botHooks";
+import Bot from "../../main/bot/bot/bot";
 import toOne from "../../main/utils/toOne";
 import { Message } from "discord.js";
 import { Rank } from "./cards/cardUtils";
@@ -27,7 +27,7 @@ class SlapJack extends Game {
 
     gameEnded: boolean = false;
 
-    constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string) {
+    constructor(botHooks: Bot, parentPlugin: Games, channelId: string) {
         super(botHooks, parentPlugin);
 
         this.deck = new Deck({
@@ -43,7 +43,7 @@ class SlapJack extends Game {
     _start() {
         this._registerCommand(this.commandManager, "slap", this.slap);
 
-        this.bot.send(this.channelId, "Loading...")
+        this.bot.client.send(this.channelId, "Loading...")
             .then(e => {
                 this.activeMessage = toOne(e);
                 this.onReadyStart();
@@ -51,16 +51,16 @@ class SlapJack extends Game {
     }
 
     onReadyStart() {
-        this.bot.send(this.channelId, 
+        this.bot.client.send(this.channelId, 
             "Type `" + this.parentPlugin.precommand.names[0] + 
             "slap` when the card above is a Jack"
         );
         this.startTicking();
     }
 
-    slap(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    slap(bot: Bot, event: DiscordCommandEvent, args: string) {
         if (this.acceptingSlaps) {
-            bot.send(
+            bot.client.send(
                 event.channelId, 
                 mention(event.userId) + " did it! yay\n" + 
                 (event.createdTimestamp - this.jackedTime).toString() + "ms"
@@ -68,7 +68,7 @@ class SlapJack extends Game {
 
             this.gameEnded = true;
         } else {
-            bot.send(event.channelId, "you slapped too early! violent!!");
+            bot.client.send(event.channelId, "you slapped too early! violent!!");
         }
     }
 

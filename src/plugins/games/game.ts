@@ -1,4 +1,4 @@
-import BotHooks from "../../main/bot/bot/botHooks";
+import Bot from "../../main/bot/bot/bot";
 import CommandManager from "../../main/bot/command/manager/commandManager";
 import BotPlugin from "../../main/bot/plugin/plugin";
 import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
@@ -13,8 +13,8 @@ abstract class Game extends BotPlugin {
 
     gameEnded: boolean = false;
 
-    constructor(botHooks: BotHooks, parentPlugin: Games) {
-        super(botHooks)
+    constructor(bot: Bot, parentPlugin: Games) {
+        super(bot)
         this.parentPlugin = parentPlugin;
 
         this.commandManager = new CommandManager(this.bot);
@@ -26,8 +26,8 @@ abstract class Game extends BotPlugin {
         this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
     }
 
-    unknownCommandHandler(bot: BotHooks, event: DiscordCommandEvent) {
-        bot.send(
+    unknownCommandHandler(bot: Bot, event: DiscordCommandEvent) {
+        bot.client.send(
             event.channelId, 
             "That command doesn't exist!\n" + 
             "(You're playing " + this.gameName + ")"

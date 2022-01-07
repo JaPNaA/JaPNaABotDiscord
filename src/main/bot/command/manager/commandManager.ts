@@ -1,4 +1,3 @@
-import BotHooks from "../../bot/botHooks.js";
 import CommandDispatcher from "./commandDispatcher.js";
 import BotCommandHelp from "../commandHelp.js";
 import BotCommand from "../command.js";
@@ -7,10 +6,9 @@ import BotCommandOptions from "../commandOptions.js";
 import createKey from "../../utils/locationKeyCreator.js";
 import ObjectStrMap from "../../../types/objectStrMap";
 import UnknownCommandHandler from "./unknownCommandHandler.js";
+import Bot from "../../bot/bot.js";
 
 class CommandManager {
-    botHooks: BotHooks;
-
     dispatch: CommandDispatcher;
     /** list of commands registered */
     commands: BotCommand[];
@@ -21,10 +19,9 @@ class CommandManager {
     /** Data for help */
     helpData: { [x: string]: BotCommandHelp | null | undefined };
 
-    constructor(botHooks: BotHooks) {
-        this.botHooks = botHooks;
+    constructor(private bot: Bot) {
 
-        this.dispatch = new CommandDispatcher(botHooks, this);
+        this.dispatch = new CommandDispatcher(bot, this);
         this.commandGroups = new Map();
 
         // this.precommands = [];
@@ -38,7 +35,7 @@ class CommandManager {
     }
 
     register(triggerWord: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions): void {
-        let command: BotCommand = new BotCommand(this.botHooks, triggerWord, pluginName, func, options);
+        let command: BotCommand = new BotCommand(this.bot, triggerWord, pluginName, func, options);
 
         this.commands.push(command);
         this.applyConfigToCommand(command);
@@ -58,7 +55,7 @@ class CommandManager {
     private applyConfigToCommand(command: BotCommand): void {
         if (!command.pluginName) { return; }
 
-        let pluginOverrides: ObjectStrMap = this.botHooks.config.commandRequiredPermissionOverrides[
+        let pluginOverrides: ObjectStrMap = this.bot.config.commandRequiredPermissionOverrides[
             createKey.plugin(command.pluginName)
         ];
         let overridingRequiredPermission: string =

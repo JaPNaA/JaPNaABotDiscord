@@ -31,7 +31,6 @@ const logger_js_1 = __importDefault(require("./utils/logger.js"));
 const bot_js_1 = __importDefault(require("./bot/bot/bot.js"));
 let client;
 let bot;
-let botHooks;
 // let shuttingDown = false;
 let defaultConfig = JSON.parse(strip_json_comments_1.default(fs_1.default.readFileSync(__dirname + "/../../data/config.jsonc").toString()));
 let runtimeConfig = {};
@@ -48,7 +47,6 @@ let configPath = null;
 function _init() {
     _getConfigFromPath();
     bot = new bot_js_1.default(config, memory, memoryPath, client, _init);
-    botHooks = bot.hooks;
     if (config.autoloadPlugins) {
         for (let pluginName of config.builtinPlugins) {
             loadBuiltinPlugin(pluginName);
@@ -138,7 +136,7 @@ function loadPlugin(path) {
     // delete old plugin cache
     delete require.cache[require.resolve(npath)];
     try {
-        let plugin = new (require(npath).default)(bot.hooks);
+        let plugin = new (require(npath).default)(bot);
         bot.pluginManager.register(plugin);
         logger_js_1.default.log("Successfully loaded external plugin", path);
         return null;
@@ -159,7 +157,7 @@ function loadBuiltinPlugin(name) {
     // delete old plugin cache
     delete require.cache[require.resolve(npath)];
     try {
-        let plugin = new (require(npath).default)(bot.hooks);
+        let plugin = new (require(npath).default)(bot);
         bot.pluginManager.register(plugin);
         logger_js_1.default.log("Successfully loaded built-in plugin", name);
         return null;
@@ -200,8 +198,8 @@ function start(apiToken, botConfig, pathToMemoryFile) {
         partials: ["CHANNEL", "MESSAGE"]
     });
     client.login(token);
-    client.on("ready", () => botHooks.rawEventAdapter.onReady());
-    client.on("messageCreate", event => botHooks.rawEventAdapter.onMessage(event));
+    client.on("ready", () => bot.rawEventAdapter.onReady());
+    client.on("messageCreate", event => bot.rawEventAdapter.onMessage(event));
     // not required by discord.js
     // client.on("disconnect", function () {
     //     if (!shuttingDown) {
@@ -257,7 +255,7 @@ exports.stop = stop;
  * @returns bot
  */
 function getBot() {
-    return bot.hooks;
+    return bot;
 }
 exports.getBot = getBot;
 /**

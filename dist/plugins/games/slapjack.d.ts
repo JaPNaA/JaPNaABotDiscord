@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import Deck from "./cards/deck";
 import Game from "../games/game";
-import BotHooks from "../../main/bot/bot/botHooks";
+import Bot from "../../main/bot/bot/bot";
 import { Message } from "discord.js";
 import { Rank } from "./cards/cardUtils";
 import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
@@ -19,10 +19,10 @@ declare class SlapJack extends Game {
     acceptingSlaps: boolean;
     jackedTime: number;
     gameEnded: boolean;
-    constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string);
+    constructor(botHooks: Bot, parentPlugin: Games, channelId: string);
     _start(): void;
     onReadyStart(): void;
-    slap(bot: BotHooks, event: DiscordCommandEvent, args: string): void;
+    slap(bot: Bot, event: DiscordCommandEvent, args: string): void;
     tick(): void;
     jacked(editPromise: Promise<any>): void;
     startTicking(): void;

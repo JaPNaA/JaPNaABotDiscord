@@ -1,5 +1,3 @@
-import BotHooks from "../main/bot/bot/botHooks.js";
-
 import DiscordMessageEvent from "../main/bot/events/discordCommandEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
@@ -16,6 +14,7 @@ import { JSONObject } from "../main/types/jsonObject.js";
 import { Guild } from "discord.js";
 import mention from "../main/utils/str/mention"
 import randomString from "../main/utils/random/randomString.js";
+import Bot from "../main/bot/bot/bot";
 
 type SpamCallback = () => boolean;
 
@@ -33,7 +32,7 @@ class Japnaa extends BotPlugin {
     spamIntervalActive: boolean = false;
     config: JSONObject;
 
-    constructor(bot: BotHooks) {
+    constructor(bot: Bot) {
         super(bot);
 
         this._pluginName = "japnaa";
@@ -48,16 +47,16 @@ class Japnaa extends BotPlugin {
     /**
      * makes the bot count
      */
-    count(bot: BotHooks, event: DiscordMessageEvent): void {
+    count(bot: Bot, event: DiscordMessageEvent): void {
         this.counter++;
         this.bot.memory.write(this._pluginName, "counter", this.counter);
-        bot.send(event.channelId, this.counter.toString() + "!");
+        bot.client.send(event.channelId, this.counter.toString() + "!");
     }
 
     /**
      * says whatever you say
      */
-    echo(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    echo(bot: Bot, event: DiscordMessageEvent, args: string): void {
         let json: JSONObject | null = null;
         try {
             json = JSON.parse(args);
@@ -66,21 +65,21 @@ class Japnaa extends BotPlugin {
         }
 
         if (json) {
-            bot.send(event.channelId, json);
+            bot.client.send(event.channelId, json);
         } else {
-            bot.send(event.channelId, args);
+            bot.client.send(event.channelId, args);
         }
     }
 
     /**
      * Generates random stuff
      */
-    random(bot: BotHooks, event: DiscordMessageEvent, argString: string): void {
+    random(bot: Bot, event: DiscordMessageEvent, argString: string): void {
         const args: string[] = stringToArgs(argString);
 
         // !random string
         if (args[0] && args[0].toLowerCase() === "string") {
-            bot.send(event.channelId,
+            bot.client.send(event.channelId,
                 "```" +
                 randomString(128).replace(/`$/g, "` ") // because discord markup
                 + "```"
@@ -122,12 +121,12 @@ class Japnaa extends BotPlugin {
 
         // check if arguments are valid
         if (isNaN(max) || isNaN(min) || isNaN(step)) {
-            bot.send(event.channelId, "**Invalid arguments**");
+            bot.client.send(event.channelId, "**Invalid arguments**");
         } else {
             result = random(min, max, step);
         }
 
-        bot.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
+        bot.client.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
     }
 
     /**
@@ -209,7 +208,7 @@ class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit for channel and user
      */
-    _getSpamLimit(bot: BotHooks, event: DiscordMessageEvent): number {
+    _getSpamLimit(bot: Bot, event: DiscordMessageEvent): number {
         let userLimit: number = bot.memory.get(this._pluginName,
             this.memorySpamLimit + createKey.delimiter() + createKey.user_server(event.serverId, event.userId)
         );
@@ -232,10 +231,10 @@ class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit que for server and user
      */
-    async _getSpamQueLimit(bot: BotHooks, event: DiscordMessageEvent): Promise<number> {
+    async _getSpamQueLimit(bot: Bot, event: DiscordMessageEvent): Promise<number> {
         let defaultLimit: number = this.config["spam.defaultQueLimit"] as number;
 
-        let server = await bot.getServer(event.serverId);
+        let server = await bot.client.getServer(event.serverId);
         if (!server) { throw new Error("Unknown Error"); }
 
         let serverLimit: number = bot.memory.get(this._pluginName,
@@ -248,13 +247,13 @@ class Japnaa extends BotPlugin {
     /**
      * Actual spam function
      */
-    _spam(bot: BotHooks, channelId: string, serverId: string, amount: number, counter: boolean, message: string): void {
+    _spam(bot: Bot, channelId: string, serverId: string, amount: number, counter: boolean, message: string): void {
         let count: number = 0;
         const spamCallback: SpamCallback = function (): boolean {
             if (counter) {
-                bot.send(channelId, `**${count + 1}/${amount}:** ${message}`);
+                bot.client.send(channelId, `**${count + 1}/${amount}:** ${message}`);
             } else {
-                bot.send(channelId, message);
+                bot.client.send(channelId, message);
             }
             count++;
             return count < amount;
@@ -275,29 +274,29 @@ class Japnaa extends BotPlugin {
      * Makes the bot spam stuff
      * @param args "stop" | [amount, [counter], ...message]
      */
-    async spam_command(bot: BotHooks, event: DiscordMessageEvent, args: string) {
+    async spam_command(bot: Bot, event: DiscordMessageEvent, args: string) {
         const cleanArgs: string = args.trim().toLowerCase();
 
         switch (cleanArgs) {
             case "stop":
                 this._stopSpam(event.serverId);
-                bot.send(event.channelId, "All spam on this server stopped");
+                bot.client.send(event.channelId, "All spam on this server stopped");
                 return;
             case "stop all":
                 if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
                     this._stopAllSpam();
-                    bot.send(event.channelId, "All spam on every server stopped");
+                    bot.client.send(event.channelId, "All spam on every server stopped");
                 } else {
-                    bot.send(event.channelId, mention(event.userId) + ", you don't have the permissions to do that.");
+                    bot.client.send(event.channelId, mention(event.userId) + ", you don't have the permissions to do that.");
                 }
                 return;
             case "limit":
-                bot.send(event.channelId,
+                bot.client.send(event.channelId,
                     "Your spam limit is: " + this._getSpamLimit(bot, event)
                 );
                 return;
             case "que limit":
-                bot.send(event.channelId,
+                bot.client.send(event.channelId,
                     "Server que limit: " + this._getSpamQueLimit(bot, event)
                 );
                 return;
@@ -351,17 +350,17 @@ class Japnaa extends BotPlugin {
         let spamQueLimit: number = await this._getSpamQueLimit(bot, event);
 
         if (amount > spamLimit) {
-            this.bot.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
+            this.bot.client.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
             return;
         }
 
-        let server = await bot.getServer(event.serverId);
+        let server = await bot.client.getServer(event.serverId);
         if (!server) { throw new Error("Unknown Error"); }
         if (
             this.spamQue[server.id] &&
             this.spamQue[server.id].length > spamQueLimit
         ) {
-            this.bot.send(event.channelId, "**Too much spam already qued.**");
+            this.bot.client.send(event.channelId, "**Too much spam already qued.**");
             return;
         }
 
@@ -372,7 +371,7 @@ class Japnaa extends BotPlugin {
      * Throws an error
      * @param args error message
      */
-    throw(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    throw(bot: Bot, event: DiscordMessageEvent, args: string): void {
         throw new Error(args || "User-Thrown Error");
     }
 
@@ -380,7 +379,7 @@ class Japnaa extends BotPlugin {
      * Changes rich presence to play a game
      * @param args string to set as play
      */
-    play(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    play(bot: Bot, event: DiscordMessageEvent, args: string): void {
         bot.client.presence.setGame(args);
     }
 
@@ -388,7 +387,7 @@ class Japnaa extends BotPlugin {
      * Changes rich presence to watch a game
      * @param args string to set as watch
      */
-    watch(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    watch(bot: Bot, event: DiscordMessageEvent, args: string): void {
         bot.client.presence.setWatch(args);
     }
 
@@ -396,7 +395,7 @@ class Japnaa extends BotPlugin {
      * Changes rich presence to listen to a music
      * @param args string to set as music
      */
-    listen_to(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    listen_to(bot: Bot, event: DiscordMessageEvent, args: string): void {
         bot.client.presence.setListen(args);
     }
 
@@ -404,7 +403,7 @@ class Japnaa extends BotPlugin {
      * Changes rich presence to stream a game
      * @param args string to set as stream
      */
-    stream(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    stream(bot: Bot, event: DiscordMessageEvent, args: string): void {
         bot.client.presence.setStream(args);
     }
 
@@ -412,11 +411,11 @@ class Japnaa extends BotPlugin {
      * Tell someone something through DMs
      * @param args message to send
      */
-    tell(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
+    tell(bot: Bot, event: DiscordMessageEvent, args: string): void {
         let tagMatch: RegExpMatchArray | null = args.match(/^\s*<@\d+>\s*/);
 
         if (!tagMatch) {
-            bot.send(event.channelId,
+            bot.client.send(event.channelId,
                 "Invalid amount of arguments. See `" +
                 event.precommandName + "help tell` for help"
             );
@@ -425,19 +424,19 @@ class Japnaa extends BotPlugin {
 
         let user: string | null = getSnowflakeNum(tagMatch[0]);
         if (!user) {
-            bot.send(event.channelId, "User does not exist.");
+            bot.client.send(event.channelId, "User does not exist.");
             return;
         }
         let message: string = args.slice(tagMatch[0].length);
 
-        bot.sendDM(user, {
+        bot.client.sendDM(user, {
             message: mention(event.userId) + " told you",
             embed: {
                 color: bot.config.themeColor,
                 description: message
             }
         }, function (): void {
-            bot.send(event.channelId, "Failed to tell " + mention(user as string));
+            bot.client.send(event.channelId, "Failed to tell " + mention(user as string));
         });
     }
 

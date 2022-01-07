@@ -1,5 +1,5 @@
-import BotHooks from "../bot/botHooks";
+import Bot from "../bot/bot";
 import DiscordCommandEvent from "../events/discordCommandEvent";
 
-type BotCommandCallback = (bot: BotHooks, event: DiscordCommandEvent, args: string) => any;
+type BotCommandCallback = (bot: Bot, event: DiscordCommandEvent, args: string) => any;
 export default BotCommandCallback;

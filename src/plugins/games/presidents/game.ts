@@ -1,5 +1,5 @@
 import PlayerHandler from "./playerHandler";
-import BotHooks from "../../../main/bot/bot/botHooks";
+import Bot from "../../../main/bot/bot/bot";
 import Dealer from "./dealer";
 import Games from "../../games";
 import MessageHandler from "./messageHandler";
@@ -14,7 +14,7 @@ import MessageEvent from "./messageEvent";
 import MessageType from "./messageType";
 
 class PresidentsMain {
-    bot: BotHooks;
+    bot: Bot;
     parentGame: Games;
     presidentsGame: PresidentsGame;
 
@@ -26,7 +26,7 @@ class PresidentsMain {
 
     pileMessage?: Message;
 
-    constructor(botHooks: BotHooks, parentGame: Games, presidentsGame: PresidentsGame) {
+    constructor(botHooks: Bot, parentGame: Games, presidentsGame: PresidentsGame) {
         this.bot = botHooks;
         this.parentGame = parentGame;
         this.presidentsGame = presidentsGame;
@@ -103,7 +103,7 @@ class PresidentsMain {
             str += "_To pass_, type `" + precommand + "pass`\n";
             str += "\nGood luck!";
 
-            this.bot.sendDM(player.userId, str);
+            this.bot.client.sendDM(player.userId, str);
         }
     }
 
@@ -200,7 +200,7 @@ class PresidentsMain {
     }
 
     private announce(message: string): Promise<Message | Message[]> {
-        return this.bot.send(this.presidentsGame.channelId, message);
+        return this.bot.client.send(this.presidentsGame.channelId, message);
     }
 
     _start() {

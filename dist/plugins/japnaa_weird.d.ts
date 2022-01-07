@@ -1,31 +1,31 @@
-import BotHooks from "../main/bot/bot/botHooks.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
+import Bot from "../main/bot/bot/bot";
 /**
  * The weirder side of JaPNaABot
  */
 declare class JapnaaWeird extends BotPlugin {
     lolRegexp: RegExp;
     l$wlRegexp: RegExp;
-    constructor(bot: BotHooks);
+    constructor(bot: Bot);
     /**
      * Tetris is a racing game.
      */
-    tetris(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
+    tetris(bot: Bot, event: DiscordMessageEvent, args: string): void;
     /**
      * JaP is kewl
      */
-    jap(bot: BotHooks, event: DiscordMessageEvent, args: string): void;
+    jap(bot: Bot, event: DiscordMessageEvent, args: string): void;
     /**
      * ebola your parabola
      */
-    your(bot: BotHooks, event: DiscordMessageEvent): void;
+    your(bot: Bot, event: DiscordMessageEvent): void;
     /**
      * Listens for messages with 'lol' and deviations
      */
-    onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent): Promise<void>;
+    onmessageHandler_lol(bot: Bot, event: DiscordMessageEvent): Promise<void>;
     _countL$wl(str: string): number;
-    _isNaturalMessage(bot: BotHooks, event: DiscordMessageEvent): Promise<boolean>;
+    _isNaturalMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean>;
     _start(): void;
     _stop(): void;
 }

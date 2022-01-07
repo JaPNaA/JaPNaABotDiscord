@@ -6,7 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tryRun_1 = __importDefault(require("../../utils/tryRun"));
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 class BotEvent {
-    constructor(botHooks) {
+    constructor(bot) {
+        this.bot = bot;
         this.events = {
             "ready": [],
             "start": [],
@@ -21,7 +22,6 @@ class BotEvent {
             "addasync": [],
             "doneasync": []
         };
-        this.botHooks = botHooks;
     }
     on(name, func) {
         this.events[name].push(func);
@@ -30,7 +30,7 @@ class BotEvent {
         let errors = [];
         logger_js_1.default.log_message("Event: " + name);
         for (let handler of this.events[name]) {
-            let error = tryRun_1.default(() => handler(this.botHooks, event));
+            let error = tryRun_1.default(() => handler(this.bot, event));
             if (error) {
                 errors.push(error);
                 logger_js_1.default.warn(error);

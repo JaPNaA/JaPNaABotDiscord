@@ -1,4 +1,4 @@
-import BotHooks from "../../../../main/bot/bot/botHooks";
+import Bot from "../../../../main/bot/bot/bot";
 import DiscordCommandEvent from "../../../../main/bot/events/discordCommandEvent";
 import PlayerCards from "./cards";
 import PlayerAction from "./action";
@@ -7,14 +7,14 @@ import MessageType from "../messageType";
 import MessageEvent from "../messageEvent";
 declare type MessageCallback = (event: MessageEvent) => void;
 declare class Player {
-    bot: BotHooks;
+    bot: Bot;
     userId: string;
     cards: PlayerCards;
     action: PlayerAction;
     messageCallbacks: MessageCallback[];
     done: boolean;
     acknowledgedDone: boolean;
-    constructor(botHooks: BotHooks, presidentGame: PresidentsMain, userId: string);
+    constructor(botHooks: Bot, presidentGame: PresidentsMain, userId: string);
     checkDone(): void;
     tell(message: string): void;
     createCardStr(): string;

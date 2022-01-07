@@ -1,5 +1,4 @@
 import { Client } from "discord.js";
-import BotHooks from "./botHooks.js";
 import BotMemory from "./botMemory.js";
 import RawEventAdapter from "../../adapters/rawEventAdapter.js";
 import BotConfig from "./botConfig.js";
@@ -18,7 +17,6 @@ import ellipsisize from "../../utils/str/ellipsisize.js";
 
 class Bot {
     restartFunc: Function;
-    hooks: BotHooks;
     rawEventAdapter: RawEventAdapter;
     config: BotConfig;
     memory: BotMemory;
@@ -42,57 +40,44 @@ class Bot {
         this.restartFunc = restartFunc;
 
         /**
-         * Hooks that can be sent to objects
-         */
-        this.hooks = new BotHooks(this);
-
-        /**
          * Adapts raw discord.js events to our own
          */
-        this.rawEventAdapter = new RawEventAdapter(this.hooks);
-        this.hooks.attachRawEventAdapter(this.rawEventAdapter);
+        this.rawEventAdapter = new RawEventAdapter(this);
 
         /**
          * Bot config - gets configuration settings
          */
-        this.config = new BotConfig(this.hooks, config);
-        this.hooks.attachConfig(this.config);
+        this.config = new BotConfig(this, config);
 
         /**
          * Bot memory - handles remembering things
          */
-        this.memory = new BotMemory(this.hooks, memoryPath, memory);
-        this.hooks.attachMemory(this.memory);
+        this.memory = new BotMemory(this, memoryPath, memory);
 
         /**
          * Bot permissions - gets permissions
          */
-        this.permissions = new BotPermissions(this.hooks);
-        this.hooks.attachPermissions(this.permissions);
+        this.permissions = new BotPermissions(this);
 
         /**
          * Bot events - handles handling events
          */
-        this.events = new BotEvents(this.hooks);
-        this.hooks.attachEvents(this.events);
+        this.events = new BotEvents(this);
 
         /**
          * Bot precommand manager - manages registering and dispatching precommands
          */
-        this.precommandManager = new PrecommandManager(this.hooks);
-        this.hooks.attachPrecommandManager(this.precommandManager);
+        this.precommandManager = new PrecommandManager(this);
 
         /**
          * Bot plugin manager - registers plugins
          */
-        this.pluginManager = new PluginManager(this.hooks);
-        this.hooks.attachPluginManager(this.pluginManager);
+        this.pluginManager = new PluginManager(this);
 
         /**
          * Bot client - handles sending and receiving messages
          */
-        this.client = new BotClient(this.hooks, client);
-        this.hooks.attachClient(this.client);
+        this.client = new BotClient(this, client);
 
         /**
          * How many active asnyc requests are running
@@ -161,11 +146,10 @@ class Bot {
 
     private registerDefaultPrecommands(): void {
         const precommandStrs: string[] = this.config.precommands;
-        const precommand: PrecommandWithoutCallback = Precommand.create(this.hooks, precommandStrs);
+        const precommand: PrecommandWithoutCallback = Precommand.create(this, precommandStrs);
 
         this.defaultPrecommand = precommand;
         this.precommandManager.register(precommand);
-        this.hooks.attachDefaultPrecommand(precommand);
 
         this.registerDefaultCommands();
     }
@@ -185,22 +169,20 @@ class Bot {
 
     private registerDebugPrecommands() {
         const precommand: PrecommandWithCallback =
-            Precommand.create(this.hooks, this.config.debugPrecommand, this.debugPrecommandCallback.bind(this));
+            Precommand.create(this, this.config.debugPrecommand, this.debugPrecommandCallback.bind(this));
 
         this.precommandManager.register(precommand);
     }
 
     private debugPrecommandCallback(event: DiscordCommandEvent) {
         try {
-            const fs = require("fs");
-
             let str: string = inspect(eval(event.commandContent));
             str = ellipsisize(str.replace(/ {4}/g, "\t"), 1994);
-            this.hooks.send(event.channelId, "```" + str + "```");
+            this.client.send(event.channelId, "```" + str + "```");
         } catch (err) {
             let str: string = (err as Error).stack || "";
             str = ellipsisize(str.replace(/ {4}/g, "\t"), 1994);
-            this.hooks.send(event.channelId, "```" + str + "```");
+            this.client.send(event.channelId, "```" + str + "```");
         }
     }
 
@@ -214,7 +196,7 @@ class Bot {
     }
 
     /** Restarts bot on command */
-    public restart(bot: BotHooks, event: DiscordCommandEvent): void {
+    public restart(bot: Bot, event: DiscordCommandEvent): void {
         bot.client.send(event.channelId, "**Restarting**");
         Logger.log("Restarting");
         this.stop();

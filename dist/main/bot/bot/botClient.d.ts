@@ -1,6 +1,6 @@
 import { User, Client, Guild, Role, GuildMember, Message, AnyChannel } from "discord.js";
-import BotHooks from "./botHooks.js";
 import MessageObject from "../types/messageObject.js";
+import Bot from "./bot.js";
 declare class PresenceSetter {
     client: Client;
     constructor(client: Client);
@@ -35,7 +35,7 @@ declare class SentMessageRecorder {
     stopAndFlushSentMessagesRecordedFromChannel(channelId: string): any[];
 }
 declare class BotClient {
-    botHooks: BotHooks;
+    private bot;
     id: undefined | string;
     client: Client;
     userIdDMMap: {
@@ -43,7 +43,7 @@ declare class BotClient {
     };
     presence: PresenceSetter;
     sentMessageRecorder: SentMessageRecorder;
-    constructor(botHooks: BotHooks, client: Client);
+    constructor(bot: Bot, client: Client);
     onReady(): void;
     init(): void;
     isReady(): boolean;

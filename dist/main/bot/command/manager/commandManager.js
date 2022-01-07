@@ -7,9 +7,9 @@ const commandDispatcher_js_1 = __importDefault(require("./commandDispatcher.js")
 const command_js_1 = __importDefault(require("../command.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../../utils/locationKeyCreator.js"));
 class CommandManager {
-    constructor(botHooks) {
-        this.botHooks = botHooks;
-        this.dispatch = new commandDispatcher_js_1.default(botHooks, this);
+    constructor(bot) {
+        this.bot = bot;
+        this.dispatch = new commandDispatcher_js_1.default(bot, this);
         this.commandGroups = new Map();
         // this.precommands = [];
         this.commands = [];
@@ -20,7 +20,7 @@ class CommandManager {
         return this.helpData[command];
     }
     register(triggerWord, pluginName, func, options) {
-        let command = new command_js_1.default(this.botHooks, triggerWord, pluginName, func, options);
+        let command = new command_js_1.default(this.bot, triggerWord, pluginName, func, options);
         this.commands.push(command);
         this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
@@ -37,7 +37,7 @@ class CommandManager {
         if (!command.pluginName) {
             return;
         }
-        let pluginOverrides = this.botHooks.config.commandRequiredPermissionOverrides[locationKeyCreator_js_1.default.plugin(command.pluginName)];
+        let pluginOverrides = this.bot.config.commandRequiredPermissionOverrides[locationKeyCreator_js_1.default.plugin(command.pluginName)];
         let overridingRequiredPermission = pluginOverrides && pluginOverrides[command.commandName];
         if (overridingRequiredPermission) {
             command.requiredPermission = overridingRequiredPermission;

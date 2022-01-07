@@ -1,8 +1,8 @@
 import BotCommandHelp from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
-import BotHooks from "../bot/botHooks.js";
 import DiscordCommandEvent from "../events/discordCommandEvent";
 import BotCommandCallback from "./commandCallback.js";
+import Bot from "../bot/bot.js";
 declare type CleanCommandContent = {
     /** The cleaned message */
     commandContent: string;
@@ -18,7 +18,7 @@ declare type TestResults = {
     reasonCannotRun?: string;
 };
 declare class BotCommand {
-    botHooks: BotHooks;
+    bot: Bot;
     /** Function to call when command is called */
     func: Function;
     /** Permission required to run command */
@@ -33,7 +33,7 @@ declare class BotCommand {
     commandName: string;
     /** Name of the plugin that registered this command */
     pluginName: string | undefined;
-    constructor(bot: BotHooks, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions);
+    constructor(bot: Bot, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions);
     /**
      * Returns cleaned command content
      * @param dirtyContent dirty content to be cleaned

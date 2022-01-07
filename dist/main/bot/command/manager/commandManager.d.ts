@@ -1,12 +1,12 @@
-import BotHooks from "../../bot/botHooks.js";
 import CommandDispatcher from "./commandDispatcher.js";
 import BotCommandHelp from "../commandHelp.js";
 import BotCommand from "../command.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
 import UnknownCommandHandler from "./unknownCommandHandler.js";
+import Bot from "../../bot/bot.js";
 declare class CommandManager {
-    botHooks: BotHooks;
+    private bot;
     dispatch: CommandDispatcher;
     /** list of commands registered */
     commands: BotCommand[];
@@ -18,7 +18,7 @@ declare class CommandManager {
     helpData: {
         [x: string]: BotCommandHelp | null | undefined;
     };
-    constructor(botHooks: BotHooks);
+    constructor(bot: Bot);
     getHelp(command: string): BotCommandHelp | null | undefined;
     register(triggerWord: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions): void;
     registerUnkownCommandHanlder(func: UnknownCommandHandler): void;

@@ -1,3 +1,3 @@
-import BotHooks from "../bot/botHooks";
-declare type EventHandler = (botHooks: BotHooks, event: any) => void;
+import Bot from "../bot/bot";
+declare type EventHandler = (bot: Bot, event: any) => void;
 export default EventHandler;

@@ -1,6 +1,6 @@
-import BotHooks from "./botHooks.js";
 import { JSONType } from "../../types/jsonObject.js";
 import NestedObject from "../../types/nestedObjectStrMap";
+import Bot from "./bot.js";
 declare class Config {
     /** Original config */
     private config;
@@ -24,7 +24,7 @@ declare class Config {
     debugMode: boolean;
     /** Debug mode precommand, only exists if debugMode is true */
     debugPrecommand: string;
-    constructor(botHooks: BotHooks, config: object);
+    constructor(bot: Bot, config: object);
     get(key: string): JSONType | undefined;
     /** Gets config for plugin */
     getPlugin(pluginName: string): JSONType | undefined;

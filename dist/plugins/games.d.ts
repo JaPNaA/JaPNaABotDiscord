@@ -1,9 +1,9 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import BotHooks from "../main/bot/bot/botHooks.js";
 import { PrecommandWithoutCallback } from "../main/bot/precommand/precommand.js";
 import Game from "./games/game.js";
+import Bot from "../main/bot/bot/bot.js";
 interface GameClass {
-    new (botHooks: BotHooks, parentPlugin: Games, channelId: string, initer: string): Game;
+    new (bot: Bot, parentPlugin: Games, channelId: string, initer: string): Game;
 }
 /**
  * Games!
@@ -18,7 +18,7 @@ declare class Games extends BotPlugin {
     gameAliases: {
         [x: string]: GameClass;
     };
-    constructor(bot: BotHooks);
+    constructor(bot: Bot);
     _isDMLockAvailable(userId: string): boolean;
     _lockAndGetDMHandle(userId: string, game: Game): void;
     _unlockDMHandle(userId: string): void;

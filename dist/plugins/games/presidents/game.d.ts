@@ -1,5 +1,5 @@
 import PlayerHandler from "./playerHandler";
-import BotHooks from "../../../main/bot/bot/botHooks";
+import Bot from "../../../main/bot/bot/bot";
 import Dealer from "./dealer";
 import Games from "../../games";
 import MessageHandler from "./messageHandler";
@@ -8,7 +8,7 @@ import MessageParser from "./messageParser";
 import Logic from "./logic";
 import { Message } from "discord.js";
 declare class PresidentsMain {
-    bot: BotHooks;
+    bot: Bot;
     parentGame: Games;
     presidentsGame: PresidentsGame;
     playerHandler: PlayerHandler;
@@ -17,7 +17,7 @@ declare class PresidentsMain {
     logic: Logic;
     dealer: Dealer;
     pileMessage?: Message;
-    constructor(botHooks: BotHooks, parentGame: Games, presidentsGame: PresidentsGame);
+    constructor(botHooks: Bot, parentGame: Games, presidentsGame: PresidentsGame);
     start(): void;
     private startMainLoop;
     private waitForValidTurn;

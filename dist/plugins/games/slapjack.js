@@ -27,25 +27,25 @@ class SlapJack extends game_1.default {
     }
     _start() {
         this._registerCommand(this.commandManager, "slap", this.slap);
-        this.bot.send(this.channelId, "Loading...")
+        this.bot.client.send(this.channelId, "Loading...")
             .then(e => {
             this.activeMessage = toOne_1.default(e);
             this.onReadyStart();
         });
     }
     onReadyStart() {
-        this.bot.send(this.channelId, "Type `" + this.parentPlugin.precommand.names[0] +
+        this.bot.client.send(this.channelId, "Type `" + this.parentPlugin.precommand.names[0] +
             "slap` when the card above is a Jack");
         this.startTicking();
     }
     slap(bot, event, args) {
         if (this.acceptingSlaps) {
-            bot.send(event.channelId, mention_1.default(event.userId) + " did it! yay\n" +
+            bot.client.send(event.channelId, mention_1.default(event.userId) + " did it! yay\n" +
                 (event.createdTimestamp - this.jackedTime).toString() + "ms");
             this.gameEnded = true;
         }
         else {
-            bot.send(event.channelId, "you slapped too early! violent!!");
+            bot.client.send(event.channelId, "you slapped too early! violent!!");
         }
     }
     tick() {

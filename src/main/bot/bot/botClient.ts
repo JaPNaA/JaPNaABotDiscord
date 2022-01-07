@@ -1,9 +1,9 @@
 import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel } from "discord.js";
-import BotHooks from "./botHooks.js";
 
 import Logger from "../../utils/logger.js";
 import MessageObject from "../types/messageObject.js";
 import { ActivityTypes } from "discord.js/typings/enums";
+import Bot from "./bot.js";
 
 class PresenceSetter {
     client: Client;
@@ -88,16 +88,13 @@ class SentMessageRecorder {
 }
 
 class BotClient {
-    botHooks: BotHooks;
     id: undefined | string;
     client: Client;
     userIdDMMap: { [x: string]: string };
     presence: PresenceSetter;
     sentMessageRecorder: SentMessageRecorder;
 
-    constructor(botHooks: BotHooks, client: Client) {
-        this.botHooks = botHooks;
-
+    constructor(private bot: Bot, client: Client) {
         /** Discord.io Client */
         this.client = client;
 
@@ -112,7 +109,7 @@ class BotClient {
             Logger.error(error);
         });
 
-        this.botHooks.events.on("ready", this.onReady.bind(this));
+        this.bot.events.on("ready", this.onReady.bind(this));
     }
 
     onReady(): void {
@@ -151,7 +148,7 @@ class BotClient {
             throw new TypeError("Cannot send to non-text channel");
         }
 
-        this.botHooks.events.dispatch("send", message);
+        this.bot.events.dispatch("send", message);
 
         if (typeof message === "string") {
             if (message.trim().length === 0) {
@@ -199,7 +196,7 @@ class BotClient {
             promise.catch(() => failCallback());
         }
 
-        this.botHooks.events.dispatch("senddm", this);
+        this.bot.events.dispatch("senddm", this);
 
         return promise;
     }

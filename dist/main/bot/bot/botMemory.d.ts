@@ -1,20 +1,20 @@
 /// <reference types="node" />
-import BotHooks from "./botHooks.js";
+import Bot from "./bot.js";
 declare class Memory {
+    private bot;
     memoryPath: string;
     memory: {
         [x: string]: any;
     };
     autoWriteIntervalId?: NodeJS.Timeout;
     memoryChanged: boolean;
-    botHook: BotHooks;
     /**
      * Memory constructor
      * @param botHooks hooks can attach to
      * @param memoryPath path to memory
      * @param memory the memory object
      */
-    constructor(botHooks: BotHooks, memoryPath: string, memory: object);
+    constructor(bot: Bot, memoryPath: string, memory: object);
     /**
      * Stores something in memory
      * @param important write after remember?

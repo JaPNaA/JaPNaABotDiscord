@@ -1,4 +1,3 @@
-import BotHooks from "../bot/botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../types/eventName";
 import { PrecommandWithoutCallback, Precommand, PrecommandWithCallback } from "../precommand/precommand";
@@ -6,14 +5,12 @@ import PrecommandManager from "../precommand/manager/precommandManager";
 import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
 import CommandManager from "../command/manager/commandManager";
 import BotCommandCallback from "../command/commandCallback";
+import Bot from "../bot/bot";
 
 abstract class BotPlugin {
-    // not private due to compatability issues with JS
-    public bot: BotHooks;
     public _pluginName: string;
 
-    constructor(bot: BotHooks) {
-        this.bot = bot;
+    constructor(protected bot: Bot) {
         this._pluginName = this.constructor.name.toLowerCase();
     }
 

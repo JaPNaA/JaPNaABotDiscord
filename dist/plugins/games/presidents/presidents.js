@@ -13,8 +13,8 @@ const messageType_1 = __importDefault(require("./messageType"));
  * components
  */
 class Presidents extends game_1.default {
-    constructor(botHooks, parentPlugin, channelId, initer) {
-        super(botHooks, parentPlugin);
+    constructor(bot, parentPlugin, channelId, initer) {
+        super(bot, parentPlugin);
         this._gamePluginName = "presidents";
         this._pluginName = "game." + this._gamePluginName;
         this.gameName = "Presidents";
@@ -40,7 +40,7 @@ class Presidents extends game_1.default {
     addPlayer(userId) {
         try {
             this.game.playerHandler.addPlayer(userId);
-            this.bot.send(this.channelId, mention_1.default(userId) + " has joined " + this.gameName + "!");
+            this.bot.client.send(this.channelId, mention_1.default(userId) + " has joined " + this.gameName + "!");
         }
         catch (err) {
             this.handleJoinError(err, userId);
@@ -48,10 +48,10 @@ class Presidents extends game_1.default {
     }
     handleJoinError(err, userId) {
         if (err instanceof errors_1.AlreadyJoinedError) {
-            this.bot.send(this.channelId, mention_1.default(userId) + ", you're already in the game!");
+            this.bot.client.send(this.channelId, mention_1.default(userId) + ", you're already in the game!");
         }
         else if (err instanceof errors_1.DMAlreadyLockedError) {
-            this.bot.send(this.channelId, "Failed to add " + mention_1.default(userId) +
+            this.bot.client.send(this.channelId, "Failed to add " + mention_1.default(userId) +
                 ". You're in another game which also requires DMs!");
         }
     }
@@ -59,10 +59,10 @@ class Presidents extends game_1.default {
         let userId = event.userId;
         let result = this.game.playerHandler.removePlayer(userId);
         if (result) {
-            bot.send(event.channelId, mention_1.default(userId) + " has left the game");
+            bot.client.send(event.channelId, mention_1.default(userId) + " has left the game");
         }
         else {
-            bot.send(event.channelId, mention_1.default(userId) + ", you were never in the game!");
+            bot.client.send(event.channelId, mention_1.default(userId) + ", you were never in the game!");
         }
     }
     start(bot, event, args) {
@@ -73,13 +73,13 @@ class Presidents extends game_1.default {
         let players = this.game.playerHandler.players;
         let numPlayers = players.length;
         if (numPlayers === 0) {
-            bot.send(event.channelId, "No one is in this game.");
+            bot.client.send(event.channelId, "No one is in this game.");
         }
         else if (numPlayers === 1) {
-            bot.send(event.channelId, "Just " + mention_1.default(players[0].userId) + ", the Loner.");
+            bot.client.send(event.channelId, "Just " + mention_1.default(players[0].userId) + ", the Loner.");
         }
         else {
-            bot.send(event.channelId, players.map(e => mention_1.default(e.userId)).join(", ") +
+            bot.client.send(event.channelId, players.map(e => mention_1.default(e.userId)).join(", ") +
                 " (" + players.length + " players)");
         }
     }
@@ -94,7 +94,7 @@ class Presidents extends game_1.default {
         for (let player of this.game.playerHandler.players) {
             players.push(mention_1.default(player.userId));
         }
-        this.bot.send(this.channelId, "Starting Presidents with players:\n" +
+        this.bot.client.send(this.channelId, "Starting Presidents with players:\n" +
             players.join(", "));
     }
     _startGame() {
@@ -123,7 +123,7 @@ class Presidents extends game_1.default {
                 "**Starting**\n" +
                 "Once all the players are in, type `" + precommmand + "start` to start the game"
         });
-        this.bot.send(this.channelId, {
+        this.bot.client.send(this.channelId, {
             embed: {
                 color: this.bot.config.themeColor,
                 title: this.gameName,

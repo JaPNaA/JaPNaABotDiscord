@@ -1,5 +1,5 @@
-import BotHooks from "../bot/botHooks";
+import Bot from "../bot/bot";
 
-type EventHandler = (botHooks: BotHooks, event: any) => void;
+type EventHandler = (bot: Bot, event: any) => void;
 
 export default EventHandler;

@@ -10,7 +10,7 @@ const mention_1 = __importDefault(require("../../utils/str/mention"));
 const whitespaceRegex = /\s/;
 class BotCommand {
     constructor(bot, commandName, pluginName, func, options) {
-        this.botHooks = bot;
+        this.bot = bot;
         this.func = func;
         this.requiredPermission = options && options.requiredPermission;
         this.noDM = (options && options.noDM) || false;
@@ -45,7 +45,7 @@ class BotCommand {
         if (cleanCommandContent.commandContent.startsWith(this.commandName) &&
             (!cleanCommandContent.nextCharAfterCommand ||
                 whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand))) {
-            let permissions = await this.botHooks.permissions.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
+            let permissions = await this.bot.permissions.getPermissions_channel(commandEvent.userId, commandEvent.serverId, commandEvent.channelId);
             if (this.noDM && commandEvent.isDM) {
                 return {
                     canRun: false,
@@ -78,7 +78,7 @@ class BotCommand {
         }
         else {
             if (results.reasonCannotRun) {
-                this.botHooks.send(commandEvent.channelId, results.reasonCannotRun);
+                this.bot.client.send(commandEvent.channelId, results.reasonCannotRun);
                 return true;
             }
             return false;
@@ -92,13 +92,13 @@ class BotCommand {
             "\nEvent: " + util_1.inspect(commandEvent, { depth: 3 });
         message = message.replace(/ {4}/g, "\t");
         message = message.slice(0, 1997) + "```";
-        this.botHooks.send(commandEvent.channelId, message);
+        this.bot.client.send(commandEvent.channelId, message);
         logger_js_1.default.warn(message);
     }
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent, argString) {
         try {
-            await this.func(this.botHooks, commandEvent, argString);
+            await this.func(this.bot, commandEvent, argString);
         }
         catch (error) {
             this.sendError(commandEvent, argString, error);

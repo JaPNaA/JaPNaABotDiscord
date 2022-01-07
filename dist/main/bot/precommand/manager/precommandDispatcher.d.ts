@@ -1,12 +1,12 @@
-import BotHooks from "../../bot/botHooks";
 import DiscordMessageEvent from "../../events/discordMessageEvent";
 import PrecommandManager from "./precommandManager";
 import DiscordCommandEvent from "../../events/discordCommandEvent";
+import Bot from "../../bot/bot";
 declare class PrecommandDispatcher {
-    botHooks: BotHooks;
+    private bot;
     manager: PrecommandManager;
-    constructor(botHooks: BotHooks, manager: PrecommandManager);
-    onMessage(botHooks: BotHooks, message: DiscordMessageEvent): void;
+    constructor(bot: Bot, manager: PrecommandManager);
+    onMessage(bot: Bot, message: DiscordMessageEvent): void;
     dispatchIfIsPrecommand(messageEvent: DiscordMessageEvent): void;
     _createDiscordCommandEvent(messageEvent: DiscordMessageEvent): DiscordCommandEvent;
 }

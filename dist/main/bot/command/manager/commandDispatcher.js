@@ -5,8 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mention_1 = __importDefault(require("../../../utils/str/mention"));
 class CommandDispatcher {
-    constructor(botHooks, manager) {
-        this.botHooks = botHooks;
+    constructor(bot, manager) {
+        this.bot = bot;
         this.manager = manager;
     }
     /**
@@ -28,10 +28,10 @@ class CommandDispatcher {
         if (!someCommandRan) {
             // command doesn't exist
             if (this.manager.unknownCommandHandler) {
-                this.manager.unknownCommandHandler(this.botHooks, commandEvent);
+                this.manager.unknownCommandHandler(this.bot, commandEvent);
             }
-            else if (this.botHooks.config.doAlertCommandDoesNotExist) {
-                this.botHooks.client.send(commandEvent.channelId, mention_1.default(commandEvent.userId) + ", that command doesn't exist");
+            else if (this.bot.config.doAlertCommandDoesNotExist) {
+                this.bot.client.send(commandEvent.channelId, mention_1.default(commandEvent.userId) + ", that command doesn't exist");
             }
         }
     }

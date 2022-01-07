@@ -1,20 +1,18 @@
 import Permissions from "../../types/permissions.js";
 import createKey from "../utils/locationKeyCreator.js";
 import Memory from "./botMemory.js";
-import BotHooks from "./botHooks.js";
-import { TextChannel, Role, Guild, User, GuildMember } from "discord.js";
+import { TextChannel, Role, Guild, GuildMember } from "discord.js";
+import Bot from "./bot.js";
 
 class BotPermissions {
-    botHooks: BotHooks;
     memory: Memory;
 
-    constructor(botHooks: BotHooks) {
-        this.botHooks = botHooks;
-        this.memory = this.botHooks.memory as Memory;
+    constructor(private bot: Bot) {
+        this.memory = bot.memory;
     }
 
     async getPermissions_role_channel(roleId: string, serverId: string, channelId: string): Promise<Permissions> {
-        const role = await this.botHooks.getRole(roleId, serverId);
+        const role = await this.bot.client.getRole(roleId, serverId);
 
         if (!role) { return new Permissions(); }
         let permissions: Permissions = new Permissions(role.permissions.bitfield);
@@ -48,7 +46,7 @@ class BotPermissions {
         let permissionsNum: bigint = 0n;
 
         if (serverId) {
-            server = await this.botHooks.getServer(serverId);
+            server = await this.bot.client.getServer(serverId);
             if (!server) { return new Permissions(); }
             user = await server.members.fetch(userId);
             if (!user) { return new Permissions(); }
@@ -91,7 +89,7 @@ class BotPermissions {
     }
 
     async editPermissions_user_channel(userId: string, channelId: string, permissionName: string, value: boolean) {
-        let channel: TextChannel = await this.botHooks.getChannel(channelId) as TextChannel;
+        let channel: TextChannel = await this.bot.client.getChannel(channelId) as TextChannel;
         let serverId: string = channel.guild.id;
 
         let customPerms: any = this.memory.get(createKey.permissions(),
@@ -138,7 +136,7 @@ class BotPermissions {
     }
 
     async editPermissions_role_channel(roleId: string, channelId: string, permissionName: string, value: boolean) {
-        let channel: TextChannel = await this.botHooks.getChannel(channelId) as TextChannel;
+        let channel: TextChannel = await this.bot.client.getChannel(channelId) as TextChannel;
         let serverId: string = channel.guild.id;
 
         let customPerms: any = this.memory.get(createKey.permissions(),

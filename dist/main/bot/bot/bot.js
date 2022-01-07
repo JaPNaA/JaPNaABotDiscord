@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const botHooks_js_1 = __importDefault(require("./botHooks.js"));
 const botMemory_js_1 = __importDefault(require("./botMemory.js"));
 const rawEventAdapter_js_1 = __importDefault(require("../../adapters/rawEventAdapter.js"));
 const botConfig_js_1 = __importDefault(require("./botConfig.js"));
@@ -25,49 +24,37 @@ class Bot {
          */
         this.restartFunc = restartFunc;
         /**
-         * Hooks that can be sent to objects
-         */
-        this.hooks = new botHooks_js_1.default(this);
-        /**
          * Adapts raw discord.js events to our own
          */
-        this.rawEventAdapter = new rawEventAdapter_js_1.default(this.hooks);
-        this.hooks.attachRawEventAdapter(this.rawEventAdapter);
+        this.rawEventAdapter = new rawEventAdapter_js_1.default(this);
         /**
          * Bot config - gets configuration settings
          */
-        this.config = new botConfig_js_1.default(this.hooks, config);
-        this.hooks.attachConfig(this.config);
+        this.config = new botConfig_js_1.default(this, config);
         /**
          * Bot memory - handles remembering things
          */
-        this.memory = new botMemory_js_1.default(this.hooks, memoryPath, memory);
-        this.hooks.attachMemory(this.memory);
+        this.memory = new botMemory_js_1.default(this, memoryPath, memory);
         /**
          * Bot permissions - gets permissions
          */
-        this.permissions = new botPermissions_js_1.default(this.hooks);
-        this.hooks.attachPermissions(this.permissions);
+        this.permissions = new botPermissions_js_1.default(this);
         /**
          * Bot events - handles handling events
          */
-        this.events = new botEvents_js_1.default(this.hooks);
-        this.hooks.attachEvents(this.events);
+        this.events = new botEvents_js_1.default(this);
         /**
          * Bot precommand manager - manages registering and dispatching precommands
          */
-        this.precommandManager = new precommandManager_js_1.default(this.hooks);
-        this.hooks.attachPrecommandManager(this.precommandManager);
+        this.precommandManager = new precommandManager_js_1.default(this);
         /**
          * Bot plugin manager - registers plugins
          */
-        this.pluginManager = new pluginManager_js_1.default(this.hooks);
-        this.hooks.attachPluginManager(this.pluginManager);
+        this.pluginManager = new pluginManager_js_1.default(this);
         /**
          * Bot client - handles sending and receiving messages
          */
-        this.client = new botClient_js_1.default(this.hooks, client);
-        this.hooks.attachClient(this.client);
+        this.client = new botClient_js_1.default(this, client);
         /**
          * How many active asnyc requests are running
          */
@@ -124,10 +111,9 @@ class Bot {
     }
     registerDefaultPrecommands() {
         const precommandStrs = this.config.precommands;
-        const precommand = precommand_js_1.Precommand.create(this.hooks, precommandStrs);
+        const precommand = precommand_js_1.Precommand.create(this, precommandStrs);
         this.defaultPrecommand = precommand;
         this.precommandManager.register(precommand);
-        this.hooks.attachDefaultPrecommand(precommand);
         this.registerDefaultCommands();
     }
     registerDefaultCommands() {
@@ -140,20 +126,19 @@ class Bot {
         }));
     }
     registerDebugPrecommands() {
-        const precommand = precommand_js_1.Precommand.create(this.hooks, this.config.debugPrecommand, this.debugPrecommandCallback.bind(this));
+        const precommand = precommand_js_1.Precommand.create(this, this.config.debugPrecommand, this.debugPrecommandCallback.bind(this));
         this.precommandManager.register(precommand);
     }
     debugPrecommandCallback(event) {
         try {
-            const fs = require("fs");
             let str = util_1.inspect(eval(event.commandContent));
             str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
-            this.hooks.send(event.channelId, "```" + str + "```");
+            this.client.send(event.channelId, "```" + str + "```");
         }
         catch (err) {
             let str = err.stack || "";
             str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
-            this.hooks.send(event.channelId, "```" + str + "```");
+            this.client.send(event.channelId, "```" + str + "```");
         }
     }
     /**

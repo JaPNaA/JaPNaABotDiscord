@@ -1,9 +1,9 @@
-import BotHooks from "../../bot/botHooks";
 import BotPlugin from "../plugin";
+import Bot from "../../bot/bot";
 declare class PluginManager {
-    botHooks: BotHooks;
+    private bot;
     plugins: BotPlugin[];
-    constructor(botHooks: BotHooks);
+    constructor(bot: Bot);
     register(plugin: BotPlugin): void;
     unregisterAllPlugins(): void;
 }

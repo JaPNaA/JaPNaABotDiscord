@@ -1,12 +1,11 @@
 import PrecommandCallback from "./precommandCallback.js";
-import BotHooks from "../bot/botHooks.js";
 import toArray from "../../utils/toArray";
 import PrecommandName from "./precommandName.js";
 import BotPermissions from "../bot/botPermissions.js";
 import CommandManager from "../command/manager/commandManager.js";
+import Bot from "../bot/bot.js";
 
 abstract class Precommand {
-    botHooks: BotHooks;
     names: string[];
     
     abstract callback: PrecommandCallback;
@@ -15,16 +14,15 @@ abstract class Precommand {
      * @param name text which comes before a command
      * @param callback function to call to handle precommand
      */
-    constructor(botHooks: BotHooks, name: string | string[]) {
-        this.botHooks = botHooks;
+    constructor(private bot: Bot, name: string | string[]) {
         this.names = toArray<string>(name);
     }
 
-    static create(botHooks: BotHooks, name: string | string[]): PrecommandWithoutCallback;
-    static create(botHooks: BotHooks, name: string | string[], 
+    static create(botHooks: Bot, name: string | string[]): PrecommandWithoutCallback;
+    static create(botHooks: Bot, name: string | string[], 
         callback: PrecommandCallback): PrecommandWithCallback;
 
-    static create(botHooks: BotHooks, name: string | string[], 
+    static create(botHooks: Bot, name: string | string[], 
         callback?: PrecommandCallback): Precommand {
         let nameArr: string[] = toArray<string>(name);
 
@@ -57,8 +55,8 @@ export { Precommand };
 class PrecommandWithCallback extends Precommand {
     callback: PrecommandCallback;
 
-    constructor(botHooks: BotHooks, name: string[], callback: PrecommandCallback) {
-        super(botHooks, name);
+    constructor(bot: Bot, name: string[], callback: PrecommandCallback) {
+        super(bot, name);
         this.names = toArray<string>(name);
 
         this.callback = callback;
@@ -73,11 +71,11 @@ class PrecommandWithoutCallback extends Precommand {
     permissions: BotPermissions;
     commandManager: CommandManager;
 
-    constructor(botHooks: BotHooks, name: string[]) {
-        super(botHooks, name);
+    constructor(bot: Bot, name: string[]) {
+        super(bot, name);
 
-        this.permissions = new BotPermissions(botHooks);
-        this.commandManager = new CommandManager(botHooks);
+        this.permissions = new BotPermissions(bot);
+        this.commandManager = new CommandManager(bot);
 
         this.names = name;
 

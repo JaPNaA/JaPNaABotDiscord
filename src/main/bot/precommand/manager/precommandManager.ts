@@ -1,17 +1,15 @@
 import PrecommandDispatcher from "./precommandDispatcher";
 import { Precommand, PrecommandWithCallback, PrecommandWithoutCallback } from "../precommand";
-import BotHooks from "../../bot/botHooks";
 import PrecommandCallback from "../precommandCallback";
 import PrecommandName from "../precommandName";
+import Bot from "../../bot/bot";
 
 class PrecommandManager {
-    botHooks: BotHooks;
     dispatch: PrecommandDispatcher;
     precommands: Precommand[];
 
-    constructor(botHooks: BotHooks) {
-        this.botHooks = botHooks;
-        this.dispatch = new PrecommandDispatcher(botHooks, this);
+    constructor(private bot: Bot) {
+        this.dispatch = new PrecommandDispatcher(bot, this);
         this.precommands = [];
     }
 
@@ -25,9 +23,9 @@ class PrecommandManager {
     createAndRegister(name: string | string[], callback?: PrecommandCallback): Precommand {
         let precommand: Precommand;
         if (callback) {
-            precommand = Precommand.create(this.botHooks, name, callback);
+            precommand = Precommand.create(this.bot, name, callback);
         } else {
-            precommand = Precommand.create(this.botHooks, name);
+            precommand = Precommand.create(this.bot, name);
         }
 
         this.precommands.push(precommand);

@@ -1,8 +1,8 @@
-import BotHooks from "../main/bot/bot/botHooks.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import { User } from "discord.js";
+import Bot from "../main/bot/bot/bot";
 
 /**
  * The weirder side of JaPNaABot
@@ -12,7 +12,7 @@ class JapnaaWeird extends BotPlugin {
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
     l$wlRegexp: RegExp = /([l1|\\!/][\W_]*(e|3)[\W_]*(w|(vv))[\W_]*[l1|\\!/][\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?(e|3)[\W_]*(w|(vv)))/gi;
 
-    constructor(bot: BotHooks) {
+    constructor(bot: Bot) {
         super(bot);
         this._pluginName = "japnaaweird";
     }
@@ -20,15 +20,15 @@ class JapnaaWeird extends BotPlugin {
     /**
      * Tetris is a racing game.
      */
-    tetris(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
-        bot.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
+    tetris(bot: Bot, event: DiscordMessageEvent, args: string): void {
+        bot.client.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
     }
 
     /**
      * JaP is kewl
      */
-    jap(bot: BotHooks, event: DiscordMessageEvent, args: string): void {
-        bot.send(event.channelId, {
+    jap(bot: Bot, event: DiscordMessageEvent, args: string): void {
+        bot.client.send(event.channelId, {
             embed: {
                 color: bot.config.themeColor,
                 description: "**JaP is " + (args || "kewl") + "**"
@@ -39,23 +39,23 @@ class JapnaaWeird extends BotPlugin {
     /**
      * ebola your parabola
      */
-    your(bot: BotHooks, event: DiscordMessageEvent): void {
-        bot.send(event.channelId, "parabola");
+    your(bot: Bot, event: DiscordMessageEvent): void {
+        bot.client.send(event.channelId, "parabola");
     }
 
     /**
      * Listens for messages with 'lol' and deviations
      */
-    async onmessageHandler_lol(bot: BotHooks, event: DiscordMessageEvent) {
+    async onmessageHandler_lol(bot: Bot, event: DiscordMessageEvent) {
         if (!await this._isNaturalMessage(bot, event)) { return; }
 
         const numL$wl = this._countL$wl(event.message);
 
         if (numL$wl) {
             let str = "no ".repeat(numL$wl);
-            bot.send(event.channelId, str);
+            bot.client.send(event.channelId, str);
         } else if (this.lolRegexp.test(event.message)) { // contains valid 'lol'
-            bot.send(event.channelId, "lol");
+            bot.client.send(event.channelId, "lol");
         }
     }
 
@@ -65,8 +65,8 @@ class JapnaaWeird extends BotPlugin {
         return i;
     }
 
-    async _isNaturalMessage(bot: BotHooks, event: DiscordMessageEvent): Promise<boolean> {
-        const user = await bot.getUser(event.userId);
+    async _isNaturalMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean> {
+        const user = await bot.client.getUser(event.userId);
         return Boolean(
             !event.precommandName && // is not a command
             user && !user.bot

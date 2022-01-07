@@ -1,4 +1,4 @@
+import Bot from "../../bot/bot";
 import DiscordCommandEvent from "../../events/discordCommandEvent";
-import BotHooks from "../../bot/botHooks";
-declare type UnknownCommandHandler = (bot: BotHooks, event: DiscordCommandEvent) => void;
+declare type UnknownCommandHandler = (bot: Bot, event: DiscordCommandEvent) => void;
 export default UnknownCommandHandler;

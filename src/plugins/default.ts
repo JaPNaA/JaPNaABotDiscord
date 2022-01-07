@@ -7,10 +7,9 @@ import { inspect } from "util";
 
 import createKey from "../main/bot/utils/locationKeyCreator.js";
 import Permissions from "../main/types/permissions.js";
-import BotHooks from "../main/bot/bot/botHooks.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
-import { TextChannel, Guild, User, Channel, GuildMember } from "discord.js";
+import { TextChannel } from "discord.js";
 
 import * as childProcess from "child_process";
 import * as japnaabot from "../main/index";
@@ -19,6 +18,7 @@ import stringToArgs from "../main/utils/str/stringToArgs.js";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
 import mention from "../main/utils/str/mention.js";
 import fakeMessage from "../main/utils/fakeMessage.js";
+import Bot from "../main/bot/bot/bot.js";
 
 /**
  * Normal commands every bot shoud have
@@ -26,30 +26,30 @@ import fakeMessage from "../main/utils/fakeMessage.js";
 class Default extends BotPlugin {
     sawUpdateBotWarning: boolean;
 
-    constructor(bot: BotHooks) {
+    constructor(bot: Bot) {
         super(bot);
         this._pluginName = "default";
         this.sawUpdateBotWarning = false;
     }
 
-    ping(bot: BotHooks, event: DiscordCommandEvent): void {
-        bot.send(event.channelId, "Pong! Took " + Math.round(bot.getPing()) + "ms"); // * should be using abstraction
+    ping(bot: Bot, event: DiscordCommandEvent): void {
+        bot.client.send(event.channelId, "Pong! Took " + Math.round(bot.client.getPing()) + "ms"); // * should be using abstraction
     }
 
-    eval(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
+    eval(bot: Bot, event: DiscordCommandEvent, args: string): void {
         let str: string = inspect(eval(args));
         str = ellipsisize(str.replace(/ {4}/g, "\t"), 1994);
-        bot.send(event.channelId, "```" + str + "```");
+        bot.client.send(event.channelId, "```" + str + "```");
     }
 
     /**
      * Logs a message to the console with a logging level of "log"
      */
-    log_message(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
+    log_message(bot: Bot, event: DiscordCommandEvent, args: string): void {
         Logger.log(args);
     }
 
-    async user_info(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    async user_info(bot: Bot, event: DiscordCommandEvent, args: string) {
         let userId: string | null = event.userId;
 
         let response: { [s: string]: string; }[] = [];
@@ -59,12 +59,12 @@ class Default extends BotPlugin {
             if (newUserId) {
                 userId = newUserId;
             } else {
-                bot.send(event.channelId, "**User does not exist.**");
+                bot.client.send(event.channelId, "**User does not exist.**");
                 return;
             }
         }
 
-        let user = await bot.getUser(userId);
+        let user = await bot.client.getUser(userId);
 
         if (user) {
             let userStr: string =
@@ -87,7 +87,7 @@ class Default extends BotPlugin {
             });
 
             if (!event.isDM) {
-                let member = await bot.getMemberFromServer(userId, event.serverId);
+                let member = await bot.client.getMemberFromServer(userId, event.serverId);
                 if (!member) { throw new Error("Unknown error"); }
 
                 let rolesString: string = (
@@ -133,7 +133,7 @@ class Default extends BotPlugin {
             }
 
 
-            bot.send(event.channelId, {
+            bot.client.send(event.channelId, {
                 embeds: [{
                     color: bot.config.themeColor,
                     author: {
@@ -145,7 +145,7 @@ class Default extends BotPlugin {
                 }]
             });
         } else {
-            bot.send(event.channelId, "**User does not exist.**");
+            bot.client.send(event.channelId, "**User does not exist.**");
         }
     }
 
@@ -155,7 +155,7 @@ class Default extends BotPlugin {
      * @param event message event data
      * @param commands
      */
-    async _commandsToReadable(bot: BotHooks, event: DiscordCommandEvent, commands: BotCommand[]): Promise<string> {
+    async _commandsToReadable(bot: Bot, event: DiscordCommandEvent, commands: BotCommand[]): Promise<string> {
         const permissions = await bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
         return commands.map(command => {
             let name: string = command.commandName;
@@ -183,7 +183,7 @@ class Default extends BotPlugin {
     /**
      * Sends general help information (all commands)
      */
-    async _sendGeneralHelp(bot: BotHooks, event: DiscordCommandEvent) {
+    async _sendGeneralHelp(bot: Bot, event: DiscordCommandEvent) {
         let fields: { [s: string]: string; }[] = [];
         let embed: object = {
             color: bot.config.themeColor,
@@ -205,11 +205,11 @@ class Default extends BotPlugin {
         });
 
         if (event.isDM) {
-            bot.send(event.channelId, { embeds: [embed] });
+            bot.client.send(event.channelId, { embeds: [embed] });
         } else {
             // is server
-            bot.send(event.channelId, "I've sent you some help!");
-            bot.sendDM(event.userId, { embeds: [embed] });
+            bot.client.send(event.channelId, "I've sent you some help!");
+            bot.client.sendDM(event.userId, { embeds: [embed] });
         }
     }
 
@@ -251,7 +251,7 @@ class Default extends BotPlugin {
     /**
      * Creates an help embed object in embed
      */
-    _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: BotHooks): object {
+    _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: Bot): object {
         let title: string = "**" + event.precommandName.name + command + "**";
         let description: string = help.description || "The " + command + " command";
 
@@ -294,7 +294,7 @@ class Default extends BotPlugin {
     /**
      * Sends a help embed about a command
      */
-    _sendHelpAboutCommand(bot: BotHooks, event: DiscordCommandEvent, command: string, help: BotCommandHelp): void {
+    _sendHelpAboutCommand(bot: Bot, event: DiscordCommandEvent, command: string, help: BotCommandHelp): void {
         const fields: object[] = [];
 
         this._appendHelpOverloads(fields, help, event, command);
@@ -303,33 +303,33 @@ class Default extends BotPlugin {
         const message: object = this._createHelpEmbedObject(fields, help, event, command, bot);
 
         if (event.isDM) {
-            bot.send(event.channelId, message);
+            bot.client.send(event.channelId, message);
         } else {
             // is server
-            bot.send(event.channelId, "I've sent you some help!");
-            bot.sendDM(event.userId, message);
+            bot.client.send(event.channelId, "I've sent you some help!");
+            bot.client.sendDM(event.userId, message);
         }
     }
 
     /**
      * Sends help about a command, checks if the command and command help exists
      */
-    _sendSpecificHelp(bot: BotHooks, event: DiscordCommandEvent, command: string): void {
+    _sendSpecificHelp(bot: Bot, event: DiscordCommandEvent, command: string): void {
         let help: BotCommandHelp | null | undefined = bot.defaultPrecommand.commandManager.getHelp(command);
 
         if (help) {
             this._sendHelpAboutCommand(bot, event, command, help);
         } else if (help === undefined) {
-            bot.send(event.channelId, "Command `" + command + "` doesn't exist");
+            bot.client.send(event.channelId, "Command `" + command + "` doesn't exist");
         } else {
-            bot.send(event.channelId, "Help for command `" + command + "` doesn't exist");
+            bot.client.send(event.channelId, "Help for command `" + command + "` doesn't exist");
         }
     }
 
     /**
      * Pretends to recieve a message from soneone else
      */
-    help(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
+    help(bot: Bot, event: DiscordCommandEvent, args: string): void {
         let cleanArgs: string = args.toLowerCase().trim();
 
         if (cleanArgs) {
@@ -342,16 +342,16 @@ class Default extends BotPlugin {
     /**
      * Sets the bot admin
      */
-    i_am_the_bot_admin(bot: BotHooks, event: DiscordCommandEvent): void {
+    i_am_the_bot_admin(bot: Bot, event: DiscordCommandEvent): void {
         if (bot.memory.get(createKey.permissions(), createKey.firstAdmin())) {
             if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
-                bot.send(event.channelId, "Yes. You are the bot admin.");
+                bot.client.send(event.channelId, "Yes. You are the bot admin.");
             } else {
-                bot.send(event.channelId, "You are not the bot admin.");
+                bot.client.send(event.channelId, "You are not the bot admin.");
             }
             return;
         } else {
-            bot.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
+            bot.client.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
             bot.memory.write(createKey.permissions(), createKey.firstAdmin(), event.userId, true);
 
             bot.permissions.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
@@ -361,11 +361,11 @@ class Default extends BotPlugin {
     /**
      * Pretends to recieve a message from soneone else
      */
-    async pretend_get(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    async pretend_get(bot: Bot, event: DiscordCommandEvent, args: string) {
         let tagMatch: RegExpMatchArray | null = args.match(/^\s*<@[!@&]]?\d+>\s*/);
 
         if (!tagMatch) {
-            bot.send(event.channelId,
+            bot.client.send(event.channelId,
                 "Invalid amount of arguments. See `" +
                 event.precommandName.name + "help pretend get` for help"
             );
@@ -374,19 +374,19 @@ class Default extends BotPlugin {
 
         let userId: string | null = getSnowflakeNum(tagMatch[0]);
         if (!userId) {
-            bot.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
+            bot.client.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
             return;
         }
-        let user = await bot.getUser(userId);
+        let user = await bot.client.getUser(userId);
         let message: string = args.slice(tagMatch[0].length).trim();
 
         if (!user) {
-            bot.send(event.channelId, "Could not find user" + mention(userId));
+            bot.client.send(event.channelId, "Could not find user" + mention(userId));
             return;
         }
 
-        let channel = await bot.getChannel(event.channelId);
-        let guild = await bot.getServer(event.serverId);
+        let channel = await bot.client.getChannel(event.channelId);
+        let guild = await bot.client.getServer(event.serverId);
 
         if (!guild) { throw new Error("Unknown error"); }
 
@@ -402,25 +402,25 @@ class Default extends BotPlugin {
     /**
      * Pretends to recieve a message from someone else
      */
-    async forward_to(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    async forward_to(bot: Bot, event: DiscordCommandEvent, args: string) {
         let firstWhitespaceMatch: RegExpMatchArray | null = args.match(/\s/);
         if (!firstWhitespaceMatch) { return; } // tODO: Tell invalid, get help
         let tagMatch: string = args.slice(0, firstWhitespaceMatch.index);
 
         let channelId: string | null = getSnowflakeNum(tagMatch);
         if (!channelId) { return; } // tODO: Tell invalid, get help
-        let channel = await bot.getChannel(channelId) as TextChannel;
+        let channel = await bot.client.getChannel(channelId) as TextChannel;
         let message: string = args.slice(tagMatch.length).trim();
 
         if (!channel) {
-            bot.send(event.channelId, "Could not find channel " + channelId);
+            bot.client.send(event.channelId, "Could not find channel " + channelId);
             return;
         }
 
         bot.client.sentMessageRecorder.startRecordingMessagesSentToChannel(event.channelId);
 
-        let author = await bot.getUser(event.userId);
-        let guild = await bot.getServer(event.serverId);
+        let author = await bot.client.getUser(event.userId);
+        let guild = await bot.client.getServer(event.serverId);
 
         if (!author || !guild) {
             return; // tODO: Tell invalid, get help
@@ -437,7 +437,7 @@ class Default extends BotPlugin {
         let sentMessages: object[] = bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {
-            bot.send(channelId, message);
+            bot.client.send(channelId, message);
         }
     }
 
@@ -445,11 +445,11 @@ class Default extends BotPlugin {
      * Sends a message to a channel
      * @param argString arguments ns, type, action, id, permission
      */
-    async edit_permission(bot: BotHooks, event: DiscordCommandEvent, argString: string) {
+    async edit_permission(bot: Bot, event: DiscordCommandEvent, argString: string) {
         let args: string[] = stringToArgs(argString);
 
         function sendHelp(): void {
-            bot.send(event.channelId,
+            bot.client.send(event.channelId,
                 "Invalid amount of arguments. See `" +
                 event.precommandName.name + "help edit permission` for help"
             );
@@ -473,42 +473,42 @@ class Default extends BotPlugin {
         let permission: string = args[4].trim().toUpperCase();
 
         /** Permissions for assigner */
-        let assignerPermissions = await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
+        let assignerPermissions = await bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
 
         // check if can assign permission
         if (
             Permissions.specialCustoms.includes(permission) && // if special permission
             !assignerPermissions.has("BOT_ADMINISTRATOR") // and is not admin
         ) {
-            bot.send(event.channelId, "Cannot assign special custom permission");
+            bot.client.send(event.channelId, "Cannot assign special custom permission");
             return;
         } else if (Permissions.keys.includes(permission)) {
-            bot.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
+            bot.client.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
             return;
         }
 
         if (ns === "c") { // channel namespace
             if (type === "u") { // assign to user
-                if (!bot.getMemberFromServer(id, event.serverId)) {
-                    bot.send(event.channelId, "User not found");
+                if (!bot.client.getMemberFromServer(id, event.serverId)) {
+                    bot.client.send(event.channelId, "User not found");
                     return;
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given" + mention(id) + " the permission `" + permission + "` in this channel");
+                    bot.client.send(event.channelId, "Given" + mention(id) + " the permission `" + permission + "` in this channel");
                 } else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed" + mention(id) + "'s permission (`" + permission + "`) from this channel.");
+                    bot.client.send(event.channelId, "Removed" + mention(id) + "'s permission (`" + permission + "`) from this channel.");
                 } else {
                     sendHelp();
                 }
             } else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given role" + mention(id) + " the permission `" + permission + "` in this channel.");
+                    bot.client.send(event.channelId, "Given role" + mention(id) + " the permission `" + permission + "` in this channel.");
                 } else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed role" + mention(id) + "'s permission (`" + permission + "`) from this channel.");
+                    bot.client.send(event.channelId, "Removed role" + mention(id) + "'s permission (`" + permission + "`) from this channel.");
                 } else {
                     sendHelp();
                 }
@@ -517,26 +517,26 @@ class Default extends BotPlugin {
             }
         } else if (ns === "s") { // server namespace
             if (type === "u") { // assign to user
-                if (!bot.getMemberFromServer(id, event.serverId)) {
-                    bot.send(event.channelId, "User not found");
+                if (!bot.client.getMemberFromServer(id, event.serverId)) {
+                    bot.client.send(event.channelId, "User not found");
                     return;
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given" + mention(id) + " the permission `" + permission + "` in this server");
+                    bot.client.send(event.channelId, "Given" + mention(id) + " the permission `" + permission + "` in this server");
                 } else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed" + mention(id) + "'s permission (`" + permission + "`) from this server.");
+                    bot.client.send(event.channelId, "Removed" + mention(id) + "'s permission (`" + permission + "`) from this server.");
                 } else {
                     sendHelp();
                 }
             } else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given role" + mention(id) + " the permission `" + permission + "` in this server.");
+                    bot.client.send(event.channelId, "Given role" + mention(id) + " the permission `" + permission + "` in this server.");
                 } else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed role" + mention(id) + "'s permission (`" + permission + "`) from this server.");
+                    bot.client.send(event.channelId, "Removed role" + mention(id) + "'s permission (`" + permission + "`) from this server.");
                 } else {
                     sendHelp();
                 }
@@ -545,25 +545,25 @@ class Default extends BotPlugin {
             }
         } else if (ns === "g") { // global namespace
             if (!assignerPermissions.has("BOT_ADMINISTRATOR")) {
-                bot.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
+                bot.client.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
                 return;
             }
             if (type === "u") { // assign to user
-                if (!bot.getMemberFromServer(id, event.serverId)) {
-                    bot.send(event.channelId, "User not found");
+                if (!bot.client.getMemberFromServer(id, event.serverId)) {
+                    bot.client.send(event.channelId, "User not found");
                     return;
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_global(id, permission, true);
-                    bot.send(event.channelId, "Given" + mention(id) + " the permission `" + permission + "` everywhere");
+                    bot.client.send(event.channelId, "Given" + mention(id) + " the permission `" + permission + "` everywhere");
                 } else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_global(id, permission, false);
-                    bot.send(event.channelId, "Removed" + mention(id) + "'s permission (`" + permission + "`) everywhere.");
+                    bot.client.send(event.channelId, "Removed" + mention(id) + "'s permission (`" + permission + "`) everywhere.");
                 } else {
                     sendHelp();
                 }
             } else if (type === "r") { // assign to role
-                bot.send(event.channelId, "Global roles are not a thing.");
+                bot.client.send(event.channelId, "Global roles are not a thing.");
             } else {
                 sendHelp();
             }
@@ -576,20 +576,20 @@ class Default extends BotPlugin {
      * Sends a message to a channel
      * @param args arguments [channelId, ...message]
      */
-    send(bot: BotHooks, event: DiscordCommandEvent, args: string): void {
+    send(bot: Bot, event: DiscordCommandEvent, args: string): void {
         let whitespaceMatch: RegExpMatchArray | null = args.match(/\s/);
         if (!whitespaceMatch) { return; } // tODO: tell invalid, help
         let whitespaceIndex: number | undefined = whitespaceMatch.index;
         if (!whitespaceIndex) { throw new Error("Unknown error"); }
 
-        bot.send(args.slice(0, whitespaceIndex), args.slice(whitespaceIndex + 1));
+        bot.client.send(args.slice(0, whitespaceIndex), args.slice(whitespaceIndex + 1));
     }
 
     /**
      * Sends link to add bot to server
      */
-    link(bot: BotHooks, event: DiscordCommandEvent): void {
-        bot.send(event.channelId, {
+    link(bot: Bot, event: DiscordCommandEvent): void {
+        bot.client.send(event.channelId, {
             embed: {
                 color: bot.config.themeColor,
                 description: "You can add me to another server with this link:\n" + bot.config.addLink
@@ -600,14 +600,14 @@ class Default extends BotPlugin {
     /**
      * Sends link to view code of bot (like what you're doing right now!)
      */
-    code(bot: BotHooks, event: DiscordCommandEvent): void {
-        bot.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
+    code(bot: Bot, event: DiscordCommandEvent): void {
+        bot.client.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
     }
 
     /**
      * Updates the bot
      */
-    update_bot(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    update_bot(bot: Bot, event: DiscordCommandEvent, args: string) {
         let cleanArgs = args.trim().toLowerCase();
 
         if (cleanArgs === "confirm") {
@@ -617,7 +617,7 @@ class Default extends BotPlugin {
             }
         }
 
-        bot.send(event.channelId,
+        bot.client.send(event.channelId,
             "Confirm updating the bot with `" + event.precommandName.name +
             "update bot confirm`.\n" +
             "**The bot process will exit after the update.**"
@@ -629,7 +629,7 @@ class Default extends BotPlugin {
     /**
      * Actually updates the bot
      */
-    _actuallyUpdateBot(bot: BotHooks, event: DiscordCommandEvent) {
+    _actuallyUpdateBot(bot: Bot, event: DiscordCommandEvent) {
         childProcess.exec(
             "npm install gitlab:japnaa/japnaabotdiscord",
             callback.bind(this)
@@ -638,9 +638,9 @@ class Default extends BotPlugin {
         function callback(this: Default, error: childProcess.ExecException | null, stdout: string, stderr: string) {
             if (error) {
                 Logger.error(error);
-                bot.send(event.channelId, "Error updating bot. See logs.");
+                bot.client.send(event.channelId, "Error updating bot. See logs.");
             } else {
-                bot.send(event.channelId, "Update successful. Stopping...");
+                bot.client.send(event.channelId, "Update successful. Stopping...");
             }
 
             Logger.log(stdout);
@@ -654,15 +654,15 @@ class Default extends BotPlugin {
         japnaabot.stop(10000).then(() => process.exit(0));
     }
 
-    uptime(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    uptime(bot: Bot, event: DiscordCommandEvent, args: string) {
         childProcess.exec(
             "uptime",
             function (error: childProcess.ExecException | null, stdout: string, stderr: string) {
                 if (error) {
                     Logger.error(error);
-                    bot.send(event.channelId, "Failed to get uptime.");
+                    bot.client.send(event.channelId, "Failed to get uptime.");
                 } else {
-                    bot.send(event.channelId, "```" + stdout + "```");
+                    bot.client.send(event.channelId, "```" + stdout + "```");
                 }
             }
         );

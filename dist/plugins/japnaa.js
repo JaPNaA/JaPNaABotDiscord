@@ -35,7 +35,7 @@ class Japnaa extends plugin_js_1.default {
     count(bot, event) {
         this.counter++;
         this.bot.memory.write(this._pluginName, "counter", this.counter);
-        bot.send(event.channelId, this.counter.toString() + "!");
+        bot.client.send(event.channelId, this.counter.toString() + "!");
     }
     /**
      * says whatever you say
@@ -49,10 +49,10 @@ class Japnaa extends plugin_js_1.default {
             // do nothing
         }
         if (json) {
-            bot.send(event.channelId, json);
+            bot.client.send(event.channelId, json);
         }
         else {
-            bot.send(event.channelId, args);
+            bot.client.send(event.channelId, args);
         }
     }
     /**
@@ -62,7 +62,7 @@ class Japnaa extends plugin_js_1.default {
         const args = stringToArgs_1.default(argString);
         // !random string
         if (args[0] && args[0].toLowerCase() === "string") {
-            bot.send(event.channelId, "```" +
+            bot.client.send(event.channelId, "```" +
                 randomString_js_1.default(128).replace(/`$/g, "` ") // because discord markup
                 + "```");
             return;
@@ -97,12 +97,12 @@ class Japnaa extends plugin_js_1.default {
         }
         // check if arguments are valid
         if (isNaN(max) || isNaN(min) || isNaN(step)) {
-            bot.send(event.channelId, "**Invalid arguments**");
+            bot.client.send(event.channelId, "**Invalid arguments**");
         }
         else {
             result = random_1.default(min, max, step);
         }
-        bot.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
+        bot.client.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
     }
     /**
      * Begins spamming from spam que with interval
@@ -197,7 +197,7 @@ class Japnaa extends plugin_js_1.default {
      */
     async _getSpamQueLimit(bot, event) {
         let defaultLimit = this.config["spam.defaultQueLimit"];
-        let server = await bot.getServer(event.serverId);
+        let server = await bot.client.getServer(event.serverId);
         if (!server) {
             throw new Error("Unknown Error");
         }
@@ -211,10 +211,10 @@ class Japnaa extends plugin_js_1.default {
         let count = 0;
         const spamCallback = function () {
             if (counter) {
-                bot.send(channelId, `**${count + 1}/${amount}:** ${message}`);
+                bot.client.send(channelId, `**${count + 1}/${amount}:** ${message}`);
             }
             else {
-                bot.send(channelId, message);
+                bot.client.send(channelId, message);
             }
             count++;
             return count < amount;
@@ -239,22 +239,22 @@ class Japnaa extends plugin_js_1.default {
         switch (cleanArgs) {
             case "stop":
                 this._stopSpam(event.serverId);
-                bot.send(event.channelId, "All spam on this server stopped");
+                bot.client.send(event.channelId, "All spam on this server stopped");
                 return;
             case "stop all":
                 if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
                     this._stopAllSpam();
-                    bot.send(event.channelId, "All spam on every server stopped");
+                    bot.client.send(event.channelId, "All spam on every server stopped");
                 }
                 else {
-                    bot.send(event.channelId, mention_1.default(event.userId) + ", you don't have the permissions to do that.");
+                    bot.client.send(event.channelId, mention_1.default(event.userId) + ", you don't have the permissions to do that.");
                 }
                 return;
             case "limit":
-                bot.send(event.channelId, "Your spam limit is: " + this._getSpamLimit(bot, event));
+                bot.client.send(event.channelId, "Your spam limit is: " + this._getSpamLimit(bot, event));
                 return;
             case "que limit":
-                bot.send(event.channelId, "Server que limit: " + this._getSpamQueLimit(bot, event));
+                bot.client.send(event.channelId, "Server que limit: " + this._getSpamQueLimit(bot, event));
                 return;
         }
         let [amountArg, counterArg, ...messageArg] = stringToArgs_1.default(args);
@@ -299,16 +299,16 @@ class Japnaa extends plugin_js_1.default {
         let spamLimit = this._getSpamLimit(bot, event);
         let spamQueLimit = await this._getSpamQueLimit(bot, event);
         if (amount > spamLimit) {
-            this.bot.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
+            this.bot.client.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
             return;
         }
-        let server = await bot.getServer(event.serverId);
+        let server = await bot.client.getServer(event.serverId);
         if (!server) {
             throw new Error("Unknown Error");
         }
         if (this.spamQue[server.id] &&
             this.spamQue[server.id].length > spamQueLimit) {
-            this.bot.send(event.channelId, "**Too much spam already qued.**");
+            this.bot.client.send(event.channelId, "**Too much spam already qued.**");
             return;
         }
         this._spam(bot, event.channelId, event.serverId, amount, useCounter, message);
@@ -355,24 +355,24 @@ class Japnaa extends plugin_js_1.default {
     tell(bot, event, args) {
         let tagMatch = args.match(/^\s*<@\d+>\s*/);
         if (!tagMatch) {
-            bot.send(event.channelId, "Invalid amount of arguments. See `" +
+            bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
                 event.precommandName + "help tell` for help");
             return;
         }
         let user = getSnowflakeNum_1.default(tagMatch[0]);
         if (!user) {
-            bot.send(event.channelId, "User does not exist.");
+            bot.client.send(event.channelId, "User does not exist.");
             return;
         }
         let message = args.slice(tagMatch[0].length);
-        bot.sendDM(user, {
+        bot.client.sendDM(user, {
             message: mention_1.default(event.userId) + " told you",
             embed: {
                 color: bot.config.themeColor,
                 description: message
             }
         }, function () {
-            bot.send(event.channelId, "Failed to tell " + mention_1.default(user));
+            bot.client.send(event.channelId, "Failed to tell " + mention_1.default(user));
         });
     }
     _stop() {

@@ -4,13 +4,11 @@ import DISCORD, { Intents } from "discord.js";
 import STRIP_JSON_COMMENTS from "strip-json-comments";
 import Logger from "./utils/logger.js";
 import Bot from "./bot/bot/bot.js";
-import BotHooks from "./bot/bot/botHooks.js";
 import BotPlugin from "./bot/plugin/plugin.js";
 
 let client: DISCORD.Client;
 
 let bot: Bot;
-let botHooks: BotHooks;
 
 // let shuttingDown = false;
 
@@ -34,7 +32,6 @@ let configPath: string | null = null;
 function _init(): void {
     _getConfigFromPath();
     bot = new Bot(config, memory, memoryPath, client, _init);
-    botHooks = bot.hooks;
 
     if (config.autoloadPlugins) {
         for (let pluginName of config.builtinPlugins) {
@@ -133,7 +130,7 @@ function loadPlugin(path: string): Error | null {
     delete require.cache[require.resolve(npath)];
 
     try {
-        let plugin: BotPlugin = new (require(npath).default)(bot.hooks);
+        let plugin: BotPlugin = new (require(npath).default)(bot);
         bot.pluginManager.register(plugin);
 
         Logger.log("Successfully loaded external plugin", path);
@@ -156,7 +153,7 @@ function loadBuiltinPlugin(name: string): Error | null {
     delete require.cache[require.resolve(npath)];
 
     try {
-        let plugin: BotPlugin = new (require(npath).default)(bot.hooks);
+        let plugin: BotPlugin = new (require(npath).default)(bot);
         bot.pluginManager.register(plugin);
 
         Logger.log("Successfully loaded built-in plugin", name);
@@ -201,10 +198,10 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
     client.login(token);
 
     client.on("ready", () =>
-        botHooks.rawEventAdapter.onReady()
+        bot.rawEventAdapter.onReady()
     );
     client.on("messageCreate", event =>
-        botHooks.rawEventAdapter.onMessage(event)
+        bot.rawEventAdapter.onMessage(event)
     );
 
     // not required by discord.js
@@ -266,8 +263,8 @@ function stop(timeout?: number): Promise<any> {
  * Gets the local variable, bot
  * @returns bot
  */
-function getBot(): BotHooks {
-    return bot.hooks;
+function getBot(): Bot {
+    return bot;
 }
 
 /**

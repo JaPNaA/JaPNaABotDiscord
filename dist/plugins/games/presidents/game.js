@@ -80,7 +80,7 @@ class PresidentsMain {
             str += "_To play a card_, type `" + precommand + "use [cardName] [amount, optional]`\n";
             str += "_To pass_, type `" + precommand + "pass`\n";
             str += "\nGood luck!";
-            this.bot.sendDM(player.userId, str);
+            this.bot.client.sendDM(player.userId, str);
         }
     }
     async sendPile() {
@@ -162,7 +162,7 @@ class PresidentsMain {
         return playersNotDone <= 1; // last person is automatically loser
     }
     announce(message) {
-        return this.bot.send(this.presidentsGame.channelId, message);
+        return this.bot.client.send(this.presidentsGame.channelId, message);
     }
     _start() {
         // do nothing

@@ -1,14 +1,14 @@
-import BotHooks from "../bot/botHooks";
 import BotCommandOptions from "../command/commandOptions";
 import EventName from "../types/eventName";
 import { PrecommandWithoutCallback, PrecommandWithCallback } from "../precommand/precommand";
 import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
 import CommandManager from "../command/manager/commandManager";
 import BotCommandCallback from "../command/commandCallback";
+import Bot from "../bot/bot";
 declare abstract class BotPlugin {
-    bot: BotHooks;
+    protected bot: Bot;
     _pluginName: string;
-    constructor(bot: BotHooks);
+    constructor(bot: Bot);
     /**
      * Starts the plugin
      */

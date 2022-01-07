@@ -1,24 +1,22 @@
 import FS from "fs";
 import Logger from "../../utils/logger.js";
-import BotHooks from "./botHooks.js";
+import Bot from "./bot.js";
 
 class Memory {
     memoryPath: string;
     memory: { [x: string]: any };
     autoWriteIntervalId?: NodeJS.Timeout;
     memoryChanged: boolean;
-    botHook: BotHooks;
     /**
      * Memory constructor
      * @param botHooks hooks can attach to
      * @param memoryPath path to memory
      * @param memory the memory object
      */
-    constructor(botHooks: BotHooks, memoryPath: string, memory: object) {
+    constructor(private bot: Bot, memoryPath: string, memory: object) {
         this.memoryPath = memoryPath;
         this.memory = memory;
         this.memoryChanged = false;
-        this.botHook = botHooks;
     }
 
     /**
@@ -53,8 +51,8 @@ class Memory {
      * Writes memory to disk
      */
     writeOut(): void {
-        this.botHook.newAsyncRequest();
-        this.botHook.dispatchEvent("beforememorywrite", null);
+        this.bot.newAsyncRequest();
+        this.bot.events.dispatch("beforememorywrite", null);
 
         FS.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
 
@@ -74,7 +72,7 @@ class Memory {
      * @param error, if any
      */
     _doneWriteMemory(error: any): void {
-        this.botHook.doneAsyncRequest();
+        this.bot.doneAsyncRequest();
         if (error) {
             Logger.error("Failed to write to memory", error);
             return;
@@ -86,7 +84,7 @@ class Memory {
      * Starts automatically writing out
      */
     startAutoWrite(): void {
-        this.autoWriteIntervalId = setInterval(this.writeOut_auto.bind(this), this.botHook.config.autoWriteTimeInterval);
+        this.autoWriteIntervalId = setInterval(this.writeOut_auto.bind(this), this.bot.config.autoWriteTimeInterval);
     }
 
     /**

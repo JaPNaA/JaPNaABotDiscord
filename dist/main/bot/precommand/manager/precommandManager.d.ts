@@ -1,13 +1,13 @@
 import PrecommandDispatcher from "./precommandDispatcher";
 import { Precommand, PrecommandWithCallback, PrecommandWithoutCallback } from "../precommand";
-import BotHooks from "../../bot/botHooks";
 import PrecommandCallback from "../precommandCallback";
 import PrecommandName from "../precommandName";
+import Bot from "../../bot/bot";
 declare class PrecommandManager {
-    botHooks: BotHooks;
+    private bot;
     dispatch: PrecommandDispatcher;
     precommands: Precommand[];
-    constructor(botHooks: BotHooks);
+    constructor(bot: Bot);
     register(precommand: Precommand): void;
     createAndRegister(name: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
     createAndRegister(name: string | string[]): PrecommandWithoutCallback;

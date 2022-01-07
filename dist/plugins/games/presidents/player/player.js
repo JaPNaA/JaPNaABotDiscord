@@ -21,7 +21,7 @@ class Player {
         }
     }
     tell(message) {
-        this.bot.sendDM(this.userId, message);
+        this.bot.client.sendDM(this.userId, message);
     }
     createCardStr() {
         let cardStr = "";
@@ -34,7 +34,7 @@ class Player {
         if (this.done) {
             return;
         }
-        this.bot.sendDM(this.userId, "**Your deck**\n" + this.createCardStr());
+        this.bot.client.sendDM(this.userId, "**Your deck**\n" + this.createCardStr());
     }
     waitForOneMessage(callback) {
         this.messageCallbacks.push(callback);

@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const permissions_js_1 = __importDefault(require("../../types/permissions.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../utils/locationKeyCreator.js"));
 class BotPermissions {
-    constructor(botHooks) {
-        this.botHooks = botHooks;
-        this.memory = this.botHooks.memory;
+    constructor(bot) {
+        this.bot = bot;
+        this.memory = bot.memory;
     }
     async getPermissions_role_channel(roleId, serverId, channelId) {
-        const role = await this.botHooks.getRole(roleId, serverId);
+        const role = await this.bot.client.getRole(roleId, serverId);
         if (!role) {
             return new permissions_js_1.default();
         }
@@ -33,7 +33,7 @@ class BotPermissions {
         let roles;
         let permissionsNum = 0n;
         if (serverId) {
-            server = await this.botHooks.getServer(serverId);
+            server = await this.bot.client.getServer(serverId);
             if (!server) {
                 return new permissions_js_1.default();
             }
@@ -61,7 +61,7 @@ class BotPermissions {
         return permissions;
     }
     async editPermissions_user_channel(userId, channelId, permissionName, value) {
-        let channel = await this.botHooks.getChannel(channelId);
+        let channel = await this.bot.client.getChannel(channelId);
         let serverId = channel.guild.id;
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_channel(serverId, userId, channelId));
         let permissions = new permissions_js_1.default();
@@ -91,7 +91,7 @@ class BotPermissions {
         }
     }
     async editPermissions_role_channel(roleId, channelId, permissionName, value) {
-        let channel = await this.botHooks.getChannel(channelId);
+        let channel = await this.bot.client.getChannel(channelId);
         let serverId = channel.guild.id;
         let customPerms = this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId));
         let permissions = new permissions_js_1.default();

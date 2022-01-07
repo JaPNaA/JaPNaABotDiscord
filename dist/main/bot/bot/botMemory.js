@@ -12,11 +12,11 @@ class Memory {
      * @param memoryPath path to memory
      * @param memory the memory object
      */
-    constructor(botHooks, memoryPath, memory) {
+    constructor(bot, memoryPath, memory) {
+        this.bot = bot;
         this.memoryPath = memoryPath;
         this.memory = memory;
         this.memoryChanged = false;
-        this.botHook = botHooks;
     }
     /**
      * Stores something in memory
@@ -47,8 +47,8 @@ class Memory {
      * Writes memory to disk
      */
     writeOut() {
-        this.botHook.newAsyncRequest();
-        this.botHook.dispatchEvent("beforememorywrite", null);
+        this.bot.newAsyncRequest();
+        this.bot.events.dispatch("beforememorywrite", null);
         fs_1.default.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
         this.memoryChanged = false;
     }
@@ -66,7 +66,7 @@ class Memory {
      * @param error, if any
      */
     _doneWriteMemory(error) {
-        this.botHook.doneAsyncRequest();
+        this.bot.doneAsyncRequest();
         if (error) {
             logger_js_1.default.error("Failed to write to memory", error);
             return;
@@ -77,7 +77,7 @@ class Memory {
      * Starts automatically writing out
      */
     startAutoWrite() {
-        this.autoWriteIntervalId = setInterval(this.writeOut_auto.bind(this), this.botHook.config.autoWriteTimeInterval);
+        this.autoWriteIntervalId = setInterval(this.writeOut_auto.bind(this), this.bot.config.autoWriteTimeInterval);
     }
     /**
      * Stops automatically writing out

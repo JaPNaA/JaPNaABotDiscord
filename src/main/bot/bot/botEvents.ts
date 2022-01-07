@@ -1,9 +1,9 @@
-import BotHooks from "./botHooks.js";
 import EventName from "../types/eventName.js";
 
 import tryRun from "../../utils/tryRun";
 import Logger from "../../utils/logger.js";
 import EventHandler from "../types/eventHandler.js";
+import Bot from "./bot.js";
 
 class BotEvent {
     events: { [x: string]: Function[] } = {
@@ -24,11 +24,8 @@ class BotEvent {
         "addasync": [],
         "doneasync": []
     };
-    botHooks: BotHooks;
 
-    constructor(botHooks: BotHooks) {
-        this.botHooks = botHooks;
-    }
+    constructor(private bot: Bot) { }
 
     on(name: EventName, func: EventHandler): void {
         this.events[name].push(func);
@@ -40,7 +37,7 @@ class BotEvent {
         Logger.log_message("Event: " + name);
 
         for (let handler of this.events[name]) {
-            let error: string | null = tryRun(() => handler(this.botHooks, event));
+            let error: string | null = tryRun(() => handler(this.bot, event));
 
             if (error) {
                 errors.push(error);

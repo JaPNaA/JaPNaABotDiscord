@@ -1,18 +1,16 @@
-import BotHooks from "../../bot/botHooks";
 import BotPlugin from "../plugin";
 import Logger from "../../../utils/logger";
+import Bot from "../../bot/bot";
 
 class PluginManager {
-    botHooks: BotHooks;
     plugins: BotPlugin[];
 
-    constructor(botHooks: BotHooks) {
-        this.botHooks = botHooks;
+    constructor(private bot: Bot) {
         this.plugins = [];
     }
 
     register(plugin: BotPlugin): void {
-        if (this.botHooks.config.debugMode) {
+        if (this.bot.config.debugMode) {
             Logger.log("Refusing to load plugin in debug mode");
             return;
         }

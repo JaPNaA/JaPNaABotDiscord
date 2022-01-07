@@ -1,10 +1,10 @@
-import BotHooks from "../../bot/botHooks.js";
 import DiscordCommandEvent from "../../events/discordCommandEvent.js";
 import CommandManager from "./commandManager.js";
+import Bot from "../../bot/bot.js";
 declare class CommandDispatcher {
-    botHooks: BotHooks;
+    private bot;
     manager: CommandManager;
-    constructor(botHooks: BotHooks, manager: CommandManager);
+    constructor(bot: Bot, manager: CommandManager);
     /**
      * Handles message event
      */

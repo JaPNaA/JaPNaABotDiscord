@@ -1,12 +1,12 @@
-import BotHooks from "./botHooks.js";
 import EventName from "../types/eventName.js";
 import EventHandler from "../types/eventHandler.js";
+import Bot from "./bot.js";
 declare class BotEvent {
+    private bot;
     events: {
         [x: string]: Function[];
     };
-    botHooks: BotHooks;
-    constructor(botHooks: BotHooks);
+    constructor(bot: Bot);
     on(name: EventName, func: EventHandler): void;
     dispatch(name: EventName, event: any): string[];
 }

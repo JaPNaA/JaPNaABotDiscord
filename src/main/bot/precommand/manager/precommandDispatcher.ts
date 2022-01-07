@@ -1,22 +1,20 @@
-import BotHooks from "../../bot/botHooks";
 import DiscordMessageEvent from "../../events/discordMessageEvent";
 import PrecommandManager from "./precommandManager";
 import Logger from "../../../utils/logger";
 import PrecommandName from "../precommandName";
 import DiscordCommandEvent from "../../events/discordCommandEvent";
+import Bot from "../../bot/bot";
 
 class PrecommandDispatcher {
-    botHooks: BotHooks;
     manager: PrecommandManager;
 
-    constructor(botHooks: BotHooks, manager: PrecommandManager) {
-        this.botHooks = botHooks;
+    constructor(private bot: Bot, manager: PrecommandManager) {
         this.manager = manager;
 
-        this.botHooks.events.on("message", this.onMessage.bind(this));
+        this.bot.events.on("message", this.onMessage.bind(this));
     }
 
-    onMessage(botHooks: BotHooks, message: DiscordMessageEvent): void {
+    onMessage(bot: Bot, message: DiscordMessageEvent): void {
         Logger.log_message("<<", message.message);
         this.dispatchIfIsPrecommand(message);
     }
@@ -25,7 +23,7 @@ class PrecommandDispatcher {
         if (!messageEvent.precommandName) { return; }
 
         const commandEvent: DiscordCommandEvent = this._createDiscordCommandEvent(messageEvent);
-        this.botHooks.events.dispatch("command", commandEvent);
+        this.bot.events.dispatch("command", commandEvent);
         commandEvent.precommandName.precommand.callback(commandEvent);
     }
 

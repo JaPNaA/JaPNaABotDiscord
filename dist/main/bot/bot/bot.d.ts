@@ -1,5 +1,4 @@
 import { Client } from "discord.js";
-import BotHooks from "./botHooks.js";
 import BotMemory from "./botMemory.js";
 import RawEventAdapter from "../../adapters/rawEventAdapter.js";
 import BotConfig from "./botConfig.js";
@@ -12,7 +11,6 @@ import { PrecommandWithoutCallback } from "../precommand/precommand.js";
 import PluginManager from "../plugin/manager/pluginManager.js";
 declare class Bot {
     restartFunc: Function;
-    hooks: BotHooks;
     rawEventAdapter: RawEventAdapter;
     config: BotConfig;
     memory: BotMemory;
@@ -48,7 +46,7 @@ declare class Bot {
      */
     stop(): void;
     /** Restarts bot on command */
-    restart(bot: BotHooks, event: DiscordCommandEvent): void;
+    restart(bot: Bot, event: DiscordCommandEvent): void;
     /**
      * ready callback
      */

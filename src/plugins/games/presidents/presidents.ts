@@ -1,5 +1,5 @@
 import Game from "../game";
-import BotHooks from "../../../main/bot/bot/botHooks";
+import Bot from "../../../main/bot/bot/bot";
 import Games from "../../games";
 import DiscordCommandEvent from "../../../main/bot/events/discordCommandEvent";
 import mention from "../../../main/utils/str/mention";
@@ -22,8 +22,8 @@ class Presidents extends Game {
 
     game: PresidentsMain;
 
-    constructor(botHooks: BotHooks, parentPlugin: Games, channelId: string, initer: string) {
-        super(botHooks, parentPlugin);
+    constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string) {
+        super(bot, parentPlugin);
 
         this.gameName = "Presidents";
         this._gamePluginName = "presidents";
@@ -35,7 +35,7 @@ class Presidents extends Game {
         this.game = new PresidentsMain(this.bot, this.parentPlugin, this);
     }
 
-    join(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    join(bot: Bot, event: DiscordCommandEvent, args: string) {
         let userId = event.userId;
         this.addPlayer(userId);
     }
@@ -51,7 +51,7 @@ class Presidents extends Game {
     addPlayer(userId: string) {
         try {
             this.game.playerHandler.addPlayer(userId);
-            this.bot.send(this.channelId, mention(userId) + " has joined " + this.gameName + "!");
+            this.bot.client.send(this.channelId, mention(userId) + " has joined " + this.gameName + "!");
         } catch (err) {
             this.handleJoinError(err, userId);
         }
@@ -59,52 +59,52 @@ class Presidents extends Game {
 
     handleJoinError(err: Error, userId: string) {
         if (err instanceof AlreadyJoinedError) {
-            this.bot.send(this.channelId, mention(userId) + ", you're already in the game!");
+            this.bot.client.send(this.channelId, mention(userId) + ", you're already in the game!");
         } else if (err instanceof DMAlreadyLockedError) {
-            this.bot.send(this.channelId,
+            this.bot.client.send(this.channelId,
                 "Failed to add " + mention(userId) +
                 ". You're in another game which also requires DMs!"
             );
         }
     }
 
-    leave(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    leave(bot: Bot, event: DiscordCommandEvent, args: string) {
         let userId = event.userId;
         let result = this.game.playerHandler.removePlayer(userId);
 
         if (result) {
-            bot.send(event.channelId, mention(userId) + " has left the game");
+            bot.client.send(event.channelId, mention(userId) + " has left the game");
         } else {
-            bot.send(event.channelId, mention(userId) + ", you were never in the game!");
+            bot.client.send(event.channelId, mention(userId) + ", you were never in the game!");
         }
     }
 
-    start(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    start(bot: Bot, event: DiscordCommandEvent, args: string) {
         this._sendStartingMessage();
         this._startGame();
     }
 
-    listPlayers(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    listPlayers(bot: Bot, event: DiscordCommandEvent, args: string) {
         let players = this.game.playerHandler.players;
         let numPlayers = players.length;
 
         if (numPlayers === 0) {
-            bot.send(event.channelId, "No one is in this game.");
+            bot.client.send(event.channelId, "No one is in this game.");
         } else if (numPlayers === 1) {
-            bot.send(event.channelId, "Just " + mention(players[0].userId) + ", the Loner.");
+            bot.client.send(event.channelId, "Just " + mention(players[0].userId) + ", the Loner.");
         } else {
-            bot.send(event.channelId,
+            bot.client.send(event.channelId,
                 players.map(e => mention(e.userId)).join(", ") +
                 " (" + players.length + " players)"
             );
         }
     }
 
-    playerUse(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    playerUse(bot: Bot, event: DiscordCommandEvent, args: string) {
         this.game.messageHandler.onMessage(event.userId, event, MessageType.use);
     }
 
-    playerPass(bot: BotHooks, event: DiscordCommandEvent, args: string) {
+    playerPass(bot: Bot, event: DiscordCommandEvent, args: string) {
         this.game.messageHandler.onMessage(event.userId, event, MessageType.pass)
     }
 
@@ -114,7 +114,7 @@ class Presidents extends Game {
             players.push(mention(player.userId));
         }
 
-        this.bot.send(this.channelId,
+        this.bot.client.send(this.channelId,
             "Starting Presidents with players:\n" +
             players.join(", ")
         );
@@ -151,7 +151,7 @@ class Presidents extends Game {
                 "Once all the players are in, type `" + precommmand + "start` to start the game"
         });
 
-        this.bot.send(this.channelId, {
+        this.bot.client.send(this.channelId, {
             embed: {
                 color: this.bot.config.themeColor,
                 title: this.gameName,

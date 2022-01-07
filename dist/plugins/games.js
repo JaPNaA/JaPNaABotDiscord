@@ -50,12 +50,12 @@ class Games extends plugin_js_1.default {
         let cleanedArgs = args.trim().toLowerCase();
         const gameClass = this._getGame(cleanedArgs);
         if (gameClass) {
-            let game = new gameClass(this.bot, this, event.channelId, event.userId);
+            let game = new gameClass(bot, this, event.channelId, event.userId);
             this.currentGames.set(event.channelId, game);
             game._start();
         }
         else {
-            bot.send(event.channelId, "That game doesn't exist :confused:\n" +
+            bot.client.send(event.channelId, "That game doesn't exist :confused:\n" +
                 "Games available: " + this._listGames().join(", "));
         }
     }
@@ -95,7 +95,7 @@ class Games extends plugin_js_1.default {
         }
     }
     _sendDoesntExist(bot, event) {
-        bot.send(event.channelId, "No game is running...");
+        bot.client.send(event.channelId, "No game is running...");
     }
     _listGames() {
         const set = new Set();

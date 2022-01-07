@@ -1,4 +1,4 @@
-import BotHooks from "../../../../main/bot/bot/botHooks";
+import Bot from "../../../../main/bot/bot/bot";
 import DiscordCommandEvent from "../../../../main/bot/events/discordCommandEvent";
 import PlayerCards from "./cards";
 import PlayerAction from "./action";
@@ -9,7 +9,7 @@ import MessageEvent from "../messageEvent";
 type MessageCallback = (event: MessageEvent) => void;
 
 class Player {
-    bot: BotHooks;
+    bot: Bot;
     userId: string;
     cards: PlayerCards;
     action: PlayerAction;
@@ -18,7 +18,7 @@ class Player {
     done: boolean;
     acknowledgedDone: boolean;
 
-    constructor(botHooks: BotHooks, presidentGame: PresidentsMain, userId: string) {
+    constructor(botHooks: Bot, presidentGame: PresidentsMain, userId: string) {
         this.bot = botHooks;
 
         this.userId = userId;
@@ -37,7 +37,7 @@ class Player {
     }
 
     tell(message: string) {
-        this.bot.sendDM(this.userId, message);
+        this.bot.client.sendDM(this.userId, message);
     }
 
     createCardStr(): string {
@@ -50,7 +50,7 @@ class Player {
 
     tellCards() {
         if (this.done) { return; }
-        this.bot.sendDM(this.userId, "**Your deck**\n" + this.createCardStr());
+        this.bot.client.sendDM(this.userId, "**Your deck**\n" + this.createCardStr());
     }
 
     waitForOneMessage(callback: MessageCallback) {

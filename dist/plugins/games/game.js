@@ -6,8 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const commandManager_1 = __importDefault(require("../../main/bot/command/manager/commandManager"));
 const plugin_1 = __importDefault(require("../../main/bot/plugin/plugin"));
 class Game extends plugin_1.default {
-    constructor(botHooks, parentPlugin) {
-        super(botHooks);
+    constructor(bot, parentPlugin) {
+        super(bot);
         this.gameEnded = false;
         this.parentPlugin = parentPlugin;
         this.commandManager = new commandManager_1.default(this.bot);
@@ -17,7 +17,7 @@ class Game extends plugin_1.default {
         this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
     }
     unknownCommandHandler(bot, event) {
-        bot.send(event.channelId, "That command doesn't exist!\n" +
+        bot.client.send(event.channelId, "That command doesn't exist!\n" +
             "(You're playing " + this.gameName + ")");
     }
 }

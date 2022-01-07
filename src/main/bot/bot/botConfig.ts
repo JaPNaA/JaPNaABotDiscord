@@ -1,7 +1,7 @@
-import BotHooks from "./botHooks.js";
 import { JSONObject, JSONType } from "../../types/jsonObject.js";
 import NestedObject from "../../types/nestedObjectStrMap";
 import createKey from "../utils/locationKeyCreator.js";
+import Bot from "./bot.js";
 
 class Config {
     /** Original config */
@@ -27,7 +27,7 @@ class Config {
     /** Debug mode precommand, only exists if debugMode is true */
     debugPrecommand: string;
 
-    constructor(botHooks: BotHooks, config: object) {
+    constructor(bot: Bot, config: object) {
         this.config = config as JSONObject;
 
         this.precommands = (this.config["bot.precommand"] || ["!"]) as string[];

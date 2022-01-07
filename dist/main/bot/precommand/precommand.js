@@ -13,8 +13,8 @@ class Precommand {
      * @param name text which comes before a command
      * @param callback function to call to handle precommand
      */
-    constructor(botHooks, name) {
-        this.botHooks = botHooks;
+    constructor(bot, name) {
+        this.bot = bot;
         this.names = toArray_1.default(name);
     }
     static create(botHooks, name, callback) {
@@ -41,18 +41,18 @@ class Precommand {
 }
 exports.Precommand = Precommand;
 class PrecommandWithCallback extends Precommand {
-    constructor(botHooks, name, callback) {
-        super(botHooks, name);
+    constructor(bot, name, callback) {
+        super(bot, name);
         this.names = toArray_1.default(name);
         this.callback = callback;
     }
 }
 exports.PrecommandWithCallback = PrecommandWithCallback;
 class PrecommandWithoutCallback extends Precommand {
-    constructor(botHooks, name) {
-        super(botHooks, name);
-        this.permissions = new botPermissions_js_1.default(botHooks);
-        this.commandManager = new commandManager_js_1.default(botHooks);
+    constructor(bot, name) {
+        super(bot, name);
+        this.permissions = new botPermissions_js_1.default(bot);
+        this.commandManager = new commandManager_js_1.default(bot);
         this.names = name;
         let commandDispatcher = this.commandManager.dispatch;
         this.callback = commandDispatcher.onMessage.bind(commandDispatcher);

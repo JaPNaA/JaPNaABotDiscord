@@ -1,8 +1,8 @@
-import BotHooks from "../bot/bot/botHooks.js";
 import IMessage from "./IMessage.js";
+import Bot from "../bot/bot/bot";
 declare class RawEventAdapter {
-    botHooks: BotHooks;
-    constructor(botHooks: BotHooks);
+    private bot;
+    constructor(bot: Bot);
     /**
      * When receiving raw messages
      * @param message of sender

@@ -6,15 +6,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const discordMessageEvent_1 = __importDefault(require("../bot/events/discordMessageEvent"));
 class RawEventAdapter {
-    constructor(botHooks) {
-        this.botHooks = botHooks;
+    constructor(bot) {
+        this.bot = bot;
     }
     /**
      * When receiving raw messages
      * @param message of sender
      */
     onMessage(message) {
-        let precommandNameInMessage = this.botHooks.precommandManager.getFirstPrecommandName(message.content);
+        let precommandNameInMessage = this.bot.precommandManager.getFirstPrecommandName(message.content);
         let channel = message.channel;
         let isDM = false;
         if (channel instanceof discord_js_1.DMChannel) {
@@ -35,14 +35,14 @@ class RawEventAdapter {
             isDM: isDM,
             createdTimestamp: message.createdTimestamp
         });
-        if (this.botHooks.client.isSelf(messageEvent.userId)) {
-            this.botHooks.events.dispatch("sent", messageEvent);
+        if (this.bot.client.isSelf(messageEvent.userId)) {
+            this.bot.events.dispatch("sent", messageEvent);
             return;
         }
-        this.botHooks.events.dispatch("message", messageEvent);
+        this.bot.events.dispatch("message", messageEvent);
     }
     onReady() {
-        this.botHooks.events.dispatch("ready", null);
+        this.bot.events.dispatch("ready", null);
     }
 }
 exports.default = RawEventAdapter;

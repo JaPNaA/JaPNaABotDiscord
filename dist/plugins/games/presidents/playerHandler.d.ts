@@ -1,13 +1,13 @@
 import Player from "./player/player";
-import BotHooks from "../../../main/bot/bot/botHooks";
+import Bot from "../../../main/bot/bot/bot";
 import Games from "../../games";
 import Presidents from "./presidents";
 declare class PlayerHandler {
-    bot: BotHooks;
+    bot: Bot;
     parentGame: Games;
     presidentsGame: Presidents;
     players: Player[];
-    constructor(bot: BotHooks, parentGame: Games, presidentsGame: Presidents);
+    constructor(bot: Bot, parentGame: Games, presidentsGame: Presidents);
     addPlayer(userId: string): void;
     removePlayer(userId: string): boolean;
     removeAllPlayers(): void;

@@ -1,16 +1,14 @@
-import BotHooks from "../../bot/botHooks.js";
 import DiscordCommandEvent from "../../events/discordCommandEvent.js";
 import CommandManager from "./commandManager.js";
 
 import BotCommand from "../command.js";
 import mention from "../../../utils/str/mention";
+import Bot from "../../bot/bot.js";
 
 class CommandDispatcher {
-    botHooks: BotHooks;
     manager: CommandManager;
 
-    constructor(botHooks: BotHooks, manager: CommandManager) {
-        this.botHooks = botHooks;
+    constructor(private bot: Bot, manager: CommandManager) {
         this.manager = manager;
     }
 
@@ -36,9 +34,9 @@ class CommandDispatcher {
         if (!someCommandRan) {
             // command doesn't exist
             if (this.manager.unknownCommandHandler) {
-                this.manager.unknownCommandHandler(this.botHooks, commandEvent);
-            } else if (this.botHooks.config.doAlertCommandDoesNotExist) {
-                this.botHooks.client.send(
+                this.manager.unknownCommandHandler(this.bot, commandEvent);
+            } else if (this.bot.config.doAlertCommandDoesNotExist) {
+                this.bot.client.send(
                     commandEvent.channelId, 
                     mention(commandEvent.userId) + ", that command doesn't exist"
                 );

@@ -46,12 +46,12 @@ class Default extends plugin_js_1.default {
         this.sawUpdateBotWarning = false;
     }
     ping(bot, event) {
-        bot.send(event.channelId, "Pong! Took " + Math.round(bot.getPing()) + "ms"); // * should be using abstraction
+        bot.client.send(event.channelId, "Pong! Took " + Math.round(bot.client.getPing()) + "ms"); // * should be using abstraction
     }
     eval(bot, event, args) {
         let str = util_1.inspect(eval(args));
         str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
-        bot.send(event.channelId, "```" + str + "```");
+        bot.client.send(event.channelId, "```" + str + "```");
     }
     /**
      * Logs a message to the console with a logging level of "log"
@@ -68,11 +68,11 @@ class Default extends plugin_js_1.default {
                 userId = newUserId;
             }
             else {
-                bot.send(event.channelId, "**User does not exist.**");
+                bot.client.send(event.channelId, "**User does not exist.**");
                 return;
             }
         }
-        let user = await bot.getUser(userId);
+        let user = await bot.client.getUser(userId);
         if (user) {
             let userStr = "Username: " + user.username +
                 "\nDiscriminator: " + user.discriminator +
@@ -90,7 +90,7 @@ class Default extends plugin_js_1.default {
                 value: userStr + "\n"
             });
             if (!event.isDM) {
-                let member = await bot.getMemberFromServer(userId, event.serverId);
+                let member = await bot.client.getMemberFromServer(userId, event.serverId);
                 if (!member) {
                     throw new Error("Unknown error");
                 }
@@ -126,7 +126,7 @@ class Default extends plugin_js_1.default {
                     value: permissions.customToString() + "\n"
                 });
             }
-            bot.send(event.channelId, {
+            bot.client.send(event.channelId, {
                 embeds: [{
                         color: bot.config.themeColor,
                         author: {
@@ -139,7 +139,7 @@ class Default extends plugin_js_1.default {
             });
         }
         else {
-            bot.send(event.channelId, "**User does not exist.**");
+            bot.client.send(event.channelId, "**User does not exist.**");
         }
     }
     /**
@@ -190,12 +190,12 @@ class Default extends plugin_js_1.default {
                 "*You can type " + event.precommandName.precommand + "help [commandName] to get more information on a command.*"
         });
         if (event.isDM) {
-            bot.send(event.channelId, { embeds: [embed] });
+            bot.client.send(event.channelId, { embeds: [embed] });
         }
         else {
             // is server
-            bot.send(event.channelId, "I've sent you some help!");
-            bot.sendDM(event.userId, { embeds: [embed] });
+            bot.client.send(event.channelId, "I've sent you some help!");
+            bot.client.sendDM(event.userId, { embeds: [embed] });
         }
     }
     /**
@@ -273,12 +273,12 @@ class Default extends plugin_js_1.default {
         this._appendHelpPermissions(fields, help);
         const message = this._createHelpEmbedObject(fields, help, event, command, bot);
         if (event.isDM) {
-            bot.send(event.channelId, message);
+            bot.client.send(event.channelId, message);
         }
         else {
             // is server
-            bot.send(event.channelId, "I've sent you some help!");
-            bot.sendDM(event.userId, message);
+            bot.client.send(event.channelId, "I've sent you some help!");
+            bot.client.sendDM(event.userId, message);
         }
     }
     /**
@@ -290,10 +290,10 @@ class Default extends plugin_js_1.default {
             this._sendHelpAboutCommand(bot, event, command, help);
         }
         else if (help === undefined) {
-            bot.send(event.channelId, "Command `" + command + "` doesn't exist");
+            bot.client.send(event.channelId, "Command `" + command + "` doesn't exist");
         }
         else {
-            bot.send(event.channelId, "Help for command `" + command + "` doesn't exist");
+            bot.client.send(event.channelId, "Help for command `" + command + "` doesn't exist");
         }
     }
     /**
@@ -314,15 +314,15 @@ class Default extends plugin_js_1.default {
     i_am_the_bot_admin(bot, event) {
         if (bot.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.firstAdmin())) {
             if (bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
-                bot.send(event.channelId, "Yes. You are the bot admin.");
+                bot.client.send(event.channelId, "Yes. You are the bot admin.");
             }
             else {
-                bot.send(event.channelId, "You are not the bot admin.");
+                bot.client.send(event.channelId, "You are not the bot admin.");
             }
             return;
         }
         else {
-            bot.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
+            bot.client.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
             bot.memory.write(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.firstAdmin(), event.userId, true);
             bot.permissions.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
         }
@@ -333,23 +333,23 @@ class Default extends plugin_js_1.default {
     async pretend_get(bot, event, args) {
         let tagMatch = args.match(/^\s*<@[!@&]]?\d+>\s*/);
         if (!tagMatch) {
-            bot.send(event.channelId, "Invalid amount of arguments. See `" +
+            bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
                 event.precommandName.name + "help pretend get` for help");
             return;
         }
         let userId = getSnowflakeNum_1.default(tagMatch[0]);
         if (!userId) {
-            bot.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
+            bot.client.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
             return;
         }
-        let user = await bot.getUser(userId);
+        let user = await bot.client.getUser(userId);
         let message = args.slice(tagMatch[0].length).trim();
         if (!user) {
-            bot.send(event.channelId, "Could not find user" + mention_js_1.default(userId));
+            bot.client.send(event.channelId, "Could not find user" + mention_js_1.default(userId));
             return;
         }
-        let channel = await bot.getChannel(event.channelId);
-        let guild = await bot.getServer(event.serverId);
+        let channel = await bot.client.getChannel(event.channelId);
+        let guild = await bot.client.getServer(event.serverId);
         if (!guild) {
             throw new Error("Unknown error");
         }
@@ -374,15 +374,15 @@ class Default extends plugin_js_1.default {
         if (!channelId) {
             return;
         } // tODO: Tell invalid, get help
-        let channel = await bot.getChannel(channelId);
+        let channel = await bot.client.getChannel(channelId);
         let message = args.slice(tagMatch.length).trim();
         if (!channel) {
-            bot.send(event.channelId, "Could not find channel " + channelId);
+            bot.client.send(event.channelId, "Could not find channel " + channelId);
             return;
         }
         bot.client.sentMessageRecorder.startRecordingMessagesSentToChannel(event.channelId);
-        let author = await bot.getUser(event.userId);
-        let guild = await bot.getServer(event.serverId);
+        let author = await bot.client.getUser(event.userId);
+        let guild = await bot.client.getServer(event.serverId);
         if (!author || !guild) {
             return; // tODO: Tell invalid, get help
         }
@@ -396,7 +396,7 @@ class Default extends plugin_js_1.default {
         let sentMessages = bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {
-            bot.send(channelId, message);
+            bot.client.send(channelId, message);
         }
     }
     /**
@@ -406,7 +406,7 @@ class Default extends plugin_js_1.default {
     async edit_permission(bot, event, argString) {
         let args = stringToArgs_js_1.default(argString);
         function sendHelp() {
-            bot.send(event.channelId, "Invalid amount of arguments. See `" +
+            bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
                 event.precommandName.name + "help edit permission` for help");
         }
         if (args.length !== 5) {
@@ -427,31 +427,31 @@ class Default extends plugin_js_1.default {
         /** Permission name */
         let permission = args[4].trim().toUpperCase();
         /** Permissions for assigner */
-        let assignerPermissions = await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
+        let assignerPermissions = await bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
         // check if can assign permission
         if (permissions_js_1.default.specialCustoms.includes(permission) && // if special permission
             !assignerPermissions.has("BOT_ADMINISTRATOR") // and is not admin
         ) {
-            bot.send(event.channelId, "Cannot assign special custom permission");
+            bot.client.send(event.channelId, "Cannot assign special custom permission");
             return;
         }
         else if (permissions_js_1.default.keys.includes(permission)) {
-            bot.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
+            bot.client.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
             return;
         }
         if (ns === "c") { // channel namespace
             if (type === "u") { // assign to user
-                if (!bot.getMemberFromServer(id, event.serverId)) {
-                    bot.send(event.channelId, "User not found");
+                if (!bot.client.getMemberFromServer(id, event.serverId)) {
+                    bot.client.send(event.channelId, "User not found");
                     return;
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel");
+                    bot.client.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
+                    bot.client.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -460,11 +460,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
-                    bot.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel.");
+                    bot.client.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this channel.");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_channel(id, event.channelId, permission, false);
-                    bot.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
+                    bot.client.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this channel.");
                 }
                 else {
                     sendHelp();
@@ -476,17 +476,17 @@ class Default extends plugin_js_1.default {
         }
         else if (ns === "s") { // server namespace
             if (type === "u") { // assign to user
-                if (!bot.getMemberFromServer(id, event.serverId)) {
-                    bot.send(event.channelId, "User not found");
+                if (!bot.client.getMemberFromServer(id, event.serverId)) {
+                    bot.client.send(event.channelId, "User not found");
                     return;
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this server");
+                    bot.client.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` in this server");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
+                    bot.client.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -495,11 +495,11 @@ class Default extends plugin_js_1.default {
             else if (type === "r") { // assign to role
                 if (action === "a") { // add
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
-                    bot.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this server.");
+                    bot.client.send(event.channelId, "Given role" + mention_js_1.default(id) + " the permission `" + permission + "` in this server.");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_role_server(id, event.serverId, permission, false);
-                    bot.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
+                    bot.client.send(event.channelId, "Removed role" + mention_js_1.default(id) + "'s permission (`" + permission + "`) from this server.");
                 }
                 else {
                     sendHelp();
@@ -511,28 +511,28 @@ class Default extends plugin_js_1.default {
         }
         else if (ns === "g") { // global namespace
             if (!assignerPermissions.has("BOT_ADMINISTRATOR")) {
-                bot.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
+                bot.client.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
                 return;
             }
             if (type === "u") { // assign to user
-                if (!bot.getMemberFromServer(id, event.serverId)) {
-                    bot.send(event.channelId, "User not found");
+                if (!bot.client.getMemberFromServer(id, event.serverId)) {
+                    bot.client.send(event.channelId, "User not found");
                     return;
                 }
                 if (action === "a") { // add
                     bot.permissions.editPermissions_user_global(id, permission, true);
-                    bot.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` everywhere");
+                    bot.client.send(event.channelId, "Given" + mention_js_1.default(id) + " the permission `" + permission + "` everywhere");
                 }
                 else if (action === "r") { // remove
                     bot.permissions.editPermissions_user_global(id, permission, false);
-                    bot.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) everywhere.");
+                    bot.client.send(event.channelId, "Removed" + mention_js_1.default(id) + "'s permission (`" + permission + "`) everywhere.");
                 }
                 else {
                     sendHelp();
                 }
             }
             else if (type === "r") { // assign to role
-                bot.send(event.channelId, "Global roles are not a thing.");
+                bot.client.send(event.channelId, "Global roles are not a thing.");
             }
             else {
                 sendHelp();
@@ -555,13 +555,13 @@ class Default extends plugin_js_1.default {
         if (!whitespaceIndex) {
             throw new Error("Unknown error");
         }
-        bot.send(args.slice(0, whitespaceIndex), args.slice(whitespaceIndex + 1));
+        bot.client.send(args.slice(0, whitespaceIndex), args.slice(whitespaceIndex + 1));
     }
     /**
      * Sends link to add bot to server
      */
     link(bot, event) {
-        bot.send(event.channelId, {
+        bot.client.send(event.channelId, {
             embed: {
                 color: bot.config.themeColor,
                 description: "You can add me to another server with this link:\n" + bot.config.addLink
@@ -572,7 +572,7 @@ class Default extends plugin_js_1.default {
      * Sends link to view code of bot (like what you're doing right now!)
      */
     code(bot, event) {
-        bot.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
+        bot.client.send(event.channelId, "You can view my code here:\n" + bot.config.gitlabLink);
     }
     /**
      * Updates the bot
@@ -585,7 +585,7 @@ class Default extends plugin_js_1.default {
                 return;
             }
         }
-        bot.send(event.channelId, "Confirm updating the bot with `" + event.precommandName.name +
+        bot.client.send(event.channelId, "Confirm updating the bot with `" + event.precommandName.name +
             "update bot confirm`.\n" +
             "**The bot process will exit after the update.**");
         this.sawUpdateBotWarning = true;
@@ -598,10 +598,10 @@ class Default extends plugin_js_1.default {
         function callback(error, stdout, stderr) {
             if (error) {
                 logger_js_1.default.error(error);
-                bot.send(event.channelId, "Error updating bot. See logs.");
+                bot.client.send(event.channelId, "Error updating bot. See logs.");
             }
             else {
-                bot.send(event.channelId, "Update successful. Stopping...");
+                bot.client.send(event.channelId, "Update successful. Stopping...");
             }
             logger_js_1.default.log(stdout);
             logger_js_1.default.log(stderr);
@@ -616,10 +616,10 @@ class Default extends plugin_js_1.default {
         childProcess.exec("uptime", function (error, stdout, stderr) {
             if (error) {
                 logger_js_1.default.error(error);
-                bot.send(event.channelId, "Failed to get uptime.");
+                bot.client.send(event.channelId, "Failed to get uptime.");
             }
             else {
-                bot.send(event.channelId, "```" + stdout + "```");
+                bot.client.send(event.channelId, "```" + stdout + "```");
             }
         });
     }

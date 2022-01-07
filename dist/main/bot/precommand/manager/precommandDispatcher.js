@@ -6,12 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = __importDefault(require("../../../utils/logger"));
 const discordCommandEvent_1 = __importDefault(require("../../events/discordCommandEvent"));
 class PrecommandDispatcher {
-    constructor(botHooks, manager) {
-        this.botHooks = botHooks;
+    constructor(bot, manager) {
+        this.bot = bot;
         this.manager = manager;
-        this.botHooks.events.on("message", this.onMessage.bind(this));
+        this.bot.events.on("message", this.onMessage.bind(this));
     }
-    onMessage(botHooks, message) {
+    onMessage(bot, message) {
         logger_1.default.log_message("<<", message.message);
         this.dispatchIfIsPrecommand(message);
     }
@@ -20,7 +20,7 @@ class PrecommandDispatcher {
             return;
         }
         const commandEvent = this._createDiscordCommandEvent(messageEvent);
-        this.botHooks.events.dispatch("command", commandEvent);
+        this.bot.events.dispatch("command", commandEvent);
         commandEvent.precommandName.precommand.callback(commandEvent);
     }
     _createDiscordCommandEvent(messageEvent) {
