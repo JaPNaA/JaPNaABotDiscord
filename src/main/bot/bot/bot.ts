@@ -198,7 +198,7 @@ class Bot {
             str = ellipsisize(str.replace(/ {4}/g, "\t"), 1994);
             this.hooks.send(event.channelId, "```" + str + "```");
         } catch (err) {
-            let str: string = err.stack;
+            let str: string = (err as Error).stack || "";
             str = ellipsisize(str.replace(/ {4}/g, "\t"), 1994);
             this.hooks.send(event.channelId, "```" + str + "```");
         }

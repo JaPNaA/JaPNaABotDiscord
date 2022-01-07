@@ -1,9 +1,8 @@
-import { User, Client, TextChannel, Channel, Guild, Role, GuildMember, Message, MessagePayload, AnyChannel } from "discord.js";
+import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel } from "discord.js";
 import BotHooks from "./botHooks.js";
 
 import Logger from "../../utils/logger.js";
 import MessageObject from "../types/messageObject.js";
-import { MessageOptions } from "child_process";
 import { ActivityTypes } from "discord.js/typings/enums";
 
 class PresenceSetter {
@@ -148,8 +147,8 @@ class BotClient {
             throw new Error("Cannot find channel");
         }
 
-        if (textChannel.type === "GUILD_VOICE") {
-            throw new TypeError("Cannot send to voice channel");
+        if (!textChannel.isText()) {
+            throw new TypeError("Cannot send to non-text channel");
         }
 
         this.botHooks.events.dispatch("send", message);
@@ -160,7 +159,7 @@ class BotClient {
             }
             promise = textChannel.send(message);
         } else if (typeof message === "object") {
-            promise = textChannel.send(message);
+            promise = textChannel.send(message as any);
         } else {
             throw new TypeError("Message is not of valid type");
         }
@@ -185,12 +184,12 @@ class BotClient {
 
         if (user) {
             if (typeof message === "object" && message.hasOwnProperty("message")) {
-                promise = user.send(message);
+                promise = user.send(message as any);
             } else {
                 if (typeof message === "string" && message.trim().length === 0) {
                     message = "_This message is empty_";
                 }
-                promise = user.send(message);
+                promise = user.send(message as any);
             }
         } else {
             return Promise.reject();

@@ -32,7 +32,7 @@ declare class DiscordMessageEvent {
         username: string;
         userId: string;
         channelId: string;
-        serverId: string;
+        serverId: string | null;
         message: string;
         precommandName: PrecommandName | null;
         originalEvent: IMessage;

@@ -115,8 +115,8 @@ class BotClient {
         if (!textChannel) {
             throw new Error("Cannot find channel");
         }
-        if (textChannel.type === "GUILD_VOICE") {
-            throw new TypeError("Cannot send to voice channel");
+        if (!textChannel.isText()) {
+            throw new TypeError("Cannot send to non-text channel");
         }
         this.botHooks.events.dispatch("send", message);
         if (typeof message === "string") {

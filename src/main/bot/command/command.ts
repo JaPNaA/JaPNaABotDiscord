@@ -158,7 +158,7 @@ class BotCommand {
         try {
             await this.func(this.botHooks, commandEvent, argString);
         } catch (error) {
-            this.sendError(commandEvent, argString, error);
+            this.sendError(commandEvent, argString, error as Error);
         }
     }
 }

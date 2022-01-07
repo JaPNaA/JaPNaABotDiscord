@@ -140,7 +140,7 @@ function loadPlugin(path: string): Error | null {
         return null;
     } catch (e) {
         Logger.error("Failed to load external plugin", path, "\n", e);
-        return e;
+        return e as Error;
     }
 }
 
@@ -163,7 +163,7 @@ function loadBuiltinPlugin(name: string): Error | null {
         return null;
     } catch (e) {
         Logger.error("Failed to load built-in plugin", name, "\n", e);
-        return e;
+        return e as Error;
     }
 }
 
