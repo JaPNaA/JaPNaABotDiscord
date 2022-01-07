@@ -457,7 +457,7 @@ class Japnaa extends BotPlugin {
                 examples: [
                     ["echo hi", "The bot will respond with \"hi\", so you're not left hanging."],
                     [
-                        "echo {\"embed\": {\"color\": 589253, \"title\": \"JSON!\", \"description\": \"JavaScript Object Notation\"}}",
+                        "echo {\"embeds\": [{\"color\": 589253, \"title\": \"JSON!\", \"description\": \"JavaScript Object Notation\"}]}",
                         "Responds with an embed with a cyan-ish color, the title \"JSON\", and the description" +
                         "\"JavaScript Object Notation\""
                     ]
