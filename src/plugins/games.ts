@@ -94,34 +94,34 @@ class Games extends BotPlugin {
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
 
-    private unknownCommandHandler(bot: Bot, event: DiscordCommandEvent) {
+    private unknownCommandHandler(event: DiscordCommandEvent) {
         if (event.isDM) {
-            this._forwardToGameFromDM(bot, event);
+            this._forwardToGameFromDM(event);
         } else {
-            this._forwardToGameInChannel(bot, event);
+            this._forwardToGameInChannel(event);
         }
     }
 
-    private _forwardToGameInChannel(bot: Bot, event: DiscordCommandEvent) {
+    private _forwardToGameInChannel(event: DiscordCommandEvent) {
         let gameInChannel = this.currentGames.get(event.channelId);
         if (gameInChannel) {
             gameInChannel.commandManager.dispatch.onMessage(event);
         } else {
-            this._sendDoesntExist(bot, event);
+            this._sendDoesntExist(event);
         }
     }
 
-    private _forwardToGameFromDM(bot: Bot, event: DiscordCommandEvent) {
+    private _forwardToGameFromDM(event: DiscordCommandEvent) {
         let game = this.playerGameMap.get(event.userId);
         if (game) {
             game.commandManager.dispatch.onMessage(event);
         } else {
-            this._sendDoesntExist(bot, event);
+            this._sendDoesntExist(event);
         }
     }
 
-    private _sendDoesntExist(bot: Bot, event: DiscordCommandEvent) {
-        bot.client.send(event.channelId, "No game is running...");
+    private _sendDoesntExist(event: DiscordCommandEvent) {
+        this.bot.client.send(event.channelId, "No game is running...");
     }
 
     private _listGames(): string[] {

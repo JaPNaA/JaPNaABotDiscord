@@ -68,34 +68,34 @@ class Games extends plugin_js_1.default {
         }));
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
-    unknownCommandHandler(bot, event) {
+    unknownCommandHandler(event) {
         if (event.isDM) {
-            this._forwardToGameFromDM(bot, event);
+            this._forwardToGameFromDM(event);
         }
         else {
-            this._forwardToGameInChannel(bot, event);
+            this._forwardToGameInChannel(event);
         }
     }
-    _forwardToGameInChannel(bot, event) {
+    _forwardToGameInChannel(event) {
         let gameInChannel = this.currentGames.get(event.channelId);
         if (gameInChannel) {
             gameInChannel.commandManager.dispatch.onMessage(event);
         }
         else {
-            this._sendDoesntExist(bot, event);
+            this._sendDoesntExist(event);
         }
     }
-    _forwardToGameFromDM(bot, event) {
+    _forwardToGameFromDM(event) {
         let game = this.playerGameMap.get(event.userId);
         if (game) {
             game.commandManager.dispatch.onMessage(event);
         }
         else {
-            this._sendDoesntExist(bot, event);
+            this._sendDoesntExist(event);
         }
     }
-    _sendDoesntExist(bot, event) {
-        bot.client.send(event.channelId, "No game is running...");
+    _sendDoesntExist(event) {
+        this.bot.client.send(event.channelId, "No game is running...");
     }
     _listGames() {
         const set = new Set();

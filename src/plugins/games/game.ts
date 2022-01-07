@@ -26,10 +26,10 @@ abstract class Game extends BotPlugin {
         this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
     }
 
-    unknownCommandHandler(bot: Bot, event: DiscordCommandEvent) {
-        bot.client.send(
-            event.channelId, 
-            "That command doesn't exist!\n" + 
+    unknownCommandHandler(event: DiscordCommandEvent) {
+        this.bot.client.send(
+            event.channelId,
+            "That command doesn't exist!\n" +
             "(You're playing " + this.gameName + ")"
         );
     }

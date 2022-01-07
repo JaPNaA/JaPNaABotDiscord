@@ -10,6 +10,6 @@ declare abstract class Game extends BotPlugin {
     gameName: string;
     gameEnded: boolean;
     constructor(bot: Bot, parentPlugin: Games);
-    unknownCommandHandler(bot: Bot, event: DiscordCommandEvent): void;
+    unknownCommandHandler(event: DiscordCommandEvent): void;
 }
 export default Game;
