@@ -14,7 +14,7 @@ class PrecommandDispatcher {
         this.bot.events.on("message", this.onMessage.bind(this));
     }
 
-    onMessage(bot: Bot, message: DiscordMessageEvent): void {
+    onMessage(message: DiscordMessageEvent): void {
         Logger.log_message("<<", message.message);
         this.dispatchIfIsPrecommand(message);
     }

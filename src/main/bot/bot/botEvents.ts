@@ -6,7 +6,7 @@ import EventHandler from "../types/eventHandler.js";
 import Bot from "./bot.js";
 
 class BotEvent {
-    events: { [x: string]: Function[] } = {
+    events: { [x: string]: EventHandler[] } = {
         "ready": [],
         "start": [],
         "stop": [],
@@ -37,7 +37,7 @@ class BotEvent {
         Logger.log_message("Event: " + name);
 
         for (let handler of this.events[name]) {
-            let error: string | null = tryRun(() => handler(this.bot, event));
+            let error: string | null = tryRun(() => handler(event));
 
             if (error) {
                 errors.push(error);

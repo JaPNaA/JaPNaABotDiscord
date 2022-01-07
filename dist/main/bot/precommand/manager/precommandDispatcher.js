@@ -11,7 +11,7 @@ class PrecommandDispatcher {
         this.manager = manager;
         this.bot.events.on("message", this.onMessage.bind(this));
     }
-    onMessage(bot, message) {
+    onMessage(message) {
         logger_1.default.log_message("<<", message.message);
         this.dispatchIfIsPrecommand(message);
     }

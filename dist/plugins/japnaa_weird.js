@@ -41,17 +41,17 @@ class JapnaaWeird extends plugin_js_1.default {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    async onmessageHandler_lol(bot, event) {
-        if (!await this._isNaturalMessage(bot, event)) {
+    async onmessageHandler_lol(event) {
+        if (!await this._isNaturalMessage(this.bot, event)) {
             return;
         }
         const numL$wl = this._countL$wl(event.message);
         if (numL$wl) {
             let str = "no ".repeat(numL$wl);
-            bot.client.send(event.channelId, str);
+            this.bot.client.send(event.channelId, str);
         }
         else if (this.lolRegexp.test(event.message)) { // contains valid 'lol'
-            bot.client.send(event.channelId, "lol");
+            this.bot.client.send(event.channelId, "lol");
         }
     }
     _countL$wl(str) {

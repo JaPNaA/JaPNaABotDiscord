@@ -30,7 +30,7 @@ class BotEvent {
         let errors = [];
         logger_js_1.default.log_message("Event: " + name);
         for (let handler of this.events[name]) {
-            let error = tryRun_1.default(() => handler(this.bot, event));
+            let error = tryRun_1.default(() => handler(event));
             if (error) {
                 errors.push(error);
                 logger_js_1.default.warn(error);

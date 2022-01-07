@@ -4,7 +4,7 @@ import Bot from "./bot.js";
 declare class BotEvent {
     private bot;
     events: {
-        [x: string]: Function[];
+        [x: string]: EventHandler[];
     };
     constructor(bot: Bot);
     on(name: EventName, func: EventHandler): void;
