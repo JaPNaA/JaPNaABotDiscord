@@ -35,7 +35,7 @@ class Presidents extends Game {
         this.game = new PresidentsMain(this.bot, this.parentPlugin, this);
     }
 
-    join(bot: Bot, event: DiscordCommandEvent, args: string) {
+    join(event: DiscordCommandEvent) {
         let userId = event.userId;
         this.addPlayer(userId);
     }
@@ -68,43 +68,43 @@ class Presidents extends Game {
         }
     }
 
-    leave(bot: Bot, event: DiscordCommandEvent, args: string) {
+    leave(event: DiscordCommandEvent) {
         let userId = event.userId;
         let result = this.game.playerHandler.removePlayer(userId);
 
         if (result) {
-            bot.client.send(event.channelId, mention(userId) + " has left the game");
+            this.bot.client.send(event.channelId, mention(userId) + " has left the game");
         } else {
-            bot.client.send(event.channelId, mention(userId) + ", you were never in the game!");
+            this.bot.client.send(event.channelId, mention(userId) + ", you were never in the game!");
         }
     }
 
-    start(bot: Bot, event: DiscordCommandEvent, args: string) {
+    start(event: DiscordCommandEvent) {
         this._sendStartingMessage();
         this._startGame();
     }
 
-    listPlayers(bot: Bot, event: DiscordCommandEvent, args: string) {
+    listPlayers(event: DiscordCommandEvent) {
         let players = this.game.playerHandler.players;
         let numPlayers = players.length;
 
         if (numPlayers === 0) {
-            bot.client.send(event.channelId, "No one is in this game.");
+            this.bot.client.send(event.channelId, "No one is in this game.");
         } else if (numPlayers === 1) {
-            bot.client.send(event.channelId, "Just " + mention(players[0].userId) + ", the Loner.");
+            this.bot.client.send(event.channelId, "Just " + mention(players[0].userId) + ", the Loner.");
         } else {
-            bot.client.send(event.channelId,
+            this.bot.client.send(event.channelId,
                 players.map(e => mention(e.userId)).join(", ") +
                 " (" + players.length + " players)"
             );
         }
     }
 
-    playerUse(bot: Bot, event: DiscordCommandEvent, args: string) {
+    playerUse(event: DiscordCommandEvent) {
         this.game.messageHandler.onMessage(event.userId, event, MessageType.use);
     }
 
-    playerPass(bot: Bot, event: DiscordCommandEvent, args: string) {
+    playerPass(event: DiscordCommandEvent) {
         this.game.messageHandler.onMessage(event.userId, event, MessageType.pass)
     }
 

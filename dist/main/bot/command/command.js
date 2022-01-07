@@ -98,7 +98,7 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent, argString) {
         try {
-            await this.func(this.bot, commandEvent, argString);
+            await this.func(commandEvent);
         }
         catch (error) {
             this.sendError(commandEvent, argString, error);

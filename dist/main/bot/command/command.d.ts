@@ -20,7 +20,7 @@ declare type TestResults = {
 declare class BotCommand {
     bot: Bot;
     /** Function to call when command is called */
-    func: Function;
+    func: BotCommandCallback;
     /** Permission required to run command */
     requiredPermission: string | undefined;
     /** Is using this command in Direct Messages disallowed? */

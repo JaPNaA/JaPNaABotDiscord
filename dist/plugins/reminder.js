@@ -44,8 +44,8 @@ class Reminders extends plugin_js_1.default {
         this._pluginName = "reminder";
         this._reminders = this.bot.memory.get(this._pluginName, "reminders") || [];
     }
-    set_reminder(bot, event, argStr) {
-        const args = allUtils_js_1.stringToArgs(argStr);
+    set_reminder(event) {
+        const args = allUtils_js_1.stringToArgs(event.arguments);
         const [time, units] = args;
         const title = args.slice(2);
         let timeValue = parseFloat(time);
@@ -68,26 +68,26 @@ class Reminders extends plugin_js_1.default {
             title: title.join(" ").trim() || this._getMessageLink(event)
         };
         this._addReminder(reminder);
-        bot.client.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
+        this.bot.client.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
     }
-    list_reminders(bot, event) {
+    list_reminders(event) {
         const reminders = this._getChannelReminders(event.channelId);
         const strArr = [];
         let index = 1;
         for (const reminder of reminders) {
             strArr.push(`${index++}. ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
         }
-        bot.client.send(event.channelId, strArr.join("\n"));
+        this.bot.client.send(event.channelId, strArr.join("\n"));
     }
-    cancel_reminder(bot, event, argStr) {
-        const index = parseInt(argStr) - 1;
+    cancel_reminder(event) {
+        const index = parseInt(event.arguments) - 1;
         if (isNaN(index)) {
-            bot.client.send(event.channelId, "Invalid index. Specify an integer");
+            this.bot.client.send(event.channelId, "Invalid index. Specify an integer");
             return;
         }
         const reminder = this._getChannelReminders(event.channelId)[index];
         if (!reminder) {
-            bot.client.send(event.channelId, "No reminder is at index " + argStr);
+            this.bot.client.send(event.channelId, "No reminder is at index " + event.arguments);
             return;
         }
         const actualIndex = this._reminders.indexOf(reminder);
@@ -95,7 +95,7 @@ class Reminders extends plugin_js_1.default {
             throw new Error("Reminder not found in database");
         }
         this._reminders.splice(actualIndex, 1);
-        bot.client.send(event.channelId, "Reminder **" + reminder.title + "** from " +
+        this.bot.client.send(event.channelId, "Reminder **" + reminder.title + "** from " +
             mention_js_1.default(reminder.setterUserId) + "was canceled.");
     }
     _addReminder(reminder) {

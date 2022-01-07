@@ -7,6 +7,7 @@ import { stringToArgs } from "../main/utils/allUtils.js";
 import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import Logger from "../main/utils/logger.js";
 import mention from "../main/utils/str/mention.js";
+import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 
 /**
  * Reminders plugin
@@ -47,8 +48,8 @@ class Reminders extends BotPlugin {
         this._reminders = this.bot.memory.get(this._pluginName, "reminders") || [];
     }
 
-    set_reminder(bot: Bot, event: DiscordMessageEvent, argStr: string) {
-        const args = stringToArgs(argStr);
+    set_reminder(event: DiscordCommandEvent) {
+        const args = stringToArgs(event.arguments);
         const [time, units] = args;
         const title = args.slice(2);
 
@@ -76,10 +77,10 @@ class Reminders extends BotPlugin {
 
         this._addReminder(reminder);
 
-        bot.client.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
+        this.bot.client.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
     }
 
-    list_reminders(bot: Bot, event: DiscordMessageEvent) {
+    list_reminders(event: DiscordCommandEvent) {
         const reminders = this._getChannelReminders(event.channelId);
 
         const strArr = [];
@@ -89,26 +90,26 @@ class Reminders extends BotPlugin {
                 `${index++}. ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`
             );
         }
-        bot.client.send(event.channelId, strArr.join("\n"));
+        this.bot.client.send(event.channelId, strArr.join("\n"));
     }
 
-    cancel_reminder(bot: Bot, event: DiscordMessageEvent, argStr: string) {
-        const index = parseInt(argStr) - 1;
+    cancel_reminder(event: DiscordCommandEvent) {
+        const index = parseInt(event.arguments) - 1;
         if (isNaN(index)) {
-            bot.client.send(event.channelId, "Invalid index. Specify an integer");
+            this.bot.client.send(event.channelId, "Invalid index. Specify an integer");
             return;
         }
 
         const reminder = this._getChannelReminders(event.channelId)[index];
         if (!reminder) {
-            bot.client.send(event.channelId, "No reminder is at index " + argStr);
+            this.bot.client.send(event.channelId, "No reminder is at index " + event.arguments);
             return;
         }
 
         const actualIndex = this._reminders.indexOf(reminder);
         if (actualIndex < 0) { throw new Error("Reminder not found in database"); }
         this._reminders.splice(actualIndex, 1);
-        bot.client.send(event.channelId,
+        this.bot.client.send(event.channelId,
             "Reminder **" + reminder.title + "** from " +
             mention(reminder.setterUserId) + "was canceled."
         );

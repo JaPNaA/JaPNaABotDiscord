@@ -29,7 +29,7 @@ const whitespaceRegex: RegExp = /\s/;
 class BotCommand {
     bot: Bot;
     /** Function to call when command is called */
-    func: Function;
+    func: BotCommandCallback;
     /** Permission required to run command */
     requiredPermission: string | undefined;
     /** Is using this command in Direct Messages disallowed? */
@@ -156,7 +156,7 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
         try {
-            await this.func(this.bot, commandEvent, argString);
+            await this.func(commandEvent);
         } catch (error) {
             this.sendError(commandEvent, argString, error as Error);
         }

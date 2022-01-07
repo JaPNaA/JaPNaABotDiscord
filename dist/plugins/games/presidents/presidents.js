@@ -25,7 +25,7 @@ class Presidents extends game_1.default {
         this.channelId = channelId;
         this.game = new game_2.default(this.bot, this.parentPlugin, this);
     }
-    join(bot, event, args) {
+    join(event) {
         let userId = event.userId;
         this.addPlayer(userId);
     }
@@ -55,38 +55,38 @@ class Presidents extends game_1.default {
                 ". You're in another game which also requires DMs!");
         }
     }
-    leave(bot, event, args) {
+    leave(event) {
         let userId = event.userId;
         let result = this.game.playerHandler.removePlayer(userId);
         if (result) {
-            bot.client.send(event.channelId, mention_1.default(userId) + " has left the game");
+            this.bot.client.send(event.channelId, mention_1.default(userId) + " has left the game");
         }
         else {
-            bot.client.send(event.channelId, mention_1.default(userId) + ", you were never in the game!");
+            this.bot.client.send(event.channelId, mention_1.default(userId) + ", you were never in the game!");
         }
     }
-    start(bot, event, args) {
+    start(event) {
         this._sendStartingMessage();
         this._startGame();
     }
-    listPlayers(bot, event, args) {
+    listPlayers(event) {
         let players = this.game.playerHandler.players;
         let numPlayers = players.length;
         if (numPlayers === 0) {
-            bot.client.send(event.channelId, "No one is in this game.");
+            this.bot.client.send(event.channelId, "No one is in this game.");
         }
         else if (numPlayers === 1) {
-            bot.client.send(event.channelId, "Just " + mention_1.default(players[0].userId) + ", the Loner.");
+            this.bot.client.send(event.channelId, "Just " + mention_1.default(players[0].userId) + ", the Loner.");
         }
         else {
-            bot.client.send(event.channelId, players.map(e => mention_1.default(e.userId)).join(", ") +
+            this.bot.client.send(event.channelId, players.map(e => mention_1.default(e.userId)).join(", ") +
                 " (" + players.length + " players)");
         }
     }
-    playerUse(bot, event, args) {
+    playerUse(event) {
         this.game.messageHandler.onMessage(event.userId, event, messageType_1.default.use);
     }
-    playerPass(bot, event, args) {
+    playerPass(event) {
         this.game.messageHandler.onMessage(event.userId, event, messageType_1.default.pass);
     }
     _sendStartingMessage() {

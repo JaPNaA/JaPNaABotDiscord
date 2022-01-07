@@ -1,6 +1,7 @@
 import Bot from "../main/bot/bot/bot.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
+import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 /**
  * Reminders plugin
  */
@@ -9,9 +10,9 @@ declare class Reminders extends BotPlugin {
     private _reminders;
     private _remindersTimeoutId;
     constructor(bot: Bot);
-    set_reminder(bot: Bot, event: DiscordMessageEvent, argStr: string): void;
-    list_reminders(bot: Bot, event: DiscordMessageEvent): void;
-    cancel_reminder(bot: Bot, event: DiscordMessageEvent, argStr: string): void;
+    set_reminder(event: DiscordCommandEvent): void;
+    list_reminders(event: DiscordCommandEvent): void;
+    cancel_reminder(event: DiscordCommandEvent): void;
     _addReminder(reminder: Reminder): void;
     _getChannelReminders(channelId: string): Reminder[];
     _updateReminders(): void;

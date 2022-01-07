@@ -41,21 +41,21 @@ class Games extends plugin_js_1.default {
     _unlockDMHandle(userId) {
         this.playerGameMap.delete(userId);
     }
-    play(bot, event, args) {
+    play(event) {
         let currentGame = this.currentGames.get(event.channelId);
         if (currentGame) {
             // TODO: confirm to end current game
             currentGame._stop();
         }
-        let cleanedArgs = args.trim().toLowerCase();
+        let cleanedArgs = event.arguments.trim().toLowerCase();
         const gameClass = this._getGame(cleanedArgs);
         if (gameClass) {
-            let game = new gameClass(bot, this, event.channelId, event.userId);
+            let game = new gameClass(this.bot, this, event.channelId, event.userId);
             this.currentGames.set(event.channelId, game);
             game._start();
         }
         else {
-            bot.client.send(event.channelId, "That game doesn't exist :confused:\n" +
+            this.bot.client.send(event.channelId, "That game doesn't exist :confused:\n" +
                 "Games available: " + this._listGames().join(", "));
         }
     }

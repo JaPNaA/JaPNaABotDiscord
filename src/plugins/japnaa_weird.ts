@@ -3,6 +3,7 @@ import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import { User } from "discord.js";
 import Bot from "../main/bot/bot/bot";
+import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 
 /**
  * The weirder side of JaPNaABot
@@ -20,18 +21,18 @@ class JapnaaWeird extends BotPlugin {
     /**
      * Tetris is a racing game.
      */
-    tetris(bot: Bot, event: DiscordMessageEvent, args: string): void {
-        bot.client.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
+    tetris(event: DiscordCommandEvent): void {
+        this.bot.client.send(event.channelId, "**Tetris is a " + (event.arguments || "racing") + " game**");
     }
 
     /**
      * JaP is kewl
      */
-    jap(bot: Bot, event: DiscordMessageEvent, args: string): void {
-        bot.client.send(event.channelId, {
+    jap(event: DiscordCommandEvent): void {
+        this.bot.client.send(event.channelId, {
             embed: {
-                color: bot.config.themeColor,
-                description: "**JaP is " + (args || "kewl") + "**"
+                color: this.bot.config.themeColor,
+                description: "**JaP is " + (event.arguments || "kewl") + "**"
             }
         });
     }
@@ -39,8 +40,8 @@ class JapnaaWeird extends BotPlugin {
     /**
      * ebola your parabola
      */
-    your(bot: Bot, event: DiscordMessageEvent): void {
-        bot.client.send(event.channelId, "parabola");
+    your(event: DiscordCommandEvent): void {
+        this.bot.client.send(event.channelId, "parabola");
     }
 
     /**

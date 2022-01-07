@@ -7,7 +7,7 @@ class DiscordCommandEvent extends DiscordMessageEvent {
     /** Precommand used */
     precommandName: PrecommandName;
     /** Arguments of command */
-    arguments: string | null = null;
+    arguments: string = "";
 
     constructor(data: {
         messageEvent: DiscordMessageEvent,

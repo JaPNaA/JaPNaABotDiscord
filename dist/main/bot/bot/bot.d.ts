@@ -46,7 +46,7 @@ declare class Bot {
      */
     stop(): void;
     /** Restarts bot on command */
-    restart(bot: Bot, event: DiscordCommandEvent): void;
+    restart(event: DiscordCommandEvent): void;
     /**
      * ready callback
      */

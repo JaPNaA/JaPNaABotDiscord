@@ -9,7 +9,7 @@ class DiscordCommandEvent extends discordMessageEvent_1.default {
         // inheirt all properties of DiscordMessageEvent
         super(data.messageEvent);
         /** Arguments of command */
-        this.arguments = null;
+        this.arguments = "";
         this.precommandName = data.pre;
         this.commandContent = data.content;
     }

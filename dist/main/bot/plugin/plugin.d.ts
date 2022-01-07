@@ -5,6 +5,8 @@ import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
 import CommandManager from "../command/manager/commandManager";
 import BotCommandCallback from "../command/commandCallback";
 import Bot from "../bot/bot";
+import EventHandler from "../types/eventHandler";
+import PrecommandCallback from "../precommand/precommandCallback";
 declare abstract class BotPlugin {
     protected bot: Bot;
     _pluginName: string;
@@ -18,14 +20,14 @@ declare abstract class BotPlugin {
      */
     abstract _stop(): void;
     /** Registers a command handler */
-    _registerDefaultCommand(name: string, callback: Function, options?: BotCommandOptions): void;
+    _registerDefaultCommand(name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
     _registerCommand(commandManager: CommandManager, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
     _registerCommand(precommand: PrecommandWithoutCallback, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
     _registerUnknownCommandHandler(commandManager: CommandManager, func: UnknownCommandHandler): void;
     _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: UnknownCommandHandler): void;
     /** Adds a handler function to an event */
-    _registerEventHandler(name: EventName, callback: Function): void;
+    _registerEventHandler(name: EventName, callback: EventHandler): void;
     _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
-    _registerPrecommand(precommand: string | string[], callback: Function): PrecommandWithCallback;
+    _registerPrecommand(precommand: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
 }
 export default BotPlugin;

@@ -9,13 +9,13 @@ import Bot from "../main/bot/bot/bot.js";
 declare class Default extends BotPlugin {
     sawUpdateBotWarning: boolean;
     constructor(bot: Bot);
-    ping(bot: Bot, event: DiscordCommandEvent): void;
-    eval(bot: Bot, event: DiscordCommandEvent, args: string): void;
+    ping(event: DiscordCommandEvent): void;
+    eval(event: DiscordCommandEvent): void;
     /**
      * Logs a message to the console with a logging level of "log"
      */
-    log_message(bot: Bot, event: DiscordCommandEvent, args: string): void;
-    user_info(bot: Bot, event: DiscordCommandEvent, args: string): Promise<void>;
+    log_message(event: DiscordCommandEvent): void;
+    user_info(event: DiscordCommandEvent): Promise<void>;
     /**
      * Converts all commands to a readable format
      * @param bot bot
@@ -26,7 +26,7 @@ declare class Default extends BotPlugin {
     /**
      * Sends general help information (all commands)
      */
-    _sendGeneralHelp(bot: Bot, event: DiscordCommandEvent): Promise<void>;
+    _sendGeneralHelp(event: DiscordCommandEvent): Promise<void>;
     /**
      * Appends the overloads for help in embed
      */
@@ -46,55 +46,55 @@ declare class Default extends BotPlugin {
     /**
      * Sends a help embed about a command
      */
-    _sendHelpAboutCommand(bot: Bot, event: DiscordCommandEvent, command: string, help: BotCommandHelp): void;
+    _sendHelpAboutCommand(event: DiscordCommandEvent, command: string, help: BotCommandHelp): void;
     /**
      * Sends help about a command, checks if the command and command help exists
      */
-    _sendSpecificHelp(bot: Bot, event: DiscordCommandEvent, command: string): void;
+    _sendSpecificHelp(event: DiscordCommandEvent, command: string): void;
     /**
      * Pretends to recieve a message from soneone else
      */
-    help(bot: Bot, event: DiscordCommandEvent, args: string): void;
+    help(event: DiscordCommandEvent): void;
     /**
      * Sets the bot admin
      */
-    i_am_the_bot_admin(bot: Bot, event: DiscordCommandEvent): void;
+    i_am_the_bot_admin(event: DiscordCommandEvent): void;
     /**
      * Pretends to recieve a message from soneone else
      */
-    pretend_get(bot: Bot, event: DiscordCommandEvent, args: string): Promise<void>;
+    pretend_get(event: DiscordCommandEvent): Promise<void>;
     /**
      * Pretends to recieve a message from someone else
      */
-    forward_to(bot: Bot, event: DiscordCommandEvent, args: string): Promise<void>;
+    forward_to(event: DiscordCommandEvent): Promise<void>;
     /**
      * Sends a message to a channel
      * @param argString arguments ns, type, action, id, permission
      */
-    edit_permission(bot: Bot, event: DiscordCommandEvent, argString: string): Promise<void>;
+    edit_permission(event: DiscordCommandEvent): Promise<void>;
     /**
      * Sends a message to a channel
      * @param args arguments [channelId, ...message]
      */
-    send(bot: Bot, event: DiscordCommandEvent, args: string): void;
+    send(event: DiscordCommandEvent): void;
     /**
      * Sends link to add bot to server
      */
-    link(bot: Bot, event: DiscordCommandEvent): void;
+    link(event: DiscordCommandEvent): void;
     /**
      * Sends link to view code of bot (like what you're doing right now!)
      */
-    code(bot: Bot, event: DiscordCommandEvent): void;
+    code(event: DiscordCommandEvent): void;
     /**
      * Updates the bot
      */
-    update_bot(bot: Bot, event: DiscordCommandEvent, args: string): void;
+    update_bot(event: DiscordCommandEvent): void;
     /**
      * Actually updates the bot
      */
     _actuallyUpdateBot(bot: Bot, event: DiscordCommandEvent): void;
     _endBotProcess(): void;
-    uptime(bot: Bot, event: DiscordCommandEvent, args: string): void;
+    uptime(event: DiscordCommandEvent): void;
     _start(): void;
     _stop(): void;
 }

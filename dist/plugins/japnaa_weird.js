@@ -18,25 +18,25 @@ class JapnaaWeird extends plugin_js_1.default {
     /**
      * Tetris is a racing game.
      */
-    tetris(bot, event, args) {
-        bot.client.send(event.channelId, "**Tetris is a " + (args || "racing") + " game**");
+    tetris(event) {
+        this.bot.client.send(event.channelId, "**Tetris is a " + (event.arguments || "racing") + " game**");
     }
     /**
      * JaP is kewl
      */
-    jap(bot, event, args) {
-        bot.client.send(event.channelId, {
+    jap(event) {
+        this.bot.client.send(event.channelId, {
             embed: {
-                color: bot.config.themeColor,
-                description: "**JaP is " + (args || "kewl") + "**"
+                color: this.bot.config.themeColor,
+                description: "**JaP is " + (event.arguments || "kewl") + "**"
             }
         });
     }
     /**
      * ebola your parabola
      */
-    your(bot, event) {
-        bot.client.send(event.channelId, "parabola");
+    your(event) {
+        this.bot.client.send(event.channelId, "parabola");
     }
     /**
      * Listens for messages with 'lol' and deviations
