@@ -6,6 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cards_1 = __importDefault(require("./cards"));
 const action_1 = __importDefault(require("./action"));
 class Player {
+    bot;
+    userId;
+    cards;
+    action;
+    messageCallbacks;
+    done;
+    acknowledgedDone;
     constructor(botHooks, presidentGame, userId) {
         this.bot = botHooks;
         this.userId = userId;

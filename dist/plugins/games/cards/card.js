@@ -9,9 +9,11 @@ class Card {
 }
 exports.Card = Card;
 class NormalCard extends Card {
+    suit;
+    rank;
+    joker = false;
     constructor(suit, rank) {
         super();
-        this.joker = false;
         this.suit = suit;
         this.rank = rank;
     }
@@ -35,29 +37,29 @@ class NormalCard extends Card {
         return this.rank === rank;
     }
     toString() {
-        return cardUtils_1.rankToString(this.rank) +
-            " of " + cardUtils_1.suitToString(this.suit);
+        return (0, cardUtils_1.rankToString)(this.rank) +
+            " of " + (0, cardUtils_1.suitToString)(this.suit);
     }
     toShortString() {
-        return cardUtils_1.suitToSymbol(this.suit) + cardUtils_1.rankToShortString(this.rank);
+        return (0, cardUtils_1.suitToSymbol)(this.suit) + (0, cardUtils_1.rankToShortString)(this.rank);
     }
     toSymbol() {
-        return cardUtils_1.toSymbol(this.suit, this.rank);
+        return (0, cardUtils_1.toSymbol)(this.suit, this.rank);
     }
     indexByRank() {
-        return cardUtils_1.rankToInt(this.rank) * 0x10 +
-            cardUtils_1.suitToInt(this.suit);
+        return (0, cardUtils_1.rankToInt)(this.rank) * 0x10 +
+            (0, cardUtils_1.suitToInt)(this.suit);
     }
     indexBySuit() {
-        return cardUtils_1.suitToInt(this.suit) * 0x10 +
-            cardUtils_1.rankToInt(this.rank);
+        return (0, cardUtils_1.suitToInt)(this.suit) * 0x10 +
+            (0, cardUtils_1.rankToInt)(this.rank);
     }
 }
 exports.NormalCard = NormalCard;
 class JokerCard extends Card {
+    joker = true;
     constructor() {
         super();
-        this.joker = true;
     }
     is(card) {
         return card.joker == this.joker;

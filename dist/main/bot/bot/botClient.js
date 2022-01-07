@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 class PresenceSetter {
+    client;
     constructor(client) {
         this.client = client;
     }
@@ -40,6 +41,7 @@ class PresenceSetter {
     }
 }
 class SentMessageRecorder {
+    recordedSentMessages;
     constructor() {
         /** The recorded sent messages */
         this.recordedSentMessages = {};
@@ -77,6 +79,12 @@ class SentMessageRecorder {
     }
 }
 class BotClient {
+    bot;
+    id;
+    client;
+    userIdDMMap;
+    presence;
+    sentMessageRecorder;
     constructor(bot, client) {
         this.bot = bot;
         /** Discord.io Client */

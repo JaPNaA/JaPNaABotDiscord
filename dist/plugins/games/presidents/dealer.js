@@ -5,10 +5,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const deck_1 = __importDefault(require("../cards/deck"));
 class Dealer {
+    deck;
+    config = {
+        maxCards: 18
+    };
     constructor() {
-        this.config = {
-            maxCards: 18
-        };
         this.deck = new deck_1.default({
             shuffled: true
         });

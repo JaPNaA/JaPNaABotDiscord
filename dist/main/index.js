@@ -32,7 +32,7 @@ const bot_js_1 = __importDefault(require("./bot/bot/bot.js"));
 let client;
 let bot;
 // let shuttingDown = false;
-let defaultConfig = JSON.parse(strip_json_comments_1.default(fs_1.default.readFileSync(__dirname + "/../../data/config.jsonc").toString()));
+let defaultConfig = JSON.parse((0, strip_json_comments_1.default)(fs_1.default.readFileSync(__dirname + "/../../data/config.jsonc").toString()));
 let runtimeConfig = {};
 let memory;
 // configureables
@@ -86,7 +86,7 @@ function _getConfigFromPath() {
     if (!configPath) {
         return;
     }
-    let fileConfig = JSON.parse(strip_json_comments_1.default(fs_1.default.readFileSync(configPath).toString()));
+    let fileConfig = JSON.parse((0, strip_json_comments_1.default)(fs_1.default.readFileSync(configPath).toString()));
     config = {
         ...defaultConfig,
         ..._concatObject(fileConfig, runtimeConfig)

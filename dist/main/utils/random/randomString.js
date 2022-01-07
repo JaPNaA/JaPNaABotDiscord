@@ -9,7 +9,7 @@ function randomString(length) {
     const max = 127;
     let rands = [];
     for (let i = 0; i < length; i++) {
-        rands.push(random_1.default(min, max, 1));
+        rands.push((0, random_1.default)(min, max, 1));
     }
     return String.fromCharCode(...rands);
 }

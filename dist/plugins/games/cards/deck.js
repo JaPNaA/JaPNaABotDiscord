@@ -37,6 +37,7 @@ function applyDefaultOptions(options) {
     return newOptions;
 }
 class Deck extends pile_1.default {
+    options;
     constructor(options) {
         super();
         this.options = applyDefaultOptions(options);

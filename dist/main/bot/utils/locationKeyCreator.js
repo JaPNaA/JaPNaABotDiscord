@@ -1,15 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MemoryLocationKeyCreator {
-    constructor() {
-        this.strings = {
-            permissionsNamespace: "permissions",
-            permissionsAdmin: "_admin",
-            permissionsGlobal: "global",
-            memoryDelimiter: ".",
-            pluginNamespace: "plugin"
-        };
-    }
+    strings = {
+        permissionsNamespace: "permissions",
+        permissionsAdmin: "_admin",
+        permissionsGlobal: "global",
+        memoryDelimiter: ".",
+        pluginNamespace: "plugin"
+    };
     permissions() {
         return this.strings.permissionsNamespace;
     }

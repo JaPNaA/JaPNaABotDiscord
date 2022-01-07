@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = __importDefault(require("../../../utils/logger"));
 const discordCommandEvent_1 = __importDefault(require("../../events/discordCommandEvent"));
 class PrecommandDispatcher {
+    bot;
+    manager;
     constructor(bot, manager) {
         this.bot = bot;
         this.manager = manager;

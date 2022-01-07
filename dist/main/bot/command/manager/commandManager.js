@@ -7,6 +7,16 @@ const commandDispatcher_js_1 = __importDefault(require("./commandDispatcher.js")
 const command_js_1 = __importDefault(require("../command.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../../utils/locationKeyCreator.js"));
 class CommandManager {
+    bot;
+    dispatch;
+    /** list of commands registered */
+    commands;
+    /** called when an unknown command is called */
+    unknownCommandHandler;
+    /** groups of commands */
+    commandGroups;
+    /** Data for help */
+    helpData;
     constructor(bot) {
         this.bot = bot;
         this.dispatch = new commandDispatcher_js_1.default(bot, this);

@@ -6,22 +6,23 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tryRun_1 = __importDefault(require("../../utils/tryRun"));
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 class BotEvent {
+    bot;
+    events = {
+        "ready": [],
+        "start": [],
+        "stop": [],
+        "message": [],
+        "command": [],
+        "send": [],
+        "senddm": [],
+        "sent": [],
+        "beforememorywrite": [],
+        "aftermemorywrite": [],
+        "addasync": [],
+        "doneasync": []
+    };
     constructor(bot) {
         this.bot = bot;
-        this.events = {
-            "ready": [],
-            "start": [],
-            "stop": [],
-            "message": [],
-            "command": [],
-            "send": [],
-            "senddm": [],
-            "sent": [],
-            "beforememorywrite": [],
-            "aftermemorywrite": [],
-            "addasync": [],
-            "doneasync": []
-        };
     }
     on(name, func) {
         this.events[name].push(func);
@@ -31,7 +32,7 @@ class BotEvent {
         const promises = [];
         logger_js_1.default.log_message("Event: " + name);
         for (let handler of this.events[name]) {
-            promises.push(tryRun_1.default(() => handler(event))
+            promises.push((0, tryRun_1.default)(() => handler(event))
                 .then(error => {
                 if (error) {
                     errors.push(error);

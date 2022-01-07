@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cardUtils_1 = require("../cards/cardUtils");
 const errors_1 = require("./errors");
 class MessageParser {
+    game;
     constructor(game) {
         this.game = game;
     }

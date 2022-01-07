@@ -6,6 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const fs_1 = __importDefault(require("fs"));
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 class Memory {
+    bot;
+    memoryPath;
+    memory;
+    autoWriteIntervalId;
+    memoryChanged;
     /**
      * Memory constructor
      * @param botHooks hooks can attach to

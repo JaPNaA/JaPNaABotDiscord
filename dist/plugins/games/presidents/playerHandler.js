@@ -6,6 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const player_1 = __importDefault(require("./player/player"));
 const errors_1 = require("./errors");
 class PlayerHandler {
+    bot;
+    parentGame;
+    presidentsGame;
+    players;
     constructor(bot, parentGame, presidentsGame) {
         this.bot = bot;
         this.parentGame = parentGame;

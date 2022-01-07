@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class CardList {
+    cards;
     constructor(cards) {
         this.cards = cards;
     }

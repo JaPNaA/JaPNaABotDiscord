@@ -28,7 +28,7 @@ const CONFIG_PATH = "./data/config.jsonc";
 const ENV_PATH = "./data/.env";
 /** get environment variables */
 const readenv_js_1 = __importDefault(require("./utils/readenv.js"));
-const ENV = readenv_js_1.default(ENV_PATH);
+const ENV = (0, readenv_js_1.default)(ENV_PATH);
 jbot.start(ENV.token, CONFIG_PATH, MEMORY_PATH);
 jbot.registerAutoloadBuiltinPlugin("japnaa_weird");
 // gacefully stop on ctrl-c

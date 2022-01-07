@@ -9,14 +9,20 @@ const toOne_1 = __importDefault(require("../../main/utils/toOne"));
 const cardUtils_1 = require("./cards/cardUtils");
 const mention_1 = __importDefault(require("../../main/utils/str/mention"));
 class SlapJack extends game_1.default {
+    _gamePluginName = "slapjack";
+    _pluginName = "game." + this._gamePluginName;
+    gameName = "Slap Jack";
+    channelId;
+    activeMessage;
+    speedMilli = 1333;
+    timeoutId;
+    deck;
+    jack = cardUtils_1.Rank.jack;
+    acceptingSlaps;
+    jackedTime;
+    gameEnded = false;
     constructor(botHooks, parentPlugin, channelId) {
         super(botHooks, parentPlugin);
-        this._gamePluginName = "slapjack";
-        this._pluginName = "game." + this._gamePluginName;
-        this.gameName = "Slap Jack";
-        this.speedMilli = 1333;
-        this.jack = cardUtils_1.Rank.jack;
-        this.gameEnded = false;
         this.deck = new deck_1.default({
             excludeJokers: true
         });
@@ -29,7 +35,7 @@ class SlapJack extends game_1.default {
         this._registerCommand(this.commandManager, "slap", this.slap);
         this.bot.client.send(this.channelId, "Loading...")
             .then(e => {
-            this.activeMessage = toOne_1.default(e);
+            this.activeMessage = (0, toOne_1.default)(e);
             this.onReadyStart();
         });
     }
@@ -40,7 +46,7 @@ class SlapJack extends game_1.default {
     }
     slap(event) {
         if (this.acceptingSlaps) {
-            this.bot.client.send(event.channelId, mention_1.default(event.userId) + " did it! yay\n" +
+            this.bot.client.send(event.channelId, (0, mention_1.default)(event.userId) + " did it! yay\n" +
                 (event.createdTimestamp - this.jackedTime).toString() + "ms");
             this.gameEnded = true;
         }

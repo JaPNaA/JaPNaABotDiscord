@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class MessageHandler {
+    game;
     constructor(presidentsGame) {
         this.game = presidentsGame;
     }

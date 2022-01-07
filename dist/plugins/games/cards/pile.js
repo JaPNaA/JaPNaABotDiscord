@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const cardSet_1 = __importDefault(require("./cardSet"));
 const cardList_1 = __importDefault(require("./cardList"));
 class Pile extends cardList_1.default {
+    sets;
     constructor() {
         super([]);
         this.sets = [];

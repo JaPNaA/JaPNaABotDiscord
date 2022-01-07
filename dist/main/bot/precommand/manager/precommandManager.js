@@ -6,6 +6,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const precommandDispatcher_1 = __importDefault(require("./precommandDispatcher"));
 const precommand_1 = require("../precommand");
 class PrecommandManager {
+    bot;
+    dispatch;
+    precommands;
     constructor(bot) {
         this.bot = bot;
         this.dispatch = new precommandDispatcher_1.default(bot, this);

@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const cardList_1 = __importDefault(require("../../cards/cardList"));
 class PlayerCards {
+    cards;
     constructor() {
         this.cards = new cardList_1.default([]);
     }

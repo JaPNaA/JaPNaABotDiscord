@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const errors_1 = require("../errors");
 const cardSet_1 = __importDefault(require("../../cards/cardSet"));
 class PlayerAction {
+    player;
+    logic;
     constructor(player, gameLogic) {
         this.player = player;
         this.logic = gameLogic;

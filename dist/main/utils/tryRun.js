@@ -14,7 +14,7 @@ async function tryRun(func) {
         await func();
     }
     catch (error) {
-        return createErrorString_1.default(error);
+        return (0, createErrorString_1.default)(error);
     }
     return null;
 }

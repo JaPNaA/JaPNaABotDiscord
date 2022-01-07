@@ -13,39 +13,40 @@ const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
  * Reminders plugin
  */
 class Reminders extends plugin_js_1.default {
+    _timeUnits = {
+        "ms": 1,
+        "millisecond": 1,
+        "milliseconds": 1,
+        "milli": 1,
+        "millis": 1,
+        "s": 1000,
+        "sec": 1000,
+        "secs": 1000,
+        "second": 1000,
+        "seconds": 1000,
+        "m": 60e3,
+        "min": 60e3,
+        "mins": 60e3,
+        "minute": 60e3,
+        "minutes": 60e3,
+        "h": 3600e3,
+        "hr": 3600e3,
+        "hrs": 3600e3,
+        "hour": 3600e3,
+        "hours": 3600e3,
+        "d": 8.64e7,
+        "day": 8.64e7,
+        "days": 8.64e7
+    };
+    _reminders;
+    _remindersTimeoutId = null;
     constructor(bot) {
         super(bot);
-        this._timeUnits = {
-            "ms": 1,
-            "millisecond": 1,
-            "milliseconds": 1,
-            "milli": 1,
-            "millis": 1,
-            "s": 1000,
-            "sec": 1000,
-            "secs": 1000,
-            "second": 1000,
-            "seconds": 1000,
-            "m": 60e3,
-            "min": 60e3,
-            "mins": 60e3,
-            "minute": 60e3,
-            "minutes": 60e3,
-            "h": 3600e3,
-            "hr": 3600e3,
-            "hrs": 3600e3,
-            "hour": 3600e3,
-            "hours": 3600e3,
-            "d": 8.64e7,
-            "day": 8.64e7,
-            "days": 8.64e7
-        };
-        this._remindersTimeoutId = null;
         this._pluginName = "reminder";
         this._reminders = this.bot.memory.get(this._pluginName, "reminders") || [];
     }
     set_reminder(event) {
-        const args = allUtils_js_1.stringToArgs(event.arguments);
+        const args = (0, allUtils_js_1.stringToArgs)(event.arguments);
         const [time, units] = args;
         const title = args.slice(2);
         let timeValue = parseFloat(time);
@@ -96,7 +97,7 @@ class Reminders extends plugin_js_1.default {
         }
         this._reminders.splice(actualIndex, 1);
         this.bot.client.send(event.channelId, "Reminder **" + reminder.title + "** from " +
-            mention_js_1.default(reminder.setterUserId) + "was canceled.");
+            (0, mention_js_1.default)(reminder.setterUserId) + "was canceled.");
     }
     _addReminder(reminder) {
         if (this._reminders.length >= 1e4) {
@@ -143,7 +144,7 @@ class Reminders extends plugin_js_1.default {
             return;
         }
         this._reminders.splice(index, 1);
-        this.bot.client.send(reminder.channelId, `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${mention_js_1.default(reminder.setterUserId)}`);
+        this.bot.client.send(reminder.channelId, `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${(0, mention_js_1.default)(reminder.setterUserId)}`);
         this._updateReminders();
     }
     _getMessageLink(event) {

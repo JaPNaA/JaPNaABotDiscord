@@ -9,6 +9,21 @@ const util_1 = require("util");
 const mention_1 = __importDefault(require("../../utils/str/mention"));
 const whitespaceRegex = /\s/;
 class BotCommand {
+    bot;
+    /** Function to call when command is called */
+    func;
+    /** Permission required to run command */
+    requiredPermission;
+    /** Is using this command in Direct Messages disallowed? */
+    noDM;
+    /** Help for the command */
+    help;
+    /** Group the command belongs to */
+    group;
+    /** The string that triggers the command */
+    commandName;
+    /** Name of the plugin that registered this command */
+    pluginName;
     constructor(bot, commandName, pluginName, func, options) {
         this.bot = bot;
         this.func = func;
@@ -55,7 +70,7 @@ class BotCommand {
             if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
                 return {
                     canRun: false,
-                    reasonCannotRun: mention_1.default(commandEvent.userId) + " **You must have `" +
+                    reasonCannotRun: (0, mention_1.default)(commandEvent.userId) + " **You must have `" +
                         this.requiredPermission + "` permissions to run this command.**"
                 };
             }
@@ -85,11 +100,11 @@ class BotCommand {
         }
     }
     sendError(commandEvent, argString, error) {
-        let errorStr = createErrorString_1.default(error);
+        let errorStr = (0, createErrorString_1.default)(error);
         let message = "```An error occured\n" + errorStr +
             "\nCommand: " + this.commandName +
             "\nArguments: " + argString +
-            "\nEvent: " + util_1.inspect(commandEvent, { depth: 3 });
+            "\nEvent: " + (0, util_1.inspect)(commandEvent, { depth: 3 });
         message = message.replace(/ {4}/g, "\t");
         message = message.slice(0, 1997) + "```";
         this.bot.client.send(commandEvent.channelId, message);

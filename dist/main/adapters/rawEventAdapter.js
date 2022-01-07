@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const discordMessageEvent_1 = __importDefault(require("../bot/events/discordMessageEvent"));
 class RawEventAdapter {
+    bot;
     constructor(bot) {
         this.bot = bot;
     }

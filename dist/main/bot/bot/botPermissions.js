@@ -6,6 +6,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const permissions_js_1 = __importDefault(require("../../types/permissions.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../utils/locationKeyCreator.js"));
 class BotPermissions {
+    bot;
+    memory;
     constructor(bot) {
         this.bot = bot;
         this.memory = bot.memory;

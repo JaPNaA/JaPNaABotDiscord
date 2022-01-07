@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class Logger {
+    static level = 4;
     static log_message(...args) {
         if (Logger.level >= 4) {
             console.log(...args);
@@ -29,5 +30,4 @@ class Logger {
         Logger.level = level;
     }
 }
-Logger.level = 4;
 exports.default = Logger;

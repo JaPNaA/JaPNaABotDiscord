@@ -12,6 +12,15 @@ const logic_1 = __importDefault(require("./logic"));
 const toOne_1 = __importDefault(require("../../../main/utils/toOne"));
 const messageType_1 = __importDefault(require("./messageType"));
 class PresidentsMain {
+    bot;
+    parentGame;
+    presidentsGame;
+    playerHandler;
+    messageHandler;
+    messageParser;
+    logic;
+    dealer;
+    pileMessage;
     constructor(botHooks, parentGame, presidentsGame) {
         this.bot = botHooks;
         this.parentGame = parentGame;
@@ -84,7 +93,7 @@ class PresidentsMain {
         }
     }
     async sendPile() {
-        const message = toOne_1.default(await this.announce("Loading..."));
+        const message = (0, toOne_1.default)(await this.announce("Loading..."));
         this.pileMessage = message;
         this.updatePile();
     }

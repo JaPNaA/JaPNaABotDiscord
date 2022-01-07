@@ -17,11 +17,17 @@ const randomString_js_1 = __importDefault(require("../main/utils/random/randomSt
  * Commonly used commands made by me, JaPNaA
  */
 class Japnaa extends plugin_js_1.default {
+    memorySpamLimit = "spamLimit";
+    counter;
+    /** Que of spam functions */
+    spamQue;
+    /** Spam setInterval return */
+    spamInterval;
+    /** Is the spam interval active? */
+    spamIntervalActive = false;
+    config;
     constructor(bot) {
         super(bot);
-        this.memorySpamLimit = "spamLimit";
-        /** Is the spam interval active? */
-        this.spamIntervalActive = false;
         this._pluginName = "japnaa";
         this.memorySpamLimit = "spamLimit";
         this.counter = bot.memory.get(this._pluginName, "counter") || 0;
@@ -59,11 +65,11 @@ class Japnaa extends plugin_js_1.default {
      * Generates random stuff
      */
     random(event) {
-        const args = stringToArgs_1.default(event.arguments);
+        const args = (0, stringToArgs_1.default)(event.arguments);
         // !random string
         if (args[0] && args[0].toLowerCase() === "string") {
             this.bot.client.send(event.channelId, "```" +
-                randomString_js_1.default(128).replace(/`$/g, "` ") // because discord markup
+                (0, randomString_js_1.default)(128).replace(/`$/g, "` ") // because discord markup
                 + "```");
             return;
         }
@@ -100,7 +106,7 @@ class Japnaa extends plugin_js_1.default {
             this.bot.client.send(event.channelId, "**Invalid arguments**");
         }
         else {
-            result = random_1.default(min, max, step);
+            result = (0, random_1.default)(min, max, step);
         }
         this.bot.client.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
     }
@@ -247,7 +253,7 @@ class Japnaa extends plugin_js_1.default {
                     this.bot.client.send(event.channelId, "All spam on every server stopped");
                 }
                 else {
-                    this.bot.client.send(event.channelId, mention_1.default(event.userId) + ", you don't have the permissions to do that.");
+                    this.bot.client.send(event.channelId, (0, mention_1.default)(event.userId) + ", you don't have the permissions to do that.");
                 }
                 return;
             case "limit":
@@ -257,7 +263,7 @@ class Japnaa extends plugin_js_1.default {
                 this.bot.client.send(event.channelId, "Server que limit: " + this._getSpamQueLimit(this.bot, event));
                 return;
         }
-        let [amountArg, counterArg, ...messageArg] = stringToArgs_1.default(event.arguments);
+        let [amountArg, counterArg, ...messageArg] = (0, stringToArgs_1.default)(event.arguments);
         /**
          * Amount of spam
          */
@@ -359,20 +365,20 @@ class Japnaa extends plugin_js_1.default {
                 event.precommandName + "help tell` for help");
             return;
         }
-        let user = getSnowflakeNum_1.default(tagMatch[0]);
+        let user = (0, getSnowflakeNum_1.default)(tagMatch[0]);
         if (!user) {
             this.bot.client.send(event.channelId, "User does not exist.");
             return;
         }
         let message = event.arguments.slice(tagMatch[0].length);
         this.bot.client.sendDM(user, {
-            message: mention_1.default(event.userId) + " told you",
+            message: (0, mention_1.default)(event.userId) + " told you",
             embed: {
                 color: this.bot.config.themeColor,
                 description: message
             }
         }, () => {
-            this.bot.client.send(event.channelId, "Failed to tell " + mention_1.default(user));
+            this.bot.client.send(event.channelId, "Failed to tell " + (0, mention_1.default)(user));
         });
     }
     _stop() {

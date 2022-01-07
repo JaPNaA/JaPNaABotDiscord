@@ -9,16 +9,18 @@ const precommandName_js_1 = __importDefault(require("./precommandName.js"));
 const botPermissions_js_1 = __importDefault(require("../bot/botPermissions.js"));
 const commandManager_js_1 = __importDefault(require("../command/manager/commandManager.js"));
 class Precommand {
+    bot;
+    names;
     /**
      * @param name text which comes before a command
      * @param callback function to call to handle precommand
      */
     constructor(bot, name) {
         this.bot = bot;
-        this.names = toArray_1.default(name);
+        this.names = (0, toArray_1.default)(name);
     }
     static create(botHooks, name, callback) {
-        let nameArr = toArray_1.default(name);
+        let nameArr = (0, toArray_1.default)(name);
         if (callback) {
             return new PrecommandWithCallback(botHooks, nameArr, callback);
         }
@@ -41,14 +43,18 @@ class Precommand {
 }
 exports.Precommand = Precommand;
 class PrecommandWithCallback extends Precommand {
+    callback;
     constructor(bot, name, callback) {
         super(bot, name);
-        this.names = toArray_1.default(name);
+        this.names = (0, toArray_1.default)(name);
         this.callback = callback;
     }
 }
 exports.PrecommandWithCallback = PrecommandWithCallback;
 class PrecommandWithoutCallback extends Precommand {
+    callback;
+    permissions;
+    commandManager;
     constructor(bot, name) {
         super(bot, name);
         this.permissions = new botPermissions_js_1.default(bot);

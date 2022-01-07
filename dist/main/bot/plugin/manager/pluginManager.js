@@ -5,6 +5,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = __importDefault(require("../../../utils/logger"));
 class PluginManager {
+    bot;
+    plugins;
     constructor(bot) {
         this.bot = bot;
         this.plugins = [];

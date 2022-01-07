@@ -2,6 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const precommand_1 = require("../precommand/precommand");
 class BotPlugin {
+    bot;
+    _pluginName;
     constructor(bot) {
         this.bot = bot;
         this._pluginName = this.constructor.name.toLowerCase();

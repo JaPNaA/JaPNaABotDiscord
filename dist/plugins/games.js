@@ -11,16 +11,20 @@ const commandOptions_js_1 = __importDefault(require("../main/bot/command/command
  * Games!
  */
 class Games extends plugin_js_1.default {
+    precommand;
+    currentGames;
+    playerGameMap;
+    config;
+    gameAliases = {
+        "slapjack": slapjack_js_1.default,
+        "slap jack": slapjack_js_1.default,
+        "president": presidents_js_1.default,
+        "presidents": presidents_js_1.default,
+        "kings": presidents_js_1.default,
+        "scum": presidents_js_1.default
+    };
     constructor(bot) {
         super(bot);
-        this.gameAliases = {
-            "slapjack": slapjack_js_1.default,
-            "slap jack": slapjack_js_1.default,
-            "president": presidents_js_1.default,
-            "presidents": presidents_js_1.default,
-            "kings": presidents_js_1.default,
-            "scum": presidents_js_1.default
-        };
         this._pluginName = "games";
         this.config = bot.config.getPlugin(this._pluginName);
         this.precommand = this._registerPrecommand(this.config.precommand);

@@ -18,6 +18,18 @@ const commandHelp_js_1 = __importDefault(require("../command/commandHelp.js"));
 const util_1 = require("util");
 const ellipsisize_js_1 = __importDefault(require("../../utils/str/ellipsisize.js"));
 class Bot {
+    restartFunc;
+    rawEventAdapter;
+    config;
+    memory;
+    permissions;
+    events;
+    precommandManager;
+    pluginManager;
+    client;
+    activeAsnycRequests;
+    // @ts-ignore this is assigned normally, and it's too much work to make it possibly undefined
+    defaultPrecommand;
     constructor(config, memory, memoryPath, client, restartFunc) {
         /**
          * Function to call to restart itself
@@ -131,13 +143,13 @@ class Bot {
     }
     debugPrecommandCallback(event) {
         try {
-            let str = util_1.inspect(eval(event.commandContent));
-            str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
+            let str = (0, util_1.inspect)(eval(event.commandContent));
+            str = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 1994);
             this.client.send(event.channelId, "```" + str + "```");
         }
         catch (err) {
             let str = err.stack || "";
-            str = ellipsisize_js_1.default(str.replace(/ {4}/g, "\t"), 1994);
+            str = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 1994);
             this.client.send(event.channelId, "```" + str + "```");
         }
     }

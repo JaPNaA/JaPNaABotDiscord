@@ -1,6 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class BotCommandOptions {
+    requiredPermission;
+    noDM;
+    help;
+    group;
     /**
      * BotCommandOptions
      * @param options command triggering options

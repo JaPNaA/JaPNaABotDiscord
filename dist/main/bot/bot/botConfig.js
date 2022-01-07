@@ -5,6 +5,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const locationKeyCreator_js_1 = __importDefault(require("../utils/locationKeyCreator.js"));
 class Config {
+    /** Original config */
+    config;
+    /** *raw* precommands that trigger the bot, from config */
+    precommands;
+    /** The theme color used for general embeds */
+    themeColor;
+    /** The logging level used by Logger */
+    loggingLevel;
+    /** Tell the users that the bot doesn't know command? */
+    doAlertCommandDoesNotExist;
+    /** Overrides for bot commands */
+    commandRequiredPermissionOverrides;
+    /** How often to auto-write memory to disk? */
+    autoWriteTimeInterval;
+    /** Gitlab link to the bot */
+    gitlabLink;
+    /** Link to add bot to server */
+    addLink;
+    /** Is the bot in debug mode? */
+    debugMode;
+    /** Debug mode precommand, only exists if debugMode is true */
+    debugPrecommand;
     constructor(bot, config) {
         this.config = config;
         this.precommands = (this.config["bot.precommand"] || ["!"]);

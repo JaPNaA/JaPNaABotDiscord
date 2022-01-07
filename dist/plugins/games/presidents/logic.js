@@ -13,16 +13,22 @@ const cardUtils_1 = require("../cards/cardUtils");
  * burning, runs, which cards can be played
  */
 class Logic {
+    pile;
+    pileEmpty;
+    wasBurned;
+    lastPlayerToPlay;
+    lastPass;
+    nowBurned;
+    config = {
+        burnCardRank: cardUtils_1.Rank.n2,
+        // How to determine first player - via card [Card] or prez [false]
+        firstPlayer: false,
+        quickClear: true,
+        vices: false,
+        burnEnd: true,
+        revolutions: false // TODO: implement true - when 4x a card is played, card hierarchy reverses
+    };
     constructor() {
-        this.config = {
-            burnCardRank: cardUtils_1.Rank.n2,
-            // How to determine first player - via card [Card] or prez [false]
-            firstPlayer: false,
-            quickClear: true,
-            vices: false,
-            burnEnd: true,
-            revolutions: false // TODO: implement true - when 4x a card is played, card hierarchy reverses
-        };
         this.pile = new pile_1.default();
         this.wasBurned = true;
         this.nowBurned = false;

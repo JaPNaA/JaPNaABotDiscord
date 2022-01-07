@@ -1,6 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class DiscordMessageEvent {
+    /** Username of sender */
+    username;
+    /** Id of sender */
+    userId;
+    /** Id of channel message was sent in */
+    channelId;
+    /** Id of server message was sent in */
+    serverId;
+    /** Id of message */
+    messageId;
+    /** Message that was sent */
+    message;
+    /** Precommand used, if any */
+    precommandName;
+    /** WebSocket event data */
+    originalEvent;
+    /** Is the message from Direct Messages? */
+    isDM;
+    /** When the message was sent */
+    createdTimestamp;
     /**
      * DiscordMessageEvent contructor
      * @param username of sender
