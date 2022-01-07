@@ -40,7 +40,7 @@ class Japnaa extends plugin_js_1.default {
     /**
      * says whatever you say
      */
-    echo(event) {
+    async echo(event) {
         let json = null;
         try {
             json = JSON.parse(event.arguments);
@@ -49,10 +49,10 @@ class Japnaa extends plugin_js_1.default {
             // do nothing
         }
         if (json) {
-            this.bot.client.send(event.channelId, json);
+            await this.bot.client.send(event.channelId, json);
         }
         else {
-            this.bot.client.send(event.channelId, event.arguments);
+            await this.bot.client.send(event.channelId, event.arguments);
         }
     }
     /**

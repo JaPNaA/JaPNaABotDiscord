@@ -28,7 +28,7 @@ declare class Japnaa extends BotPlugin {
     /**
      * says whatever you say
      */
-    echo(event: DiscordCommandEvent): void;
+    echo(event: DiscordCommandEvent): Promise<void>;
     /**
      * Generates random stuff
      */

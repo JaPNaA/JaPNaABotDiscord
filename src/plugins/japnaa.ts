@@ -57,7 +57,7 @@ class Japnaa extends BotPlugin {
     /**
      * says whatever you say
      */
-    echo(event: DiscordCommandEvent): void {
+    async echo(event: DiscordCommandEvent) {
         let json: JSONObject | null = null;
         try {
             json = JSON.parse(event.arguments);
@@ -66,9 +66,9 @@ class Japnaa extends BotPlugin {
         }
 
         if (json) {
-            this.bot.client.send(event.channelId, json);
+            await this.bot.client.send(event.channelId, json);
         } else {
-            this.bot.client.send(event.channelId, event.arguments);
+            await this.bot.client.send(event.channelId, event.arguments);
         }
     }
 
