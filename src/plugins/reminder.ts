@@ -71,7 +71,7 @@ class Reminders extends BotPlugin {
             setTime: now,
             setterUserId: event.userId,
             targetTime: now + timeValue * unitsValue,
-            title: title.filter(e => e).join(" ")
+            title: title.join(" ").trim() || this._getMessageLink(event)
         };
 
         this._addReminder(reminder);
@@ -165,6 +165,10 @@ class Reminders extends BotPlugin {
             `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${mention(reminder.setterUserId)}`
         );
         this._updateReminders();
+    }
+
+    _getMessageLink(event: DiscordMessageEvent): string {
+        return `https://discord.com/channels/${event.serverId || "@me"}/${event.channelId}/${event.messageId}`;
     }
 
     _start(): void {

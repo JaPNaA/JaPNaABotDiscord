@@ -17,6 +17,7 @@ declare class Reminders extends BotPlugin {
     _updateReminders(): void;
     _stopReminderTimeout(): void;
     _sendReminder(reminder: Reminder): void;
+    _getMessageLink(event: DiscordMessageEvent): string;
     _start(): void;
     _stop(): void;
 }
