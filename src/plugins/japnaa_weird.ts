@@ -1,7 +1,6 @@
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import { User } from "discord.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 
@@ -9,9 +8,9 @@ import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
  * The weirder side of JaPNaABot
  */
 class JapnaaWeird extends BotPlugin {
-    lolRegexp: RegExp = /(\W|^)([l1|\\!/]+)+\s*((h|w)*([a@&\*eiouy0.=])+(h|w)*)\s*[l1|\\!/]+(\W|$)/i;
+    lolRegexp: RegExp = /(\W|^)([l1|\\!/]+)+[\W_]*((h|w)*([a@&\*eiouy0.=])+(h|w)*)[\W_]*[l1|\\!/]+(\W|$)/i;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
-    l$wlRegexp: RegExp = /([l1|\\!/][\W_]*(e|3)[\W_]*(w|(vv))[\W_]*[l1|\\!/][\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?(e|3)[\W_]*(w|(vv)))/gi;
+    l$wlRegexp: RegExp = /(ЛЮЉ)|([l1|\\!/][\W_]*(e|3)[\W_]*(w|(vv)|u)[\W_]*[l1|\\!/][\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?(e|3)[\W_]*(w|(vv)))/gi;
 
     constructor(bot: Bot) {
         super(bot);
