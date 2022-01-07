@@ -6,6 +6,7 @@ function fakeMessage(data) {
         channel: data.channel,
         guild: data.guild,
         content: data.content,
+        id: data.id,
         createdTimestamp: Date.now()
     };
 }

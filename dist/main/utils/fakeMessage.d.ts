@@ -4,6 +4,7 @@ declare function fakeMessage(data: {
     author: User;
     channel: TextChannel;
     guild: Guild;
+    id: string;
     content: string;
 }): IMessage;
 export default fakeMessage;

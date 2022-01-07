@@ -10,6 +10,8 @@ class DiscordMessageEvent {
     channelId: string;
     /** Id of server message was sent in */
     serverId: string;
+    /** Id of message */
+    messageId: string;
     /** Message that was sent */
     message: string;
     /** Precommand used, if any */
@@ -35,6 +37,7 @@ class DiscordMessageEvent {
         userId: string,
         channelId: string,
         serverId: string | null,
+        messageId: string,
         message: string,
         precommandName: PrecommandName | null,
         originalEvent: IMessage,
@@ -45,6 +48,7 @@ class DiscordMessageEvent {
         this.userId = data.userId;
         this.channelId = data.channelId;
         this.serverId = data.serverId || "";
+        this.messageId = data.messageId;
         this.message = data.message;
         this.precommandName = data.precommandName;
         this.originalEvent = data.originalEvent;

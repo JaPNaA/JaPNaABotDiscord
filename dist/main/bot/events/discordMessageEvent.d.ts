@@ -9,6 +9,8 @@ declare class DiscordMessageEvent {
     channelId: string;
     /** Id of server message was sent in */
     serverId: string;
+    /** Id of message */
+    messageId: string;
     /** Message that was sent */
     message: string;
     /** Precommand used, if any */
@@ -33,6 +35,7 @@ declare class DiscordMessageEvent {
         userId: string;
         channelId: string;
         serverId: string | null;
+        messageId: string;
         message: string;
         precommandName: PrecommandName | null;
         originalEvent: IMessage;

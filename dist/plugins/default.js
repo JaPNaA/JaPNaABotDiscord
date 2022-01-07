@@ -357,6 +357,7 @@ class Default extends plugin_js_1.default {
             author: user,
             channel: channel,
             guild: guild,
+            id: event.messageId,
             content: message
         }));
     }
@@ -389,7 +390,8 @@ class Default extends plugin_js_1.default {
             author: author,
             channel: channel,
             guild: guild,
-            content: message
+            content: message,
+            id: event.messageId
         }));
         let sentMessages = bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);

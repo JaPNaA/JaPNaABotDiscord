@@ -32,6 +32,7 @@ class RawEventAdapter {
                 userId: message.author && message.author.id,
                 channelId: message.channel && message.channel.id,
                 serverId: message.guild && message.guild.id,
+                messageId: message.id,
                 message: message.content,
                 precommandName: precommandNameInMessage,
                 originalEvent: message, 

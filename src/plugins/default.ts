@@ -394,6 +394,7 @@ class Default extends BotPlugin {
             author: user,
             channel: channel as TextChannel,
             guild: guild,
+            id: event.messageId,
             content: message
         }));
     }
@@ -429,7 +430,8 @@ class Default extends BotPlugin {
             author: author,
             channel: channel,
             guild: guild,
-            content: message
+            content: message,
+            id: event.messageId
         }));
 
         let sentMessages: object[] = bot.client.sentMessageRecorder

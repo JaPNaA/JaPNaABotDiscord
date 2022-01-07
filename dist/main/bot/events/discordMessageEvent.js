@@ -15,6 +15,7 @@ class DiscordMessageEvent {
         this.userId = data.userId;
         this.channelId = data.channelId;
         this.serverId = data.serverId || "";
+        this.messageId = data.messageId;
         this.message = data.message;
         this.precommandName = data.precommandName;
         this.originalEvent = data.originalEvent;
