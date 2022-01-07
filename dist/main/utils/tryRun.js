@@ -9,9 +9,9 @@ const createErrorString_1 = __importDefault(require("./str/createErrorString"));
  * @param func function to try to run
  * @returns error message, if any
  */
-function tryRun(func) {
+async function tryRun(func) {
     try {
-        func();
+        await func();
     }
     catch (error) {
         return createErrorString_1.default(error);

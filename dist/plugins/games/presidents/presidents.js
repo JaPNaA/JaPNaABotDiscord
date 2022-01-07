@@ -124,12 +124,12 @@ class Presidents extends game_1.default {
                 "Once all the players are in, type `" + precommmand + "start` to start the game"
         });
         this.bot.client.send(this.channelId, {
-            embed: {
-                color: this.bot.config.themeColor,
-                title: this.gameName,
-                description: "The ultimate social card game.",
-                fields: fields
-            }
+            embeds: [{
+                    color: this.bot.config.themeColor,
+                    title: this.gameName,
+                    description: "The ultimate social card game.",
+                    fields: fields
+                }]
         });
     }
     _stop() {

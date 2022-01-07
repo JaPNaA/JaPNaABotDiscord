@@ -3,5 +3,5 @@
  * @param func function to try to run
  * @returns error message, if any
  */
-declare function tryRun(func: Function): string | null;
+declare function tryRun(func: Function): Promise<string | null>;
 export default tryRun;

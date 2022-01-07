@@ -152,12 +152,12 @@ class Presidents extends Game {
         });
 
         this.bot.client.send(this.channelId, {
-            embed: {
+            embeds: [{
                 color: this.bot.config.themeColor,
                 title: this.gameName,
                 description: "The ultimate social card game.",
                 fields: fields
-            }
+            }]
         });
     }
 

@@ -5,11 +5,11 @@ import createErrorString from "./str/createErrorString";
  * @param func function to try to run
  * @returns error message, if any
  */
-function tryRun(func: Function): string | null {
+async function tryRun(func: Function): Promise<string | null> {
     try {
-        func();
+        await func();
     } catch (error) {
-        return createErrorString(error);
+        return createErrorString(error as Error);
     }
     return null;
 }

@@ -31,19 +31,23 @@ class BotEvent {
         this.events[name].push(func);
     }
 
-    dispatch(name: EventName, event: any): string[] {
-        let errors: string[] = [];
+    async dispatch(name: EventName, event: any): Promise<string[]> {
+        const errors: string[] = [];
+        const promises: Promise<any>[] = [];
 
         Logger.log_message("Event: " + name);
 
         for (let handler of this.events[name]) {
-            let error: string | null = tryRun(() => handler(event));
-
-            if (error) {
-                errors.push(error);
-                Logger.warn(error);
-            }
+            promises.push(tryRun(() => handler(event))
+                .then(error => {
+                    if (error) {
+                        errors.push(error);
+                        Logger.warn(error);
+                    }
+                }));
         }
+
+        await Promise.all(promises);
 
         return errors;
     }

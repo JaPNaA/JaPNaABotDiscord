@@ -26,16 +26,20 @@ class BotEvent {
     on(name, func) {
         this.events[name].push(func);
     }
-    dispatch(name, event) {
-        let errors = [];
+    async dispatch(name, event) {
+        const errors = [];
+        const promises = [];
         logger_js_1.default.log_message("Event: " + name);
         for (let handler of this.events[name]) {
-            let error = tryRun_1.default(() => handler(event));
-            if (error) {
-                errors.push(error);
-                logger_js_1.default.warn(error);
-            }
+            promises.push(tryRun_1.default(() => handler(event))
+                .then(error => {
+                if (error) {
+                    errors.push(error);
+                    logger_js_1.default.warn(error);
+                }
+            }));
         }
+        await Promise.all(promises);
         return errors;
     }
 }

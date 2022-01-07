@@ -8,6 +8,6 @@ declare class BotEvent {
     };
     constructor(bot: Bot);
     on(name: EventName, func: EventHandler): void;
-    dispatch(name: EventName, event: any): string[];
+    dispatch(name: EventName, event: any): Promise<string[]>;
 }
 export default BotEvent;
