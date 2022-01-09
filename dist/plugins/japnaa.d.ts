@@ -10,6 +10,7 @@ declare type SpamCallback = () => Promise<boolean>;
  */
 declare class Japnaa extends BotPlugin {
     memorySpamLimit: string;
+    memorySpamQueLimit: string;
     counter: number;
     /** Que of spam functions */
     spamQue: {
@@ -58,7 +59,7 @@ declare class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit que for server and user
      */
-    _getSpamQueLimit(bot: Bot, event: DiscordMessageEvent): Promise<number>;
+    _getSpamQueLimit(bot: Bot, event: DiscordMessageEvent): number;
     /**
      * Actual spam function
      */

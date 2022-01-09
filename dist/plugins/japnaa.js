@@ -18,6 +18,7 @@ const randomString_js_1 = __importDefault(require("../main/utils/random/randomSt
  */
 class Japnaa extends plugin_js_1.default {
     memorySpamLimit = "spamLimit";
+    memorySpamQueLimit = "spamQueLimit";
     counter;
     /** Que of spam functions */
     spamQue;
@@ -174,6 +175,7 @@ class Japnaa extends plugin_js_1.default {
                 }));
             }
         }
+        await Promise.all(promises);
     }
     /**
      * Gets the spam limit for channel and user
@@ -197,13 +199,9 @@ class Japnaa extends plugin_js_1.default {
     /**
      * Gets the spam limit que for server and user
      */
-    async _getSpamQueLimit(bot, event) {
+    _getSpamQueLimit(bot, event) {
         let defaultLimit = this.config["spam.defaultQueLimit"];
-        let server = await bot.client.getServer(event.serverId);
-        if (!server) {
-            throw new Error("Unknown Error");
-        }
-        let serverLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(server.id));
+        let serverLimit = bot.memory.get(this._pluginName, this.memorySpamQueLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
         return serverLimit || defaultLimit;
     }
     /**
@@ -298,8 +296,8 @@ class Japnaa extends plugin_js_1.default {
         message += messageArg.join(" ");
         // check against limits
         // ----------------------------------------------------------------------------------------
-        let spamLimit = this._getSpamLimit(this.bot, event);
-        let spamQueLimit = await this._getSpamQueLimit(this.bot, event);
+        const spamLimit = this._getSpamLimit(this.bot, event);
+        const spamQueLimit = this._getSpamQueLimit(this.bot, event);
         if (amount > spamLimit) {
             this.bot.client.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
             return;
@@ -309,7 +307,7 @@ class Japnaa extends plugin_js_1.default {
             throw new Error("Unknown Error");
         }
         if (this.spamQue[server.id] &&
-            this.spamQue[server.id].length > spamQueLimit) {
+            this.spamQue[server.id].length + 1 > spamQueLimit) {
             this.bot.client.send(event.channelId, "**Too much spam already qued.**");
             return;
         }

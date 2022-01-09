@@ -23,6 +23,7 @@ type SpamCallback = () => Promise<boolean>;
  */
 class Japnaa extends BotPlugin {
     memorySpamLimit: string = "spamLimit";
+    memorySpamQueLimit: string = "spamQueLimit"
     counter: number;
     /** Que of spam functions */
     spamQue: { [x: string]: SpamCallback[] };
@@ -231,14 +232,11 @@ class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit que for server and user
      */
-    async _getSpamQueLimit(bot: Bot, event: DiscordMessageEvent): Promise<number> {
+    _getSpamQueLimit(bot: Bot, event: DiscordMessageEvent): number {
         let defaultLimit: number = this.config["spam.defaultQueLimit"] as number;
 
-        let server = await bot.client.getServer(event.serverId);
-        if (!server) { throw new Error("Unknown Error"); }
-
         let serverLimit: number = bot.memory.get(this._pluginName,
-            this.memorySpamLimit + createKey.delimiter() + createKey.server(server.id)
+            this.memorySpamQueLimit + createKey.delimiter() + createKey.server(event.serverId)
         );
 
         return serverLimit || defaultLimit;
@@ -346,8 +344,8 @@ class Japnaa extends BotPlugin {
 
         // check against limits
         // ----------------------------------------------------------------------------------------
-        let spamLimit: number = this._getSpamLimit(this.bot, event);
-        let spamQueLimit: number = await this._getSpamQueLimit(this.bot, event);
+        const spamLimit = this._getSpamLimit(this.bot, event);
+        const spamQueLimit = this._getSpamQueLimit(this.bot, event);
 
         if (amount > spamLimit) {
             this.bot.client.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
@@ -358,7 +356,7 @@ class Japnaa extends BotPlugin {
         if (!server) { throw new Error("Unknown Error"); }
         if (
             this.spamQue[server.id] &&
-            this.spamQue[server.id].length > spamQueLimit
+            this.spamQue[server.id].length + 1 > spamQueLimit
         ) {
             this.bot.client.send(event.channelId, "**Too much spam already qued.**");
             return;
