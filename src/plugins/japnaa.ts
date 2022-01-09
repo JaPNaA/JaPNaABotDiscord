@@ -11,13 +11,12 @@ import getSnowflakeNum from "../main/utils/getSnowflakeNum";
 
 import createKey from "../main/bot/utils/locationKeyCreator.js";
 import { JSONObject } from "../main/types/jsonObject.js";
-import { Guild } from "discord.js";
 import mention from "../main/utils/str/mention"
 import randomString from "../main/utils/random/randomString.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 
-type SpamCallback = () => boolean;
+type SpamCallback = () => Promise<boolean>;
 
 /**
  * Commonly used commands made by me, JaPNaA
@@ -29,8 +28,6 @@ class Japnaa extends BotPlugin {
     spamQue: { [x: string]: SpamCallback[] };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
-    /** Is the spam interval active? */
-    spamIntervalActive: boolean = false;
     config: JSONObject;
 
     constructor(bot: Bot) {
@@ -134,13 +131,14 @@ class Japnaa extends BotPlugin {
      * Begins spamming from spam que with interval
      */
     _startSpam(): void {
-        if (this.spamIntervalActive) { return; }
         if (this.spamInterval) {
             clearInterval(this.spamInterval);
         }
 
-        this.spamInterval = setInterval(this._sendSpam.bind(this), 1000);
-        this.spamIntervalActive = true;
+        this.spamInterval = setTimeout(async () => {
+            await this._sendSpam();
+            this._startSpam();
+        }, 1000);
     }
 
     /**
@@ -157,8 +155,6 @@ class Japnaa extends BotPlugin {
         if (this.spamInterval) {
             clearInterval(this.spamInterval);
         }
-
-        this.spamIntervalActive = false;
     }
 
     /**
@@ -179,8 +175,6 @@ class Japnaa extends BotPlugin {
             clearInterval(this.spamInterval);
         }
 
-        this.spamIntervalActive = false;
-
         let keys: string[] = Object.keys(this.spamQue);
         for (let key of keys) {
             this._stopSpam(key);
@@ -190,20 +184,25 @@ class Japnaa extends BotPlugin {
     /**
      * Send spam, triggered by interval, by que
      */
-    _sendSpam(): void {
-        let keys: string[] = Object.keys(this.spamQue);
-        for (let key of keys) {
-            let spamQue: SpamCallback[] = this.spamQue[key];
+    async _sendSpam() {
+        const keys: string[] = Object.keys(this.spamQue);
+        const promises = [];
 
-            if (spamQue.length) {
-                let spamFunc: SpamCallback | undefined = spamQue.shift();
-                if (spamFunc && spamFunc()) {
-                    spamQue.push(spamFunc);
-                }
-            } else {
-                this._stopSpam(key);
+        for (const key of keys) {
+            const spamQue: SpamCallback[] = this.spamQue[key];
+
+            const spamFunc = spamQue.shift();
+            if (spamFunc) {
+                promises.push(
+                    spamFunc()
+                        .then(shouldContinue => {
+                            if (shouldContinue) { spamQue.push(spamFunc); }
+                        })
+                );
             }
         }
+
+        await Promise.all(promises);
     }
 
     /**
@@ -250,11 +249,11 @@ class Japnaa extends BotPlugin {
      */
     _spam(bot: Bot, channelId: string, serverId: string, amount: number, counter: boolean, message: string): void {
         let count: number = 0;
-        const spamCallback: SpamCallback = function (): boolean {
+        const spamCallback: SpamCallback = async function (): Promise<boolean> {
             if (counter) {
-                bot.client.send(channelId, `**${count + 1}/${amount}:** ${message}`);
+                await bot.client.send(channelId, `**${count + 1}/${amount}:** ${message}`);
             } else {
-                bot.client.send(channelId, message);
+                await bot.client.send(channelId, message);
             }
             count++;
             return count < amount;

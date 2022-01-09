@@ -23,8 +23,6 @@ class Japnaa extends plugin_js_1.default {
     spamQue;
     /** Spam setInterval return */
     spamInterval;
-    /** Is the spam interval active? */
-    spamIntervalActive = false;
     config;
     constructor(bot) {
         super(bot);
@@ -114,14 +112,13 @@ class Japnaa extends plugin_js_1.default {
      * Begins spamming from spam que with interval
      */
     _startSpam() {
-        if (this.spamIntervalActive) {
-            return;
-        }
         if (this.spamInterval) {
             clearInterval(this.spamInterval);
         }
-        this.spamInterval = setInterval(this._sendSpam.bind(this), 1000);
-        this.spamIntervalActive = true;
+        this.spamInterval = setTimeout(async () => {
+            await this._sendSpam();
+            this._startSpam();
+        }, 1000);
     }
     /**
      * Checks if the spam interval should be running or not
@@ -137,7 +134,6 @@ class Japnaa extends plugin_js_1.default {
         if (this.spamInterval) {
             clearInterval(this.spamInterval);
         }
-        this.spamIntervalActive = false;
     }
     /**
      * Stops spamming
@@ -155,7 +151,6 @@ class Japnaa extends plugin_js_1.default {
         if (this.spamInterval) {
             clearInterval(this.spamInterval);
         }
-        this.spamIntervalActive = false;
         let keys = Object.keys(this.spamQue);
         for (let key of keys) {
             this._stopSpam(key);
@@ -164,18 +159,19 @@ class Japnaa extends plugin_js_1.default {
     /**
      * Send spam, triggered by interval, by que
      */
-    _sendSpam() {
-        let keys = Object.keys(this.spamQue);
-        for (let key of keys) {
-            let spamQue = this.spamQue[key];
-            if (spamQue.length) {
-                let spamFunc = spamQue.shift();
-                if (spamFunc && spamFunc()) {
-                    spamQue.push(spamFunc);
-                }
-            }
-            else {
-                this._stopSpam(key);
+    async _sendSpam() {
+        const keys = Object.keys(this.spamQue);
+        const promises = [];
+        for (const key of keys) {
+            const spamQue = this.spamQue[key];
+            const spamFunc = spamQue.shift();
+            if (spamFunc) {
+                promises.push(spamFunc()
+                    .then(shouldContinue => {
+                    if (shouldContinue) {
+                        spamQue.push(spamFunc);
+                    }
+                }));
             }
         }
     }
@@ -215,12 +211,12 @@ class Japnaa extends plugin_js_1.default {
      */
     _spam(bot, channelId, serverId, amount, counter, message) {
         let count = 0;
-        const spamCallback = function () {
+        const spamCallback = async function () {
             if (counter) {
-                bot.client.send(channelId, `**${count + 1}/${amount}:** ${message}`);
+                await bot.client.send(channelId, `**${count + 1}/${amount}:** ${message}`);
             }
             else {
-                bot.client.send(channelId, message);
+                await bot.client.send(channelId, message);
             }
             count++;
             return count < amount;

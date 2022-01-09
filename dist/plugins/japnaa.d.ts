@@ -4,7 +4,7 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import { JSONObject } from "../main/types/jsonObject.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
-declare type SpamCallback = () => boolean;
+declare type SpamCallback = () => Promise<boolean>;
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -17,8 +17,6 @@ declare class Japnaa extends BotPlugin {
     };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
-    /** Is the spam interval active? */
-    spamIntervalActive: boolean;
     config: JSONObject;
     constructor(bot: Bot);
     /**
@@ -52,7 +50,7 @@ declare class Japnaa extends BotPlugin {
     /**
      * Send spam, triggered by interval, by que
      */
-    _sendSpam(): void;
+    _sendSpam(): Promise<void>;
     /**
      * Gets the spam limit for channel and user
      */
