@@ -52,7 +52,14 @@ export default class AutoThread extends BotPlugin {
             name: ellipsisize(event.message || "Untitled", 100),
             startMessage: event.messageId
         });
+
         this.setCooldown(event.channelId);
+
+        // temporary: prevent people from sending messages while on cooldown
+        channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
+        setTimeout(() => {
+            channel.permissionOverwrites.delete(channel.guild.roles.everyone);
+        }, 30e3);
     }
 
     private async _isNaturalMessage(event: DiscordMessageEvent): Promise<boolean> {

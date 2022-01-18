@@ -54,6 +54,11 @@ class AutoThread extends plugin_js_1.default {
             startMessage: event.messageId
         });
         this.setCooldown(event.channelId);
+        // temporary: prevent people from sending messages while on cooldown
+        channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
+        setTimeout(() => {
+            channel.permissionOverwrites.delete(channel.guild.roles.everyone);
+        }, 30e3);
     }
     async _isNaturalMessage(event) {
         const user = await this.bot.client.getUser(event.userId);
