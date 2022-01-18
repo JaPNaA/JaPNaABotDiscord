@@ -10,7 +10,7 @@ import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 class JapnaaWeird extends BotPlugin {
     lolRegexp: RegExp = /(\W|^)([l1|\\!/]+)+[\W_]*((h|w)*([a@&\*eiouy0.=])+(h|w)*)[\W_]*[l1|\\!/]+(\W|$)/i;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
-    l$wlRegexp: RegExp = /(ЛЮЉ)|([l1|\\!/][\W_]*(e|3)[\W_]*(w|(vv)|u)[\W_]*[l1|\\!/][\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?(e|3)[\W_]*(w|(vv)))/gi;
+    l$wlRegexp: RegExp = /(ЛЮЉ)|([l1|\\!/🇱\uff4c][\W_]*[e3🇪\uff45][\W_]*(w|(vv)|u|🇼|ｗ)[\W_]*[l1|\\!/🇱\uff4c][\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?[e3🇪\uff45][\W_]*(w|(vv)|u|🇼|ｗ))/gi;
 
     constructor(bot: Bot) {
         super(bot);
@@ -59,7 +59,7 @@ class JapnaaWeird extends BotPlugin {
         }
     }
 
-    _countL$wl(str: string): number {
+    private _countL$wl(str: string): number {
         let i = 0;
         for (let match; match = this.l$wlRegexp.exec(str); i++) { }
         return i;
