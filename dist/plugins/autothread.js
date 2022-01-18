@@ -51,7 +51,6 @@ class AutoThread extends plugin_js_1.default {
         }
         channel.threads.create({
             name: (0, ellipsisize_js_1.default)(event.message, 100),
-            autoArchiveDuration: 60,
             startMessage: event.messageId
         });
         this.setCooldown(event.channelId);

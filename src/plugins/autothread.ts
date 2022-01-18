@@ -50,7 +50,6 @@ export default class AutoThread extends BotPlugin {
 
         channel.threads.create({
             name: ellipsisize(event.message, 100),
-            autoArchiveDuration: 60,
             startMessage: event.messageId
         });
         this.setCooldown(event.channelId);
