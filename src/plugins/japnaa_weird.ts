@@ -8,9 +8,9 @@ import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
  * The weirder side of JaPNaABot
  */
 class JapnaaWeird extends BotPlugin {
-    lolRegexp: RegExp = /(\W|^)([l1|\\!/🇱\uff4c]+)+[\W_]*((h|w)*([a@&\*eiouy0.=\u1f1f4]|(\ud83c\udd7e\ufe0f))+(h|w)*)[\W_]*[l1|\\!/🇱\uff4c]+(\W|$)/i;
+    lolRegexp: RegExp = /(\W|^)(([l1|\\!/\uff4c]|(\ud83c\uddf1))+)+[\W_]*((h|w)*([a@&\*eiouy0.=]|(\ud83c\udd7e\ufe0f)|(\ud83c\uddf4))+(h|w)*)[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))+(\W|$)/i;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
-    l$wlRegexp: RegExp = /(ЛЮЉ)|([l1|\\!/🇱\uff4c][\W_]*[e3🇪\uff45][\W_]*((vv)|[wu🇼ｗ])[\W_]*[l1|\\!/🇱\uff4c][\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?[e3🇪\uff45][\W_]*(w|(vv)|u|🇼|ｗ))/gi;
+    l$wlRegexp: RegExp = /(ЛЮЉ)|(([l1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*[e3🇪\uff45][\W_]*((vv)|[wu🇼ｗ])[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?[e3🇪\uff45][\W_]*((vv)|[wu🇼ｗ]))/gi;
 
     constructor(bot: Bot) {
         super(bot);

@@ -8,9 +8,9 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
  * The weirder side of JaPNaABot
  */
 class JapnaaWeird extends plugin_js_1.default {
-    lolRegexp = /(\W|^)([l1|\\!/🇱\uff4c]+)+[\W_]*((h|w)*([a@&\*eiouy0.=\u1f1f4]|(\ud83c\udd7e\ufe0f))+(h|w)*)[\W_]*[l1|\\!/🇱\uff4c]+(\W|$)/i;
+    lolRegexp = /(\W|^)(([l1|\\!/\uff4c]|(\ud83c\uddf1))+)+[\W_]*((h|w)*([a@&\*eiouy0.=]|(\ud83c\udd7e\ufe0f)|(\ud83c\uddf4))+(h|w)*)[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))+(\W|$)/i;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
-    l$wlRegexp = /(ЛЮЉ)|([l1|\\!/🇱\uff4c][\W_]*[e3🇪\uff45][\W_]*((vv)|[wu🇼ｗ])[\W_]*[l1|\\!/🇱\uff4c][\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?[e3🇪\uff45][\W_]*(w|(vv)|u|🇼|ｗ))/gi;
+    l$wlRegexp = /(ЛЮЉ)|(([l1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*[e3🇪\uff45][\W_]*((vv)|[wu🇼ｗ])[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?[e3🇪\uff45][\W_]*((vv)|[wu🇼ｗ]))/gi;
     constructor(bot) {
         super(bot);
         this._pluginName = "japnaaweird";
