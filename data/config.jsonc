@@ -36,7 +36,8 @@
     "default",
     "japnaa",
     "games",
-    "reminder"
+    "reminder",
+    "autothread"
   ],
 
   // Plugins running in bot (external)
