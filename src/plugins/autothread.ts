@@ -49,7 +49,7 @@ export default class AutoThread extends BotPlugin {
         if (!this.isCool(event.channelId)) { return; }
 
         channel.threads.create({
-            name: ellipsisize(event.message, 100),
+            name: ellipsisize(event.message || "Untitled", 100),
             startMessage: event.messageId
         });
         this.setCooldown(event.channelId);

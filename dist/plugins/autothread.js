@@ -50,7 +50,7 @@ class AutoThread extends plugin_js_1.default {
             return;
         }
         channel.threads.create({
-            name: (0, ellipsisize_js_1.default)(event.message, 100),
+            name: (0, ellipsisize_js_1.default)(event.message || "Untitled", 100),
             startMessage: event.messageId
         });
         this.setCooldown(event.channelId);
