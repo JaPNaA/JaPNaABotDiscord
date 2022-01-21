@@ -43,7 +43,7 @@ class Default extends plugin_js_1.default {
     sawUpdateBotWarning;
     constructor(bot) {
         super(bot);
-        this._pluginName = "default";
+        this.pluginName = "default";
         this.sawUpdateBotWarning = false;
     }
     ping(event) {

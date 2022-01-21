@@ -14,7 +14,7 @@ class JapnaaWeird extends BotPlugin {
 
     constructor(bot: Bot) {
         super(bot);
-        this._pluginName = "japnaaweird";
+        this.pluginName = "japnaaweird";
     }
 
     /**

@@ -1,7 +1,6 @@
 /// <reference types="node" />
 import DiscordMessageEvent from "../main/bot/events/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import { JSONObject } from "../main/types/jsonObject.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 declare type SpamCallback = () => Promise<boolean>;
@@ -18,7 +17,6 @@ declare class Japnaa extends BotPlugin {
     };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
-    config: JSONObject;
     constructor(bot: Bot);
     /**
      * makes the bot count

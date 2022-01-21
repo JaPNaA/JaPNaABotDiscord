@@ -9,7 +9,7 @@ import PresidentsMain from "./game";
  */
 declare class Presidents extends Game {
     _gamePluginName: string;
-    _pluginName: string;
+    pluginName: string;
     gameName: string;
     initer: string;
     channelId: string;

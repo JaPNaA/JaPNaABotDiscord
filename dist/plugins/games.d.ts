@@ -12,9 +12,6 @@ declare class Games extends BotPlugin {
     precommand: PrecommandWithoutCallback;
     currentGames: Map<string, Game>;
     playerGameMap: Map<string, Game>;
-    config: {
-        [x: string]: any;
-    };
     gameAliases: {
         [x: string]: GameClass;
     };

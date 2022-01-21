@@ -14,7 +14,7 @@ const messageType_1 = __importDefault(require("./messageType"));
  */
 class Presidents extends game_1.default {
     _gamePluginName = "presidents";
-    _pluginName = "game." + this._gamePluginName;
+    pluginName = "game." + this._gamePluginName;
     gameName = "Presidents";
     initer;
     channelId;
@@ -23,7 +23,7 @@ class Presidents extends game_1.default {
         super(bot, parentPlugin);
         this.gameName = "Presidents";
         this._gamePluginName = "presidents";
-        this._pluginName = "game." + this._gamePluginName;
+        this.pluginName = "game." + this._gamePluginName;
         this.initer = initer;
         this.channelId = channelId;
         this.game = new game_2.default(this.bot, this.parentPlugin, this);

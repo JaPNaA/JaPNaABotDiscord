@@ -7,9 +7,11 @@ import BotCommandCallback from "../command/commandCallback";
 import Bot from "../bot/bot";
 import EventHandler from "../types/eventHandler";
 import PrecommandCallback from "../precommand/precommandCallback";
+import PluginConfig from "./pluginConfig";
 declare abstract class BotPlugin {
     protected bot: Bot;
-    _pluginName: string;
+    pluginName: string;
+    protected config: PluginConfig;
     constructor(bot: Bot);
     /**
      * Starts the plugin
@@ -20,14 +22,14 @@ declare abstract class BotPlugin {
      */
     abstract _stop(): void;
     /** Registers a command handler */
-    _registerDefaultCommand(name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
-    _registerCommand(commandManager: CommandManager, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
-    _registerCommand(precommand: PrecommandWithoutCallback, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
-    _registerUnknownCommandHandler(commandManager: CommandManager, func: UnknownCommandHandler): void;
-    _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: UnknownCommandHandler): void;
+    protected _registerDefaultCommand(name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
+    protected _registerCommand(commandManager: CommandManager, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
+    protected _registerCommand(precommand: PrecommandWithoutCallback, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
+    protected _registerUnknownCommandHandler(commandManager: CommandManager, func: UnknownCommandHandler): void;
+    protected _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: UnknownCommandHandler): void;
     /** Adds a handler function to an event */
-    _registerEventHandler(name: EventName, callback: EventHandler): void;
-    _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
-    _registerPrecommand(precommand: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
+    protected _registerEventHandler(name: EventName, callback: EventHandler): void;
+    protected _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
+    protected _registerPrecommand(precommand: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
 }
 export default BotPlugin;

@@ -28,7 +28,7 @@ class Default extends BotPlugin {
 
     constructor(bot: Bot) {
         super(bot);
-        this._pluginName = "default";
+        this.pluginName = "default";
         this.sawUpdateBotWarning = false;
     }
 

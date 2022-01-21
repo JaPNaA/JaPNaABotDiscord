@@ -14,7 +14,6 @@ class Games extends plugin_js_1.default {
     precommand;
     currentGames;
     playerGameMap;
-    config;
     gameAliases = {
         "slapjack": slapjack_js_1.default,
         "slap jack": slapjack_js_1.default,
@@ -25,9 +24,8 @@ class Games extends plugin_js_1.default {
     };
     constructor(bot) {
         super(bot);
-        this._pluginName = "games";
-        this.config = bot.config.getPlugin(this._pluginName);
-        this.precommand = this._registerPrecommand(this.config.precommand);
+        this.pluginName = "games";
+        this.precommand = this._registerPrecommand(this.config.get("precommand"));
         this.currentGames = new Map();
         this.playerGameMap = new Map();
     }

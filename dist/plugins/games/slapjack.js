@@ -10,7 +10,7 @@ const cardUtils_1 = require("./cards/cardUtils");
 const mention_1 = __importDefault(require("../../main/utils/str/mention"));
 class SlapJack extends game_1.default {
     _gamePluginName = "slapjack";
-    _pluginName = "game." + this._gamePluginName;
+    pluginName = "game." + this._gamePluginName;
     gameName = "Slap Jack";
     channelId;
     activeMessage;

@@ -11,7 +11,7 @@ import mention from "../../main/utils/str/mention";
 
 class SlapJack extends Game {
     _gamePluginName: string = "slapjack"
-    _pluginName: string = "game." + this._gamePluginName;
+    pluginName: string = "game." + this._gamePluginName;
     gameName: string = "Slap Jack";
 
     channelId: string;

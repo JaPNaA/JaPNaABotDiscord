@@ -15,8 +15,8 @@ class AutoThread extends plugin_js_1.default {
     cooldowns = new Map();
     constructor(bot) {
         super(bot);
-        this._pluginName = "autothread";
-        this.activeChannels = bot.memory.get(this._pluginName, "activeChannels") || [];
+        this.pluginName = "autothread";
+        this.activeChannels = bot.memory.get(this.pluginName, "activeChannels") || [];
     }
     async toggleAutothread(event) {
         const existingIndex = this.activeChannels.indexOf(event.channelId);
@@ -73,7 +73,7 @@ class AutoThread extends plugin_js_1.default {
         this.cooldowns.set(channelId, Date.now() + 30e3);
     }
     writeToMemory() {
-        this.bot.memory.write(this._pluginName, "activeChannels", this.activeChannels);
+        this.bot.memory.write(this.pluginName, "activeChannels", this.activeChannels);
     }
     _start() {
         this._registerDefaultCommand("autothread", this.toggleAutothread, new commandOptions_js_1.default({

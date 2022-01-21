@@ -17,8 +17,8 @@ export default class AutoThread extends BotPlugin {
 
     constructor(bot: Bot) {
         super(bot);
-        this._pluginName = "autothread";
-        this.activeChannels = bot.memory.get(this._pluginName, "activeChannels") || [];
+        this.pluginName = "autothread";
+        this.activeChannels = bot.memory.get(this.pluginName, "activeChannels") || [];
     }
 
     public async toggleAutothread(event: DiscordCommandEvent) {
@@ -80,7 +80,7 @@ export default class AutoThread extends BotPlugin {
     }
 
     private writeToMemory() {
-        this.bot.memory.write(this._pluginName, "activeChannels", this.activeChannels);
+        this.bot.memory.write(this.pluginName, "activeChannels", this.activeChannels);
     }
 
     _start(): void {

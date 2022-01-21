@@ -24,22 +24,20 @@ class Japnaa extends plugin_js_1.default {
     spamQue;
     /** Spam setInterval return */
     spamInterval;
-    config;
     constructor(bot) {
         super(bot);
-        this._pluginName = "japnaa";
+        this.pluginName = "japnaa";
         this.memorySpamLimit = "spamLimit";
-        this.counter = bot.memory.get(this._pluginName, "counter") || 0;
+        this.counter = bot.memory.get(this.pluginName, "counter") || 0;
         this.spamQue = {};
         this.spamInterval = null;
-        this.config = bot.config.getPlugin(this._pluginName); // assume config is correct
     }
     /**
      * makes the bot count
      */
     count(event) {
         this.counter++;
-        this.bot.memory.write(this._pluginName, "counter", this.counter);
+        this.bot.memory.write(this.pluginName, "counter", this.counter);
         this.bot.client.send(event.channelId, this.counter.toString() + "!");
     }
     /**
@@ -181,27 +179,27 @@ class Japnaa extends plugin_js_1.default {
      * Gets the spam limit for channel and user
      */
     _getSpamLimit(bot, event) {
-        let userLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.user_server(event.serverId, event.userId));
+        let userLimit = bot.memory.get(this.pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.user_server(event.serverId, event.userId));
         if (userLimit !== null) {
             return userLimit;
         }
-        let channelLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.channel(event.serverId, event.channelId));
+        let channelLimit = bot.memory.get(this.pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.channel(event.serverId, event.channelId));
         if (channelLimit !== null) {
             return channelLimit;
         }
-        let serverLimit = bot.memory.get(this._pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
+        let serverLimit = bot.memory.get(this.pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
         if (serverLimit !== null) {
             return serverLimit;
         }
-        let defaultLimit = this.config["spam.defaultLimit"];
+        let defaultLimit = this.config.get("spam.defaultLimit");
         return defaultLimit;
     }
     /**
      * Gets the spam limit que for server and user
      */
     _getSpamQueLimit(bot, event) {
-        let defaultLimit = this.config["spam.defaultQueLimit"];
-        let serverLimit = bot.memory.get(this._pluginName, this.memorySpamQueLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
+        let defaultLimit = this.config.get("spam.defaultQueLimit");
+        let serverLimit = bot.memory.get(this.pluginName, this.memorySpamQueLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
         return serverLimit || defaultLimit;
     }
     /**

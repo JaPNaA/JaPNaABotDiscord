@@ -21,7 +21,7 @@ abstract class Game extends BotPlugin {
 
         this.gameName = this.constructor.name;
         this._gamePluginName = this.gameName.toLowerCase();
-        this._pluginName = "game." + this._gamePluginName;
+        this.pluginName = "game." + this._gamePluginName;
 
         this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
     }

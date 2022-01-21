@@ -21,8 +21,6 @@ class Games extends BotPlugin {
     currentGames: Map<string, Game>;
     playerGameMap: Map<string, Game>;
 
-    config: { [x: string]: any };
-
     gameAliases: { [x: string]: GameClass } = {
         "slapjack": SlapJack,
         "slap jack": SlapJack,
@@ -35,10 +33,9 @@ class Games extends BotPlugin {
 
     constructor(bot: Bot) {
         super(bot);
-        this._pluginName = "games";
-        this.config = bot.config.getPlugin(this._pluginName) as any;
+        this.pluginName = "games";
 
-        this.precommand = this._registerPrecommand(this.config.precommand);
+        this.precommand = this._registerPrecommand(this.config.get("precommand") as string);
         this.currentGames = new Map();
         this.playerGameMap = new Map();
     }

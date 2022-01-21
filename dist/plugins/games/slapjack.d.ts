@@ -8,7 +8,7 @@ import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 declare class SlapJack extends Game {
     _gamePluginName: string;
-    _pluginName: string;
+    pluginName: string;
     gameName: string;
     channelId: string;
     activeMessage?: Message;

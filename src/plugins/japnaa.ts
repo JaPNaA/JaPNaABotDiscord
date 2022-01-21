@@ -29,18 +29,15 @@ class Japnaa extends BotPlugin {
     spamQue: { [x: string]: SpamCallback[] };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
-    config: JSONObject;
 
     constructor(bot: Bot) {
         super(bot);
 
-        this._pluginName = "japnaa";
+        this.pluginName = "japnaa";
         this.memorySpamLimit = "spamLimit";
-        this.counter = bot.memory.get(this._pluginName, "counter") || 0;
+        this.counter = bot.memory.get(this.pluginName, "counter") || 0;
         this.spamQue = {};
         this.spamInterval = null;
-
-        this.config = bot.config.getPlugin(this._pluginName) as JSONObject; // assume config is correct
     }
 
     /**
@@ -48,7 +45,7 @@ class Japnaa extends BotPlugin {
      */
     count(event: DiscordMessageEvent): void {
         this.counter++;
-        this.bot.memory.write(this._pluginName, "counter", this.counter);
+        this.bot.memory.write(this.pluginName, "counter", this.counter);
         this.bot.client.send(event.channelId, this.counter.toString() + "!");
     }
 
@@ -210,22 +207,22 @@ class Japnaa extends BotPlugin {
      * Gets the spam limit for channel and user
      */
     _getSpamLimit(bot: Bot, event: DiscordMessageEvent): number {
-        let userLimit: number = bot.memory.get(this._pluginName,
+        let userLimit: number = bot.memory.get(this.pluginName,
             this.memorySpamLimit + createKey.delimiter() + createKey.user_server(event.serverId, event.userId)
         );
         if (userLimit !== null) { return userLimit; }
 
-        let channelLimit: number = bot.memory.get(this._pluginName,
+        let channelLimit: number = bot.memory.get(this.pluginName,
             this.memorySpamLimit + createKey.delimiter() + createKey.channel(event.serverId, event.channelId)
         );
         if (channelLimit !== null) { return channelLimit; }
 
-        let serverLimit: number = bot.memory.get(this._pluginName,
+        let serverLimit: number = bot.memory.get(this.pluginName,
             this.memorySpamLimit + createKey.delimiter() + createKey.server(event.serverId)
         );
         if (serverLimit !== null) { return serverLimit; }
 
-        let defaultLimit: number = this.config["spam.defaultLimit"] as number;
+        let defaultLimit: number = this.config.get("spam.defaultLimit") as number;
         return defaultLimit;
     }
 
@@ -233,9 +230,9 @@ class Japnaa extends BotPlugin {
      * Gets the spam limit que for server and user
      */
     _getSpamQueLimit(bot: Bot, event: DiscordMessageEvent): number {
-        let defaultLimit: number = this.config["spam.defaultQueLimit"] as number;
+        let defaultLimit: number = this.config.get("spam.defaultQueLimit") as number;
 
-        let serverLimit: number = bot.memory.get(this._pluginName,
+        let serverLimit: number = bot.memory.get(this.pluginName,
             this.memorySpamQueLimit + createKey.delimiter() + createKey.server(event.serverId)
         );
 

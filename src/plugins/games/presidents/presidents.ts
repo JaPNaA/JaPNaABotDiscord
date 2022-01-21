@@ -13,7 +13,7 @@ import MessageType from "./messageType";
  */
 class Presidents extends Game {
     _gamePluginName: string = "presidents";
-    _pluginName: string = "game." + this._gamePluginName;
+    pluginName: string = "game." + this._gamePluginName;
     gameName: string = "Presidents";
 
     initer: string;
@@ -27,7 +27,7 @@ class Presidents extends Game {
 
         this.gameName = "Presidents";
         this._gamePluginName = "presidents";
-        this._pluginName = "game." + this._gamePluginName;
+        this.pluginName = "game." + this._gamePluginName;
 
         this.initer = initer;
 

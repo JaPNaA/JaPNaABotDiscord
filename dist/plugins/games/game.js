@@ -17,7 +17,7 @@ class Game extends plugin_1.default {
         this.commandManager = new commandManager_1.default(this.bot);
         this.gameName = this.constructor.name;
         this._gamePluginName = this.gameName.toLowerCase();
-        this._pluginName = "game." + this._gamePluginName;
+        this.pluginName = "game." + this._gamePluginName;
         this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
     }
     unknownCommandHandler(event) {

@@ -13,7 +13,7 @@ class JapnaaWeird extends plugin_js_1.default {
     l$wlRegexp = /.(ЛЮЉ)|(([l1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ])[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ]))/gi;
     constructor(bot) {
         super(bot);
-        this._pluginName = "japnaaweird";
+        this.pluginName = "japnaaweird";
     }
     /**
      * Tetris is a racing game.

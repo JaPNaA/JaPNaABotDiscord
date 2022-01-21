@@ -1,16 +1,22 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const precommand_1 = require("../precommand/precommand");
+const pluginConfig_1 = __importDefault(require("./pluginConfig"));
 class BotPlugin {
     bot;
-    _pluginName;
+    pluginName;
+    config;
     constructor(bot) {
         this.bot = bot;
-        this._pluginName = this.constructor.name.toLowerCase();
+        this.pluginName = this.constructor.name.toLowerCase();
+        this.config = new pluginConfig_1.default(this, bot);
     }
     /** Registers a command handler */
     _registerDefaultCommand(name, callback, options) {
-        this.bot.defaultPrecommand.commandManager.register(name, this._pluginName, callback.bind(this), options);
+        this.bot.defaultPrecommand.commandManager.register(name, this.pluginName, callback.bind(this), options);
     }
     _registerCommand(precommandOrCommandManager, name, callback, options) {
         let commandManager;
@@ -20,7 +26,7 @@ class BotPlugin {
         else {
             commandManager = precommandOrCommandManager;
         }
-        commandManager.register(name, this._pluginName, callback.bind(this), options);
+        commandManager.register(name, this.pluginName, callback.bind(this), options);
     }
     _registerUnknownCommandHandler(precommandOrCommandManager, func) {
         let commandManager;

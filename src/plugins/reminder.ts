@@ -44,8 +44,8 @@ class Reminders extends BotPlugin {
 
     constructor(bot: Bot) {
         super(bot);
-        this._pluginName = "reminder";
-        this._reminders = this.bot.memory.get(this._pluginName, "reminders") || [];
+        this.pluginName = "reminder";
+        this._reminders = this.bot.memory.get(this.pluginName, "reminders") || [];
     }
 
     set_reminder(event: DiscordCommandEvent) {
@@ -135,7 +135,7 @@ class Reminders extends BotPlugin {
     _updateReminders() {
         this._stopReminderTimeout();
 
-        this.bot.memory.write(this._pluginName, "reminders", this._reminders);
+        this.bot.memory.write(this.pluginName, "reminders", this._reminders);
 
         const nextReminder = this._reminders[0];
         if (!nextReminder) { return; }
