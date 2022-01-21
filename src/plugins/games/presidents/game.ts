@@ -57,7 +57,7 @@ class PresidentsMain {
                 await this.waitForTurn(player);
                 break;
             } catch (err) {
-                this.handlePlayerTurnError(err, player);
+                this.handlePlayerTurnError(err as Error, player);
             }
         }
     }

@@ -44,7 +44,7 @@ class Presidents extends Game {
         try {
             this.game.playerHandler.addPlayer(userId);
         } catch (err) {
-            this.handleJoinError(err, userId);
+            this.handleJoinError(err as Error, userId);
         }
     }
 
@@ -53,7 +53,7 @@ class Presidents extends Game {
             this.game.playerHandler.addPlayer(userId);
             this.bot.client.send(this.channelId, mention(userId) + " has joined " + this.gameName + "!");
         } catch (err) {
-            this.handleJoinError(err, userId);
+            this.handleJoinError(err as Error, userId);
         }
     }
 
