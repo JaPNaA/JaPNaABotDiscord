@@ -74,9 +74,7 @@ class Japnaa extends plugin_js_1.default {
         const [maxArg, minArg, stepArg, timesArg] = (0, stringToArgs_1.default)(event.arguments);
         // !random string branch
         if (maxArg && maxArg.toLowerCase() === "string") {
-            this.bot.client.send(event.channelId, "```" +
-                (0, randomString_js_1.default)(128).replace(/`$/g, "` ") // because discord markup
-                + "```");
+            this.random_string(event);
             return;
         }
         let max = this._parseFloatWithDefault(maxArg, 1);
@@ -101,6 +99,21 @@ class Japnaa extends plugin_js_1.default {
             results.push((0, random_1.default)(min, max, step));
         }
         this.bot.client.send(event.channelId, (0, ellipsisize_1.default)(`${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`, 2000 - 2) + "**");
+    }
+    async random_string(event) {
+        const [stringArg, lengthArg] = (0, stringToArgs_1.default)(event.arguments);
+        const length = lengthArg ? parseInt(lengthArg) : 128;
+        if (isNaN(length)) {
+            this.bot.client.send(event.channelId, "Number required");
+            return;
+        }
+        if (length > 1900) {
+            this.bot.client.send(event.channelId, "String too long (max: 1900)");
+            return;
+        }
+        this.bot.client.send(event.channelId, "```" +
+            (0, randomString_js_1.default)(length).replace(/`$/g, "` ") // because discord markup
+            + "```");
     }
     _parseFloatWithDefault(str, defaultNum) {
         if (!str) {
@@ -417,7 +430,8 @@ class Japnaa extends plugin_js_1.default {
                     ["random 5 10 2", "A random number between 5 and 10 that's divisible by 2"],
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
                     ["random 5 10 1.6 10", "10 random numbers between 5 and 10 that's divisible by 1.6"],
-                    ["random string", "A random string 128 characters long"]
+                    ["random string", "A random string 128 characters long"],
+                    ["random string 10", "A random string 10 characters long"]
                 ]
             }),
             group: "Utils"

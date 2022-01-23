@@ -85,11 +85,7 @@ class Japnaa extends BotPlugin {
 
         // !random string branch
         if (maxArg && maxArg.toLowerCase() === "string") {
-            this.bot.client.send(event.channelId,
-                "```" +
-                randomString(128).replace(/`$/g, "` ") // because discord markup
-                + "```"
-            );
+            this.random_string(event);
             return;
         }
 
@@ -121,6 +117,27 @@ class Japnaa extends BotPlugin {
                 `${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`,
                 2000 - 2
             ) + "**"
+        );
+    }
+
+    async random_string(event: DiscordMessageEvent) {
+        const [stringArg, lengthArg] = stringToArgs(event.arguments);
+
+        const length = lengthArg ? parseInt(lengthArg) : 128;
+        if (isNaN(length)) {
+            this.bot.client.send(event.channelId, "Number required");
+            return;
+        }
+
+        if (length > 1900) {
+            this.bot.client.send(event.channelId, "String too long (max: 1900)");
+            return;
+        }
+
+        this.bot.client.send(event.channelId,
+            "```" +
+            randomString(length).replace(/`$/g, "` ") // because discord markup
+            + "```"
         );
     }
 
@@ -477,7 +494,8 @@ class Japnaa extends BotPlugin {
                     ["random 5 10 2", "A random number between 5 and 10 that's divisible by 2"],
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
                     ["random 5 10 1.6 10", "10 random numbers between 5 and 10 that's divisible by 1.6"],
-                    ["random string", "A random string 128 characters long"]
+                    ["random string", "A random string 128 characters long"],
+                    ["random string 10", "A random string 10 characters long"]
                 ]
             }),
             group: "Utils"
