@@ -58,7 +58,7 @@ class AutoThread extends plugin_js_1.default {
             return;
         }
         const channel = await this.bot.client.getChannel(event.channelId);
-        if (!channel) {
+        if (!channel || channel.isThread()) {
             return;
         }
         if (!this.isCool(event.channelId)) {
@@ -77,6 +77,12 @@ class AutoThread extends plugin_js_1.default {
             setTimeout(() => {
                 channel.permissionOverwrites.delete(channel.guild.roles.everyone);
             }, cooldownTime);
+        }
+    }
+    threadTitleFromMessage(message) {
+        const firstLine = message.split("\n").find(e => e.trim());
+        if (!firstLine) {
+            return;
         }
     }
     async _isNaturalMessage(event) {

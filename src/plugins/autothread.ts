@@ -60,7 +60,7 @@ export default class AutoThread extends BotPlugin {
         if (!config.get("enabled")) { return; }
         if (!(await this._isNaturalMessage(event))) { return; }
         const channel = await this.bot.client.getChannel(event.channelId) as TextChannel;
-        if (!channel) { return; }
+        if (!channel || channel.isThread()) { return; }
 
         if (!this.isCool(event.channelId)) { return; }
 
