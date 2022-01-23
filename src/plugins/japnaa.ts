@@ -15,6 +15,7 @@ import mention from "../main/utils/str/mention"
 import randomString from "../main/utils/random/randomString.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
+import ellipsisize from "../main/utils/str/ellipsisize";
 
 type SpamCallback = () => Promise<boolean>;
 
@@ -70,11 +71,11 @@ class Japnaa extends BotPlugin {
     /**
      * Generates random stuff
      */
-    random(event: DiscordMessageEvent): void {
-        const args: string[] = stringToArgs(event.arguments);
+    async random(event: DiscordMessageEvent) {
+        const [maxArg, minArg, stepArg, timesArg] = stringToArgs(event.arguments);
 
-        // !random string
-        if (args[0] && args[0].toLowerCase() === "string") {
+        // !random string branch
+        if (maxArg && maxArg.toLowerCase() === "string") {
             this.bot.client.send(event.channelId,
                 "```" +
                 randomString(128).replace(/`$/g, "` ") // because discord markup
@@ -83,46 +84,42 @@ class Japnaa extends BotPlugin {
             return;
         }
 
-        Logger.log(" >> " + JSON.stringify(args));
+        let max = this._parseFloatWithDefault(maxArg, 1);
+        let min = this._parseFloatWithDefault(minArg, 0);
 
-        let max: number = 0;
-        let min: number = 0;
-        let step: number = 0;
-
-        let result: number = 0;
-
-        // do different things with different amount of arguments
-        switch (args.length) {
-            case 0:
-                max = 1;
-                min = 0;
-                step = 0;
-                break;
-            case 1:
-                max = parseFloat(args[0]);
-                min = 0;
-                step = 1;
-                break;
-            case 2:
-                max = parseFloat(args[0]);
-                min = parseFloat(args[1]);
-                step = 1;
-                break;
-            case 3:
-                max = parseFloat(args[0]);
-                min = parseFloat(args[1]);
-                step = parseFloat(args[2]);
-                break;
+        let step = parseFloat(stepArg);
+        if (isNaN(step)) {
+            step = (min === 0 && max === 1) ? 0 : 1;
         }
+        const times = Math.min(parseFloat(timesArg), 700) || 1;
 
         // check if arguments are valid
         if (isNaN(max) || isNaN(min) || isNaN(step)) {
             this.bot.client.send(event.channelId, "**Invalid arguments**");
-        } else {
-            result = random(min, max, step);
+            return;
+        }
+        if (min > max) {
+            const temp = min;
+            min = max;
+            max = temp;
         }
 
-        this.bot.client.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
+        const results = [];
+        for (let i = 0; i < times; i++) { results.push(random(min, max, step)); }
+
+        this.bot.client.send(event.channelId,
+            ellipsisize(
+                `${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`,
+                2000 - 2
+            ) + "**"
+        );
+    }
+
+    private _parseFloatWithDefault(str: string, defaultNum: number) {
+        if (!str) { return defaultNum; }
+        const parsed = parseFloat(str);
+        if (isNaN(parsed)) { throw new Error("Invalid arguments: Not a number"); }
+        return parsed;
     }
 
     /**
@@ -476,7 +473,8 @@ class Japnaa extends BotPlugin {
                 overloads: [{
                     "[max]": "Optional. The maximum of the random number",
                     "[min]": "Optional. The minimum of the random number",
-                    "[step]": "Optional. What the number must be dividible by. 0 indicates it doesn't have to be divisible by anything."
+                    "[step]": "Optional. What the number must be dividible by. 0 indicates it doesn't have to be divisible by anything.",
+                    "[times]": "Optional. How many random numbers to generate"
                 }, {
                     "\"string\"": "\"string\", will respond with a randomly generated 128 character string."
                 }],
@@ -486,6 +484,7 @@ class Japnaa extends BotPlugin {
                     ["random 5 10", "A random number between 5 and 10 that's divisible by 1"],
                     ["random 5 10 2", "A random number between 5 and 10 that's divisible by 2"],
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
+                    ["random 5 10 1.6 10", "10 random numbers between 5 and 10 that's divisible by 1.6"],
                     ["random string", "A random string 128 characters long"]
                 ]
             }),

@@ -6,13 +6,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
-const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const stringToArgs_1 = __importDefault(require("../main/utils/str/stringToArgs"));
 const random_1 = __importDefault(require("../main/utils/random/random"));
 const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
 const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locationKeyCreator.js"));
 const mention_1 = __importDefault(require("../main/utils/str/mention"));
 const randomString_js_1 = __importDefault(require("../main/utils/random/randomString.js"));
+const ellipsisize_1 = __importDefault(require("../main/utils/str/ellipsisize"));
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -61,51 +61,47 @@ class Japnaa extends plugin_js_1.default {
     /**
      * Generates random stuff
      */
-    random(event) {
-        const args = (0, stringToArgs_1.default)(event.arguments);
-        // !random string
-        if (args[0] && args[0].toLowerCase() === "string") {
+    async random(event) {
+        const [maxArg, minArg, stepArg, timesArg] = (0, stringToArgs_1.default)(event.arguments);
+        // !random string branch
+        if (maxArg && maxArg.toLowerCase() === "string") {
             this.bot.client.send(event.channelId, "```" +
                 (0, randomString_js_1.default)(128).replace(/`$/g, "` ") // because discord markup
                 + "```");
             return;
         }
-        logger_js_1.default.log(" >> " + JSON.stringify(args));
-        let max = 0;
-        let min = 0;
-        let step = 0;
-        let result = 0;
-        // do different things with different amount of arguments
-        switch (args.length) {
-            case 0:
-                max = 1;
-                min = 0;
-                step = 0;
-                break;
-            case 1:
-                max = parseFloat(args[0]);
-                min = 0;
-                step = 1;
-                break;
-            case 2:
-                max = parseFloat(args[0]);
-                min = parseFloat(args[1]);
-                step = 1;
-                break;
-            case 3:
-                max = parseFloat(args[0]);
-                min = parseFloat(args[1]);
-                step = parseFloat(args[2]);
-                break;
+        let max = this._parseFloatWithDefault(maxArg, 1);
+        let min = this._parseFloatWithDefault(minArg, 0);
+        let step = parseFloat(stepArg);
+        if (isNaN(step)) {
+            step = (min === 0 && max === 1) ? 0 : 1;
         }
+        const times = Math.min(parseFloat(timesArg), 700) || 1;
         // check if arguments are valid
         if (isNaN(max) || isNaN(min) || isNaN(step)) {
             this.bot.client.send(event.channelId, "**Invalid arguments**");
+            return;
         }
-        else {
-            result = (0, random_1.default)(min, max, step);
+        if (min > max) {
+            const temp = min;
+            min = max;
+            max = temp;
         }
-        this.bot.client.send(event.channelId, `${min} - ${max} | ${step} \u2192\n**${result}**`);
+        const results = [];
+        for (let i = 0; i < times; i++) {
+            results.push((0, random_1.default)(min, max, step));
+        }
+        this.bot.client.send(event.channelId, (0, ellipsisize_1.default)(`${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`, 2000 - 2) + "**");
+    }
+    _parseFloatWithDefault(str, defaultNum) {
+        if (!str) {
+            return defaultNum;
+        }
+        const parsed = parseFloat(str);
+        if (isNaN(parsed)) {
+            throw new Error("Invalid arguments: Not a number");
+        }
+        return parsed;
     }
     /**
      * Begins spamming from spam que with interval
@@ -411,7 +407,8 @@ class Japnaa extends plugin_js_1.default {
                 overloads: [{
                         "[max]": "Optional. The maximum of the random number",
                         "[min]": "Optional. The minimum of the random number",
-                        "[step]": "Optional. What the number must be dividible by. 0 indicates it doesn't have to be divisible by anything."
+                        "[step]": "Optional. What the number must be dividible by. 0 indicates it doesn't have to be divisible by anything.",
+                        "[times]": "Optional. How many random numbers to generate"
                     }, {
                         "\"string\"": "\"string\", will respond with a randomly generated 128 character string."
                     }],
@@ -421,6 +418,7 @@ class Japnaa extends plugin_js_1.default {
                     ["random 5 10", "A random number between 5 and 10 that's divisible by 1"],
                     ["random 5 10 2", "A random number between 5 and 10 that's divisible by 2"],
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
+                    ["random 5 10 1.6 10", "10 random numbers between 5 and 10 that's divisible by 1.6"],
                     ["random string", "A random string 128 characters long"]
                 ]
             }),
