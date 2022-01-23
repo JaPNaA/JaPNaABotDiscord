@@ -100,15 +100,14 @@ class BotCommand {
         }
     }
     sendError(commandEvent, argString, error) {
-        let errorStr = (0, createErrorString_1.default)(error);
-        let message = "```An error occured\n" + errorStr +
+        const errorStr = (0, createErrorString_1.default)(error);
+        const messageShort = "An error occured\n```" + error.message;
+        const messageLong = "```An error occured\n" + errorStr +
             "\nCommand: " + this.commandName +
             "\nArguments: " + argString +
             "\nEvent: " + (0, util_1.inspect)(commandEvent, { depth: 3 });
-        message = message.replace(/ {4}/g, "\t");
-        message = message.slice(0, 1997) + "```";
-        this.bot.client.send(commandEvent.channelId, message);
-        logger_js_1.default.warn(message);
+        logger_js_1.default.warn(messageLong);
+        this.bot.client.send(commandEvent.channelId, messageShort.slice(0, 1997) + "```");
     }
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent, argString) {

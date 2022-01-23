@@ -138,19 +138,18 @@ class BotCommand {
     }
 
     sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error): void {
-        let errorStr: string = createErrorString(error);
-        let message: string =
+        const errorStr: string = createErrorString(error);
+
+        const messageShort = "An error occured\n```" + error.message;
+        const messageLong =
             "```An error occured\n" + errorStr +
             "\nCommand: " + this.commandName +
             "\nArguments: " + argString +
             "\nEvent: " + inspect(commandEvent, { depth: 3 });
 
-        message = message.replace(/ {4}/g, "\t");
-        message = message.slice(0, 1997) + "```";
+        Logger.warn(messageLong);
 
-        this.bot.client.send(commandEvent.channelId, message);
-
-        Logger.warn(message);
+        this.bot.client.send(commandEvent.channelId, messageShort.slice(0, 1997) + "```");
     }
 
     /** Tries to run command, and sends an error message if fails */
