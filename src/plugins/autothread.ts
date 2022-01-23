@@ -31,6 +31,7 @@ export default class AutoThread extends BotPlugin {
     };
 
     private cooldowns: Map<string, number> = new Map();
+    private cooldownCancelFuncs: Function[] = [];
 
     constructor(bot: Bot) {
         super(bot);
@@ -68,7 +69,7 @@ export default class AutoThread extends BotPlugin {
         const disableChatCooldown = config.get("disableChatCooldown");
 
         channel.threads.create({
-            name: ellipsisize(event.message || "Untitled", 100),
+            name: ellipsisize(this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });
 
@@ -87,7 +88,7 @@ export default class AutoThread extends BotPlugin {
     private addCooldownDoneTimeout(func: Function, cooldownTime: number) {
         const timeout = setTimeout(() => {
             func();
-            }, cooldownTime);
+        }, cooldownTime);
 
         const cancelFunc = () => {
             clearTimeout(timeout);
@@ -97,7 +98,24 @@ export default class AutoThread extends BotPlugin {
         };
 
         this.cooldownCancelFuncs.push(cancelFunc);
-        }
+    }
+
+    private extractTitleFromMessage(message: string) {
+        const firstLine = message.split("\n").find(e => e.trim());
+
+        // back out of extraction
+        if (!firstLine) { return message; }
+        // already short enough -- no need for further extraction
+        if (firstLine.length < 25) { return firstLine; }
+
+        const extractedTitle = firstLine.split(/\s+/)
+            .filter(e => !STOP_WORDS.has(
+                e.replace(/\W/g, "").toLowerCase()
+            )).join(" ");
+
+        // extracted nothing, back out
+        if (extractedTitle.length === 0) { return firstLine; }
+        return extractedTitle;
     }
 
     private async _isNaturalMessage(event: DiscordMessageEvent): Promise<boolean> {
@@ -138,3 +156,134 @@ export default class AutoThread extends BotPlugin {
         }
     }
 }
+
+const STOP_WORDS = new Set(`i
+me
+my
+myself
+we
+our
+ours
+ourselves
+you
+your
+yours
+yourself
+yourselves
+he
+him
+his
+himself
+she
+her
+hers
+herself
+it
+its
+itself
+they
+them
+their
+theirs
+themselves
+what
+which
+who
+whom
+this
+that
+these
+those
+am
+is
+are
+was
+were
+be
+been
+being
+have
+has
+had
+having
+do
+does
+did
+doing
+a
+an
+the
+and
+but
+if
+or
+because
+as
+until
+while
+of
+at
+by
+for
+with
+about
+against
+between
+into
+through
+during
+before
+after
+above
+below
+to
+from
+up
+down
+in
+out
+on
+off
+over
+under
+again
+further
+then
+once
+here
+there
+when
+where
+why
+how
+all
+any
+both
+each
+few
+more
+most
+other
+some
+such
+no
+nor
+not
+only
+own
+same
+so
+than
+too
+very
+s
+t
+can
+will
+just
+don
+should
+now
+literally
+bruh
+lol`.split("\n"));
