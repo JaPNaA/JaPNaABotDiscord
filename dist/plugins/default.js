@@ -530,7 +530,7 @@ class Default extends plugin_js_1.default {
             throw new Error("Plugin doesn't exist or isn't loaded");
         }
         const shouldAutoLocation = ["here", "auto"].includes(locationArg.toLowerCase());
-        let location = locationArg;
+        let location = (0, getSnowflakeNum_1.default)(locationArg) || locationArg;
         let config;
         if (scope[0] === "c") {
             if (shouldAutoLocation) {

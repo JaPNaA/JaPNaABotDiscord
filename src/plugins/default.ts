@@ -574,7 +574,7 @@ class Default extends BotPlugin {
         if (!plugin) { throw new Error("Plugin doesn't exist or isn't loaded"); }
 
         const shouldAutoLocation = ["here", "auto"].includes(locationArg.toLowerCase());
-        let location = locationArg;
+        let location = getSnowflakeNum(locationArg) || locationArg;
 
         let config: Map<string, any>;
 
