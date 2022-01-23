@@ -178,7 +178,7 @@ class BotClient {
     }
     async getServerFromChannel(channelId) {
         let channel = await this.getChannel(channelId);
-        if (!channel || !(channel instanceof discord_js_1.TextChannel)) {
+        if (!channel || !(channel instanceof discord_js_1.TextChannel || channel instanceof discord_js_1.ThreadChannel)) {
             return;
         }
         return channel.guild;

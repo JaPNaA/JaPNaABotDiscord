@@ -1,4 +1,4 @@
-import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel } from "discord.js";
+import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel } from "discord.js";
 
 import Logger from "../../utils/logger.js";
 import MessageObject from "../types/messageObject.js";
@@ -14,7 +14,7 @@ class PresenceSetter {
 
     setGame(name: string): void {
         this.client.user?.setPresence({
-            activities: [{name: name || undefined, type: ActivityTypes.PLAYING}]
+            activities: [{ name: name || undefined, type: ActivityTypes.PLAYING }]
         });
     }
 
@@ -207,7 +207,7 @@ class BotClient {
 
     async getServerFromChannel(channelId: string): Promise<Guild | undefined> {
         let channel = await this.getChannel(channelId);
-        if (!channel || !(channel instanceof TextChannel)) { return; }
+        if (!channel || !(channel instanceof TextChannel || channel instanceof ThreadChannel)) { return; }
         return channel.guild;
     }
 
