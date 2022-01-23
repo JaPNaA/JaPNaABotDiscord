@@ -758,7 +758,7 @@ class Default extends plugin_js_1.default {
                         "value": "optional. If provided, edits key."
                     }]
             }),
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredPermission: "ADMINISTRATOR"
         }));
         this._registerDefaultCommand("send", this.send, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",

@@ -819,7 +819,7 @@ class Default extends BotPlugin {
                     "value": "optional. If provided, edits key."
                 }]
             }),
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredPermission: "ADMINISTRATOR"
         }))
 
         this._registerDefaultCommand("send", this.send, new BotCommandOptions({
