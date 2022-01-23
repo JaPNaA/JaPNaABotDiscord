@@ -51,8 +51,8 @@ class Default extends plugin_js_1.default {
     }
     eval(event) {
         let str = (0, util_1.inspect)(eval(event.arguments));
-        str = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 1994);
-        this.bot.client.send(event.channelId, "```" + str + "```");
+        str = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 2000 - 9);
+        this.bot.client.send(event.channelId, "```js\n" + str + "```");
     }
     /**
      * Logs a message to the console with a logging level of "log"

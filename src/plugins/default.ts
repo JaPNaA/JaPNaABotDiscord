@@ -38,8 +38,8 @@ class Default extends BotPlugin {
 
     eval(event: DiscordCommandEvent): void {
         let str: string = inspect(eval(event.arguments));
-        str = ellipsisize(str.replace(/ {4}/g, "\t"), 1994);
-        this.bot.client.send(event.channelId, "```" + str + "```");
+        str = ellipsisize(str.replace(/ {4}/g, "\t"), 2000 - 9);
+        this.bot.client.send(event.channelId, "```js\n" + str + "```");
     }
 
     /**
