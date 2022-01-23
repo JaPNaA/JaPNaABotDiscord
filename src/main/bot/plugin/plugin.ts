@@ -13,7 +13,14 @@ import PluginConfig from "./pluginConfig";
 abstract class BotPlugin {
     public pluginName: string;
 
-    protected config: PluginConfig;
+    public config: PluginConfig;
+    public userConfigSchema: {
+        [x: string]: {
+            type: string,
+            comment: string,
+            default: any
+        }
+    } = {};
 
     constructor(protected bot: Bot) {
         this.pluginName = this.constructor.name.toLowerCase();

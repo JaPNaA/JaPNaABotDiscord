@@ -19,6 +19,13 @@ class PluginManager {
         this.plugins.push(plugin);
         plugin._start();
     }
+    getPlugin(pluginName) {
+        for (const plugin of this.plugins) {
+            if (plugin.pluginName === pluginName) {
+                return plugin;
+            }
+        }
+    }
     unregisterAllPlugins() {
         for (let plugin of this.plugins) {
             plugin._stop();

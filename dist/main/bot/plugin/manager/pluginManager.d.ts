@@ -5,6 +5,7 @@ declare class PluginManager {
     plugins: BotPlugin[];
     constructor(bot: Bot);
     register(plugin: BotPlugin): void;
+    getPlugin(pluginName: string): BotPlugin | undefined;
     unregisterAllPlugins(): void;
 }
 export default PluginManager;

@@ -4,17 +4,17 @@ import BotPlugin from "./plugin";
 export default class PluginConfig {
     private plugin;
     private bot;
-    protected userSchema: {
-        [x: string]: {
-            type: string;
-            comment: string;
-        };
-    };
     constructor(plugin: BotPlugin, bot: Bot);
     getInServer(serverId: string, key: string): any;
+    getAllUserSettingsInServer(serverId: string): Promise<Map<string, any>>;
     setInServer(serverId: string, key: string, value: JSONType): void;
     getInChannel(channelId: string, key: string): Promise<any>;
+    getAllUserSettingsInChannel(channelId: string): Promise<Map<string, any>>;
     setInChannel(channelId: string, key: string, value: JSONType): Promise<void>;
-    get(key: string): JSONType;
+    get(key: string): any;
+    getAllUserSettings(): Promise<Map<string, any>>;
+    getUserSettingType(key: string): string;
     getAll(): JSONType | undefined;
+    private _getAllUserSettingsIn;
+    private firstDefined;
 }

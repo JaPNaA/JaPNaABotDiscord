@@ -11,32 +11,47 @@ const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.
  * Autothread plugin; automatically makes threads
  */
 class AutoThread extends plugin_js_1.default {
-    activeChannels;
+    userConfigSchema = {
+        enabled: {
+            type: "boolean",
+            comment: "Automatically create threads and other side effects?",
+            default: false
+        },
+        cooldownTime: {
+            type: "number",
+            comment: "How many seconds until another thread is created?",
+            default: 30
+        },
+        disableChatCooldown: {
+            type: "boolean",
+            comment: "Automatically disable chatting while on cooldown?",
+            default: true
+        }
+    };
     cooldowns = new Map();
     constructor(bot) {
         super(bot);
         this.pluginName = "autothread";
-        this.activeChannels = bot.memory.get(this.pluginName, "activeChannels") || [];
     }
     async toggleAutothread(event) {
-        const existingIndex = this.activeChannels.indexOf(event.channelId);
         const channel = await this.bot.client.getChannel(event.channelId);
         if (!channel || channel.isThread()) {
             this.bot.client.send(event.channelId, "Cannot create threads inside threads.");
             return;
         }
-        if (existingIndex < 0) {
-            this.activeChannels.push(event.channelId);
-            this.bot.client.send(event.channelId, "Autothread enabled.");
-        }
-        else {
-            this.activeChannels.splice(existingIndex, 1);
+        const isEnabled = await this.config.getInChannel(event.channelId, "enabled");
+        if (isEnabled) {
+            this.config.setInChannel(event.channelId, "enabled", false);
             this.bot.client.send(event.channelId, "Autothread disabled.");
         }
-        this.writeToMemory();
+        else {
+            this.config.setInChannel(event.channelId, "enabled", true);
+            this.bot.client.send(event.channelId, "Autothread enabled.");
+        }
     }
     async messageHandler(event) {
-        if (!this.activeChannels.includes(event.channelId)) {
+        const config = await this.config.getAllUserSettingsInChannel(event.channelId);
+        if (!config.get("enabled")) {
             return;
         }
         if (!(await this._isNaturalMessage(event))) {
@@ -49,16 +64,20 @@ class AutoThread extends plugin_js_1.default {
         if (!this.isCool(event.channelId)) {
             return;
         }
+        const cooldownTime = config.get("cooldownTime") * 1000;
+        const disableChatCooldown = config.get("disableChatCooldown");
         channel.threads.create({
             name: (0, ellipsisize_js_1.default)(event.message || "Untitled", 100),
             startMessage: event.messageId
         });
-        this.setCooldown(event.channelId);
-        // temporary: prevent people from sending messages while on cooldown
-        channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
-        setTimeout(() => {
-            channel.permissionOverwrites.delete(channel.guild.roles.everyone);
-        }, 30e3);
+        this.setCooldown(event.channelId, cooldownTime);
+        if (disableChatCooldown) {
+            // prevent people from sending messages while on cooldown
+            channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
+            setTimeout(() => {
+                channel.permissionOverwrites.delete(channel.guild.roles.everyone);
+            }, cooldownTime);
+        }
     }
     async _isNaturalMessage(event) {
         const user = await this.bot.client.getUser(event.userId);
@@ -69,11 +88,8 @@ class AutoThread extends plugin_js_1.default {
         const cooldown = this.cooldowns.get(channelId);
         return !cooldown || cooldown <= Date.now();
     }
-    setCooldown(channelId) {
-        this.cooldowns.set(channelId, Date.now() + 30e3);
-    }
-    writeToMemory() {
-        this.bot.memory.write(this.pluginName, "activeChannels", this.activeChannels);
+    setCooldown(channelId, time) {
+        this.cooldowns.set(channelId, Date.now() + time);
     }
     _start() {
         this._registerDefaultCommand("autothread", this.toggleAutothread, new commandOptions_js_1.default({

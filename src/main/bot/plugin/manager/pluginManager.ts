@@ -19,6 +19,14 @@ class PluginManager {
         plugin._start();
     }
 
+    getPlugin(pluginName: string): BotPlugin | undefined {
+        for (const plugin of this.plugins) {
+            if (plugin.pluginName === pluginName) {
+                return plugin;
+            }
+        }
+    }
+
     unregisterAllPlugins(): void {
         for (let plugin of this.plugins) {
             plugin._stop();

@@ -9,6 +9,7 @@ class BotPlugin {
     bot;
     pluginName;
     config;
+    userConfigSchema = {};
     constructor(bot) {
         this.bot = bot;
         this.pluginName = this.constructor.name.toLowerCase();

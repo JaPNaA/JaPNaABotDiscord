@@ -19,6 +19,7 @@ import ellipsisize from "../main/utils/str/ellipsisize.js";
 import mention from "../main/utils/str/mention.js";
 import fakeMessage from "../main/utils/fakeMessage.js";
 import Bot from "../main/bot/bot/bot.js";
+import locationKeyCreator from "../main/bot/utils/locationKeyCreator.js";
 
 /**
  * Normal commands every bot shoud have
@@ -38,8 +39,7 @@ class Default extends BotPlugin {
 
     eval(event: DiscordCommandEvent): void {
         let str: string = inspect(eval(event.arguments));
-        str = ellipsisize(str.replace(/ {4}/g, "\t"), 2000 - 9);
-        this.bot.client.send(event.channelId, "```js\n" + str + "```");
+        this._sendJSCodeBlock(event.channelId, str);
     }
 
     /**
@@ -513,10 +513,10 @@ class Default extends BotPlugin {
         // check if user exists, if assigning to user
         if (type === "u") {
             if (!await this.bot.client.getMemberFromServer(id, event.serverId)) {
-                    this.bot.client.send(event.channelId, "User not found");
-                    return;
-                }
-                }
+                this.bot.client.send(event.channelId, "User not found");
+                return;
+            }
+        }
 
         if (ns === "c") { // channel namespace
             if (isAssignUser) { // assign to user
@@ -545,10 +545,10 @@ class Default extends BotPlugin {
                 this.bot.client.send(event.channelId, "Global roles are not a thing.");
                 return;
             }
-                } else {
-                    sendHelp();
+        } else {
+            sendHelp();
             return;
-                }
+        }
 
         // Send confirmation message
 
@@ -556,12 +556,64 @@ class Default extends BotPlugin {
             "c": "this channel",
             "s": "this server",
             "g": "everywhere"
-            }
+        }
 
         if (willHavePermission) {
             this.bot.client.send(event.channelId, "Given " + mention(id) + " the permission `" + permission + "` in " + namespaceStrMap[ns]);
         } else {
             this.bot.client.send(event.channelId, "Removed " + mention(id) + "'s permission (`" + permission + "`) from " + namespaceStrMap[ns]);
+        }
+    }
+
+    async configCommand(event: DiscordCommandEvent) {
+        const args = stringToArgs(event.arguments);
+        const [pluginArg, scope, locationArg, key, ...valueArr] = args;
+        const valueStr = valueArr.join(" ");
+
+        const plugin = this.bot.pluginManager.getPlugin(pluginArg);
+        if (!plugin) { throw new Error("Plugin doesn't exist or isn't loaded"); }
+
+        const shouldAutoLocation = ["here", "auto"].includes(locationArg.toLowerCase());
+        let location = locationArg;
+
+        let config: Map<string, any>;
+
+        if (scope[0] === "c") {
+            if (shouldAutoLocation) { location = event.channelId; }
+            config = await plugin.config.getAllUserSettingsInChannel(location);
+        } else if (scope[0] === "s") {
+            if (shouldAutoLocation) { location = event.serverId; }
+            config = await plugin.config.getAllUserSettingsInServer(location);
+        } else if (scope[0] === "g") {
+            throw new Error("Cannot assign global config using this command. Please edit the config file instead.");
+        } else {
+            throw new Error("Invalid scope. (channel, server or global)");
+        }
+
+        if (key) {
+            if (!config.has(key)) {
+                throw new Error("Config option doesn't exist");
+            }
+
+            if (valueStr) {
+                const value = JSON.parse(valueStr);
+                if (typeof value !== plugin.config.getUserSettingType(key)) {
+                    throw new Error("Value type doesn't match schema");
+                }
+
+                if (scope[0] === "c") {
+                    plugin.config.setInChannel(location, key, value);
+                } else if (scope[0] === "s") {
+                    plugin.config.setInServer(location, key, value);
+                } else { throw new Error("Unknown error"); }
+                this.bot.client.send(
+                    event.channelId, "Updated config."
+                );
+            } else {
+                this._sendJSCodeBlock(event.channelId, inspect(config.get(key)));
+            }
+        } else {
+            this._sendJSCodeBlock(event.channelId, inspect(Object.fromEntries(config)));
         }
     }
 
@@ -661,6 +713,11 @@ class Default extends BotPlugin {
         );
     }
 
+    private _sendJSCodeBlock(channelId: string, str: string) {
+        const cleanStr = ellipsisize(str.replace(/ {4}/g, "\t"), 2000 - 9);
+        this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
+    }
+
     _start(): void {
         this._registerDefaultCommand("eval", this.eval, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",
@@ -733,7 +790,7 @@ class Default extends BotPlugin {
             help: new BotCommandHelp({
                 description: "Edits the permissions of a person or role.",
                 overloads: [{
-                    "namespace": "Permissions in __c__hannel, __s__erver, or __g__lobal",
+                    "scope": "Permissions in __c__hannel, __s__erver, or __g__lobal",
                     "type": "For __u__ser or __r__ole",
                     "action": "To __a__dd or __r__emove permission",
                     "id": "Id of role or user",
@@ -750,6 +807,20 @@ class Default extends BotPlugin {
                 ]
             })
         }));
+
+        this._registerDefaultCommand("config", this.configCommand, new BotCommandOptions({
+            help: new BotCommandHelp({
+                description: "Configure the bot's plugin",
+                overloads: [{
+                    "plugin": "Name of plugin",
+                    "scope": "Configure in __c__hannel, __s__erver, or __g__lobal",
+                    "location": "Channel or server",
+                    "key": "optional. Specify a key to view or edit",
+                    "value": "optional. If provided, edits key."
+                }]
+            }),
+            requiredPermission: "BOT_ADMINISTRATOR"
+        }))
 
         this._registerDefaultCommand("send", this.send, new BotCommandOptions({
             requiredPermission: "BOT_ADMINISTRATOR",

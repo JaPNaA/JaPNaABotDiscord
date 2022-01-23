@@ -51,8 +51,7 @@ class Default extends plugin_js_1.default {
     }
     eval(event) {
         let str = (0, util_1.inspect)(eval(event.arguments));
-        str = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 2000 - 9);
-        this.bot.client.send(event.channelId, "```js\n" + str + "```");
+        this._sendJSCodeBlock(event.channelId, str);
     }
     /**
      * Logs a message to the console with a logging level of "log"
@@ -408,28 +407,52 @@ class Default extends plugin_js_1.default {
         const args = (0, stringToArgs_js_1.default)(event.arguments);
         const _bot = this.bot;
         function sendHelp() {
-            _bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
+            _bot.client.send(event.channelId, "Invalid arguments. See `" +
                 event.precommandName.name + "help edit permission` for help");
         }
         if (args.length !== 5) {
             sendHelp();
             return;
         }
+        // Arguments pharsing
         /** Namespace (channel, server, global) */
-        let ns = args[0][0].toLowerCase();
+        const ns = args[0][0].toLowerCase();
         /** Type (user, role) */
-        let type = args[1][0].toLowerCase();
+        const type = args[1][0].toLowerCase();
         /** Action (add, remove) */
-        let action = args[2][0].toLowerCase();
+        const actionStr = args[2][0].toLowerCase();
         /** Id of user or role */
-        let id = (0, getSnowflakeNum_1.default)(args[3]);
+        const id = (0, getSnowflakeNum_1.default)(args[3]);
         if (!id) {
+            sendHelp();
             return;
-        } // tODO: tell invalid, get help
+        }
         /** Permission name */
-        let permission = args[4].trim().toUpperCase();
+        const permission = args[4].trim().toUpperCase();
+        let willHavePermission;
+        if (actionStr === 'a') { // add
+            willHavePermission = true;
+        }
+        else if (actionStr === 'r') { // remove
+            willHavePermission = false;
+        }
+        else {
+            sendHelp();
+            return;
+        }
+        let isAssignUser;
+        if (type === 'u') {
+            isAssignUser = true;
+        }
+        else if (type === 'r') {
+            isAssignUser = false;
+        }
+        else {
+            sendHelp();
+            return;
+        }
         /** Permissions for assigner */
-        let assignerPermissions = await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
+        const assignerPermissions = await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
         // check if can assign permission
         if (permissions_js_1.default.specialCustoms.includes(permission) && // if special permission
             !assignerPermissions.has("BOT_ADMINISTRATOR") // and is not admin
@@ -441,74 +464,27 @@ class Default extends plugin_js_1.default {
             this.bot.client.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
             return;
         }
+        // check if user exists, if assigning to user
+        if (type === "u") {
+            if (!await this.bot.client.getMemberFromServer(id, event.serverId)) {
+                this.bot.client.send(event.channelId, "User not found");
+                return;
+            }
+        }
         if (ns === "c") { // channel namespace
-            if (type === "u") { // assign to user
-                if (!this.bot.client.getMemberFromServer(id, event.serverId)) {
-                    this.bot.client.send(event.channelId, "User not found");
-                    return;
-                }
-                if (action === "a") { // add
-                    this.bot.permissions.editPermissions_user_channel(id, event.channelId, permission, true);
-                    this.bot.client.send(event.channelId, "Given" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this channel");
-                }
-                else if (action === "r") { // remove
-                    this.bot.permissions.editPermissions_user_channel(id, event.channelId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this channel.");
-                }
-                else {
-                    sendHelp();
-                }
+            if (isAssignUser) { // assign to user
+                this.bot.permissions.editPermissions_user_channel(id, event.channelId, permission, willHavePermission);
             }
-            else if (type === "r") { // assign to role
-                if (action === "a") { // add
-                    this.bot.permissions.editPermissions_role_channel(id, event.channelId, permission, true);
-                    this.bot.client.send(event.channelId, "Given role" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this channel.");
-                }
-                else if (action === "r") { // remove
-                    this.bot.permissions.editPermissions_role_channel(id, event.channelId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed role" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this channel.");
-                }
-                else {
-                    sendHelp();
-                }
-            }
-            else {
-                sendHelp();
+            else { // assign to role
+                this.bot.permissions.editPermissions_role_channel(id, event.channelId, permission, willHavePermission);
             }
         }
         else if (ns === "s") { // server namespace
-            if (type === "u") { // assign to user
-                if (!this.bot.client.getMemberFromServer(id, event.serverId)) {
-                    this.bot.client.send(event.channelId, "User not found");
-                    return;
-                }
-                if (action === "a") { // add
-                    this.bot.permissions.editPermissions_user_server(id, event.serverId, permission, true);
-                    this.bot.client.send(event.channelId, "Given" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this server");
-                }
-                else if (action === "r") { // remove
-                    this.bot.permissions.editPermissions_user_server(id, event.serverId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this server.");
-                }
-                else {
-                    sendHelp();
-                }
+            if (isAssignUser) { // assign to user
+                this.bot.permissions.editPermissions_user_server(id, event.serverId, permission, willHavePermission);
             }
-            else if (type === "r") { // assign to role
-                if (action === "a") { // add
-                    this.bot.permissions.editPermissions_role_server(id, event.serverId, permission, true);
-                    this.bot.client.send(event.channelId, "Given role" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in this server.");
-                }
-                else if (action === "r") { // remove
-                    this.bot.permissions.editPermissions_role_server(id, event.serverId, permission, false);
-                    this.bot.client.send(event.channelId, "Removed role" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from this server.");
-                }
-                else {
-                    sendHelp();
-                }
-            }
-            else {
-                sendHelp();
+            else { // assign to role
+                this.bot.permissions.editPermissions_role_server(id, event.serverId, permission, willHavePermission);
             }
         }
         else if (ns === "g") { // global namespace
@@ -516,32 +492,90 @@ class Default extends plugin_js_1.default {
                 this.bot.client.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
                 return;
             }
-            if (type === "u") { // assign to user
+            if (isAssignUser) { // assign to user
                 if (!this.bot.client.getMemberFromServer(id, event.serverId)) {
                     this.bot.client.send(event.channelId, "User not found");
                     return;
                 }
-                if (action === "a") { // add
-                    this.bot.permissions.editPermissions_user_global(id, permission, true);
-                    this.bot.client.send(event.channelId, "Given" + (0, mention_js_1.default)(id) + " the permission `" + permission + "` everywhere");
-                }
-                else if (action === "r") { // remove
-                    this.bot.permissions.editPermissions_user_global(id, permission, false);
-                    this.bot.client.send(event.channelId, "Removed" + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) everywhere.");
-                }
-                else {
-                    sendHelp();
-                }
+                this.bot.permissions.editPermissions_user_global(id, permission, willHavePermission);
             }
-            else if (type === "r") { // assign to role
+            else { // assign to role
                 this.bot.client.send(event.channelId, "Global roles are not a thing.");
-            }
-            else {
-                sendHelp();
+                return;
             }
         }
         else {
             sendHelp();
+            return;
+        }
+        // Send confirmation message
+        const namespaceStrMap = {
+            "c": "this channel",
+            "s": "this server",
+            "g": "everywhere"
+        };
+        if (willHavePermission) {
+            this.bot.client.send(event.channelId, "Given " + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in " + namespaceStrMap[ns]);
+        }
+        else {
+            this.bot.client.send(event.channelId, "Removed " + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from " + namespaceStrMap[ns]);
+        }
+    }
+    async configCommand(event) {
+        const args = (0, stringToArgs_js_1.default)(event.arguments);
+        const [pluginArg, scope, locationArg, key, ...valueArr] = args;
+        const valueStr = valueArr.join(" ");
+        const plugin = this.bot.pluginManager.getPlugin(pluginArg);
+        if (!plugin) {
+            throw new Error("Plugin doesn't exist or isn't loaded");
+        }
+        const shouldAutoLocation = ["here", "auto"].includes(locationArg.toLowerCase());
+        let location = locationArg;
+        let config;
+        if (scope[0] === "c") {
+            if (shouldAutoLocation) {
+                location = event.channelId;
+            }
+            config = await plugin.config.getAllUserSettingsInChannel(location);
+        }
+        else if (scope[0] === "s") {
+            if (shouldAutoLocation) {
+                location = event.serverId;
+            }
+            config = await plugin.config.getAllUserSettingsInServer(location);
+        }
+        else if (scope[0] === "g") {
+            throw new Error("Cannot assign global config using this command. Please edit the config file instead.");
+        }
+        else {
+            throw new Error("Invalid scope. (channel, server or global)");
+        }
+        if (key) {
+            if (!config.has(key)) {
+                throw new Error("Config option doesn't exist");
+            }
+            if (valueStr) {
+                const value = JSON.parse(valueStr);
+                if (typeof value !== plugin.config.getUserSettingType(key)) {
+                    throw new Error("Value type doesn't match schema");
+                }
+                if (scope[0] === "c") {
+                    plugin.config.setInChannel(location, key, value);
+                }
+                else if (scope[0] === "s") {
+                    plugin.config.setInServer(location, key, value);
+                }
+                else {
+                    throw new Error("Unknown error");
+                }
+                this.bot.client.send(event.channelId, "Updated config.");
+            }
+            else {
+                this._sendJSCodeBlock(event.channelId, (0, util_1.inspect)(config.get(key)));
+            }
+        }
+        else {
+            this._sendJSCodeBlock(event.channelId, (0, util_1.inspect)(Object.fromEntries(config)));
         }
     }
     /**
@@ -625,6 +659,10 @@ class Default extends plugin_js_1.default {
             }
         });
     }
+    _sendJSCodeBlock(channelId, str) {
+        const cleanStr = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 2000 - 9);
+        this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
+    }
     _start() {
         this._registerDefaultCommand("eval", this.eval, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",
@@ -692,7 +730,7 @@ class Default extends plugin_js_1.default {
             help: new commandHelp_js_1.default({
                 description: "Edits the permissions of a person or role.",
                 overloads: [{
-                        "namespace": "Permissions in __c__hannel, __s__erver, or __g__lobal",
+                        "scope": "Permissions in __c__hannel, __s__erver, or __g__lobal",
                         "type": "For __u__ser or __r__ole",
                         "action": "To __a__dd or __r__emove permission",
                         "id": "Id of role or user",
@@ -708,6 +746,19 @@ class Default extends plugin_js_1.default {
                     ]
                 ]
             })
+        }));
+        this._registerDefaultCommand("config", this.configCommand, new commandOptions_js_1.default({
+            help: new commandHelp_js_1.default({
+                description: "Configure the bot's plugin",
+                overloads: [{
+                        "plugin": "Name of plugin",
+                        "scope": "Configure in __c__hannel, __s__erver, or __g__lobal",
+                        "location": "Channel or server",
+                        "key": "optional. Specify a key to view or edit",
+                        "value": "optional. If provided, edits key."
+                    }]
+            }),
+            requiredPermission: "BOT_ADMINISTRATOR"
         }));
         this._registerDefaultCommand("send", this.send, new commandOptions_js_1.default({
             requiredPermission: "BOT_ADMINISTRATOR",

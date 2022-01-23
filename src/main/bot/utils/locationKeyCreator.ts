@@ -4,7 +4,8 @@ class MemoryLocationKeyCreator {
         permissionsAdmin: "_admin",
         permissionsGlobal: "global",
         memoryDelimiter: ".",
-        pluginNamespace: "plugin"
+        pluginNamespace: "plugin",
+        serverDM: "@me"
     };
 
     permissions(): string {
@@ -21,6 +22,10 @@ class MemoryLocationKeyCreator {
 
     global(): string {
         return this.strings.permissionsGlobal;
+    }
+
+    serverDM() {
+        return this.strings.serverDM;
     }
 
     server(serverId: string): string {

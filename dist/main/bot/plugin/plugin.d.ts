@@ -11,7 +11,14 @@ import PluginConfig from "./pluginConfig";
 declare abstract class BotPlugin {
     protected bot: Bot;
     pluginName: string;
-    protected config: PluginConfig;
+    config: PluginConfig;
+    userConfigSchema: {
+        [x: string]: {
+            type: string;
+            comment: string;
+            default: any;
+        };
+    };
     constructor(bot: Bot);
     /**
      * Starts the plugin

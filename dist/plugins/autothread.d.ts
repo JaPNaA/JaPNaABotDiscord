@@ -6,7 +6,23 @@ import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
  * Autothread plugin; automatically makes threads
  */
 export default class AutoThread extends BotPlugin {
-    private activeChannels;
+    userConfigSchema: {
+        enabled: {
+            type: string;
+            comment: string;
+            default: boolean;
+        };
+        cooldownTime: {
+            type: string;
+            comment: string;
+            default: number;
+        };
+        disableChatCooldown: {
+            type: string;
+            comment: string;
+            default: boolean;
+        };
+    };
     private cooldowns;
     constructor(bot: Bot);
     toggleAutothread(event: DiscordCommandEvent): Promise<void>;
@@ -14,7 +30,6 @@ export default class AutoThread extends BotPlugin {
     private _isNaturalMessage;
     private isCool;
     private setCooldown;
-    private writeToMemory;
     _start(): void;
     _stop(): void;
 }

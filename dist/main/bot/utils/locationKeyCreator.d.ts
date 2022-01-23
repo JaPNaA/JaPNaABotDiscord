@@ -5,11 +5,13 @@ declare class MemoryLocationKeyCreator {
         permissionsGlobal: string;
         memoryDelimiter: string;
         pluginNamespace: string;
+        serverDM: string;
     };
     permissions(): string;
     firstAdmin(): string;
     delimiter(): string;
     global(): string;
+    serverDM(): string;
     server(serverId: string): string;
     channel(serverId: string, channelId: string): string;
     user_global(userId: string): string;

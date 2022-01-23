@@ -72,6 +72,7 @@ declare class Default extends BotPlugin {
      * @param argString arguments ns, type, action, id, permission
      */
     edit_permission(event: DiscordCommandEvent): Promise<void>;
+    configCommand(event: DiscordCommandEvent): Promise<void>;
     /**
      * Sends a message to a channel
      * @param args arguments [channelId, ...message]
@@ -95,6 +96,7 @@ declare class Default extends BotPlugin {
     _actuallyUpdateBot(bot: Bot, event: DiscordCommandEvent): void;
     _endBotProcess(): void;
     uptime(event: DiscordCommandEvent): void;
+    private _sendJSCodeBlock;
     _start(): void;
     _stop(): void;
 }
