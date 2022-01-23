@@ -228,15 +228,14 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
  * @param [timeout] time until the stop is forced. Null for no timeout
  * @returns resolves when the bot finishes stopping
  */
-function stop(timeout?: number): Promise<any> {
+async function stop(timeout?: number): Promise<any> {
     // shuttingDown = true;
     bot.stop();
-    client.destroy();
     Logger.log("\nGracefully stopping...");
 
-    let promise: Promise<any> = new Promise(function (resolve: Function): void {
+    await new Promise(function (resolve: Function): void {
         if (bot.hasActiveAsyncRequests()) {
-            Logger.log("Waiting for asnyc requests to finish...");
+            Logger.log("Waiting for async requests to finish...");
 
             bot.events.on("doneasync", function (): void {
                 if (!bot.hasActiveAsyncRequests()) {
@@ -256,7 +255,7 @@ function stop(timeout?: number): Promise<any> {
         }
     });
 
-    return promise;
+    client.destroy();
 }
 
 /**

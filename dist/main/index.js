@@ -222,14 +222,13 @@ exports.start = start;
  * @param [timeout] time until the stop is forced. Null for no timeout
  * @returns resolves when the bot finishes stopping
  */
-function stop(timeout) {
+async function stop(timeout) {
     // shuttingDown = true;
     bot.stop();
-    client.destroy();
     logger_js_1.default.log("\nGracefully stopping...");
-    let promise = new Promise(function (resolve) {
+    await new Promise(function (resolve) {
         if (bot.hasActiveAsyncRequests()) {
-            logger_js_1.default.log("Waiting for asnyc requests to finish...");
+            logger_js_1.default.log("Waiting for async requests to finish...");
             bot.events.on("doneasync", function () {
                 if (!bot.hasActiveAsyncRequests()) {
                     logger_js_1.default.log("Async requests done");
@@ -247,7 +246,7 @@ function stop(timeout) {
             }, timeout);
         }
     });
-    return promise;
+    client.destroy();
 }
 exports.stop = stop;
 /**
