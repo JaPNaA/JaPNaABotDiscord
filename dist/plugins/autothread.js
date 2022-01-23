@@ -67,7 +67,7 @@ class AutoThread extends plugin_js_1.default {
         }
         const cooldownTime = config.get("cooldownTime") * 1000;
         const disableChatCooldown = config.get("disableChatCooldown");
-        channel.threads.create({
+        await channel.threads.create({
             name: (0, ellipsisize_js_1.default)(this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });

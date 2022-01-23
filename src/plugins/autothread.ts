@@ -68,7 +68,7 @@ export default class AutoThread extends BotPlugin {
         const cooldownTime = config.get("cooldownTime") * 1000;
         const disableChatCooldown = config.get("disableChatCooldown");
 
-        channel.threads.create({
+        await channel.threads.create({
             name: ellipsisize(this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });
