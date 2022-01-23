@@ -17,17 +17,26 @@ const ellipsisize_1 = __importDefault(require("../main/utils/str/ellipsisize"));
  * Commonly used commands made by me, JaPNaA
  */
 class Japnaa extends plugin_js_1.default {
-    memorySpamLimit = "spamLimit";
-    memorySpamQueLimit = "spamQueLimit";
     counter;
     /** Que of spam functions */
     spamQue;
     /** Spam setInterval return */
     spamInterval;
+    userConfigSchema = {
+        "spam.limit": {
+            type: "number",
+            default: 25,
+            comment: "Max spam per command"
+        },
+        "spam.queLimit": {
+            type: "number",
+            default: 5,
+            comment: "Max amount of spam commands running at once"
+        }
+    };
     constructor(bot) {
         super(bot);
         this.pluginName = "japnaa";
-        this.memorySpamLimit = "spamLimit";
         this.counter = bot.memory.get(this.pluginName, "counter") || 0;
         this.spamQue = {};
         this.spamInterval = null;
@@ -174,29 +183,18 @@ class Japnaa extends plugin_js_1.default {
     /**
      * Gets the spam limit for channel and user
      */
-    _getSpamLimit(bot, event) {
-        let userLimit = bot.memory.get(this.pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.user_server(event.serverId, event.userId));
+    async _getSpamLimit(event) {
+        let userLimit = this.bot.memory.get(this.pluginName, "spamLimit" + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.user_server(event.serverId, event.userId));
         if (userLimit !== null) {
             return userLimit;
         }
-        let channelLimit = bot.memory.get(this.pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.channel(event.serverId, event.channelId));
-        if (channelLimit !== null) {
-            return channelLimit;
-        }
-        let serverLimit = bot.memory.get(this.pluginName, this.memorySpamLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
-        if (serverLimit !== null) {
-            return serverLimit;
-        }
-        let defaultLimit = this.config.get("spam.defaultLimit");
-        return defaultLimit;
+        return this.config.getInChannel(event.channelId, "spam.limit");
     }
     /**
      * Gets the spam limit que for server and user
      */
-    _getSpamQueLimit(bot, event) {
-        let defaultLimit = this.config.get("spam.defaultQueLimit");
-        let serverLimit = bot.memory.get(this.pluginName, this.memorySpamQueLimit + locationKeyCreator_js_1.default.delimiter() + locationKeyCreator_js_1.default.server(event.serverId));
-        return serverLimit || defaultLimit;
+    _getSpamQueLimit(event) {
+        return this.config.getInChannel(event.channelId, "spam.queLimit");
     }
     /**
      * Actual spam function
@@ -245,10 +243,10 @@ class Japnaa extends plugin_js_1.default {
                 }
                 return;
             case "limit":
-                this.bot.client.send(event.channelId, "Your spam limit is: " + this._getSpamLimit(this.bot, event));
+                this.bot.client.send(event.channelId, "Your spam limit is: " + await this._getSpamLimit(event));
                 return;
             case "que limit":
-                this.bot.client.send(event.channelId, "Server que limit: " + this._getSpamQueLimit(this.bot, event));
+                this.bot.client.send(event.channelId, "Server que limit: " + await this._getSpamQueLimit(event));
                 return;
         }
         let [amountArg, counterArg, ...messageArg] = (0, stringToArgs_1.default)(event.arguments);
@@ -290,8 +288,8 @@ class Japnaa extends plugin_js_1.default {
         message += messageArg.join(" ");
         // check against limits
         // ----------------------------------------------------------------------------------------
-        const spamLimit = this._getSpamLimit(this.bot, event);
-        const spamQueLimit = this._getSpamQueLimit(this.bot, event);
+        const spamLimit = await this._getSpamLimit(event);
+        const spamQueLimit = await this._getSpamQueLimit(event);
         if (amount > spamLimit) {
             this.bot.client.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
             return;

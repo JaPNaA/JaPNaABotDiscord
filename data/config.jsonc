@@ -45,8 +45,8 @@
 
   // JaPNaA plugin config
   "plugin.japnaa": {
-    "spam.defaultLimit": 25,
-    "spam.defaultQueLimit": 5
+    "spam.limit": 25,
+    "spam.queLimit": 5
   },
 
   // Games plugin config

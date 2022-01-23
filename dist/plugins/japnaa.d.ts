@@ -8,8 +8,6 @@ declare type SpamCallback = () => Promise<boolean>;
  * Commonly used commands made by me, JaPNaA
  */
 declare class Japnaa extends BotPlugin {
-    memorySpamLimit: string;
-    memorySpamQueLimit: string;
     counter: number;
     /** Que of spam functions */
     spamQue: {
@@ -17,6 +15,18 @@ declare class Japnaa extends BotPlugin {
     };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
+    userConfigSchema: {
+        "spam.limit": {
+            type: string;
+            default: number;
+            comment: string;
+        };
+        "spam.queLimit": {
+            type: string;
+            default: number;
+            comment: string;
+        };
+    };
     constructor(bot: Bot);
     /**
      * makes the bot count
@@ -54,11 +64,11 @@ declare class Japnaa extends BotPlugin {
     /**
      * Gets the spam limit for channel and user
      */
-    _getSpamLimit(bot: Bot, event: DiscordMessageEvent): number;
+    _getSpamLimit(event: DiscordMessageEvent): Promise<number>;
     /**
      * Gets the spam limit que for server and user
      */
-    _getSpamQueLimit(bot: Bot, event: DiscordMessageEvent): number;
+    _getSpamQueLimit(event: DiscordMessageEvent): Promise<number>;
     /**
      * Actual spam function
      */
