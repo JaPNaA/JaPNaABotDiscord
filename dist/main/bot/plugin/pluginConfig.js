@@ -13,10 +13,10 @@ class PluginConfig {
     }
     getInServer(serverId, key) {
         const localConfig = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.server(serverId));
-        return this.firstDefined(localConfig[key], this.get(key));
+        return this.firstDefined(localConfig?.[key], this.get(key));
     }
     getAllUserSettingsInServer(serverId) {
-        return this._getAllUserSettingsIn(key => this.getInServer(serverId, key));
+        return this._getAllUserSettingsIn(async (key) => this.getInServer(serverId, key));
     }
     setInServer(serverId, key, value) {
         const conf = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.server(serverId)) || {};
@@ -25,12 +25,18 @@ class PluginConfig {
     }
     async getInChannel(channelId, key) {
         const server = await this.bot.client.getServerFromChannel(channelId);
+        const serverId = server ? server.id : locationKeyCreator_1.default.serverDM();
         let serverConfig;
         if (server) {
             serverConfig = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.server(server.id));
         }
-        const channelConfig = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.channel(server ? server.id : locationKeyCreator_1.default.serverDM(), channelId));
-        return this.firstDefined(channelConfig?.[key], serverConfig?.[key], this.get(key));
+        const channel = await this.bot.client.getChannel(channelId);
+        let parentChannelConfig;
+        if (channel && channel.isThread() && channel.parentId) {
+            parentChannelConfig = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.channel(serverId, channel.parentId));
+        }
+        const channelConfig = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.channel(serverId, channelId));
+        return this.firstDefined(channelConfig?.[key], parentChannelConfig?.[key], serverConfig?.[key], this.get(key));
     }
     async getAllUserSettingsInChannel(channelId) {
         return this._getAllUserSettingsIn(async (key) => await this.getInChannel(channelId, key));
