@@ -77,9 +77,26 @@ export default class AutoThread extends BotPlugin {
         if (disableChatCooldown) {
             // prevent people from sending messages while on cooldown
             channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
-            setTimeout(() => {
-                channel.permissionOverwrites.delete(channel.guild.roles.everyone);
+            this.addCooldownDoneTimeout(
+                () => channel.permissionOverwrites.delete(channel.guild.roles.everyone),
+                cooldownTime
+            )
+        }
+    }
+
+    private addCooldownDoneTimeout(func: Function, cooldownTime: number) {
+        const timeout = setTimeout(() => {
+            func();
             }, cooldownTime);
+
+        const cancelFunc = () => {
+            clearTimeout(timeout);
+            func();
+            this.cooldownCancelFuncs.splice(
+                this.cooldownCancelFuncs.indexOf(cancelFunc), 1);
+        };
+
+        this.cooldownCancelFuncs.push(cancelFunc);
         }
     }
 
@@ -115,5 +132,9 @@ export default class AutoThread extends BotPlugin {
         this._registerEventHandler("message", this.messageHandler);
     }
 
-    _stop() { }
+    _stop() {
+        while (this.cooldownCancelFuncs.length > 0) {
+            this.cooldownCancelFuncs[this.cooldownCancelFuncs.length - 1]();
+        }
+    }
 }

@@ -74,12 +74,20 @@ class AutoThread extends plugin_js_1.default {
         if (disableChatCooldown) {
             // prevent people from sending messages while on cooldown
             channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
-            setTimeout(() => {
-                channel.permissionOverwrites.delete(channel.guild.roles.everyone);
-            }, cooldownTime);
+            this.addCooldownDoneTimeout(() => channel.permissionOverwrites.delete(channel.guild.roles.everyone), cooldownTime);
         }
     }
-    threadTitleFromMessage(message) {
+    addCooldownDoneTimeout(func, cooldownTime) {
+        const timeout = setTimeout(() => {
+            func();
+        }, cooldownTime);
+        const cancelFunc = () => {
+            clearTimeout(timeout);
+            func();
+            this.cooldownCancelFuncs.splice(this.cooldownCancelFuncs.indexOf(cancelFunc), 1);
+        };
+        this.cooldownCancelFuncs.push(cancelFunc);
+    }
         const firstLine = message.split("\n").find(e => e.trim());
         if (!firstLine) {
             return;
@@ -110,6 +118,10 @@ class AutoThread extends plugin_js_1.default {
         }));
         this._registerEventHandler("message", this.messageHandler);
     }
-    _stop() { }
+    _stop() {
+        while (this.cooldownCancelFuncs.length > 0) {
+            this.cooldownCancelFuncs[this.cooldownCancelFuncs.length - 1]();
+        }
+    }
 }
 exports.default = AutoThread;
