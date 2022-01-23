@@ -853,7 +853,8 @@ class Default extends plugin_js_1.default {
             help: new commandHelp_js_1.default({
                 description: "Updates the 'japnaabot' node module to the newest version"
             }),
-            group: "Other"
+            group: "Other",
+            requiredPermission: "BOT_ADMINISTRATOR"
         }));
         this._registerDefaultCommand("uptime", this.uptime, new commandOptions_js_1.default({
             help: new commandHelp_js_1.default({

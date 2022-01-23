@@ -920,7 +920,8 @@ class Default extends BotPlugin {
             help: new BotCommandHelp({
                 description: "Updates the 'japnaabot' node module to the newest version"
             }),
-            group: "Other"
+            group: "Other",
+            requiredPermission: "BOT_ADMINISTRATOR"
         }));
 
         this._registerDefaultCommand("uptime", this.uptime, new BotCommandOptions({
