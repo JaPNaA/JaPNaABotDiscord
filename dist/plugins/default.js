@@ -536,11 +536,23 @@ class Default extends plugin_js_1.default {
             if (shouldAutoLocation) {
                 location = event.channelId;
             }
+            // check permissions
+            const server = await this.bot.client.getServerFromChannel(location);
+            if (!server) {
+                throw new Error("Could not find server or channel");
+            }
+            if (!(await this.bot.permissions.getPermissions_channel(event.userId, server.id, location)).has("ADMINISTRATOR")) {
+                throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that channel");
+            }
             config = await plugin.config.getAllUserSettingsInChannel(location);
         }
         else if (scope[0] === "s") {
             if (shouldAutoLocation) {
                 location = event.serverId;
+            }
+            // check permissions
+            if (!(await this.bot.permissions.getPermissions_channel(event.userId, location, event.channelId)).has("ADMINISTRATOR")) {
+                throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that server");
             }
             config = await plugin.config.getAllUserSettingsInServer(location);
         }
