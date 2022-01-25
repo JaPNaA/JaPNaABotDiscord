@@ -843,9 +843,31 @@ class Default extends BotPlugin {
                     "plugin": "Name of plugin",
                     "scope": "Configure in __c__hannel, __s__erver, or __g__lobal",
                     "location": "Channel or server",
-                    "key": "optional. Specify a key to view or edit",
-                    "value": "optional. If provided, edits key."
-                }]
+                    "[key]": "Optional. Specify a key to view or edit",
+                    "[value]": "Optional. JSON or \'delete\'. If provided, edits key."
+                }],
+                examples: [
+                    [
+                        "config japnaa s here",
+                        "View the config for 'japnaa' plugin in current server"
+                    ],
+                    [
+                        "config autothread c 677722352360095744",
+                        "View the config for 'autothread' plugin in the channel with id 677722352360095744. Note: you can use channel mentions for id (ex. #general)"
+                    ],
+                    [
+                        "config japnaa s here spam.limit",
+                        "View the spam limit config for plugin 'japnaa' in current server"
+                    ],
+                    [
+                        "config japnaa s here spam.limit 0",
+                        "Sets the spam limit config for plugin 'japnaa' in current server to 0"
+                    ],
+                    [
+                        "config autothread c here noThreadKeyword delete",
+                        "Reset the noThreadKeyword config for plugin autothread to it's default value. (May be inherited from server or globals)"
+                    ]
+                ]
             }),
             requiredPermission: "ADMINISTRATOR"
         }))
