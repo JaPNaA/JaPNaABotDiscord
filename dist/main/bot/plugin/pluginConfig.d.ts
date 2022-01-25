@@ -8,9 +8,12 @@ export default class PluginConfig {
     getInServer(serverId: string, key: string): any;
     getAllUserSettingsInServer(serverId: string): Promise<Map<string, any>>;
     setInServer(serverId: string, key: string, value: JSONType): void;
+    deleteInServer(serverId: string, key: string): void;
     getInChannel(channelId: string, key: string): Promise<any>;
     getAllUserSettingsInChannel(channelId: string): Promise<Map<string, any>>;
     setInChannel(channelId: string, key: string, value: JSONType): Promise<void>;
+    deleteInChannel(channelId: string, key: string): Promise<void>;
+    private modifiyLocalConfig;
     get(key: string): any;
     getAllUserSettings(): Promise<Map<string, any>>;
     getUserSettingType(key: string): string;

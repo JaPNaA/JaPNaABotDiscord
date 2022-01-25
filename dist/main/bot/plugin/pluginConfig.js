@@ -19,9 +19,10 @@ class PluginConfig {
         return this._getAllUserSettingsIn(async (key) => this.getInServer(serverId, key));
     }
     setInServer(serverId, key, value) {
-        const conf = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.server(serverId)) || {};
-        conf[key] = value;
-        this.bot.memory.write(this.plugin.pluginName, "local." + locationKeyCreator_1.default.server(serverId), conf);
+        this.modifiyLocalConfig(locationKeyCreator_1.default.server(serverId), conf => conf[key] = value);
+    }
+    deleteInServer(serverId, key) {
+        this.modifiyLocalConfig(locationKeyCreator_1.default.server(serverId), conf => delete conf[key]);
     }
     async getInChannel(channelId, key) {
         const server = await this.bot.client.getServerFromChannel(channelId);
@@ -46,9 +47,19 @@ class PluginConfig {
         if (!server) {
             throw new Error("Channel or server not found");
         }
-        const conf = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.channel(server.id, channelId)) || {};
-        conf[key] = value;
-        this.bot.memory.write(this.plugin.pluginName, "local." + locationKeyCreator_1.default.channel(server.id, channelId), conf);
+        this.modifiyLocalConfig(locationKeyCreator_1.default.channel(server.id, channelId), conf => conf[key] = value);
+    }
+    async deleteInChannel(channelId, key) {
+        const server = await this.bot.client.getServerFromChannel(channelId);
+        if (!server) {
+            throw new Error("Channel or server not found");
+        }
+        this.modifiyLocalConfig(locationKeyCreator_1.default.channel(server.id, channelId), conf => delete conf[key]);
+    }
+    modifiyLocalConfig(locationKey, modify) {
+        const conf = this.bot.memory.get(this.plugin.pluginName, "local." + locationKey) || {};
+        modify(conf);
+        this.bot.memory.write(this.plugin.pluginName, "local." + locationKey, conf);
     }
     get(key) {
         const all = this.getAll();

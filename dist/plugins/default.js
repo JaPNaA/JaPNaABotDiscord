@@ -566,7 +566,19 @@ class Default extends plugin_js_1.default {
             if (!config.has(key)) {
                 throw new Error("Config option doesn't exist");
             }
-            if (valueStr) {
+            if (["delete", "default", "remove"].includes(valueStr)) {
+                if (scope[0] === "c") {
+                    plugin.config.deleteInChannel(location, key);
+                }
+                else if (scope[0] === "s") {
+                    plugin.config.deleteInServer(location, key);
+                }
+                else {
+                    throw new Error("Unknown error");
+                }
+                this.bot.client.send(event.channelId, "Deleted key.");
+            }
+            else if (valueStr) {
                 const value = JSON.parse(valueStr);
                 if (typeof value !== plugin.config.getUserSettingType(key)) {
                     throw new Error("Value type doesn't match schema");

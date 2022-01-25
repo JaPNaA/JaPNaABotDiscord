@@ -16,9 +16,13 @@ export default class PluginConfig {
     }
 
     public setInServer(serverId: string, key: string, value: JSONType) {
-        const conf = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator.server(serverId)) || {};
-        conf[key] = value;
-        this.bot.memory.write(this.plugin.pluginName, "local." + locationKeyCreator.server(serverId), conf);
+        this.modifiyLocalConfig(locationKeyCreator.server(serverId), conf =>
+            conf[key] = value);
+    }
+
+    public deleteInServer(serverId: string, key: string) {
+        this.modifiyLocalConfig(locationKeyCreator.server(serverId),
+            conf => delete conf[key]);
     }
 
     public async getInChannel(channelId: string, key: string) {
@@ -57,9 +61,22 @@ export default class PluginConfig {
         const server = await this.bot.client.getServerFromChannel(channelId);
         if (!server) { throw new Error("Channel or server not found"); }
 
-        const conf = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator.channel(server.id, channelId)) || {};
-        conf[key] = value;
-        this.bot.memory.write(this.plugin.pluginName, "local." + locationKeyCreator.channel(server.id, channelId), conf);
+        this.modifiyLocalConfig(locationKeyCreator.channel(server.id, channelId),
+            conf => conf[key] = value);
+    }
+
+    public async deleteInChannel(channelId: string, key: string) {
+        const server = await this.bot.client.getServerFromChannel(channelId);
+        if (!server) { throw new Error("Channel or server not found"); }
+
+        this.modifiyLocalConfig(locationKeyCreator.channel(server.id, channelId),
+            conf => delete conf[key]);
+    }
+
+    private modifiyLocalConfig(locationKey: string, modify: (conf: JSONObject) => any) {
+        const conf = this.bot.memory.get(this.plugin.pluginName, "local." + locationKey) || {};
+        modify(conf);
+        this.bot.memory.write(this.plugin.pluginName, "local." + locationKey, conf);
     }
 
     public get(key: string) {
