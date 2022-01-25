@@ -26,6 +26,11 @@ class AutoThread extends plugin_js_1.default {
             type: "boolean",
             comment: "Automatically disable chatting while on cooldown?",
             default: true
+        },
+        noThreadKeyword: {
+            type: "string",
+            comment: "Will not make a thread if this keyword is found. Empty string to disable",
+            default: "[no thread]"
         }
     };
     cooldowns = new Map();
@@ -56,6 +61,10 @@ class AutoThread extends plugin_js_1.default {
             return;
         }
         if (!(await this._isNaturalMessage(event))) {
+            return;
+        }
+        const noThreadKeyword = config.get("noThreadKeyword");
+        if (noThreadKeyword && event.message.includes(noThreadKeyword)) {
             return;
         }
         const channel = await this.bot.client.getChannel(event.channelId);

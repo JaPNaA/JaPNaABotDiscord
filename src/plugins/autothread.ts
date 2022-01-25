@@ -27,6 +27,11 @@ export default class AutoThread extends BotPlugin {
             type: "boolean",
             comment: "Automatically disable chatting while on cooldown?",
             default: true
+        },
+        noThreadKeyword: {
+            type: "string",
+            comment: "Will not make a thread if this keyword is found. Empty string to disable",
+            default: "[no thread]"
         }
     };
 
@@ -60,6 +65,9 @@ export default class AutoThread extends BotPlugin {
         const config = await this.config.getAllUserSettingsInChannel(event.channelId);
         if (!config.get("enabled")) { return; }
         if (!(await this._isNaturalMessage(event))) { return; }
+
+        const noThreadKeyword = config.get("noThreadKeyword");
+        if (noThreadKeyword && event.message.includes(noThreadKeyword)) { return; }
         const channel = await this.bot.client.getChannel(event.channelId) as TextChannel;
         if (!channel || channel.isThread()) { return; }
 

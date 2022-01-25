@@ -22,6 +22,11 @@ export default class AutoThread extends BotPlugin {
             comment: string;
             default: boolean;
         };
+        noThreadKeyword: {
+            type: string;
+            comment: string;
+            default: string;
+        };
     };
     private cooldowns;
     private cooldownCancelFuncs;
