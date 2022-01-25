@@ -9,7 +9,7 @@ import createKey from "../main/bot/utils/locationKeyCreator.js";
 import Permissions from "../main/types/permissions.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
-import { TextChannel } from "discord.js";
+import { EmbedFieldData, TextChannel } from "discord.js";
 
 import * as childProcess from "child_process";
 import * as japnaabot from "../main/index";
@@ -52,7 +52,7 @@ class Default extends BotPlugin {
     async user_info(event: DiscordCommandEvent) {
         let userId: string | null = event.userId;
 
-        let response: { [s: string]: string; }[] = [];
+        let response: EmbedFieldData[] = [];
 
         if (event.arguments) {
             let newUserId: string | null = getSnowflakeNum(event.arguments);
@@ -133,16 +133,14 @@ class Default extends BotPlugin {
             }
 
 
-            this.bot.client.send(event.channelId, {
-                embeds: [{
-                    color: this.bot.config.themeColor,
-                    author: {
-                        name: "Information for " + user.username,
-                        icon_url: user.avatarURL({ size: 128 })
-                    },
-                    fields: response,
-                    timestamp: new Date()
-                }]
+            this.bot.client.sendEmbed(event.channelId, {
+                color: this.bot.config.themeColor,
+                author: {
+                    name: "Information for " + user.username,
+                    icon_url: user.avatarURL({ size: 128 }) || undefined
+                },
+                fields: response,
+                timestamp: new Date()
             });
         } else {
             this.bot.client.send(event.channelId, "**User does not exist.**");
@@ -205,7 +203,7 @@ class Default extends BotPlugin {
         });
 
         if (event.isDM) {
-            this.bot.client.send(event.channelId, { embeds: [embed] });
+            this.bot.client.sendEmbed(event.channelId, embed);
         } else {
             // is server
             this.bot.client.send(event.channelId, "I've sent you some help!");
@@ -264,12 +262,10 @@ class Default extends BotPlugin {
         }
 
         return {
-            embeds: [{
-                color: bot.config.themeColor,
-                title: title,
-                description: description,
-                fields: fields
-            }]
+            color: bot.config.themeColor,
+            title: title,
+            description: description,
+            fields: fields
         };
     }
 
@@ -303,11 +299,11 @@ class Default extends BotPlugin {
         const message: object = this._createHelpEmbedObject(fields, help, event, command, this.bot);
 
         if (event.isDM) {
-            this.bot.client.send(event.channelId, message);
+            this.bot.client.sendEmbed(event.channelId, message);
         } else {
             // is server
             this.bot.client.send(event.channelId, "I've sent you some help!");
-            this.bot.client.sendDM(event.userId, message);
+            this.bot.client.sendDM(event.userId, { embeds: [message] });
         }
     }
 
@@ -662,11 +658,9 @@ class Default extends BotPlugin {
      * Sends link to add bot to server
      */
     link(event: DiscordCommandEvent): void {
-        this.bot.client.send(event.channelId, {
-            embed: {
-                color: this.bot.config.themeColor,
-                description: "You can add me to another server with this link:\n" + this.bot.config.addLink
-            }
+        this.bot.client.sendEmbed(event.channelId, {
+            color: this.bot.config.themeColor,
+            description: "You can add me to another server with this link:\n" + this.bot.config.addLink
         });
     }
 

@@ -142,6 +142,11 @@ class BotClient {
         this.sentMessageRecorder.recordSentMessage(channelId, message);
         return promise;
     }
+    async sendEmbed(channelId, embed) {
+        return this.send(channelId, {
+            embeds: [embed]
+        });
+    }
     /**
      * Sends direct message
      * @param userId id of user

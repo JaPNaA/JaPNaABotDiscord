@@ -25,11 +25,9 @@ class JapnaaWeird extends plugin_js_1.default {
      * JaP is kewl
      */
     jap(event) {
-        this.bot.client.send(event.channelId, {
-            embed: {
-                color: this.bot.config.themeColor,
-                description: "**JaP is " + (event.arguments || "kewl") + "**"
-            }
+        this.bot.client.sendEmbed(event.channelId, {
+            color: this.bot.config.themeColor,
+            description: "**JaP is " + (event.arguments || "kewl") + "**"
         });
     }
     /**

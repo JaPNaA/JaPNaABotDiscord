@@ -126,16 +126,14 @@ class Default extends plugin_js_1.default {
                     value: permissions.customToString() + "\n"
                 });
             }
-            this.bot.client.send(event.channelId, {
-                embeds: [{
-                        color: this.bot.config.themeColor,
-                        author: {
-                            name: "Information for " + user.username,
-                            icon_url: user.avatarURL({ size: 128 })
-                        },
-                        fields: response,
-                        timestamp: new Date()
-                    }]
+            this.bot.client.sendEmbed(event.channelId, {
+                color: this.bot.config.themeColor,
+                author: {
+                    name: "Information for " + user.username,
+                    icon_url: user.avatarURL({ size: 128 }) || undefined
+                },
+                fields: response,
+                timestamp: new Date()
             });
         }
         else {
@@ -190,7 +188,7 @@ class Default extends plugin_js_1.default {
                 "*You can type " + event.precommandName.precommand + "help [commandName] to get more information on a command.*"
         });
         if (event.isDM) {
-            this.bot.client.send(event.channelId, { embeds: [embed] });
+            this.bot.client.sendEmbed(event.channelId, embed);
         }
         else {
             // is server
@@ -242,12 +240,10 @@ class Default extends plugin_js_1.default {
             description = "_From plugin '" + help.fromPlugin + "'_\n" + description;
         }
         return {
-            embeds: [{
-                    color: bot.config.themeColor,
-                    title: title,
-                    description: description,
-                    fields: fields
-                }]
+            color: bot.config.themeColor,
+            title: title,
+            description: description,
+            fields: fields
         };
     }
     /**
@@ -273,12 +269,12 @@ class Default extends plugin_js_1.default {
         this._appendHelpPermissions(fields, help);
         const message = this._createHelpEmbedObject(fields, help, event, command, this.bot);
         if (event.isDM) {
-            this.bot.client.send(event.channelId, message);
+            this.bot.client.sendEmbed(event.channelId, message);
         }
         else {
             // is server
             this.bot.client.send(event.channelId, "I've sent you some help!");
-            this.bot.client.sendDM(event.userId, message);
+            this.bot.client.sendDM(event.userId, { embeds: [message] });
         }
     }
     /**
@@ -621,11 +617,9 @@ class Default extends plugin_js_1.default {
      * Sends link to add bot to server
      */
     link(event) {
-        this.bot.client.send(event.channelId, {
-            embed: {
-                color: this.bot.config.themeColor,
-                description: "You can add me to another server with this link:\n" + this.bot.config.addLink
-            }
+        this.bot.client.sendEmbed(event.channelId, {
+            color: this.bot.config.themeColor,
+            description: "You can add me to another server with this link:\n" + this.bot.config.addLink
         });
     }
     /**

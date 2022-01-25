@@ -1,4 +1,4 @@
-import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel } from "discord.js";
+import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel, MessageOptions, MessageEmbedOptions } from "discord.js";
 
 import Logger from "../../utils/logger.js";
 import MessageObject from "../types/messageObject.js";
@@ -134,7 +134,7 @@ class BotClient {
      * Send message
      * @returns A promise that resolves when sent
      */
-    async send(channelId: string, message: string | MessageObject): Promise<Message | Message[]> {
+    async send(channelId: string, message: string | MessageOptions): Promise<Message | Message[]> {
         Logger.log_message(">>", message);
 
         let promise: Promise<Message | Message[]>;
@@ -164,6 +164,12 @@ class BotClient {
         this.sentMessageRecorder.recordSentMessage(channelId, message);
 
         return promise;
+    }
+
+    async sendEmbed(channelId: string, embed: MessageEmbedOptions): Promise<Message | Message[]> {
+        return this.send(channelId, {
+            embeds: [embed]
+        });
     }
 
     /**

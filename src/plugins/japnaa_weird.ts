@@ -28,11 +28,9 @@ class JapnaaWeird extends BotPlugin {
      * JaP is kewl
      */
     jap(event: DiscordCommandEvent): void {
-        this.bot.client.send(event.channelId, {
-            embed: {
-                color: this.bot.config.themeColor,
-                description: "**JaP is " + (event.arguments || "kewl") + "**"
-            }
+        this.bot.client.sendEmbed(event.channelId, {
+            color: this.bot.config.themeColor,
+            description: "**JaP is " + (event.arguments || "kewl") + "**"
         });
     }
 

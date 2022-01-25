@@ -6,6 +6,7 @@ import mention from "../../../main/utils/str/mention";
 import PresidentsMain from "./game";
 import { AlreadyJoinedError, DMAlreadyLockedError } from "./errors";
 import MessageType from "./messageType";
+import { EmbedFieldData } from "discord.js";
 
 /**
  * Handles leaving and joining of Presidents, as long as some aliases to other 
@@ -137,7 +138,7 @@ class Presidents extends Game {
     }
 
     _sendAboutMessage() {
-        const fields: object[] = [];
+        const fields: EmbedFieldData[] = [];
         const precommmand = this.parentPlugin.precommand.names[0];
 
         fields.push({
@@ -151,13 +152,11 @@ class Presidents extends Game {
                 "Once all the players are in, type `" + precommmand + "start` to start the game"
         });
 
-        this.bot.client.send(this.channelId, {
-            embeds: [{
-                color: this.bot.config.themeColor,
-                title: this.gameName,
-                description: "The ultimate social card game.",
-                fields: fields
-            }]
+        this.bot.client.sendEmbed(this.channelId, {
+            color: this.bot.config.themeColor,
+            title: this.gameName,
+            description: "The ultimate social card game.",
+            fields: fields
         });
     }
 
