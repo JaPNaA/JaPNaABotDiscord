@@ -193,7 +193,7 @@ function start(apiToken, botConfig, pathToMemoryFile) {
     client = new discord_js_1.default.Client({
         intents: [
             discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_MESSAGES,
-            discord_js_1.Intents.FLAGS.DIRECT_MESSAGES
+            discord_js_1.Intents.FLAGS.DIRECT_MESSAGES, discord_js_1.Intents.FLAGS.GUILD_VOICE_STATES
         ],
         partials: ["CHANNEL", "MESSAGE"]
     });
