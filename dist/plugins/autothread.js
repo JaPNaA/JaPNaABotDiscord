@@ -99,7 +99,9 @@ class AutoThread extends plugin_js_1.default {
         this.cooldownCancelFuncs.push(cancelFunc);
     }
     extractTitleFromMessage(message) {
-        const firstLine = message.split("\n").find(e => e.trim());
+        const firstLine = message
+            .replace(/[_\*]/g, "") // remove formatting characters
+            .split("\n").find(e => e.trim());
         // back out of extraction
         if (!firstLine) {
             return message;
@@ -108,7 +110,8 @@ class AutoThread extends plugin_js_1.default {
         if (firstLine.length < 25) {
             return firstLine;
         }
-        const extractedTitle = firstLine.split(/\s+/)
+        const extractedTitle = firstLine
+            .split(/\s+/)
             .filter(e => !STOP_WORDS.has(e.replace(/\W/g, "").toLowerCase())).join(" ");
         // extracted nothing, back out
         if (extractedTitle.length === 0) {

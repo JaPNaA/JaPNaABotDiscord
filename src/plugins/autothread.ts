@@ -109,14 +109,17 @@ export default class AutoThread extends BotPlugin {
     }
 
     private extractTitleFromMessage(message: string) {
-        const firstLine = message.split("\n").find(e => e.trim());
+        const firstLine = message
+            .replace(/[_\*]/g, "") // remove formatting characters
+            .split("\n").find(e => e.trim());
 
         // back out of extraction
         if (!firstLine) { return message; }
         // already short enough -- no need for further extraction
         if (firstLine.length < 25) { return firstLine; }
 
-        const extractedTitle = firstLine.split(/\s+/)
+        const extractedTitle = firstLine
+            .split(/\s+/)
             .filter(e => !STOP_WORDS.has(
                 e.replace(/\W/g, "").toLowerCase()
             )).join(" ");
