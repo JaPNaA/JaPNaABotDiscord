@@ -566,6 +566,10 @@ class Default extends BotPlugin {
         const [pluginArg, scope, locationArg, key, ...valueArr] = args;
         const valueStr = valueArr.join(" ");
 
+        if (!pluginArg || !scope || !locationArg) {
+            throw new Error("Invalid arguments");
+        }
+
         const plugin = this.bot.pluginManager.getPlugin(pluginArg);
         if (!plugin) { throw new Error("Plugin doesn't exist or isn't loaded"); }
 

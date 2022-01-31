@@ -521,6 +521,9 @@ class Default extends plugin_js_1.default {
         const args = (0, stringToArgs_js_1.default)(event.arguments);
         const [pluginArg, scope, locationArg, key, ...valueArr] = args;
         const valueStr = valueArr.join(" ");
+        if (!pluginArg || !scope || !locationArg) {
+            throw new Error("Invalid arguments");
+        }
         const plugin = this.bot.pluginManager.getPlugin(pluginArg);
         if (!plugin) {
             throw new Error("Plugin doesn't exist or isn't loaded");
