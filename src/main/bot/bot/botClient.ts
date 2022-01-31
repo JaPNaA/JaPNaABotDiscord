@@ -1,4 +1,4 @@
-import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel, MessageOptions, MessageEmbedOptions } from "discord.js";
+import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel, MessageOptions, MessageEmbedOptions, DMChannel } from "discord.js";
 
 import Logger from "../../utils/logger.js";
 import MessageObject from "../types/messageObject.js";
@@ -213,7 +213,8 @@ class BotClient {
 
     async getServerFromChannel(channelId: string): Promise<Guild | undefined> {
         let channel = await this.getChannel(channelId);
-        if (!channel || !(channel instanceof TextChannel || channel instanceof ThreadChannel)) { return; }
+        if (!channel) { return; }
+        // @ts-ignore
         return channel.guild;
     }
 

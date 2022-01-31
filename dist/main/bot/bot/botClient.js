@@ -3,7 +3,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const discord_js_1 = require("discord.js");
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 class PresenceSetter {
     client;
@@ -183,9 +182,10 @@ class BotClient {
     }
     async getServerFromChannel(channelId) {
         let channel = await this.getChannel(channelId);
-        if (!channel || !(channel instanceof discord_js_1.TextChannel || channel instanceof discord_js_1.ThreadChannel)) {
+        if (!channel) {
             return;
         }
+        // @ts-ignore
         return channel.guild;
     }
     getServer(serverId) {
