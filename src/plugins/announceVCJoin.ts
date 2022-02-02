@@ -42,6 +42,7 @@ export default class AnnounceVCJoin extends BotPlugin {
     };
 
     private cooldowns: Map<string, number> = new Map();
+    private channelsInDelay: Set<string> = new Set();
     private _voiceStateUpdateHandler?: any;
 
     constructor(bot: Bot) {
@@ -98,10 +99,14 @@ export default class AnnounceVCJoin extends BotPlugin {
         const coolBy = this.cooldowns.get(channelId);
         if (coolBy && Date.now() < coolBy) { return; } // ignore if a message announcing this channel was sent recently
 
-        if (channel.members.size !== 1) { return; }
-        await this._wait(config.get("delay") * 1000); // check still in after delay
+        if (channel.members.size !== 1) { return; }  // first person to join
 
-        if (channel.members.size <= 0) { return; }
+        if (this.channelsInDelay.has(channelId)) { return; } // cancel if channel is already waiting for delay
+        this.channelsInDelay.add(channelId);
+        await this._wait(config.get("delay") * 1000); // check still in after delay
+        this.channelsInDelay.delete(channelId);
+
+        if (channel.members.size <= 0) { return; } // person left
 
         const announceInChannel = await this.bot.client.getChannel(announceInChannelId) as TextChannel;
         if (!announceInChannel?.isText()) { return; }
