@@ -1,5 +1,5 @@
 import CommandDispatcher from "./commandDispatcher.js";
-import BotCommandHelp from "../commandHelp.js";
+import { BotCommandHelpFull } from "../commandHelp.js";
 import BotCommand from "../command.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
@@ -16,10 +16,10 @@ declare class CommandManager {
     commandGroups: Map<string | undefined, BotCommand[]>;
     /** Data for help */
     helpData: {
-        [x: string]: BotCommandHelp | null | undefined;
+        [x: string]: BotCommandHelpFull | null | undefined;
     };
     constructor(bot: Bot);
-    getHelp(command: string): BotCommandHelp | null | undefined;
+    getHelp(command: string): BotCommandHelpFull | null | undefined;
     register(triggerWord: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions): void;
     registerUnkownCommandHanlder(func: UnknownCommandHandler): void;
     /** Apply config from bot.config to adjust command */

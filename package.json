@@ -1,6 +1,6 @@
 {
   "name": "japnaabot",
-  "version": "4.0.1",
+  "version": "5.0.0",
   "description": "JaPNaABot is now on Discord!",
   "main": "./dist/main/index.js",
   "scripts": {

@@ -84,9 +84,9 @@ class Games extends BotPlugin {
     }
 
     _start(): void {
-        this._registerCommand(this.precommand, "play", this.play, new BotCommandOptions({
+        this._registerCommand(this.precommand, "play", this.play, {
             noDM: true
-        }));
+        });
 
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }

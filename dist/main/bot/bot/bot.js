@@ -10,11 +10,9 @@ const botPermissions_js_1 = __importDefault(require("./botPermissions.js"));
 const botEvents_js_1 = __importDefault(require("./botEvents.js"));
 const botClient_js_1 = __importDefault(require("./botClient.js"));
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
-const commandOptions_js_1 = __importDefault(require("../command/commandOptions.js"));
 const precommandManager_js_1 = __importDefault(require("../precommand/manager/precommandManager.js"));
 const precommand_js_1 = require("../precommand/precommand.js");
 const pluginManager_js_1 = __importDefault(require("../plugin/manager/pluginManager.js"));
-const commandHelp_js_1 = __importDefault(require("../command/commandHelp.js"));
 const util_1 = require("util");
 const ellipsisize_js_1 = __importDefault(require("../../utils/str/ellipsisize.js"));
 class Bot {
@@ -129,13 +127,13 @@ class Bot {
         this.registerDefaultCommands();
     }
     registerDefaultCommands() {
-        this.defaultPrecommand.commandManager.register("restart", "bot", this.restart.bind(this), new commandOptions_js_1.default({
-            help: new commandHelp_js_1.default({
+        this.defaultPrecommand.commandManager.register("restart", "bot", this.restart.bind(this), {
+            help: {
                 description: "Restarts the bot"
-            }),
+            },
             requiredPermission: "BOT_ADMINISTRATOR",
             group: "Utils"
-        }));
+        });
     }
     registerDebugPrecommands() {
         const precommand = precommand_js_1.Precommand.create(this, this.config.debugPrecommand, this.debugPrecommandCallback.bind(this));

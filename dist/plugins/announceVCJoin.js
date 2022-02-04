@@ -4,8 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
-const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
-const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const allUtils_js_1 = require("../main/utils/allUtils.js");
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
@@ -151,9 +149,9 @@ class AnnounceVCJoin extends plugin_js_1.default {
             this._onVoiceStateUpdate(oldState, newState)
                 .catch(err => logger_js_1.default.error(err));
         });
-        this._registerDefaultCommand("announce vc join", this.command_announce_vc_join, new commandOptions_js_1.default({
+        this._registerDefaultCommand("announce vc join", this.command_announce_vc_join, {
             group: "Communication",
-            help: new commandHelp_js_1.default({
+            help: {
                 description: "Tell the bot start/stop sending announcements when someone starts a call in a voice channel",
                 overloads: [{
                         "voiceChannel": "Id or mention to the voice channel for the bot to watch",
@@ -163,8 +161,8 @@ class AnnounceVCJoin extends plugin_js_1.default {
                     ["announce vc join 937157681297391656 877304170653319198", "The bot will start announcing when someone joins <#937157681297391656> into the channel <#877304170653319198>"],
                     ["announce vc join 937157681297391656", "The bot will toggle announcements for the voice channel <#937157681297391656>"]
                 ]
-            })
-        }));
+            }
+        });
     }
     _stop() {
         this.bot.client.client.off("voiceStateUpdate", this._voiceStateUpdateHandler);

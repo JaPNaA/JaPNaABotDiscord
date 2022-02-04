@@ -2,8 +2,6 @@ import Bot from "../main/bot/bot/bot.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import BotCommandOptions from "../main/bot/command/commandOptions.js";
-import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 import { TextChannel } from "discord.js";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
@@ -147,16 +145,16 @@ export default class AutoThread extends BotPlugin {
     }
 
     _start(): void {
-        this._registerDefaultCommand("autothread", this.toggleAutothread, new BotCommandOptions({
+        this._registerDefaultCommand("autothread", this.toggleAutothread, {
             group: "Communication",
-            help: new BotCommandHelp({
+            help: {
                 description: "Enables autothread (making threads) for the channel.",
                 examples: [
                     ["autothread", "Toggles autothread on the channel"]
                 ]
-            }),
+            },
             noDM: true
-        }));
+        });
 
         this._registerEventHandler("message", this.messageHandler);
     }

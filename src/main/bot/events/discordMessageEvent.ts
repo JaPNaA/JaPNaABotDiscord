@@ -1,7 +1,7 @@
 import PrecommandName from "../precommand/precommandName";
 import IMessage from "../../adapters/IMessage";
 
-class DiscordMessageEvent {
+interface DiscordMessageEvent {
     /** Username of sender */
     username: string;
     /** Id of sender */
@@ -22,39 +22,6 @@ class DiscordMessageEvent {
     isDM: boolean;
     /** When the message was sent */
     createdTimestamp: number;
-
-    /**
-     * DiscordMessageEvent contructor
-     * @param username of sender
-     * @param userId of sender
-     * @param channelId in
-     * @param message sent
-     * @param precommandName is message valid command? If so, what is precommand?
-     * @param event websocket event
-     */
-    constructor(data: {
-        username: string,
-        userId: string,
-        channelId: string,
-        serverId: string | null,
-        messageId: string,
-        message: string,
-        precommandName: PrecommandName | null,
-        originalEvent: IMessage,
-        isDM: boolean,
-        createdTimestamp: number
-    }) {
-        this.username = data.username;
-        this.userId = data.userId;
-        this.channelId = data.channelId;
-        this.serverId = data.serverId || "";
-        this.messageId = data.messageId;
-        this.message = data.message;
-        this.precommandName = data.precommandName;
-        this.originalEvent = data.originalEvent;
-        this.isDM = data.isDM;
-        this.createdTimestamp = data.createdTimestamp;
-    }
 }
 
 export default DiscordMessageEvent;

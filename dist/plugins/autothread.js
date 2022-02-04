@@ -4,8 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
-const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
-const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
 /**
  * Autothread plugin; automatically makes threads
@@ -132,16 +130,16 @@ class AutoThread extends plugin_js_1.default {
         this.cooldowns.set(channelId, Date.now() + time);
     }
     _start() {
-        this._registerDefaultCommand("autothread", this.toggleAutothread, new commandOptions_js_1.default({
+        this._registerDefaultCommand("autothread", this.toggleAutothread, {
             group: "Communication",
-            help: new commandHelp_js_1.default({
+            help: {
                 description: "Enables autothread (making threads) for the channel.",
                 examples: [
                     ["autothread", "Toggles autothread on the channel"]
                 ]
-            }),
+            },
             noDM: true
-        }));
+        });
         this._registerEventHandler("message", this.messageHandler);
     }
     _stop() {

@@ -1,10 +1,6 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
-const discordMessageEvent_1 = __importDefault(require("../bot/events/discordMessageEvent"));
 class RawEventAdapter {
     bot;
     constructor(bot) {
@@ -24,18 +20,18 @@ class RawEventAdapter {
         else {
             isDM = false;
         }
-        const messageEvent = new discordMessageEvent_1.default({
+        const messageEvent = {
             username: message.author && message.author.username,
             userId: message.author && message.author.id,
             channelId: message.channel && message.channel.id,
-            serverId: message.guild && message.guild.id,
+            serverId: message.guild && message.guild.id || "",
             messageId: message.id,
             message: message.content,
             precommandName: precommandNameInMessage,
             originalEvent: message,
             isDM: isDM,
             createdTimestamp: message.createdTimestamp
-        });
+        };
         if (this.bot.client.isSelf(messageEvent.userId)) {
             this.bot.events.dispatch("sent", messageEvent);
             return;

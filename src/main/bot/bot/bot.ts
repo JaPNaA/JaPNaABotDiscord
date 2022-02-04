@@ -6,12 +6,10 @@ import BotPermissions from "./botPermissions.js";
 import BotEvents from "./botEvents.js";
 import BotClient from "./botClient.js";
 import Logger from "../../utils/logger.js";
-import BotCommandOptions from "../command/commandOptions.js";
 import DiscordCommandEvent from "../events/discordCommandEvent.js";
 import PrecommandManager from "../precommand/manager/precommandManager.js";
 import { Precommand, PrecommandWithoutCallback, PrecommandWithCallback } from "../precommand/precommand.js";
 import PluginManager from "../plugin/manager/pluginManager.js";
-import BotCommandHelp from "../command/commandHelp.js";
 import { inspect } from "util";
 import ellipsisize from "../../utils/str/ellipsisize.js";
 
@@ -157,13 +155,13 @@ class Bot {
     private registerDefaultCommands() {
         this.defaultPrecommand.commandManager.register(
             "restart", "bot", this.restart.bind(this),
-            new BotCommandOptions({
-                help: new BotCommandHelp({
+            {
+                help: {
                     description: "Restarts the bot"
-                }),
+                },
                 requiredPermission: "BOT_ADMINISTRATOR",
                 group: "Utils"
-            })
+            }
         );
     }
 

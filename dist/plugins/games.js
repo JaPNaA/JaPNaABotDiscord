@@ -6,7 +6,6 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
 const presidents_js_1 = __importDefault(require("./games/presidents/presidents.js"));
-const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 /**
  * Games!
  */
@@ -65,9 +64,9 @@ class Games extends plugin_js_1.default {
         return this.gameAliases[name];
     }
     _start() {
-        this._registerCommand(this.precommand, "play", this.play, new commandOptions_js_1.default({
+        this._registerCommand(this.precommand, "play", this.play, {
             noDM: true
-        }));
+        });
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
     unknownCommandHandler(event) {

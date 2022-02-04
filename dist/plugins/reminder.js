@@ -4,9 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
-const commandOptions_js_1 = __importDefault(require("../main/bot/command/commandOptions.js"));
 const allUtils_js_1 = require("../main/utils/allUtils.js");
-const commandHelp_js_1 = __importDefault(require("../main/bot/command/commandHelp.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 /**
@@ -161,9 +159,9 @@ class Reminders extends plugin_js_1.default {
                 });
             }
         }
-        this._registerDefaultCommand("set reminder", this.set_reminder, new commandOptions_js_1.default({
+        this._registerDefaultCommand("set reminder", this.set_reminder, {
             group: "Reminders",
-            help: new commandHelp_js_1.default({
+            help: {
                 description: "Sets a reminder. The bot will send a message in the channel the reminder was set on the set time. (For weird technical limitations, the command is disabled in DMs)",
                 examples: [
                     ["set reminder 10 mins check the oven", "Sets a reminder in 10 minutes with the title 'check the oven'"],
@@ -175,18 +173,18 @@ class Reminders extends plugin_js_1.default {
                         "[unit]": "Optional. The units of number",
                         "...title": "The title of the reminder"
                     }]
-            }),
+            },
             noDM: true
-        }));
-        this._registerDefaultCommand("list reminders", this.list_reminders, new commandOptions_js_1.default({
+        });
+        this._registerDefaultCommand("list reminders", this.list_reminders, {
             group: "Reminders",
-            help: new commandHelp_js_1.default({
+            help: {
                 description: "Lists the reminders in a channel"
-            })
-        }));
-        this._registerDefaultCommand("cancel reminder", this.cancel_reminder, new commandOptions_js_1.default({
+            }
+        });
+        this._registerDefaultCommand("cancel reminder", this.cancel_reminder, {
             group: "Reminders",
-            help: new commandHelp_js_1.default({
+            help: {
                 description: "Cancel a reminder given index in channel",
                 examples: [
                     ["cancel reminder 1", "Cancels the first reminder"]
@@ -194,8 +192,8 @@ class Reminders extends plugin_js_1.default {
                 overloads: [{
                         "<index>": "Number. The index of the event from the `list reminders` command."
                     }]
-            })
-        }));
+            }
+        });
     }
     _stop() {
         this._stopReminderTimeout();

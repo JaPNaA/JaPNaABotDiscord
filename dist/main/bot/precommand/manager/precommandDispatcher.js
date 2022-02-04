@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const logger_1 = __importDefault(require("../../../utils/logger"));
-const discordCommandEvent_1 = __importDefault(require("../../events/discordCommandEvent"));
 class PrecommandDispatcher {
     bot;
     manager;
@@ -31,11 +30,12 @@ class PrecommandDispatcher {
             throw new Error("Unknown error");
         }
         const content = pre && messageEvent.message.slice(pre.name.length);
-        return new discordCommandEvent_1.default({
-            messageEvent: messageEvent,
-            pre: pre,
-            content: content
-        });
+        return {
+            ...messageEvent,
+            precommandName: pre,
+            commandContent: content,
+            arguments: ""
+        };
     }
 }
 exports.default = PrecommandDispatcher;

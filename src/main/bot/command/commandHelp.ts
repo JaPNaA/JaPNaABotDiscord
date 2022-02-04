@@ -1,43 +1,34 @@
 import BotCommand from "./command.js";
 
-class BotCommandHelp {
+export interface BotCommandHelp {
     /** Description of what the command does */
     description: string;
     /** Contains all the available types of arguments */
-    overloads: { [x: string]: string; }[] | undefined;
+    overloads?: { [x: string]: string; }[];
     /** Examples of the use of the command */
-    examples: string[][] | undefined;
-    /** The group that the command is in */
-    group: string | undefined;
-    /** Disallow the use of the command in Direct Messages? */
-    noDM: boolean = false;
-    /** The required permission to run the command */
-    requiredPermission: string | undefined;
-    /** The plugin where the command in from */
-    fromPlugin: string | undefined;
-
-    constructor(data: {
-        /** Description of what the command does */
-        description: string,
-        /** All possible arguments of the command */
-        overloads?: { [x: string]: string }[],
-        /** Examples of the command being used, [command, explanation] */
-        examples?: string[][]
-    }) {
-        this.description = data.description;
-        this.overloads = data.overloads;
-        this.examples = data.examples;
-    }
-
-    /**
-     * Gathers some information about command
-     */
-    gatherInfoAboutCommand(command: BotCommand): void {
-        this.group = command.group;
-        this.noDM = command.noDM;
-        this.requiredPermission = command.requiredPermission;
-        this.fromPlugin = command.pluginName;
-    }
+    examples?: string[][];
 }
 
-export default BotCommandHelp;
+export interface BotCommandHelpFull extends BotCommandHelp {
+    /** The group that the command is in */
+    group?: string;
+    /** Disallow the use of the command in Direct Messages? */
+    noDM: boolean;
+    /** The required permission to run the command */
+    requiredPermission?: string;
+    /** The plugin where the command in from */
+    fromPlugin?: string;
+}
+
+/**
+ * Gathers some information about command
+ */
+export function getFullCommandHelp(command: BotCommand, help?: BotCommandHelp | null): BotCommandHelpFull {
+    return {
+        ...help || { description: "" },
+        group: command.group,
+        noDM: command.noDM || false,
+        requiredPermission: command.requiredPermission,
+        fromPlugin: command.pluginName
+    }
+}

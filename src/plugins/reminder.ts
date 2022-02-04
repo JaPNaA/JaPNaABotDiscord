@@ -2,9 +2,7 @@ import Bot from "../main/bot/bot/bot.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import { stringToArgs } from "../main/utils/allUtils.js";
-import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import Logger from "../main/utils/logger.js";
 import mention from "../main/utils/str/mention.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
@@ -183,9 +181,9 @@ class Reminders extends BotPlugin {
             }
         }
 
-        this._registerDefaultCommand("set reminder", this.set_reminder, new BotCommandOptions({
+        this._registerDefaultCommand("set reminder", this.set_reminder, {
             group: "Reminders",
-            help: new BotCommandHelp({
+            help: {
                 description: "Sets a reminder. The bot will send a message in the channel the reminder was set on the set time. (For weird technical limitations, the command is disabled in DMs)",
                 examples: [
                     ["set reminder 10 mins check the oven", "Sets a reminder in 10 minutes with the title 'check the oven'"],
@@ -197,20 +195,20 @@ class Reminders extends BotPlugin {
                     "[unit]": "Optional. The units of number",
                     "...title": "The title of the reminder"
                 }]
-            }),
+            },
             noDM: true
-        }));
+        });
 
-        this._registerDefaultCommand("list reminders", this.list_reminders, new BotCommandOptions({
+        this._registerDefaultCommand("list reminders", this.list_reminders, {
             group: "Reminders",
-            help: new BotCommandHelp({
+            help: {
                 description: "Lists the reminders in a channel"
-            })
-        }))
+            }
+        });
 
-        this._registerDefaultCommand("cancel reminder", this.cancel_reminder, new BotCommandOptions({
+        this._registerDefaultCommand("cancel reminder", this.cancel_reminder, {
             group: "Reminders",
-            help: new BotCommandHelp({
+            help: {
                 description: "Cancel a reminder given index in channel",
                 examples: [
                     ["cancel reminder 1", "Cancels the first reminder"]
@@ -218,8 +216,8 @@ class Reminders extends BotPlugin {
                 overloads: [{
                     "<index>": "Number. The index of the event from the `list reminders` command."
                 }]
-            })
-        }));
+            }
+        });
     }
 
     _stop(): void {

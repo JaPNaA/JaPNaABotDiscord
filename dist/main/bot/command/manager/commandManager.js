@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const commandDispatcher_js_1 = __importDefault(require("./commandDispatcher.js"));
+const commandHelp_js_1 = require("../commandHelp.js");
 const command_js_1 = __importDefault(require("../command.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../../utils/locationKeyCreator.js"));
 class CommandManager {
@@ -34,10 +35,7 @@ class CommandManager {
         this.commands.push(command);
         this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
-        this.registerHelp(command.commandName, command.help || null);
-        if (command.help) { // if help is available
-            command.help.gatherInfoAboutCommand(command);
-        }
+        this.registerHelp(command, (0, commandHelp_js_1.getFullCommandHelp)(command, command.help));
     }
     registerUnkownCommandHanlder(func) {
         this.unknownCommandHandler = func;
@@ -64,7 +62,7 @@ class CommandManager {
         }
     }
     registerHelp(command, data) {
-        this.helpData[command] = data;
+        this.helpData[command.commandName] = (0, commandHelp_js_1.getFullCommandHelp)(command, data);
     }
 }
 exports.default = CommandManager;

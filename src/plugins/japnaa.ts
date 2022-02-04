@@ -1,8 +1,6 @@
 import DiscordMessageEvent from "../main/bot/events/discordCommandEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import BotCommandOptions from "../main/bot/command/commandOptions.js";
-import BotCommandHelp from "../main/bot/command/commandHelp.js";
 
 import stringToArgs from "../main/utils/str/stringToArgs";
 import random from "../main/utils/random/random";
@@ -446,8 +444,8 @@ class Japnaa extends BotPlugin {
     }
 
     _start(): void {
-        this._registerDefaultCommand("echo", this.echo, new BotCommandOptions({
-            help: new BotCommandHelp({
+        this._registerDefaultCommand("echo", this.echo, {
+            help: {
                 description: "Says what you say, you can also echo JSON objects.",
                 overloads: [{
                     "string": "Echos back what you said"
@@ -462,22 +460,22 @@ class Japnaa extends BotPlugin {
                         "\"JavaScript Object Notation\""
                     ]
                 ]
-            }),
+            },
             group: "Testing"
-        }));
+        });
 
-        this._registerDefaultCommand("count", this.count, new BotCommandOptions({
-            help: new BotCommandHelp({
+        this._registerDefaultCommand("count", this.count, {
+            help: {
                 description: "Increments a counter in the bot by 1, and sends it.",
                 examples: [
                     ["count", "Will respond with a number bigger than what it reponded to the previous count count."]
                 ]
-            }),
+            },
             group: "Testing"
-        }));
+        });
 
-        this._registerDefaultCommand("random", this.random, new BotCommandOptions({
-            help: new BotCommandHelp({
+        this._registerDefaultCommand("random", this.random, {
+            help: {
                 description: "Generates a random thing",
                 overloads: [{
                     "[max]": "Optional. The maximum of the random number",
@@ -497,13 +495,13 @@ class Japnaa extends BotPlugin {
                     ["random string", "A random string 128 characters long"],
                     ["random string 10", "A random string 10 characters long"]
                 ]
-            }),
+            },
             group: "Utils"
-        }));
+        });
 
-        this._registerDefaultCommand("spam", this.spam_command, new BotCommandOptions({
+        this._registerDefaultCommand("spam", this.spam_command, {
             noDM: true,
-            help: new BotCommandHelp({
+            help: {
                 description: "Spams a message several times, because you want to be annoying.",
                 overloads: [{
                     "[amount]": "Optional. The amount of spam to spam. Defaults to 3.",
@@ -527,12 +525,12 @@ class Japnaa extends BotPlugin {
                     ["spam limit", "Responds with the limit of the spam of the channel"],
                     ["spam que limit", "Responds with the que limit of the channel"]
                 ]
-            }),
+            },
             group: "Communication"
-        }));
+        });
 
-        this._registerDefaultCommand("throw", this.throw, new BotCommandOptions({
-            help: new BotCommandHelp({
+        this._registerDefaultCommand("throw", this.throw, {
+            help: {
                 description: "Throws an error.",
                 overloads: [{
                     "[errorName]": "The name of the error to throw"
@@ -541,12 +539,12 @@ class Japnaa extends BotPlugin {
                     ["throw", "The bot will throw a User-Throw Error"],
                     ["throw rocks", "The bot will throw the error \"rocks\""]
                 ]
-            }),
+            },
             group: "Testing"
-        }));
+        });
 
-        this._registerDefaultCommand("play", this.play, new BotCommandOptions({
-            help: new BotCommandHelp({
+        this._registerDefaultCommand("play", this.play, {
+            help: {
                 description: "Sets the \"playing\" value",
                 overloads: [{
                     "value": "The \"game\" to \"play\""
@@ -555,11 +553,11 @@ class Japnaa extends BotPlugin {
                     ["play", "Removes the \"playing\" tag"],
                     ["play nothing", "Sets the \"playing\" tag to \"nothing\"."]
                 ]
-            }),
+            },
             group: "Rich Presence"
-        }));
-        this._registerDefaultCommand("watch", this.watch, new BotCommandOptions({
-            help: new BotCommandHelp({
+        });
+        this._registerDefaultCommand("watch", this.watch, {
+            help: {
                 description: "Sets the \"watching\" value",
                 overloads: [{
                     "value": "The \"game\" to \"watch\""
@@ -568,11 +566,11 @@ class Japnaa extends BotPlugin {
                     ["watch", "Removes the \"watching\" tag"],
                     ["watch nothing", "Sets the \"watching\" tag to \"nothing\"."]
                 ]
-            }),
+            },
             group: "Rich Presence"
-        }));
-        this._registerDefaultCommand("listen to", this.listen_to, new BotCommandOptions({
-            help: new BotCommandHelp({
+        });
+        this._registerDefaultCommand("listen to", this.listen_to, {
+            help: {
                 description: "Sets the \"listening\" value",
                 overloads: [{
                     "value": "The \"thing\" to \"listen\" to"
@@ -581,11 +579,11 @@ class Japnaa extends BotPlugin {
                     ["listen to", "Removes the \"listen\" tag"],
                     ["listen to nothing", "Sets the \"listening\" tag to \"nothing\"."]
                 ]
-            }),
+            },
             group: "Rich Presence"
-        }));
-        this._registerDefaultCommand("stream", this.stream, new BotCommandOptions({
-            help: new BotCommandHelp({
+        });
+        this._registerDefaultCommand("stream", this.stream, {
+            help: {
                 description: "Sets the \"stream\" value",
                 overloads: [{
                     "value": "The \"thing\" to \"stream\""
@@ -594,12 +592,12 @@ class Japnaa extends BotPlugin {
                     ["stream", "Removes the \"streaming\" tag"],
                     ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
                 ]
-            }),
+            },
             group: "Rich Presence"
-        }));
+        });
 
-        this._registerDefaultCommand("tell", this.tell, new BotCommandOptions({
-            help: new BotCommandHelp({
+        this._registerDefaultCommand("tell", this.tell, {
+            help: {
                 description: "The bot sends a direct message to the user, telling the user that you told them something.",
                 overloads: [{
                     "user": "The userId or @mention, user to send message to.",
@@ -608,9 +606,9 @@ class Japnaa extends BotPlugin {
                 examples: [
                     ["tell <@207890448159735808> hi", "The bot will send <@207890448159735808> a message, and include a not that you sent it."]
                 ]
-            }),
+            },
             group: "Communication"
-        }));
+        });
     }
 }
 

@@ -1,5 +1,5 @@
 import CommandDispatcher from "./commandDispatcher.js";
-import BotCommandHelp from "../commandHelp.js";
+import { BotCommandHelp, BotCommandHelpFull, getFullCommandHelp } from "../commandHelp.js";
 import BotCommand from "../command.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
@@ -17,7 +17,7 @@ class CommandManager {
     /** groups of commands */
     commandGroups: Map<string | undefined, BotCommand[]>;
     /** Data for help */
-    helpData: { [x: string]: BotCommandHelp | null | undefined };
+    helpData: { [x: string]: BotCommandHelpFull | null | undefined };
 
     constructor(private bot: Bot) {
 
@@ -30,7 +30,7 @@ class CommandManager {
         this.helpData = {};
     }
 
-    getHelp(command: string): BotCommandHelp | null | undefined {
+    getHelp(command: string): BotCommandHelpFull | null | undefined {
         return this.helpData[command];
     }
 
@@ -40,11 +40,7 @@ class CommandManager {
         this.commands.push(command);
         this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
-        this.registerHelp(command.commandName, command.help || null);
-
-        if (command.help) { // if help is available
-            command.help.gatherInfoAboutCommand(command);
-        }
+        this.registerHelp(command, getFullCommandHelp(command, command.help));
     }
 
     registerUnkownCommandHanlder(func: UnknownCommandHandler) {
@@ -77,8 +73,8 @@ class CommandManager {
         }
     }
 
-    private registerHelp(command: string, data: BotCommandHelp | null): void {
-        this.helpData[command] = data;
+    private registerHelp(command: BotCommand, data: BotCommandHelp | null): void {
+        this.helpData[command.commandName] = getFullCommandHelp(command, data);
     }
 }
 

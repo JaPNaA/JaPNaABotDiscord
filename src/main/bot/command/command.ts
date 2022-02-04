@@ -1,13 +1,13 @@
 import Logger from "../../utils/logger.js";
 import createErrorString from "../../utils/str/createErrorString";
 import { inspect } from "util";
-import BotCommandHelp from "./commandHelp.js";
-import BotCommandOptions from "./commandOptions.js";
 import DiscordCommandEvent from "../events/discordCommandEvent";
 import BotCommandCallback from "./commandCallback.js";
 import Permissions from "../../types/permissions.js";
 import mention from "../../utils/str/mention";
 import Bot from "../bot/bot.js";
+import { BotCommandHelp } from "./commandHelp.js";
+import BotCommandOptions from "./commandOptions.js";
 
 type CleanCommandContent = {
     /** The cleaned message */

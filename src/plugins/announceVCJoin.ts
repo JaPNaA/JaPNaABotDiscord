@@ -1,7 +1,5 @@
 import { TextChannel, VoiceChannel, VoiceState } from "discord.js";
 import Bot from "../main/bot/bot/bot.js";
-import BotCommandHelp from "../main/bot/command/commandHelp.js";
-import BotCommandOptions from "../main/bot/command/commandOptions.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
@@ -144,9 +142,9 @@ export default class AnnounceVCJoin extends BotPlugin {
                     .catch(err => Logger.error(err));
             });
 
-        this._registerDefaultCommand("announce vc join", this.command_announce_vc_join, new BotCommandOptions({
+        this._registerDefaultCommand("announce vc join", this.command_announce_vc_join, {
             group: "Communication",
-            help: new BotCommandHelp({
+            help: {
                 description: "Tell the bot start/stop sending announcements when someone starts a call in a voice channel",
                 overloads: [{
                     "voiceChannel": "Id or mention to the voice channel for the bot to watch",
@@ -156,9 +154,8 @@ export default class AnnounceVCJoin extends BotPlugin {
                     ["announce vc join 937157681297391656 877304170653319198", "The bot will start announcing when someone joins <#937157681297391656> into the channel <#877304170653319198>"],
                     ["announce vc join 937157681297391656", "The bot will toggle announcements for the voice channel <#937157681297391656>"]
                 ]
-
-            })
-        }));
+            }
+        });
     }
 
     _stop() {

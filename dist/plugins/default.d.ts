@@ -1,8 +1,8 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import BotCommandHelp from "../main/bot/command/commandHelp.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
 import Bot from "../main/bot/bot/bot.js";
+import { BotCommandHelp, BotCommandHelpFull } from "../main/bot/command/commandHelp.js";
 /**
  * Normal commands every bot shoud have
  */
@@ -38,15 +38,15 @@ declare class Default extends BotPlugin {
     /**
      * Creates an help embed object in embed
      */
-    _createHelpEmbedObject(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent, command: string, bot: Bot): object;
+    _createHelpEmbedObject(fields: object[], help: BotCommandHelpFull, event: DiscordCommandEvent, command: string, bot: Bot): object;
     /**
      * Appends the permissions for a command in help in embed
      */
-    _appendHelpPermissions(fields: object[], help: BotCommandHelp): void;
+    _appendHelpPermissions(fields: object[], help: BotCommandHelpFull): void;
     /**
      * Sends a help embed about a command
      */
-    _sendHelpAboutCommand(event: DiscordCommandEvent, command: string, help: BotCommandHelp): void;
+    _sendHelpAboutCommand(event: DiscordCommandEvent, command: string, help: BotCommandHelpFull): void;
     /**
      * Sends help about a command, checks if the command and command help exists
      */
