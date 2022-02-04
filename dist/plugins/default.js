@@ -528,6 +528,7 @@ class Default extends plugin_js_1.default {
         }
         const shouldAutoLocation = ["here", "auto"].includes(locationArg.toLowerCase());
         let location = (0, getSnowflakeNum_1.default)(locationArg) || locationArg;
+        let humanReadableLocation;
         let config;
         if (scope[0] === "c") {
             if (shouldAutoLocation) {
@@ -541,6 +542,7 @@ class Default extends plugin_js_1.default {
             if (!(await this.bot.permissions.getPermissions_channel(event.userId, server.id, location)).has("ADMINISTRATOR")) {
                 throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that channel");
             }
+            humanReadableLocation = `<#${location}>`;
             config = await plugin.config.getAllUserSettingsInChannel(location);
         }
         else if (scope[0] === "s") {
@@ -552,6 +554,7 @@ class Default extends plugin_js_1.default {
                 throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that server");
             }
             config = await plugin.config.getAllUserSettingsInServer(location);
+            humanReadableLocation = "server";
         }
         else if (scope[0] === "g") {
             throw new Error("Cannot assign global config using this command. Please edit the config file instead.");
@@ -563,7 +566,7 @@ class Default extends plugin_js_1.default {
             if (!config.has(key)) {
                 throw new Error("Config option doesn't exist");
             }
-            if (["delete", "default", "remove"].includes(valueStr)) {
+            if (["delete", "default", "remove", "reset"].includes(valueStr)) {
                 if (scope[0] === "c") {
                     plugin.config.deleteInChannel(location, key);
                 }
@@ -592,12 +595,25 @@ class Default extends plugin_js_1.default {
                 this.bot.client.send(event.channelId, "Updated config.");
             }
             else {
-                this._sendJSCodeBlock(event.channelId, (0, util_1.inspect)(config.get(key)));
+                this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+                    "```js\n" + this._getHumanReadableConfigItemString(key, config.get(key), plugin) + "```");
             }
         }
         else {
-            this._sendJSCodeBlock(event.channelId, (0, util_1.inspect)(Object.fromEntries(config)));
+            this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+                "```js\n" + this._getHumanReadableConfigString(config, plugin) + "```");
         }
+    }
+    _getHumanReadableConfigString(config, plugin) {
+        const msg = [];
+        for (const [key, value] of config) {
+            msg.push(this._getHumanReadableConfigItemString(key, value, plugin));
+        }
+        return msg.join("\n");
+    }
+    _getHumanReadableConfigItemString(key, value, plugin) {
+        return `// ${plugin.userConfigSchema[key].comment}\n` +
+            `${key}: ${JSON.stringify(value)}\n`;
     }
     /**
      * Sends a message to a channel

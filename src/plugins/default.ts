@@ -573,6 +573,7 @@ class Default extends BotPlugin {
 
         const shouldAutoLocation = ["here", "auto"].includes(locationArg.toLowerCase());
         let location = getSnowflakeNum(locationArg) || locationArg;
+        let humanReadableLocation;
 
         let config: Map<string, any>;
 
@@ -588,6 +589,7 @@ class Default extends BotPlugin {
                 throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that channel");
             }
 
+            humanReadableLocation = `<#${location}>`;
             config = await plugin.config.getAllUserSettingsInChannel(location);
         } else if (scope[0] === "s") {
             if (shouldAutoLocation) { location = event.serverId; }
@@ -600,6 +602,7 @@ class Default extends BotPlugin {
             }
 
             config = await plugin.config.getAllUserSettingsInServer(location);
+            humanReadableLocation = "server";
         } else if (scope[0] === "g") {
             throw new Error("Cannot assign global config using this command. Please edit the config file instead.");
         } else {
@@ -611,7 +614,7 @@ class Default extends BotPlugin {
                 throw new Error("Config option doesn't exist");
             }
 
-            if (["delete", "default", "remove"].includes(valueStr)) {
+            if (["delete", "default", "remove", "reset"].includes(valueStr)) {
                 if (scope[0] === "c") {
                     plugin.config.deleteInChannel(location, key);
                 } else if (scope[0] === "s") {
@@ -636,11 +639,32 @@ class Default extends BotPlugin {
                     event.channelId, "Updated config."
                 );
             } else {
-                this._sendJSCodeBlock(event.channelId, inspect(config.get(key)));
+                this.bot.client.send(event.channelId,
+                    `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+                    "```js\n" + this._getHumanReadableConfigItemString(key, config.get(key), plugin) + "```"
+                );
             }
         } else {
-            this._sendJSCodeBlock(event.channelId, inspect(Object.fromEntries(config)));
+            this.bot.client.send(event.channelId,
+                `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+                "```js\n" + this._getHumanReadableConfigString(config, plugin) + "```"
+            );
         }
+    }
+
+    private _getHumanReadableConfigString(config: Map<string, any>, plugin: BotPlugin) {
+        const msg = [];
+
+        for (const [key, value] of config) {
+            msg.push(this._getHumanReadableConfigItemString(key, value, plugin));
+        }
+
+        return msg.join("\n");
+    }
+
+    private _getHumanReadableConfigItemString(key: string, value: any, plugin: BotPlugin) {
+        return `// ${plugin.userConfigSchema[key].comment}\n` +
+            `${key}: ${JSON.stringify(value)}\n`;
     }
 
     /**

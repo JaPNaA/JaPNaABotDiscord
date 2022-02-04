@@ -73,6 +73,8 @@ declare class Default extends BotPlugin {
      */
     edit_permission(event: DiscordCommandEvent): Promise<void>;
     configCommand(event: DiscordCommandEvent): Promise<void>;
+    private _getHumanReadableConfigString;
+    private _getHumanReadableConfigItemString;
     /**
      * Sends a message to a channel
      * @param args arguments [channelId, ...message]
