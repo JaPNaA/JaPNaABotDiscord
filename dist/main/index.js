@@ -268,12 +268,6 @@ exports.getDefaultConfig = getDefaultConfig;
 const classes = {
     Bot: require("./bot/bot/bot.js").default,
     BotCommand: require("./bot/command/command.js").default,
-    BotCommandOptions: require("./bot/command/commandOptions.js").default,
-    BotCommandHelp: require("./bot/command/commandHelp.js").default,
-    events: {
-        DiscordCommandEvent: require("./bot/events/discordCommandEvent").default,
-        DiscordMessageEvent: require("./bot/events/discordMessageEvent").default,
-    },
     Logger: require("./utils/logger.js").default,
     Permissions: require("./types/permissions.js").default,
     BotPlugin: require("./bot/plugin/plugin.js").default,

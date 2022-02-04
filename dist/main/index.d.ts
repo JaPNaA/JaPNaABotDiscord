@@ -53,12 +53,6 @@ declare function getDefaultConfig(): {
 declare const classes: {
     Bot: any;
     BotCommand: any;
-    BotCommandOptions: any;
-    BotCommandHelp: any;
-    events: {
-        DiscordCommandEvent: any;
-        DiscordMessageEvent: any;
-    };
     Logger: any;
     Permissions: any;
     BotPlugin: any;
