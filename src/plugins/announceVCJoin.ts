@@ -1,4 +1,4 @@
-import { TextChannel, VoiceChannel, VoiceState } from "discord.js";
+import { TextChannel, ThreadChannel, VoiceChannel, VoiceState } from "discord.js";
 import Bot from "../main/bot/bot/bot.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 
@@ -37,10 +37,19 @@ export default class AnnounceVCJoin extends BotPlugin {
             comment: "Should the message should actually be a thread?",
             default: false
         },
+        endCallThreadBehavior: {
+            type: "string",
+            comment: 'What should happen to a thread (if made) after call ends? ("archive", "1hrArchive", "none")',
+            default: "1hrArchive"
+        }
     };
 
-    private cooldowns: Map<string, number> = new Map();
-    private channelsInDelay: Set<string> = new Set();
+    private channelStates: Map<string, {
+        cooldownBy?: number,
+        isWaitingForDelay?: boolean,
+        thread?: ThreadChannel
+    }> = new Map();
+
     private _voiceStateUpdateHandler?: any;
 
     constructor(bot: Bot) {
@@ -85,45 +94,92 @@ export default class AnnounceVCJoin extends BotPlugin {
 
     private async _onVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
         const channelId = newState.channelId;
-        if (!channelId) { return; } // ignore leave channel
+        if (channelId) {
+            this._onVCJoin(newState);
+        } else {
+            this._onVCLeave(oldState);
+        }
+    }
 
+    /**
+     * Preconditions:
+     *   - state is newState, and a member joined (state.channelId is defined)
+     */
+    private async _onVCJoin(state: VoiceState) {
+        const channelId = state.channelId!;
         const config = await this.config.getAllUserSettingsInChannel(channelId);
+
         const announceInChannelId = config.get("announceIn");
         if (!config.get("enabled") || !announceInChannelId) { return; } // ignore if not enabled
 
         const channel = await this.bot.client.getChannel(channelId);
         if (!(channel instanceof VoiceChannel)) { return; } // ignore if current channel is not voice
 
-        const coolBy = this.cooldowns.get(channelId);
-        if (coolBy && Date.now() < coolBy) { return; } // ignore if a message announcing this channel was sent recently
+        const channelState = this.channelStates.get(channelId) || {};
+        this.channelStates.set(channelId, channelState); // case where empty
 
         if (channel.members.size !== 1) { return; }  // first person to join
 
-        if (this.channelsInDelay.has(channelId)) { return; } // cancel if channel is already waiting for delay
-        this.channelsInDelay.add(channelId);
+        if (channelState.isWaitingForDelay) { return; } // cancel if channel is already waiting for delay
+        channelState.isWaitingForDelay = true;
         await this._wait(config.get("delay") * 1000); // check still in after delay
-        this.channelsInDelay.delete(channelId);
+        channelState.isWaitingForDelay = false;
 
         if (channel.members.size <= 0) { return; } // person left
 
         const announceInChannel = await this.bot.client.getChannel(announceInChannelId) as TextChannel;
         if (!announceInChannel?.isText()) { return; }
 
+        // ignore if a message announcing this channel was sent recently
+        if (channelState.cooldownBy && Date.now() < channelState.cooldownBy) {
+            if (channelState.thread) {
+                channelState.thread.setArchived(false);
+            }
+            return;
+        }
+
         if (config.get("makeThread") && !announceInChannel.isThread()) {
             const thread = await announceInChannel.threads.create({
                 name: `call in ${channel.name} at ${this._getNowFormatted()}`
             });
-            if (newState.member) {
-                thread.send("Call started by " + mention(newState.member.user.id) + " in <#" + channelId + ">");
+            channelState.thread = thread;
+            if (state.member) {
+                thread.send("Call started by " + mention(state.member.user.id) + " in <#" + channelId + ">");
             }
         } else {
+            channelState.thread = undefined;
             this.bot.client.send(
                 announceInChannelId,
-                `${newState.member?.displayName} joined <#${channelId}>`
+                `${state.member?.displayName} joined <#${channelId}>`
             );
         }
 
-        this.cooldowns.set(channelId, Date.now() + config.get("announceCooldown") * 1000);
+        channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
+    }
+
+    private async _onVCLeave(state: VoiceState) {
+        const channelId = state.channelId;
+        if (!channelId) { return; } // if channelId is undefined (shouldn't happen)
+
+        const config = await this.config.getAllUserSettingsInChannel(channelId);
+
+        const channel = await this.bot.client.getChannel(channelId);
+        if (!(channel instanceof VoiceChannel)) { return; } // ignore if current channel is not voice
+
+        if (channel.members.size > 0) { return; } // not everyone left
+
+        const channelState = this.channelStates.get(channelId) || {};
+        if (channelState.thread) {
+            const endCallThreadBehavior = config.get("endCallThreadBehavior");
+
+            if (endCallThreadBehavior === "archive") {
+                channelState.thread.setArchived();
+            } else if (endCallThreadBehavior === "1hrArchive") {
+                channelState.thread.setAutoArchiveDuration(60);
+            }
+        }
+
+        channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
     }
 
     private _wait(ms: number): Promise<void> {

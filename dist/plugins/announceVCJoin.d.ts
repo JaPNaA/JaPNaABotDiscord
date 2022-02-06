@@ -31,13 +31,23 @@ export default class AnnounceVCJoin extends BotPlugin {
             comment: string;
             default: boolean;
         };
+        endCallThreadBehavior: {
+            type: string;
+            comment: string;
+            default: string;
+        };
     };
-    private cooldowns;
-    private channelsInDelay;
+    private channelStates;
     private _voiceStateUpdateHandler?;
     constructor(bot: Bot);
     command_announce_vc_join(event: DiscordCommandEvent): Promise<void>;
     private _onVoiceStateUpdate;
+    /**
+     * Preconditions:
+     *   - state is newState, and a member joined (state.channelId is defined)
+     */
+    private _onVCJoin;
+    private _onVCLeave;
     private _wait;
     private _getNowFormatted;
     _start(): void;
