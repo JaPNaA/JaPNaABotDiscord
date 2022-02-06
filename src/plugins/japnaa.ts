@@ -375,38 +375,6 @@ class Japnaa extends BotPlugin {
     }
 
     /**
-     * Changes rich presence to play a game
-     * @param args string to set as play
-     */
-    play(event: DiscordCommandEvent): void {
-        this.bot.client.presence.setGame(event.arguments);
-    }
-
-    /**
-     * Changes rich presence to watch a game
-     * @param args string to set as watch
-     */
-    watch(event: DiscordCommandEvent): void {
-        this.bot.client.presence.setWatch(event.arguments);
-    }
-
-    /**
-     * Changes rich presence to listen to a music
-     * @param args string to set as music
-     */
-    listen_to(event: DiscordCommandEvent): void {
-        this.bot.client.presence.setListen(event.arguments);
-    }
-
-    /**
-     * Changes rich presence to stream a game
-     * @param args string to set as stream
-     */
-    stream(event: DiscordCommandEvent): void {
-        this.bot.client.presence.setStream(event.arguments);
-    }
-
-    /**
      * Tell someone something through DMs
      * @param args message to send
      */
@@ -541,59 +509,6 @@ class Japnaa extends BotPlugin {
                 ]
             },
             group: "Testing"
-        });
-
-        this._registerDefaultCommand("play", this.play, {
-            help: {
-                description: "Sets the \"playing\" value",
-                overloads: [{
-                    "value": "The \"game\" to \"play\""
-                }],
-                examples: [
-                    ["play", "Removes the \"playing\" tag"],
-                    ["play nothing", "Sets the \"playing\" tag to \"nothing\"."]
-                ]
-            },
-            group: "Rich Presence"
-        });
-        this._registerDefaultCommand("watch", this.watch, {
-            help: {
-                description: "Sets the \"watching\" value",
-                overloads: [{
-                    "value": "The \"game\" to \"watch\""
-                }],
-                examples: [
-                    ["watch", "Removes the \"watching\" tag"],
-                    ["watch nothing", "Sets the \"watching\" tag to \"nothing\"."]
-                ]
-            },
-            group: "Rich Presence"
-        });
-        this._registerDefaultCommand("listen to", this.listen_to, {
-            help: {
-                description: "Sets the \"listening\" value",
-                overloads: [{
-                    "value": "The \"thing\" to \"listen\" to"
-                }],
-                examples: [
-                    ["listen to", "Removes the \"listen\" tag"],
-                    ["listen to nothing", "Sets the \"listening\" tag to \"nothing\"."]
-                ]
-            },
-            group: "Rich Presence"
-        });
-        this._registerDefaultCommand("stream", this.stream, {
-            help: {
-                description: "Sets the \"stream\" value",
-                overloads: [{
-                    "value": "The \"thing\" to \"stream\""
-                }],
-                examples: [
-                    ["stream", "Removes the \"streaming\" tag"],
-                    ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
-                ]
-            },
-            group: "Rich Presence"
         });
 
         this._registerDefaultCommand("tell", this.tell, {

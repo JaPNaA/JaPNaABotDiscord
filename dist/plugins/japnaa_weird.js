@@ -67,10 +67,6 @@ class JapnaaWeird extends plugin_js_1.default {
         this._registerDefaultCommand("tetris", this.tetris);
         this._registerDefaultCommand("your", this.your);
         this._registerEventHandler("message", this.onmessageHandler_lol);
-        this.bot.events.on("start", function () {
-            // this.bot.client.presence.setWatch("you");
-            this.bot.client.presence.setGame("development");
-        }.bind(this));
     }
     _stop() {
         // do nothing

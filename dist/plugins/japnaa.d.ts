@@ -85,26 +85,6 @@ declare class Japnaa extends BotPlugin {
      */
     throw(event: DiscordCommandEvent): void;
     /**
-     * Changes rich presence to play a game
-     * @param args string to set as play
-     */
-    play(event: DiscordCommandEvent): void;
-    /**
-     * Changes rich presence to watch a game
-     * @param args string to set as watch
-     */
-    watch(event: DiscordCommandEvent): void;
-    /**
-     * Changes rich presence to listen to a music
-     * @param args string to set as music
-     */
-    listen_to(event: DiscordCommandEvent): void;
-    /**
-     * Changes rich presence to stream a game
-     * @param args string to set as stream
-     */
-    stream(event: DiscordCommandEvent): void;
-    /**
      * Tell someone something through DMs
      * @param args message to send
      */

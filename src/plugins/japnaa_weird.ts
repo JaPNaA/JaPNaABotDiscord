@@ -77,12 +77,6 @@ class JapnaaWeird extends BotPlugin {
         this._registerDefaultCommand("your", this.your);
 
         this._registerEventHandler("message", this.onmessageHandler_lol);
-
-        this.bot.events.on("start",
-            function (this: JapnaaWeird): void {
-                // this.bot.client.presence.setWatch("you");
-                this.bot.client.presence.setGame("development");
-            }.bind(this));
     }
 
     _stop(): void {
