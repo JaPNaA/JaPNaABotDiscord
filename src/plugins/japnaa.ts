@@ -569,9 +569,9 @@ class Japnaa extends BotPlugin {
                 description: "`eval` in a sandbox. Useful for doing math.",
                 examples: [
                     ["sev 1 + 1", "Evaluate 1 + 1 (and returns 2)"],
-                    ["sev log(2)"],
-                    ["sev 2 ** 2"],
-                    ["sev let total; for (let i = 0; i < 100; i++) { total += i; } total"]
+                    ["sev log(2)", "Evaluates log (base 10) 2"],
+                    ["sev 2 ** 2", "Evaluates 2^2"],
+                    ["sev let total = 0; for (let i = 0; i < 100; i++) { total += i; } total", "Sum all integers from 0 to 99"]
                 ]
             }
         });
