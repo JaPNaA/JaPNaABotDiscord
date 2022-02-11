@@ -14,6 +14,9 @@ import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import ellipsisize from "../main/utils/str/ellipsisize";
 
+import vm from "node:vm";
+import { inspect } from "node:util";
+
 type SpamCallback = () => Promise<boolean>;
 
 /**
@@ -55,6 +58,42 @@ class Japnaa extends BotPlugin {
         this.counter++;
         this.bot.memory.write(this.pluginName, "counter", this.counter);
         this.bot.client.send(event.channelId, this.counter.toString() + "!");
+    }
+
+    /**
+     * Safe eval command
+     */
+    public sev(event: DiscordCommandEvent) {
+        // Adapted from https://github.com/hacksparrow/safe-eval/blob/master/index.js
+        const sandbox: { [x: string]: any } = {}
+        const resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000)
+        sandbox[resultKey] = {}
+        const code = event.arguments.replace(/`/g, "\\`");
+        const script = `
+            (function() {
+                Function = undefined;
+                const keys = Object.getOwnPropertyNames(this).concat(['constructor']);
+                keys.forEach((key) => {
+                const item = this[key];
+                if (!item || typeof item.constructor !== 'function') return;
+                this[key].constructor = undefined;
+                });
+            })();
+            with (Math) {
+                ${resultKey} = eval(\`${code}\`);
+            }
+            `;
+        vm.runInNewContext(script, sandbox, {
+            timeout: 100
+        });
+
+        this._sendJSCodeBlock(event.channelId, inspect(sandbox[resultKey]));
+    }
+
+
+    private _sendJSCodeBlock(channelId: string, str: string) {
+        const cleanStr = ellipsisize(str.replace(/ {4}/g, "\t"), 2000 - 9);
+        this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
     }
 
     /**
@@ -523,6 +562,18 @@ class Japnaa extends BotPlugin {
                 ]
             },
             group: "Communication"
+        });
+
+        this._registerDefaultCommand("sev", this.sev, {
+            help: {
+                description: "`eval` in a sandbox. Useful for doing math.",
+                examples: [
+                    ["sev 1 + 1", "Evaluate 1 + 1 (and returns 2)"],
+                    ["sev log(2)"],
+                    ["sev 2 ** 2"],
+                    ["sev let total; for (let i = 0; i < 100; i++) { total += i; } total"]
+                ]
+            }
         });
     }
 }

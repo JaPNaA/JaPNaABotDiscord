@@ -11,6 +11,8 @@ const locationKeyCreator_js_1 = __importDefault(require("../main/bot/utils/locat
 const mention_1 = __importDefault(require("../main/utils/str/mention"));
 const randomString_js_1 = __importDefault(require("../main/utils/random/randomString.js"));
 const ellipsisize_1 = __importDefault(require("../main/utils/str/ellipsisize"));
+const node_vm_1 = __importDefault(require("node:vm"));
+const node_util_1 = require("node:util");
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -46,6 +48,38 @@ class Japnaa extends plugin_js_1.default {
         this.counter++;
         this.bot.memory.write(this.pluginName, "counter", this.counter);
         this.bot.client.send(event.channelId, this.counter.toString() + "!");
+    }
+    /**
+     * Safe eval command
+     */
+    sev(event) {
+        // Adapted from https://github.com/hacksparrow/safe-eval/blob/master/index.js
+        const sandbox = {};
+        const resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000);
+        sandbox[resultKey] = {};
+        const code = event.arguments.replace(/`/g, "\\`");
+        const script = `
+            (function() {
+                Function = undefined;
+                const keys = Object.getOwnPropertyNames(this).concat(['constructor']);
+                keys.forEach((key) => {
+                const item = this[key];
+                if (!item || typeof item.constructor !== 'function') return;
+                this[key].constructor = undefined;
+                });
+            })();
+            with (Math) {
+                ${resultKey} = eval(\`${code}\`);
+            }
+            `;
+        node_vm_1.default.runInNewContext(script, sandbox, {
+            timeout: 100
+        });
+        this._sendJSCodeBlock(event.channelId, (0, node_util_1.inspect)(sandbox[resultKey]));
+    }
+    _sendJSCodeBlock(channelId, str) {
+        const cleanStr = (0, ellipsisize_1.default)(str.replace(/ {4}/g, "\t"), 2000 - 9);
+        this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
     }
     /**
      * says whatever you say
@@ -460,6 +494,17 @@ class Japnaa extends plugin_js_1.default {
                 ]
             },
             group: "Communication"
+        });
+        this._registerDefaultCommand("sev", this.sev, {
+            help: {
+                description: "`eval` in a sandbox. Useful for doing math.",
+                examples: [
+                    ["sev 1 + 1", "Evaluate 1 + 1 (and returns 2)"],
+                    ["sev log(2)"],
+                    ["sev 2 ** 2"],
+                    ["sev let total; for (let i = 0; i < 100; i++) { total += i; } total"]
+                ]
+            }
         });
     }
 }

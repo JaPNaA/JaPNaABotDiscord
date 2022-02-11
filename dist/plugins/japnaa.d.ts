@@ -33,6 +33,11 @@ declare class Japnaa extends BotPlugin {
      */
     count(event: DiscordMessageEvent): void;
     /**
+     * Safe eval command
+     */
+    sev(event: DiscordCommandEvent): void;
+    private _sendJSCodeBlock;
+    /**
      * says whatever you say
      */
     echo(event: DiscordCommandEvent): Promise<void>;
