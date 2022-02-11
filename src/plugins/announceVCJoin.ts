@@ -93,10 +93,11 @@ export default class AnnounceVCJoin extends BotPlugin {
     }
 
     private async _onVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
-        const channelId = newState.channelId;
-        if (channelId) {
+        if (oldState.channelId === newState.channelId) { return; } // no change
+        if (newState.channelId) {
             this._onVCJoin(newState);
-        } else {
+        }
+        if (oldState.channelId) {
             this._onVCLeave(oldState);
         }
     }

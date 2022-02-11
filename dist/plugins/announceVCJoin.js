@@ -95,11 +95,13 @@ class AnnounceVCJoin extends plugin_js_1.default {
         }
     }
     async _onVoiceStateUpdate(oldState, newState) {
-        const channelId = newState.channelId;
-        if (channelId) {
+        if (oldState.channelId === newState.channelId) {
+            return;
+        } // no change
+        if (newState.channelId) {
             this._onVCJoin(newState);
         }
-        else {
+        if (oldState.channelId) {
             this._onVCLeave(oldState);
         }
     }
