@@ -122,6 +122,10 @@ class AnnounceVCJoin extends plugin_js_1.default {
         } // ignore if current channel is not voice
         const channelState = this.channelStates.get(channelId) || {};
         this.channelStates.set(channelId, channelState); // case where empty
+        // add member to call thread, if active
+        if (channelState.thread && !channelState.thread.archived && channelState.threadMessage && state.member) {
+            channelState.threadMessage.addParticipant(state.member);
+        }
         if (channel.members.size !== 1) {
             return;
         } // first person to join
@@ -139,9 +143,13 @@ class AnnounceVCJoin extends plugin_js_1.default {
             return;
         }
         // ignore if a message announcing this channel was sent recently
+        // if was thread, unarchive and add participant
         if (channelState.cooldownBy && Date.now() < channelState.cooldownBy) {
             if (channelState.thread) {
                 channelState.thread.setArchived(false);
+                if (channelState.threadMessage && state.member) {
+                    channelState.threadMessage.addParticipant(state.member);
+                }
             }
             return;
         }
@@ -150,13 +158,15 @@ class AnnounceVCJoin extends plugin_js_1.default {
                 name: `call in ${channel.name} at ${this._getNowFormatted()}`
             });
             channelState.thread = thread;
-            if (state.member) {
-                thread.send("Call started by " + (0, mention_js_1.default)(state.member.user.id) + " in <#" + channelId + ">");
-            }
+            channelState.threadMessage = new CallThreadMessage(channelId, thread, state.member);
+            await channelState.threadMessage.send();
         }
         else {
             channelState.thread = undefined;
-            this.bot.client.send(announceInChannelId, `${state.member?.displayName} joined <#${channelId}>`);
+            await this.bot.client.send(announceInChannelId, {
+                allowedMentions: { users: [] },
+                content: `${state.member && (0, mention_js_1.default)(state.member?.id)} joined <#${channelId}>`
+            });
         }
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
     }
@@ -217,3 +227,43 @@ class AnnounceVCJoin extends plugin_js_1.default {
     }
 }
 exports.default = AnnounceVCJoin;
+class CallThreadMessage {
+    voiceChannelId;
+    thread;
+    starter;
+    message;
+    additionalParticipants = [];
+    constructor(voiceChannelId, thread, starter) {
+        this.voiceChannelId = voiceChannelId;
+        this.thread = thread;
+        this.starter = starter;
+    }
+    async send() {
+        if (this.starter) {
+            this.message = await this.thread.send(this.generateMessageStr(false));
+            this.message.edit(this.generateMessageStr());
+        }
+    }
+    async addParticipant(participant) {
+        if (this.starter && participant.id === this.starter.id) {
+            return;
+        }
+        if (this.additionalParticipants.find(p => p.id == participant.id)) {
+            return;
+        }
+        this.additionalParticipants.push(participant);
+        if (!this.message) {
+            await this.send();
+        }
+        this.message.edit(this.generateMessageStr());
+    }
+    generateMessageStr(mentionStarter = true) {
+        const starterMention = this.starter ? (0, mention_js_1.default)(this.starter.user.id) : "someone";
+        const starterName = this.starter ? this.starter.displayName : "someone";
+        let str = "Call started by " + (mentionStarter ? starterMention : starterName) + " in <#" + this.voiceChannelId + ">";
+        if (this.additionalParticipants.length) {
+            str += "\nParticipants: " + this.additionalParticipants.map(p => (0, mention_js_1.default)(p.id)).join(", ");
+        }
+        return str;
+    }
+}

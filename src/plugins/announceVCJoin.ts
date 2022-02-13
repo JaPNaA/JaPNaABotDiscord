@@ -1,4 +1,4 @@
-import { TextChannel, ThreadChannel, VoiceChannel, VoiceState } from "discord.js";
+import { GuildMember, Message, TextChannel, ThreadChannel, VoiceChannel, VoiceState } from "discord.js";
 import Bot from "../main/bot/bot/bot.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 
@@ -47,7 +47,8 @@ export default class AnnounceVCJoin extends BotPlugin {
     private channelStates: Map<string, {
         cooldownBy?: number,
         isWaitingForDelay?: boolean,
-        thread?: ThreadChannel
+        thread?: ThreadChannel,
+        threadMessage?: CallThreadMessage
     }> = new Map();
 
     private _voiceStateUpdateHandler?: any;
@@ -119,6 +120,11 @@ export default class AnnounceVCJoin extends BotPlugin {
         const channelState = this.channelStates.get(channelId) || {};
         this.channelStates.set(channelId, channelState); // case where empty
 
+        // add member to call thread, if active
+        if (channelState.thread && !channelState.thread.archived && channelState.threadMessage && state.member) {
+            channelState.threadMessage.addParticipant(state.member);
+        }
+
         if (channel.members.size !== 1) { return; }  // first person to join
 
         if (channelState.isWaitingForDelay) { return; } // cancel if channel is already waiting for delay
@@ -132,9 +138,13 @@ export default class AnnounceVCJoin extends BotPlugin {
         if (!announceInChannel?.isText()) { return; }
 
         // ignore if a message announcing this channel was sent recently
+        // if was thread, unarchive and add participant
         if (channelState.cooldownBy && Date.now() < channelState.cooldownBy) {
             if (channelState.thread) {
                 channelState.thread.setArchived(false);
+                if (channelState.threadMessage && state.member) {
+                    channelState.threadMessage.addParticipant(state.member);
+                }
             }
             return;
         }
@@ -144,15 +154,15 @@ export default class AnnounceVCJoin extends BotPlugin {
                 name: `call in ${channel.name} at ${this._getNowFormatted()}`
             });
             channelState.thread = thread;
-            if (state.member) {
-                thread.send("Call started by " + mention(state.member.user.id) + " in <#" + channelId + ">");
-            }
+            channelState.threadMessage = new CallThreadMessage(channelId, thread, state.member);
+            await channelState.threadMessage.send();
         } else {
             channelState.thread = undefined;
-            this.bot.client.send(
-                announceInChannelId,
-                `${state.member?.displayName} joined <#${channelId}>`
-            );
+            await this.bot.client.send(
+                announceInChannelId, {
+                allowedMentions: { users: [] },
+                content: `${state.member && mention(state.member?.id)} joined <#${channelId}>`
+            });
         }
 
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
@@ -217,5 +227,43 @@ export default class AnnounceVCJoin extends BotPlugin {
 
     _stop() {
         this.bot.client.client.off("voiceStateUpdate", this._voiceStateUpdateHandler);
+    }
+}
+
+class CallThreadMessage {
+    private message?: Message;
+    private additionalParticipants: GuildMember[] = [];
+
+    constructor(private voiceChannelId: string, private thread: ThreadChannel, private starter: GuildMember | null) {
+    }
+
+    public async send() {
+        if (this.starter) {
+            this.message = await this.thread.send(this.generateMessageStr(false));
+            this.message.edit(this.generateMessageStr());
+        }
+    }
+
+    public async addParticipant(participant: GuildMember) {
+        if (this.starter && participant.id === this.starter.id) { return; }
+        if (this.additionalParticipants.find(p => p.id == participant.id)) { return; }
+        this.additionalParticipants.push(participant);
+        if (!this.message) {
+            await this.send();
+        }
+        this.message!.edit(this.generateMessageStr());
+    }
+
+    private generateMessageStr(mentionStarter: boolean = true) {
+        const starterMention = this.starter ? mention(this.starter.user.id) : "someone";
+        const starterName = this.starter ? this.starter.displayName : "someone";
+
+        let str = "Call started by " + (mentionStarter ? starterMention : starterName) + " in <#" + this.voiceChannelId + ">";
+
+        if (this.additionalParticipants.length) {
+            str += "\nParticipants: " + this.additionalParticipants.map(p => mention(p.id)).join(", ");
+        }
+
+        return str;
     }
 }
