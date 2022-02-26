@@ -104,10 +104,13 @@ class Japnaa extends plugin_js_1.default {
      */
     async random(event) {
         const [maxArg, minArg, stepArg, timesArg] = (0, stringToArgs_1.default)(event.arguments);
-        // !random string branch
+        // random string branch
         if (maxArg && maxArg.toLowerCase() === "string") {
-            this.random_string(event);
-            return;
+            return this.random_string(event);
+        }
+        // random select branch
+        if (maxArg && maxArg.toLowerCase() === "select") {
+            return this.random_select(event);
         }
         let max = this._parseFloatWithDefault(maxArg, 1);
         let min = this._parseFloatWithDefault(minArg, 0);
@@ -136,16 +139,22 @@ class Japnaa extends plugin_js_1.default {
         const [stringArg, lengthArg] = (0, stringToArgs_1.default)(event.arguments);
         const length = lengthArg ? parseInt(lengthArg) : 128;
         if (isNaN(length)) {
-            this.bot.client.send(event.channelId, "Number required");
-            return;
+            return this.bot.client.send(event.channelId, "Number required");
         }
         if (length > 1900) {
-            this.bot.client.send(event.channelId, "String too long (max: 1900)");
-            return;
+            return this.bot.client.send(event.channelId, "String too long (max: 1900)");
         }
-        this.bot.client.send(event.channelId, "```" +
+        return this.bot.client.send(event.channelId, "```" +
             (0, randomString_js_1.default)(length).replace(/`$/g, "` ") // because discord markup
             + "```");
+    }
+    async random_select(event) {
+        const [selectArg, ...options] = (0, stringToArgs_1.default)(event.arguments);
+        if (options.length <= 0) {
+            return this.bot.client.send(event.channelId, "Supply options to choose from");
+        }
+        const rand = options[Math.floor(Math.random() * options.length)];
+        return this.bot.client.send(event.channelId, `Select from [${options.join(", ")}]:\n**${rand}**`);
     }
     _parseFloatWithDefault(str, defaultNum) {
         if (!str) {
@@ -418,14 +427,18 @@ class Japnaa extends plugin_js_1.default {
         });
         this._registerDefaultCommand("random", this.random, {
             help: {
-                description: "Generates a random thing",
+                description: "Generates a random thing. Subcommands `string` and `select` exist.",
                 overloads: [{
                         "[max]": "Optional. The maximum of the random number",
                         "[min]": "Optional. The minimum of the random number",
                         "[step]": "Optional. What the number must be dividible by. 0 indicates it doesn't have to be divisible by anything.",
                         "[times]": "Optional. How many random numbers to generate"
                     }, {
-                        "\"string\"": "\"string\", will respond with a randomly generated 128 character string."
+                        "\"string\"": "\"string\", will respond with a randomly generated string.",
+                        "[length]": "Length of random string (default is 128)."
+                    }, {
+                        "\"select\"": "\"select\", will respond with a randomly selected item.",
+                        "<...items>": "Items to choose from. Separated by spaces."
                     }],
                 examples: [
                     ["random", "A random number between 0 to 1 with no step"],
@@ -435,7 +448,8 @@ class Japnaa extends plugin_js_1.default {
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
                     ["random 5 10 1.6 10", "10 random numbers between 5 and 10 that's divisible by 1.6"],
                     ["random string", "A random string 128 characters long"],
-                    ["random string 10", "A random string 10 characters long"]
+                    ["random string 10", "A random string 10 characters long"],
+                    ["random select a b c", "Selects one of a, b, or c randomly"],
                 ]
             },
             group: "Utils"

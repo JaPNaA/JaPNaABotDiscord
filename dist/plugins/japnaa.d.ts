@@ -44,8 +44,9 @@ declare class Japnaa extends BotPlugin {
     /**
      * Generates random stuff
      */
-    random(event: DiscordMessageEvent): Promise<void>;
-    random_string(event: DiscordMessageEvent): Promise<void>;
+    random(event: DiscordCommandEvent): Promise<import("discord.js").Message<boolean> | import("discord.js").Message<boolean>[] | undefined>;
+    private random_string;
+    private random_select;
     private _parseFloatWithDefault;
     /**
      * Begins spamming from spam que with interval
