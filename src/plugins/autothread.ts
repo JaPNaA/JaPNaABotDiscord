@@ -109,6 +109,7 @@ export default class AutoThread extends BotPlugin {
     private extractTitleFromMessage(message: string) {
         const firstLine = message
             .replace(/[_\*]/g, "") // remove formatting characters
+            .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
             .split("\n").find(e => e.trim());
 
         // back out of extraction

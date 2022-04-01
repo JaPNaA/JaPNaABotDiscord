@@ -99,6 +99,7 @@ class AutoThread extends plugin_js_1.default {
     extractTitleFromMessage(message) {
         const firstLine = message
             .replace(/[_\*]/g, "") // remove formatting characters
+            .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
             .split("\n").find(e => e.trim());
         // back out of extraction
         if (!firstLine) {
