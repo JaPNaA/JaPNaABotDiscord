@@ -132,7 +132,7 @@ class CommandArguments {
         let usableStrings;
         overloadsLoop: for (const overload of usableOverloads) {
             const multifinalStrings = this._multifinalify(options.allowMultifinal, strings, overload.length);
-            for (let i = 0; i < overload.length - 1; i++) {
+            for (let i = 0; i < overload.length; i++) {
                 if ((multifinalStrings[i] === undefined &&
                     required.includes(overload[i])) ||
                     !data._canSet(overload[i], multifinalStrings[i])[0]) {
@@ -149,8 +149,7 @@ class CommandArguments {
         else if (usableStrings.length > usableOverload.length) {
             throw new Error("Too many arguments");
         }
-        let i;
-        for (i = 0; i < usableOverload.length; i++) {
+        for (let i = 0; i < usableOverload.length; i++) {
             data._set(usableOverload[i], usableStrings[i]);
         }
     }
