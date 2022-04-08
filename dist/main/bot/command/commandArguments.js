@@ -31,7 +31,7 @@ class CommandArguments {
                 string += char;
                 escape = "";
             }
-            else if (!activeQuote && (char === '"' || char === "'")) {
+            else if (!activeQuote && char === '"') {
                 activeQuote = char;
             }
             else if (char === "\\") {
