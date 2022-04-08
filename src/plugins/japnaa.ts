@@ -16,6 +16,7 @@ import ellipsisize from "../main/utils/str/ellipsisize";
 
 import vm from "node:vm";
 import { inspect } from "node:util";
+import CommandArguments from "../main/bot/command/commandArguments";
 
 type SpamCallback = () => Promise<boolean>;
 
@@ -326,9 +327,15 @@ class Japnaa extends BotPlugin {
      * @param args "stop" | [amount, [counter], ...message]
      */
     async spam_command(event: DiscordCommandEvent) {
-        const cleanArgs: string = event.arguments.trim().toLowerCase();
+        const args = new CommandArguments(event.arguments).parse({
+            overloads: [["amount", "message"], ["message"]],
+            flags: ["--count"],
+            check: { "amount": /^\d$/ },
+            required: ['message'],
+            allowMultifinal: true
+        });
 
-        switch (cleanArgs) {
+        switch (args.get("message").toLowerCase()) {
             case "stop":
                 this._stopSpam(event.serverId);
                 this.bot.client.send(event.channelId, "All spam on this server stopped");
@@ -353,50 +360,10 @@ class Japnaa extends BotPlugin {
                 return;
         }
 
-        let [amountArg, counterArg, ...messageArg] = stringToArgs(event.arguments);
+        const amount = parseInt(args.get("amount")) || 3;
+        const useCounter = Boolean(args.get("--count"));
+        const message = args.get("message");
 
-        /**
-         * Amount of spam
-         */
-        let amount: number = 0;
-
-        /**
-         * Use counter in message?
-         */
-        let useCounter: boolean = false;
-
-        /**
-         * Message to spam
-         */
-        let message: string = "";
-
-        // parse amount argument (0)
-        let amountParsed: number = parseInt(amountArg);
-        if (amountParsed) {
-            amount = amountParsed;
-        } else {
-            amount = 3;
-            if (amountArg) {
-                message += amountArg + " ";
-            }
-        }
-
-        // parse counter argument (1)
-        let counterParsed: boolean = Boolean(counterArg) && counterArg.toLowerCase() === "true";
-        if (counterParsed) {
-            useCounter = true;
-        } else {
-            useCounter = false;
-            if (counterArg) {
-                message += counterArg + " ";
-            }
-        }
-
-        // add final strings to message
-        message += messageArg.join(" ");
-
-        // check against limits
-        // ----------------------------------------------------------------------------------------
         const spamLimit = await this._getSpamLimit(event);
         const spamQueLimit = await this._getSpamQueLimit(event);
 
@@ -530,7 +497,7 @@ class Japnaa extends BotPlugin {
                 description: "Spams a message several times, because you want to be annoying.",
                 overloads: [{
                     "[amount]": "Optional. The amount of spam to spam. Defaults to 3.",
-                    "[use counter]": "Optional. Adds a counter to your spam. Defaults to none.",
+                    "--count": "Flag. Adds a counter to your spam.",
                     "...message": "The message to spam"
                 }, {
                     "\"stop\"": "Stops all spam on the server"
@@ -544,7 +511,7 @@ class Japnaa extends BotPlugin {
                 examples: [
                     ["spam cows", "Spams \"cow\" 3 times."],
                     ["spam 5 cows", "Spams \"cow\" 5 times."],
-                    ["spam 5 true cows", "Adds a counter to the \"\""],
+                    ["spam 5 --counter cows", "Adds a counter to the \"\""],
                     ["spam stop", "Stops all spam on the server"],
                     ["spam stop all", "Stops all spam on all servers (requires `BOT_ADMINISTRATOR`)"],
                     ["spam limit", "Responds with the limit of the spam of the channel"],

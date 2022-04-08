@@ -13,6 +13,7 @@ const randomString_js_1 = __importDefault(require("../main/utils/random/randomSt
 const ellipsisize_1 = __importDefault(require("../main/utils/str/ellipsisize"));
 const node_vm_1 = __importDefault(require("node:vm"));
 const node_util_1 = require("node:util");
+const commandArguments_1 = __importDefault(require("../main/bot/command/commandArguments"));
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -281,8 +282,14 @@ class Japnaa extends plugin_js_1.default {
      * @param args "stop" | [amount, [counter], ...message]
      */
     async spam_command(event) {
-        const cleanArgs = event.arguments.trim().toLowerCase();
-        switch (cleanArgs) {
+        const args = new commandArguments_1.default(event.arguments).parse({
+            overloads: [["amount", "message"], ["message"]],
+            flags: ["--count"],
+            check: { "amount": /^\d$/ },
+            required: ['message'],
+            allowMultifinal: true
+        });
+        switch (args.get("message").toLowerCase()) {
             case "stop":
                 this._stopSpam(event.serverId);
                 this.bot.client.send(event.channelId, "All spam on this server stopped");
@@ -303,45 +310,9 @@ class Japnaa extends plugin_js_1.default {
                 this.bot.client.send(event.channelId, "Server que limit: " + await this._getSpamQueLimit(event));
                 return;
         }
-        let [amountArg, counterArg, ...messageArg] = (0, stringToArgs_1.default)(event.arguments);
-        /**
-         * Amount of spam
-         */
-        let amount = 0;
-        /**
-         * Use counter in message?
-         */
-        let useCounter = false;
-        /**
-         * Message to spam
-         */
-        let message = "";
-        // parse amount argument (0)
-        let amountParsed = parseInt(amountArg);
-        if (amountParsed) {
-            amount = amountParsed;
-        }
-        else {
-            amount = 3;
-            if (amountArg) {
-                message += amountArg + " ";
-            }
-        }
-        // parse counter argument (1)
-        let counterParsed = Boolean(counterArg) && counterArg.toLowerCase() === "true";
-        if (counterParsed) {
-            useCounter = true;
-        }
-        else {
-            useCounter = false;
-            if (counterArg) {
-                message += counterArg + " ";
-            }
-        }
-        // add final strings to message
-        message += messageArg.join(" ");
-        // check against limits
-        // ----------------------------------------------------------------------------------------
+        const amount = parseInt(args.get("amount")) || 3;
+        const useCounter = Boolean(args.get("--count"));
+        const message = args.get("message");
         const spamLimit = await this._getSpamLimit(event);
         const spamQueLimit = await this._getSpamQueLimit(event);
         if (amount > spamLimit) {
@@ -460,7 +431,7 @@ class Japnaa extends plugin_js_1.default {
                 description: "Spams a message several times, because you want to be annoying.",
                 overloads: [{
                         "[amount]": "Optional. The amount of spam to spam. Defaults to 3.",
-                        "[use counter]": "Optional. Adds a counter to your spam. Defaults to none.",
+                        "--count": "Flag. Adds a counter to your spam.",
                         "...message": "The message to spam"
                     }, {
                         "\"stop\"": "Stops all spam on the server"
@@ -474,7 +445,7 @@ class Japnaa extends plugin_js_1.default {
                 examples: [
                     ["spam cows", "Spams \"cow\" 3 times."],
                     ["spam 5 cows", "Spams \"cow\" 5 times."],
-                    ["spam 5 true cows", "Adds a counter to the \"\""],
+                    ["spam 5 --counter cows", "Adds a counter to the \"\""],
                     ["spam stop", "Stops all spam on the server"],
                     ["spam stop all", "Stops all spam on all servers (requires `BOT_ADMINISTRATOR`)"],
                     ["spam limit", "Responds with the limit of the spam of the channel"],
