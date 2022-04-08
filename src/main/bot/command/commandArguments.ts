@@ -181,7 +181,7 @@ export default class CommandArguments {
     }
 
     private _multifinalify(should: boolean | undefined, strings: string[], target: number): string[] {
-        if (!should) { return strings; }
+        if (!should || strings.length <= target) { return strings; }
         const result = strings.slice(0, target - 1);
         result.push(strings.slice(target - 1).join(" "));
         return result;

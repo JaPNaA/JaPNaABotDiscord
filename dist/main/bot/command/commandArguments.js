@@ -154,7 +154,7 @@ class CommandArguments {
         }
     }
     _multifinalify(should, strings, target) {
-        if (!should) {
+        if (!should || strings.length <= target) {
             return strings;
         }
         const result = strings.slice(0, target - 1);
