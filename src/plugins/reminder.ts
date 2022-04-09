@@ -250,13 +250,19 @@ class Reminders extends BotPlugin {
             help: {
                 description: "Sets a reminder. The bot will send a message in the channel the reminder was set on the set time. (For weird technical limitations, the command is disabled in DMs)",
                 examples: [
-                    ["set reminder 10 mins check the oven", "Sets a reminder in 10 minutes with the title 'check the oven'"],
-                    ["set reminder 10 check the oven", "Sets a reminder in 10 **hours** with the title 'check the oven'"],
-                    ["set reminder check the oven", "Sets a reminder in **1 hour** with the title 'check the oven'"]
+                    ["set reminder 10mins check the oven", "Sets a reminder in **10 minutes** with the title 'check the oven'"],
+                    ["set reminder 10h check the oven", "Sets a reminder in **10 hours** with the title 'check the oven'"],
+                    ["set reminder 1h --repeat check the oven", "Sets a reminder in 1 hour, then repeating every **hour** onwards with the title 'check the oven'"],
+                    ["set reminder 1h --rep 10m check the oven", "Sets a reminder in 1 hour, then repeating every **10 minutes** onwards with the title 'check the oven'"],
+                    ["set reminder 1h -r check the oven -i 10m", "Same as above."]
                 ],
                 overloads: [{
-                    "[number]": "Optional. Number of (unit)s later to set reminder",
-                    "[unit]": "Optional. The units of number",
+                    "time": "Can be of 3 forms: 10min (relative: ##unit), 12:30 (time: hh:mm:ss.mls), \"Jan 1 2023\" (Date)",
+                    "...title": "The title of the reminder"
+                }, {
+                    "time": "Can be of 3 forms: 10min (relative: ##unit), 12:30 (time: hh:mm:ss.mls), \"Jan 1 2023\" (Date)",
+                    "--repeat/-r": "Flag. Sets the reminder to repeat",
+                    "[repeat interval]": "Optional. Indicate the interval between reminders repeating. By default is same as `time`",
                     "...title": "The title of the reminder"
                 }]
             },
