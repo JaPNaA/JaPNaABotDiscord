@@ -93,7 +93,6 @@ class Reminders extends BotPlugin {
             const intervalStr = args.get("--repeat-interval") || args.get("--time");
             const interval = this._parseTimeStr(intervalStr, 0);
             const minInterval = (await this.config.getInChannel(event.channelId, "minRepeatInterval")) * 1000;
-            console.log(intervalStr, interval);
             if (interval < Math.max(2000, minInterval)) { // hardcode min 2 seconds
                 throw new Error("Repeat interval is too small.");
             }
@@ -228,7 +227,6 @@ class Reminders extends BotPlugin {
     }
 
     _reminderToString(reminder: Reminder): string {
-        console.log(reminder);
         return `${new Date(reminder.targetTime).toLocaleString()}` +
             (reminder.repeat ? ` (repeating ${reminder.interval?.map(milli => milli / 1000 + "s").join(", ")})` : "") +
             `: **${reminder.title}**`;

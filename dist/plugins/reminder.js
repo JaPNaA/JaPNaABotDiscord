@@ -83,7 +83,6 @@ class Reminders extends plugin_js_1.default {
             const intervalStr = args.get("--repeat-interval") || args.get("--time");
             const interval = this._parseTimeStr(intervalStr, 0);
             const minInterval = (await this.config.getInChannel(event.channelId, "minRepeatInterval")) * 1000;
-            console.log(intervalStr, interval);
             if (interval < Math.max(2000, minInterval)) { // hardcode min 2 seconds
                 throw new Error("Repeat interval is too small.");
             }
@@ -208,7 +207,6 @@ class Reminders extends plugin_js_1.default {
         return `https://discord.com/channels/${event.serverId || "@me"}/${event.channelId}/${event.messageId}`;
     }
     _reminderToString(reminder) {
-        console.log(reminder);
         return `${new Date(reminder.targetTime).toLocaleString()}` +
             (reminder.repeat ? ` (repeating ${reminder.interval?.map(milli => milli / 1000 + "s").join(", ")})` : "") +
             `: **${reminder.title}**`;
