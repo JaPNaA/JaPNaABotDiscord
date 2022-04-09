@@ -2,6 +2,7 @@
  * Class allowing flexible and complex unix-like command argument parsing
  * intended to replace utils/str/stringToArgs.ts
  */
+declare type Checker = RegExp | ((str: string) => boolean);
 export default class CommandArguments {
     private args;
     constructor(args: string);
@@ -21,13 +22,14 @@ export default class CommandArguments {
 declare class CommandArgumentData {
     private argumentNameAliases;
     private check;
+    private flags;
     private exclusions;
     private obj;
     constructor(argumentNameAliases: {
         [x: string]: string;
     }, check: {
-        [name: string]: RegExp;
-    }, exclusions: string[][]);
+        [name: string]: Checker;
+    }, flags: (string | string[])[], exclusions: string[][]);
     get(key: string): string;
     has(key: string): boolean;
     _setAfterCheck(key: string, value: string): void;
@@ -75,7 +77,7 @@ interface CommandArgumentParseOptions {
      *     optional
      */
     check?: {
-        [name: string]: RegExp;
+        [name: string]: Checker;
     };
     /**
      * Which arguments are required?

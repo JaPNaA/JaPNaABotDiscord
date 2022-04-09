@@ -2,6 +2,9 @@
  * Class allowing flexible and complex unix-like command argument parsing
  * intended to replace utils/str/stringToArgs.ts
  */
+
+type Checker = RegExp | ((str: string) => boolean);
+
 export default class CommandArguments {
     constructor(private args: string) { }
 
@@ -10,6 +13,7 @@ export default class CommandArguments {
         const data = new CommandArgumentData(
             this._generateAliasMap(options),
             options.check || {},
+            options.flags || [],
             options.exclutions || []
         );
 
@@ -34,7 +38,7 @@ export default class CommandArguments {
             if (escape) {
                 string += char;
                 escape = "";
-            } else if (!activeQuote &&char === '"') {
+            } else if (!activeQuote && char === '"') {
                 activeQuote = char;
             } else if (char === "\\") {
                 escape = char;
@@ -193,7 +197,8 @@ class CommandArgumentData {
 
     constructor(
         private argumentNameAliases: { [x: string]: string },
-        private check: { [name: string]: RegExp },
+        private check: { [name: string]: Checker },
+        private flags: (string | string[])[],
         private exclusions: string[][]
     ) { }
 
@@ -220,6 +225,7 @@ class CommandArgumentData {
     public _canSet(key: string, value: string): [false, string] | [true] {
         const dealiasedKey = this.dealias(key);
 
+        // check exclusions
         for (const exclusionSet of this.exclusions) {
             if (exclusionSet.find(item => this.dealias(item) == dealiasedKey)) {
                 for (const item of exclusionSet) {
@@ -230,8 +236,28 @@ class CommandArgumentData {
             }
         }
 
+        const valLowercase = value.toLowerCase();
+        // check to make sure flag keys have flag keys as values
+        for (const flagSet of this.flags) {
+            if (Array.isArray(flagSet)) {
+                if (
+                    flagSet.includes(dealiasedKey) &&
+                    !flagSet.find(flag => flag.toLowerCase() === valLowercase)
+                ) {
+                    return [false, `Cannot assign to flag (${key})`]
+                }
+            }
+        }
+
         if (key in this.check) {
-            if (!this.check[key].test(value)) {
+            const checker = this.check[key];
+            let valid;
+            if (checker instanceof RegExp) {
+                valid = checker.test(value);
+            } else {
+                valid = checker(value);
+            }
+            if (!valid) {
                 return [false, `${key} cannot be ${value}`];
             }
         }
@@ -288,7 +314,7 @@ interface CommandArgumentParseOptions {
      *     optional
      */
     check?: {
-        [name: string]: RegExp
+        [name: string]: Checker
     },
 
     /**

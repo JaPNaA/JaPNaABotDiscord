@@ -1,9 +1,9 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
 /**
  * Class allowing flexible and complex unix-like command argument parsing
  * intended to replace utils/str/stringToArgs.ts
  */
+Object.defineProperty(exports, "__esModule", { value: true });
 class CommandArguments {
     args;
     constructor(args) {
@@ -11,7 +11,7 @@ class CommandArguments {
     }
     parse(options) {
         const strings = this.getStrings();
-        const data = new CommandArgumentData(this._generateAliasMap(options), options.check || {}, options.exclutions || []);
+        const data = new CommandArgumentData(this._generateAliasMap(options), options.check || {}, options.flags || [], options.exclutions || []);
         this._getNamedArgsAndFlags(strings, options, data);
         this._getOrderedArguments(strings, options, data);
         return data;
@@ -166,11 +166,13 @@ exports.default = CommandArguments;
 class CommandArgumentData {
     argumentNameAliases;
     check;
+    flags;
     exclusions;
     obj = {};
-    constructor(argumentNameAliases, check, exclusions) {
+    constructor(argumentNameAliases, check, flags, exclusions) {
         this.argumentNameAliases = argumentNameAliases;
         this.check = check;
+        this.flags = flags;
         this.exclusions = exclusions;
     }
     get(key) {
@@ -191,6 +193,7 @@ class CommandArgumentData {
     }
     _canSet(key, value) {
         const dealiasedKey = this.dealias(key);
+        // check exclusions
         for (const exclusionSet of this.exclusions) {
             if (exclusionSet.find(item => this.dealias(item) == dealiasedKey)) {
                 for (const item of exclusionSet) {
@@ -200,8 +203,26 @@ class CommandArgumentData {
                 }
             }
         }
+        const valLowercase = value.toLowerCase();
+        // check to make sure flag keys have flag keys as values
+        for (const flagSet of this.flags) {
+            if (Array.isArray(flagSet)) {
+                if (flagSet.includes(dealiasedKey) &&
+                    !flagSet.find(flag => flag.toLowerCase() === valLowercase)) {
+                    return [false, `Cannot assign to flag (${key})`];
+                }
+            }
+        }
         if (key in this.check) {
-            if (!this.check[key].test(value)) {
+            const checker = this.check[key];
+            let valid;
+            if (checker instanceof RegExp) {
+                valid = checker.test(value);
+            }
+            else {
+                valid = checker(value);
+            }
+            if (!valid) {
                 return [false, `${key} cannot be ${value}`];
             }
         }
