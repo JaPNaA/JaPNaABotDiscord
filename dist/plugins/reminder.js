@@ -4,13 +4,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
-const allUtils_js_1 = require("../main/utils/allUtils.js");
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
+const commandArguments_js_1 = __importDefault(require("../main/bot/command/commandArguments.js"));
+const RELATIVE_TIME_STR_REGEX = /^(\d+)([a-z]+)$/;
+const ABSOLUTE_TIME_STR_REGEX = /^(\d+):(\d+)(:(\d+)(\.(\d+))?)?\s*((a|p)m?)?$/i;
 /**
  * Reminders plugin
  */
 class Reminders extends plugin_js_1.default {
+    userConfigSchema = {
+        "minRepeatInterval": {
+            type: "number",
+            comment: "The minimum interval between repeating reminders",
+            default: 60 * 30
+        }
+    };
     _timeUnits = {
         "ms": 1,
         "millisecond": 1,
@@ -43,38 +52,53 @@ class Reminders extends plugin_js_1.default {
         this.pluginName = "reminder";
         this._reminders = this.bot.memory.get(this.pluginName, "reminders") || [];
     }
-    set_reminder(event) {
-        const args = (0, allUtils_js_1.stringToArgs)(event.arguments);
-        const [time, units] = args;
-        const title = args.slice(2);
-        let timeValue = parseFloat(time);
-        let unitsValue = this._timeUnits[units];
-        if (isNaN(timeValue)) {
-            timeValue = 1;
-            unitsValue = this._timeUnits.hours;
-            title.unshift(time, units);
-        }
-        else if (!unitsValue) {
-            unitsValue = this._timeUnits.hours;
-            title.unshift(units);
-        }
+    async set_reminder(event) {
+        const args = new commandArguments_js_1.default(event.arguments).parse({
+            overloads: [["--time", "-r", "--repeat-interval", "title"], ["--time", "title"], ["title"]],
+            flags: [
+                ["--repeat", "--rep", "-r"]
+            ],
+            namedOptions: [
+                ["--repeat-interval", "--interval", "-i"],
+                ["--time", "-t"]
+            ],
+            required: ['--time'],
+            check: {
+                '--time': (s) => RELATIVE_TIME_STR_REGEX.test(s) || ABSOLUTE_TIME_STR_REGEX.test(s) || !isNaN(Date.parse(s)),
+                '--repeat-interval': RELATIVE_TIME_STR_REGEX
+            },
+            allowMultifinal: true
+        });
         const now = Date.now();
+        const time = this._parseTimeStr(args.get("--time"), now);
+        const title = args.get("title");
         const reminder = {
             channelId: event.channelId,
             setTime: now,
             setterUserId: event.userId,
-            targetTime: now + timeValue * unitsValue,
-            title: title.join(" ").trim() || this._getMessageLink(event)
+            targetTime: time,
+            title: title || this._getMessageLink(event)
         };
+        if (args.get("--repeat")) {
+            const intervalStr = args.get("--repeat-interval") || args.get("--time");
+            const interval = this._parseTimeStr(intervalStr, 0);
+            const minInterval = (await this.config.getInChannel(event.channelId, "minRepeatInterval")) * 1000;
+            console.log(intervalStr, interval);
+            if (interval < Math.max(2000, minInterval)) { // hardcode min 2 seconds
+                throw new Error("Repeat interval is too small.");
+            }
+            reminder.repeat = true;
+            reminder.interval = [interval];
+        }
         this._addReminder(reminder);
-        this.bot.client.send(event.channelId, `Reminder set on ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
+        this.bot.client.send(event.channelId, `Reminder set on ${this._reminderToString(reminder)}`);
     }
     list_reminders(event) {
         const reminders = this._getChannelReminders(event.channelId);
         const strArr = [];
         let index = 1;
         for (const reminder of reminders) {
-            strArr.push(`${index++}. ${new Date(reminder.targetTime).toLocaleString()}: **${reminder.title}**`);
+            strArr.push(`${index++}. ${this._reminderToString(reminder)}`);
         }
         this.bot.client.send(event.channelId, strArr.join("\n"));
     }
@@ -96,6 +120,35 @@ class Reminders extends plugin_js_1.default {
         this._reminders.splice(actualIndex, 1);
         this.bot.client.send(event.channelId, "Reminder **" + reminder.title + "** from " +
             (0, mention_js_1.default)(reminder.setterUserId) + "was canceled.");
+    }
+    _parseTimeStr(timeStr, relativeNow) {
+        let match;
+        if (match = timeStr.match(RELATIVE_TIME_STR_REGEX)) {
+            const value = parseFloat(match[1]);
+            const unit = match[2];
+            if (!unit || !(unit in this._timeUnits)) {
+                throw new Error("Unknown time unit");
+            }
+            return relativeNow + value * this._timeUnits[unit];
+        }
+        else if (match = timeStr.match(ABSOLUTE_TIME_STR_REGEX)) {
+            const date = new Date(relativeNow);
+            date.setHours(parseInt(match[1]) + (match[8]?.toLowerCase() === 'p' ? 12 : 0));
+            date.setMinutes(parseInt(match[2]));
+            date.setSeconds(parseInt(match[4]) || 0);
+            date.setMilliseconds(parseInt(match[6]?.padEnd(3, '0')) || 0);
+            if (date.getTime() <= relativeNow) {
+                date.setDate(date.getDate() + 1);
+            }
+            return date.getTime();
+        }
+        else {
+            const date = new Date(timeStr).getTime();
+            if (isNaN(date)) {
+                throw new Error("Invalid time");
+            }
+            return date;
+        }
     }
     _addReminder(reminder) {
         if (this._reminders.length >= 1e4) {
@@ -143,10 +196,22 @@ class Reminders extends plugin_js_1.default {
         }
         this._reminders.splice(index, 1);
         this.bot.client.send(reminder.channelId, `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${(0, mention_js_1.default)(reminder.setterUserId)}`);
-        this._updateReminders();
+        if (reminder.repeat && reminder.interval) {
+            reminder.targetTime += reminder.interval[0];
+            this._addReminder(reminder); // note: calls _updateReminders
+        }
+        else {
+            this._updateReminders();
+        }
     }
     _getMessageLink(event) {
         return `https://discord.com/channels/${event.serverId || "@me"}/${event.channelId}/${event.messageId}`;
+    }
+    _reminderToString(reminder) {
+        console.log(reminder);
+        return `${new Date(reminder.targetTime).toLocaleString()}` +
+            (reminder.repeat ? ` (repeating ${reminder.interval?.map(milli => milli / 1000 + "s").join(", ")})` : "") +
+            `: **${reminder.title}**`;
     }
     _start() {
         if (this._reminders.length > 0) {
