@@ -330,7 +330,7 @@ class Japnaa extends BotPlugin {
         const args = new CommandArguments(event.arguments).parse({
             overloads: [["amount", "message"], ["message"]],
             flags: ["--count"],
-            check: { "amount": /^\d$/ },
+            check: { "amount": /^\d+$/ },
             required: ['message'],
             allowMultifinal: true
         });

@@ -285,7 +285,7 @@ class Japnaa extends plugin_js_1.default {
         const args = new commandArguments_1.default(event.arguments).parse({
             overloads: [["amount", "message"], ["message"]],
             flags: ["--count"],
-            check: { "amount": /^\d$/ },
+            check: { "amount": /^\d+$/ },
             required: ['message'],
             allowMultifinal: true
         });
