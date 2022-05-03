@@ -6,6 +6,7 @@ import Games from "../games";
 
 abstract class Game extends BotPlugin {
     parentPlugin: Games;
+    channelId: string;
 
     commandManager: CommandManager;
     _gamePluginName: string;
@@ -13,9 +14,10 @@ abstract class Game extends BotPlugin {
 
     gameEnded: boolean = false;
 
-    constructor(bot: Bot, parentPlugin: Games) {
+    constructor(bot: Bot, parentPlugin: Games, channelId: string) {
         super(bot)
         this.parentPlugin = parentPlugin;
+        this.channelId = channelId;
 
         this.commandManager = new CommandManager(this.bot);
 

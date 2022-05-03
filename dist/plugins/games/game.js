@@ -7,13 +7,15 @@ const commandManager_1 = __importDefault(require("../../main/bot/command/manager
 const plugin_1 = __importDefault(require("../../main/bot/plugin/plugin"));
 class Game extends plugin_1.default {
     parentPlugin;
+    channelId;
     commandManager;
     _gamePluginName;
     gameName;
     gameEnded = false;
-    constructor(bot, parentPlugin) {
+    constructor(bot, parentPlugin, channelId) {
         super(bot);
         this.parentPlugin = parentPlugin;
+        this.channelId = channelId;
         this.commandManager = new commandManager_1.default(this.bot);
         this.gameName = this.constructor.name;
         this._gamePluginName = this.gameName.toLowerCase();

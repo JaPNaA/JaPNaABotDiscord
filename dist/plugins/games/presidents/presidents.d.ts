@@ -12,7 +12,6 @@ declare class Presidents extends Game {
     pluginName: string;
     gameName: string;
     initer: string;
-    channelId: string;
     game: PresidentsMain;
     constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string);
     join(event: DiscordCommandEvent): void;

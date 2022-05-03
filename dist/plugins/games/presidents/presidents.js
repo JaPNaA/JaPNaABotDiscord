@@ -17,10 +17,9 @@ class Presidents extends game_1.default {
     pluginName = "game." + this._gamePluginName;
     gameName = "Presidents";
     initer;
-    channelId;
     game;
     constructor(bot, parentPlugin, channelId, initer) {
-        super(bot, parentPlugin);
+        super(bot, parentPlugin, channelId);
         this.gameName = "Presidents";
         this._gamePluginName = "presidents";
         this.pluginName = "game." + this._gamePluginName;

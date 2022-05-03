@@ -19,12 +19,10 @@ class Presidents extends Game {
 
     initer: string;
 
-    channelId: string;
-
     game: PresidentsMain;
 
     constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string) {
-        super(bot, parentPlugin);
+        super(bot, parentPlugin, channelId);
 
         this.gameName = "Presidents";
         this._gamePluginName = "presidents";
