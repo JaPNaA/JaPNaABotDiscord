@@ -7,6 +7,7 @@ const commandDispatcher_js_1 = __importDefault(require("./commandDispatcher.js")
 const commandHelp_js_1 = require("../commandHelp.js");
 const command_js_1 = __importDefault(require("../command.js"));
 const locationKeyCreator_js_1 = __importDefault(require("../../utils/locationKeyCreator.js"));
+const removeFromArray_js_1 = __importDefault(require("../../../utils/removeFromArray.js"));
 class CommandManager {
     bot;
     dispatch;
@@ -22,9 +23,7 @@ class CommandManager {
         this.bot = bot;
         this.dispatch = new commandDispatcher_js_1.default(bot, this);
         this.commandGroups = new Map();
-        // this.precommands = [];
         this.commands = [];
-        // this.plugins = [];
         this.helpData = {};
     }
     getHelp(command) {
@@ -36,6 +35,16 @@ class CommandManager {
         this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
         this.registerHelp(command, (0, commandHelp_js_1.getFullCommandHelp)(command, command.help));
+    }
+    unregister(triggerWord) {
+        const commandIndex = this.commands.findIndex(command => command.commandName === triggerWord);
+        const command = this.commands[commandIndex];
+        if (commandIndex < 0) {
+            throw new Error(`Tried to unregister command '${triggerWord}' which was never registered`);
+        }
+        this.commands.splice(commandIndex, 1);
+        this.removeCommandFromGroup(command.group, command);
+        this.unregisterHelp(command);
     }
     registerUnkownCommandHanlder(func) {
         this.unknownCommandHandler = func;
@@ -61,8 +70,19 @@ class CommandManager {
             this.commandGroups.set(groupNameStr, [command]);
         }
     }
+    removeCommandFromGroup(groupName, command) {
+        let groupNameStr = groupName || "Other";
+        let commandGroup = this.commandGroups.get(groupNameStr);
+        if (!commandGroup) {
+            throw new Error(`Could not find command group '${groupName}'`);
+        }
+        (0, removeFromArray_js_1.default)(commandGroup, command);
+    }
     registerHelp(command, data) {
         this.helpData[command.commandName] = (0, commandHelp_js_1.getFullCommandHelp)(command, data);
+    }
+    unregisterHelp(command) {
+        this.helpData[command.commandName] = undefined;
     }
 }
 exports.default = CommandManager;

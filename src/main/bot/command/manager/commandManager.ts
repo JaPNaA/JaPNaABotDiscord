@@ -7,6 +7,7 @@ import createKey from "../../utils/locationKeyCreator.js";
 import ObjectStrMap from "../../../types/objectStrMap";
 import UnknownCommandHandler from "./unknownCommandHandler.js";
 import Bot from "../../bot/bot.js";
+import removeFromArray from "../../../utils/removeFromArray.js";
 
 class CommandManager {
     dispatch: CommandDispatcher;
@@ -24,9 +25,7 @@ class CommandManager {
         this.dispatch = new CommandDispatcher(bot, this);
         this.commandGroups = new Map();
 
-        // this.precommands = [];
         this.commands = [];
-        // this.plugins = [];
         this.helpData = {};
     }
 
@@ -41,6 +40,18 @@ class CommandManager {
         this.applyConfigToCommand(command);
         this.addCommandToGroup(command.group, command);
         this.registerHelp(command, getFullCommandHelp(command, command.help));
+    }
+
+    unregister(triggerWord: string) {
+        const commandIndex = this.commands.findIndex(command => command.commandName === triggerWord);
+        const command = this.commands[commandIndex];
+        if (commandIndex < 0) {
+            throw new Error(`Tried to unregister command '${triggerWord}' which was never registered`);
+        }
+        this.commands.splice(commandIndex, 1);
+
+        this.removeCommandFromGroup(command.group, command);
+        this.unregisterHelp(command);
     }
 
     registerUnkownCommandHanlder(func: UnknownCommandHandler) {
@@ -73,8 +84,21 @@ class CommandManager {
         }
     }
 
+    private removeCommandFromGroup(groupName: string | undefined, command: BotCommand) {
+        let groupNameStr: string = groupName || "Other";
+        let commandGroup: BotCommand[] | undefined = this.commandGroups.get(groupNameStr);
+        if (!commandGroup) {
+            throw new Error(`Could not find command group '${groupName}'`);
+        }
+        removeFromArray(commandGroup, command);
+    }
+
     private registerHelp(command: BotCommand, data: BotCommandHelp | null): void {
         this.helpData[command.commandName] = getFullCommandHelp(command, data);
+    }
+
+    private unregisterHelp(command: BotCommand): void {
+        this.helpData[command.commandName] = undefined;
     }
 }
 

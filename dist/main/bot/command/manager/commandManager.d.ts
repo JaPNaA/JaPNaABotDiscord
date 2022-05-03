@@ -21,10 +21,13 @@ declare class CommandManager {
     constructor(bot: Bot);
     getHelp(command: string): BotCommandHelpFull | null | undefined;
     register(triggerWord: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions): void;
+    unregister(triggerWord: string): void;
     registerUnkownCommandHanlder(func: UnknownCommandHandler): void;
     /** Apply config from bot.config to adjust command */
     private applyConfigToCommand;
     private addCommandToGroup;
+    private removeCommandFromGroup;
     private registerHelp;
+    private unregisterHelp;
 }
 export default CommandManager;
