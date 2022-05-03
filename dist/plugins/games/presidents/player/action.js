@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const errors_1 = require("../errors");
-const cardSet_1 = __importDefault(require("../../cards/cardSet"));
+const cardSet_1 = __importDefault(require("../../utils/cards/cardSet"));
 class PlayerAction {
     player;
     logic;

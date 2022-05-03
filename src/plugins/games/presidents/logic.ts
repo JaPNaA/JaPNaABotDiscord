@@ -1,9 +1,9 @@
-import Pile from "../cards/pile";
-import CardSet from "../cards/cardSet";
-import { NormalCard, JokerCard, Card } from "../cards/card";
+import Pile from "../utils/cards/pile";
+import CardSet from "../utils/cards/cardSet";
+import { NormalCard, JokerCard, Card } from "../utils/cards/card";
 import { MessageActionError } from "./errors";
 import cardHierarchy from "./cardHierarchy";
-import { Rank } from "../cards/cardUtils";
+import { Rank } from "../utils/cards/cardUtils";
 import Player from "./player/player";
 
 /**

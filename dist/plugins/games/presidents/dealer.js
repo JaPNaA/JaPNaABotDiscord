@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const deck_1 = __importDefault(require("../cards/deck"));
+const deck_1 = __importDefault(require("../utils/cards/deck"));
 class Dealer {
     deck;
     config = {

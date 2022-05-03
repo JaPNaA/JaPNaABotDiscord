@@ -1,7 +1,7 @@
-import { Rank } from "../../cards/cardUtils";
+import { Rank } from "../../utils/cards/cardUtils";
 import Player from "./player";
 import Logic from "../logic";
-import CardSet from "../../cards/cardSet";
+import CardSet from "../../utils/cards/cardSet";
 declare class PlayerAction {
     player: Player;
     logic: Logic;

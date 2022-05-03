@@ -1,4 +1,4 @@
-import Deck from "../cards/deck";
+import Deck from "../utils/cards/deck";
 import Player from "./player/player";
 declare class Dealer {
     deck: Deck;

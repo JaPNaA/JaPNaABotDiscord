@@ -1,8 +1,8 @@
-import { Card, NormalCard, JokerCard } from "../../cards/card";
+import { Card, NormalCard, JokerCard } from "../../utils/cards/card";
 
-import { Rank } from "../../cards/cardUtils";
-import CardList from "../../cards/cardList";
-import CardSet from "../../cards/cardSet";
+import { Rank } from "../../utils/cards/cardUtils";
+import CardList from "../../utils/cards/cardList";
+import CardSet from "../../utils/cards/cardSet";
 
 class PlayerCards {
     cards: CardList;

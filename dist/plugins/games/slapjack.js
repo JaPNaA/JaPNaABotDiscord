@@ -3,10 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const deck_1 = __importDefault(require("./cards/deck"));
+const deck_1 = __importDefault(require("./utils/cards/deck"));
 const game_1 = __importDefault(require("../games/game"));
 const toOne_1 = __importDefault(require("../../main/utils/toOne"));
-const cardUtils_1 = require("./cards/cardUtils");
+const cardUtils_1 = require("./utils/cards/cardUtils");
 const mention_1 = __importDefault(require("../../main/utils/str/mention"));
 class SlapJack extends game_1.default {
     _gamePluginName = "slapjack";
@@ -22,7 +22,7 @@ class SlapJack extends game_1.default {
     jackedTime;
     gameEnded = false;
     constructor(botHooks, parentPlugin, channelId) {
-        super(botHooks, parentPlugin);
+        super(botHooks, parentPlugin, channelId);
         this.deck = new deck_1.default({
             excludeJokers: true
         });

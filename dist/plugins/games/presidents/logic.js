@@ -3,11 +3,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const pile_1 = __importDefault(require("../cards/pile"));
-const card_1 = require("../cards/card");
+const pile_1 = __importDefault(require("../utils/cards/pile"));
+const card_1 = require("../utils/cards/card");
 const errors_1 = require("./errors");
 const cardHierarchy_1 = __importDefault(require("./cardHierarchy"));
-const cardUtils_1 = require("../cards/cardUtils");
+const cardUtils_1 = require("../utils/cards/cardUtils");
 /**
  * contains the logic for the game -
  * burning, runs, which cards can be played

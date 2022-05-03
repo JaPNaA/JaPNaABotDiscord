@@ -1,10 +1,10 @@
-import Deck from "./cards/deck";
+import Deck from "./utils/cards/deck";
 import Game from "../games/game";
 import Bot from "../../main/bot/bot/bot";
 import toOne from "../../main/utils/toOne";
 import { Message } from "discord.js";
-import { Rank } from "./cards/cardUtils";
-import { Card } from "./cards/card";
+import { Rank } from "./utils/cards/cardUtils";
+import { Card } from "./utils/cards/card";
 import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 import mention from "../../main/utils/str/mention";
@@ -28,7 +28,7 @@ class SlapJack extends Game {
     gameEnded: boolean = false;
 
     constructor(botHooks: Bot, parentPlugin: Games, channelId: string) {
-        super(botHooks, parentPlugin);
+        super(botHooks, parentPlugin, channelId);
 
         this.deck = new Deck({
             excludeJokers: true

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const cardUtils_1 = require("../cards/cardUtils");
+const cardUtils_1 = require("../utils/cards/cardUtils");
 const errors_1 = require("./errors");
 class MessageParser {
     game;

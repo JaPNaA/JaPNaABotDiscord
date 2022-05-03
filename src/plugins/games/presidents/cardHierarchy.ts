@@ -1,4 +1,4 @@
-import { Rank } from "../cards/cardUtils";
+import { Rank } from "../utils/cards/cardUtils";
 
 const cardHierarchy: Rank[] = [
     Rank.n3, Rank.n4, Rank.n5, Rank.n6, Rank.n7, Rank.n8, Rank.n9, Rank.n10,

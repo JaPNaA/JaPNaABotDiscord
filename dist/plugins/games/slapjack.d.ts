@@ -1,9 +1,9 @@
 /// <reference types="node" />
-import Deck from "./cards/deck";
+import Deck from "./utils/cards/deck";
 import Game from "../games/game";
 import Bot from "../../main/bot/bot/bot";
 import { Message } from "discord.js";
-import { Rank } from "./cards/cardUtils";
+import { Rank } from "./utils/cards/cardUtils";
 import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 declare class SlapJack extends Game {

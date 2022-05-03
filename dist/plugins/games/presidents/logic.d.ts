@@ -1,6 +1,6 @@
-import Pile from "../cards/pile";
-import CardSet from "../cards/cardSet";
-import { Rank } from "../cards/cardUtils";
+import Pile from "../utils/cards/pile";
+import CardSet from "../utils/cards/cardSet";
+import { Rank } from "../utils/cards/cardUtils";
 import Player from "./player/player";
 /**
  * contains the logic for the game -
