@@ -18,7 +18,7 @@ declare class Games extends BotPlugin {
     constructor(bot: Bot);
     _isDMLockAvailable(userId: string): boolean;
     _lockAndGetDMHandle(userId: string, game: Game): void;
-    _unlockDMHandle(userId: string): void;
+    _unlockDMHandle(userId: string, game: Game): void;
     private play;
     private _getGame;
     _start(): void;

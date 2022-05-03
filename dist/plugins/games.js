@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
 const presidents_js_1 = __importDefault(require("./games/presidents/presidents.js"));
+const chess_1 = __importDefault(require("./games/chess/chess"));
 /**
  * Games!
  */
@@ -19,7 +20,8 @@ class Games extends plugin_js_1.default {
         "president": presidents_js_1.default,
         "presidents": presidents_js_1.default,
         "kings": presidents_js_1.default,
-        "scum": presidents_js_1.default
+        "scum": presidents_js_1.default,
+        "chess": chess_1.default
     };
     constructor(bot) {
         super(bot);
@@ -39,7 +41,14 @@ class Games extends plugin_js_1.default {
             throw new Error("Already locked");
         }
     }
-    _unlockDMHandle(userId) {
+    _unlockDMHandle(userId, game) {
+        const lockedGame = this.playerGameMap.get(userId);
+        if (!lockedGame) {
+            return;
+        }
+        if (lockedGame !== game) {
+            throw new Error(`Tried to unlock game not locked on. (Unlock from ${game.gameName} of ${lockedGame.gameName})`);
+        }
         this.playerGameMap.delete(userId);
     }
     play(event) {

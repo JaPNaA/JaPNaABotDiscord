@@ -52,7 +52,12 @@ class Games extends BotPlugin {
         }
     }
 
-    public _unlockDMHandle(userId: string) {
+    public _unlockDMHandle(userId: string, game: Game) {
+        const lockedGame = this.playerGameMap.get(userId);
+        if (!lockedGame) { return; }
+        if (lockedGame !== game) {
+            throw new Error(`Tried to unlock game not locked on. (Unlock from ${game.gameName} of ${lockedGame.gameName})`);
+        }
         this.playerGameMap.delete(userId);
     }
 
