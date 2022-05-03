@@ -5,11 +5,12 @@ import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 declare abstract class Game extends BotPlugin {
     parentPlugin: Games;
+    channelId: string;
     commandManager: CommandManager;
     _gamePluginName: string;
     gameName: string;
     gameEnded: boolean;
-    constructor(bot: Bot, parentPlugin: Games);
+    constructor(bot: Bot, parentPlugin: Games, channelId: string);
     unknownCommandHandler(event: DiscordCommandEvent): void;
 }
 export default Game;

@@ -6,7 +6,7 @@ import Game from "./games/game.js";
 
 import SlapJack from "./games/slapjack.js";
 import Presidents from "./games/presidents/presidents.js";
-import BotCommandOptions from "../main/bot/command/commandOptions.js";
+import Chess from "./games/chess/chess";
 import Bot from "../main/bot/bot/bot.js";
 
 interface GameClass {
@@ -28,7 +28,9 @@ class Games extends BotPlugin {
         "president": Presidents,
         "presidents": Presidents,
         "kings": Presidents,
-        "scum": Presidents
+        "scum": Presidents,
+
+        "chess": Chess
     };
 
     constructor(bot: Bot) {
