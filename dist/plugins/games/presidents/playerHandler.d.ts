@@ -9,11 +9,7 @@ declare class PlayerHandler {
     players: Player[];
     constructor(bot: Bot, parentGame: Games, presidentsGame: Presidents);
     addPlayer(userId: string): void;
-    removePlayer(userId: string): boolean;
-    removeAllPlayers(): void;
     getPlayer(userId: string): Player | null;
-    private isPlayerListed;
     private findPlayer;
-    private findPlayerIndex;
 }
 export default PlayerHandler;

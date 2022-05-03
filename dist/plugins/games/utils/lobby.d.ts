@@ -7,24 +7,28 @@ declare class Lobby {
     private players;
     private registeredCommandNames;
     private playersPromiseRes?;
-    private minPlayers?;
-    private maxPlayers?;
-    private description?;
+    private settings;
     constructor(parentGame: Game, bot: Bot);
-    setSettings({ minPlayers, maxPlayers, description }: {
-        minPlayers?: number;
-        maxPlayers?: number;
-        description?: string;
-    }): void;
-    addPlayer(player: string): void;
+    setSettings(settings: LobbySettings): void;
     getPlayers(): Promise<string[]>;
+    addPlayer(userId: string): void;
+    removeAllPlayers(): void;
+    startLobby(): void;
     private joinCommand;
+    private addPlayerAndAnnounce;
+    private _addPlayer;
+    private handleJoinError;
     private leaveCommand;
     private listPlayersCommand;
     private startCommand;
-    startLobby(): void;
     private sendAboutMessage;
     stopLobby(): void;
     _registerCommand(name: string, callback: BotCommandCallback): void;
+}
+interface LobbySettings {
+    minPlayers?: number;
+    maxPlayers?: number;
+    description?: string;
+    dmLock?: boolean;
 }
 export default Lobby;

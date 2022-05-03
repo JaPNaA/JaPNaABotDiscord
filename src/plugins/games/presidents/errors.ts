@@ -16,21 +16,4 @@ class MessageActionError extends Error {
     }
 }
 
-class DMAlreadyLockedError extends Error {
-    constructor() {
-        super("DMs are already locked");
-    }
-}
-
-class AlreadyJoinedError extends Error {
-    constructor() {
-        super("Player has already joined");
-    }
-}
-
-export {
-    MessageSyntaxError,
-    MessageActionError,
-    DMAlreadyLockedError,
-    AlreadyJoinedError
-};
+export { MessageActionError, MessageSyntaxError };

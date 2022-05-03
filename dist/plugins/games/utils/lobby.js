@@ -11,22 +11,13 @@ class Lobby {
     players = [];
     registeredCommandNames = [];
     playersPromiseRes;
-    minPlayers;
-    maxPlayers;
-    description;
+    settings = {};
     constructor(parentGame, bot) {
         this.parentGame = parentGame;
         this.bot = bot;
     }
-    setSettings({ minPlayers, maxPlayers, description }) {
-        this.minPlayers = minPlayers;
-        this.maxPlayers = maxPlayers;
-        this.description = description;
-    }
-    addPlayer(player) {
-        if (!this.players.includes(player)) {
-            this.players.push(player);
-        }
+    setSettings(settings) {
+        this.settings = settings;
     }
     getPlayers() {
         if (this.playersPromiseRes) {
@@ -36,21 +27,70 @@ class Lobby {
         this.startLobby();
         return promise;
     }
-    joinCommand(event) {
-        if (this.players.includes(event.userId)) {
-            this.bot.client.send(event.channelId, (0, mention_1.default)(event.userId) + ", you're already in the game!");
-            return;
+    addPlayer(userId) {
+        try {
+            this._addPlayer(userId);
         }
-        if (this.maxPlayers && this.players.length >= this.maxPlayers) {
+        catch (err) {
+            this.handleJoinError(err, userId);
+        }
+    }
+    removeAllPlayers() {
+        if (this.settings.dmLock) {
+            for (const player of this.players) {
+                this.parentGame.parentPlugin._unlockDMHandle(player, this.parentGame);
+            }
+        }
+        this.players.length = 0;
+    }
+    startLobby() {
+        this.sendAboutMessage();
+        this._registerCommand("join", this.joinCommand);
+        this._registerCommand("leave", this.leaveCommand);
+        this._registerCommand("start", this.startCommand);
+        this._registerCommand("players", this.listPlayersCommand);
+    }
+    joinCommand(event) {
+        if (this.settings.maxPlayers && this.players.length >= this.settings.maxPlayers) {
             this.bot.client.send(event.channelId, "No more players can join -- maximum reached.");
         }
-        this.players.push(event.userId);
-        this.bot.client.send(event.channelId, (0, mention_1.default)(event.userId) + " has joined the game!");
+        this.addPlayerAndAnnounce(event.userId);
+    }
+    addPlayerAndAnnounce(userId) {
+        try {
+            this._addPlayer(userId);
+            this.bot.client.send(this.parentGame.channelId, (0, mention_1.default)(userId) + " has joined " + this.parentGame.gameName + "!");
+        }
+        catch (err) {
+            this.handleJoinError(err, userId);
+        }
+    }
+    _addPlayer(userId) {
+        if (this.players.includes(userId)) {
+            throw new AlreadyJoinedError();
+        }
+        if (!this.parentGame.parentPlugin._isDMLockAvailable(userId)) {
+            throw new DMAlreadyLockedError();
+        }
+        this.parentGame.parentPlugin._lockAndGetDMHandle(userId, this.parentGame);
+        this.players.push(userId);
+    }
+    handleJoinError(err, userId) {
+        if (err instanceof AlreadyJoinedError) {
+            this.bot.client.send(this.parentGame.channelId, (0, mention_1.default)(userId) + ", you're already in the game!");
+        }
+        else if (err instanceof DMAlreadyLockedError) {
+            this.bot.client.send(this.parentGame.channelId, "Failed to add " + (0, mention_1.default)(userId) +
+                ". You're in another game which also requires DMs!");
+        }
     }
     leaveCommand(event) {
         if (!this.players.includes(event.userId)) {
             this.bot.client.send(event.channelId, (0, mention_1.default)(event.userId) + ", you were never in the game!");
             return;
+        }
+        if (this.settings.dmLock) {
+            this.parentGame.parentPlugin._unlockDMHandle(event.userId, this.parentGame);
         }
         (0, removeFromArray_1.default)(this.players, event.userId);
         this.bot.client.send(event.channelId, (0, mention_1.default)(event.userId) + " has left the game");
@@ -69,46 +109,43 @@ class Lobby {
         }
     }
     startCommand(event) {
-        if (this.maxPlayers !== undefined && this.players.length > this.maxPlayers) {
-            this.bot.client.send(event.channelId, `There are too many players. (Max is ${this.maxPlayers})`);
+        const { maxPlayers, minPlayers } = this.settings;
+        if (maxPlayers !== undefined && this.players.length > maxPlayers) {
+            this.bot.client.send(event.channelId, `There are too many players. (Max is ${maxPlayers})`);
             return;
         }
-        if (this.minPlayers !== undefined && this.players.length < this.minPlayers) {
-            this.bot.client.send(event.channelId, `There are few players. (Min is ${this.minPlayers})`);
+        if (minPlayers !== undefined && this.players.length < minPlayers) {
+            this.bot.client.send(event.channelId, `There are few players. (Min is ${minPlayers})`);
             return;
         }
         this.stopLobby();
         if (this.playersPromiseRes) {
             this.playersPromiseRes(this.players);
         }
-    }
-    startLobby() {
-        this.sendAboutMessage();
-        this._registerCommand("join", this.joinCommand);
-        this._registerCommand("leave", this.leaveCommand);
-        this._registerCommand("start", this.startCommand);
-        this._registerCommand("players", this.listPlayersCommand);
+        this.bot.client.send(this.parentGame.channelId, `Starting ${this.parentGame.gameName} with players:\n` +
+            this.players.map(id => (0, mention_1.default)(id)).join(", "));
     }
     sendAboutMessage() {
+        const { maxPlayers, minPlayers } = this.settings;
         const fields = [];
         const precommmand = this.parentGame.parentPlugin.precommand.names[0];
         let numPlayersLimit = "??";
-        if (this.maxPlayers === undefined && this.minPlayers === undefined) {
+        if (maxPlayers === undefined && minPlayers === undefined) {
             numPlayersLimit = "any number of";
         }
-        else if (this.maxPlayers !== undefined && this.minPlayers !== undefined) {
-            if (this.maxPlayers == this.minPlayers) {
-                numPlayersLimit = this.maxPlayers.toString();
+        else if (maxPlayers !== undefined && minPlayers !== undefined) {
+            if (maxPlayers == minPlayers) {
+                numPlayersLimit = maxPlayers.toString();
             }
             else {
-                numPlayersLimit = this.minPlayers + " to " + this.maxPlayers;
+                numPlayersLimit = minPlayers + " to " + maxPlayers;
             }
         }
-        else if (this.minPlayers !== undefined) {
-            numPlayersLimit = this.minPlayers + "+";
+        else if (minPlayers !== undefined) {
+            numPlayersLimit = minPlayers + "+";
         }
-        else if (this.maxPlayers !== undefined) {
-            numPlayersLimit = this.maxPlayers + " or fewer";
+        else if (maxPlayers !== undefined) {
+            numPlayersLimit = maxPlayers + " or fewer";
         }
         fields.push({
             name: "Lobby Commands",
@@ -123,7 +160,7 @@ class Lobby {
         this.bot.client.sendEmbed(this.parentGame.channelId, {
             color: this.bot.config.themeColor,
             title: this.parentGame.gameName,
-            description: this.description,
+            description: this.settings.description,
             fields: fields
         });
     }
@@ -135,6 +172,16 @@ class Lobby {
     _registerCommand(name, callback) {
         this.parentGame.commandManager.register(name, this.parentGame.pluginName, callback.bind(this));
         this.registeredCommandNames.push(name);
+    }
+}
+class DMAlreadyLockedError extends Error {
+    constructor() {
+        super("DMs are already locked");
+    }
+}
+class AlreadyJoinedError extends Error {
+    constructor() {
+        super("Player has already joined");
     }
 }
 exports.default = Lobby;
