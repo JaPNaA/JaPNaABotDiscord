@@ -325,7 +325,7 @@ class Default extends plugin_js_1.default {
      * Pretends to recieve a message from soneone else
      */
     async pretend_get(event) {
-        let tagMatch = event.arguments.match(/^\s*<@[!@&]]?\d+>\s*/);
+        let tagMatch = event.arguments.match(/^\s*<@[!@&]?\d+>\s*/);
         if (!tagMatch) {
             this.bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
                 event.precommandName.name + "help pretend get` for help");

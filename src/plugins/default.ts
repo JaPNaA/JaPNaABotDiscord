@@ -356,7 +356,7 @@ class Default extends BotPlugin {
      * Pretends to recieve a message from soneone else
      */
     async pretend_get(event: DiscordCommandEvent) {
-        let tagMatch: RegExpMatchArray | null = event.arguments.match(/^\s*<@[!@&]]?\d+>\s*/);
+        let tagMatch: RegExpMatchArray | null = event.arguments.match(/^\s*<@[!@&]?\d+>\s*/);
 
         if (!tagMatch) {
             this.bot.client.send(event.channelId,

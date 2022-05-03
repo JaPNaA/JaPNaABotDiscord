@@ -94,7 +94,7 @@ declare class Japnaa extends BotPlugin {
      * Tell someone something through DMs
      * @param args message to send
      */
-    tell(event: DiscordCommandEvent): void;
+    tell(event: DiscordCommandEvent): Promise<void>;
     _stop(): void;
     _start(): void;
 }

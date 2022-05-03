@@ -341,7 +341,7 @@ class Japnaa extends plugin_js_1.default {
      * Tell someone something through DMs
      * @param args message to send
      */
-    tell(event) {
+    async tell(event) {
         let tagMatch = event.arguments.match(/^\s*<@\d+>\s*/);
         if (!tagMatch) {
             this.bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
@@ -354,12 +354,12 @@ class Japnaa extends plugin_js_1.default {
             return;
         }
         let message = event.arguments.slice(tagMatch[0].length);
-        this.bot.client.sendDM(user, {
-            message: (0, mention_1.default)(event.userId) + " told you",
-            embed: {
-                color: this.bot.config.themeColor,
-                description: message
-            }
+        await this.bot.client.sendDM(user, {
+            content: (0, mention_1.default)(event.userId) + " told you",
+            embeds: [{
+                    color: this.bot.config.themeColor,
+                    description: message
+                }]
         }, () => {
             this.bot.client.send(event.channelId, "Failed to tell " + (0, mention_1.default)(user));
         });

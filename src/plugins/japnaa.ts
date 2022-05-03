@@ -397,7 +397,7 @@ class Japnaa extends BotPlugin {
      * Tell someone something through DMs
      * @param args message to send
      */
-    tell(event: DiscordCommandEvent): void {
+    async tell(event: DiscordCommandEvent) {
         let tagMatch: RegExpMatchArray | null = event.arguments.match(/^\s*<@\d+>\s*/);
 
         if (!tagMatch) {
@@ -415,12 +415,12 @@ class Japnaa extends BotPlugin {
         }
         let message: string = event.arguments.slice(tagMatch[0].length);
 
-        this.bot.client.sendDM(user, {
-            message: mention(event.userId) + " told you",
-            embed: {
+        await this.bot.client.sendDM(user, {
+            content: mention(event.userId) + " told you",
+            embeds: [{
                 color: this.bot.config.themeColor,
                 description: message
-            }
+            }]
         }, () => {
             this.bot.client.send(event.channelId, "Failed to tell " + mention(user as string));
         });
