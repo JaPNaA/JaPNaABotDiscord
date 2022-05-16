@@ -3,7 +3,11 @@
  * Class allowing flexible and complex unix-like command argument parsing
  * intended to replace utils/str/stringToArgs.ts
  */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const toArray_1 = __importDefault(require("../../utils/toArray"));
 class CommandArguments {
     args;
     constructor(args) {
@@ -203,14 +207,13 @@ class CommandArgumentData {
                 }
             }
         }
-        const valLowercase = value.toLowerCase();
+        const valLowercase = value?.toLowerCase() || "";
         // check to make sure flag keys have flag keys as values
-        for (const flagSet of this.flags) {
-            if (Array.isArray(flagSet)) {
-                if (flagSet.includes(dealiasedKey) &&
-                    !flagSet.find(flag => flag.toLowerCase() === valLowercase)) {
-                    return [false, `Cannot assign to flag (${key})`];
-                }
+        for (const flag of this.flags) {
+            const flagSet = (0, toArray_1.default)(flag);
+            if (flagSet.includes(dealiasedKey) &&
+                !flagSet.find(flagItem => flagItem.toLowerCase() === valLowercase)) {
+                return [false, `Cannot assign to flag (${key})`];
             }
         }
         if (key in this.check) {

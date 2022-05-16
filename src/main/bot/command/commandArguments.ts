@@ -3,6 +3,8 @@
  * intended to replace utils/str/stringToArgs.ts
  */
 
+import toArray from "../../utils/toArray";
+
 type Checker = RegExp | ((str: string) => boolean);
 
 export default class CommandArguments {
@@ -236,16 +238,16 @@ class CommandArgumentData {
             }
         }
 
-        const valLowercase = value.toLowerCase();
+        const valLowercase = value?.toLowerCase() || "";
         // check to make sure flag keys have flag keys as values
-        for (const flagSet of this.flags) {
-            if (Array.isArray(flagSet)) {
-                if (
-                    flagSet.includes(dealiasedKey) &&
-                    !flagSet.find(flag => flag.toLowerCase() === valLowercase)
-                ) {
-                    return [false, `Cannot assign to flag (${key})`]
-                }
+        for (const flag of this.flags) {
+            const flagSet: string[] = toArray(flag);
+
+            if (
+                flagSet.includes(dealiasedKey) &&
+                !flagSet.find(flagItem => flagItem.toLowerCase() === valLowercase)
+            ) {
+                return [false, `Cannot assign to flag (${key})`]
             }
         }
 
