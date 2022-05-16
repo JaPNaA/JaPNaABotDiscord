@@ -161,7 +161,7 @@ class King extends Piece {
         this.moveIfEthical(moves, this.x - 1, this.y);
         this.moveIfEthical(moves, this.x - 1, this.y - 1);
         this.moveIfEthical(moves, this.x, this.y - 1);
-        this.moveIfEthical(moves, this.x - 1, this.y - 1);
+        this.moveIfEthical(moves, this.x + 1, this.y - 1);
         return moves;
     }
 }
