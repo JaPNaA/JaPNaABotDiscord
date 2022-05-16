@@ -1,4 +1,4 @@
-import { GuildMember, Message, TextChannel, ThreadChannel, VoiceChannel, VoiceState } from "discord.js";
+import { GuildMember, Message, TextChannel, ThreadAutoArchiveDuration, ThreadChannel, VoiceChannel, VoiceState } from "discord.js";
 import Bot from "../main/bot/bot/bot.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 
@@ -48,7 +48,8 @@ export default class AnnounceVCJoin extends BotPlugin {
         cooldownBy?: number,
         isWaitingForDelay?: boolean,
         thread?: ThreadChannel,
-        threadMessage?: CallThreadMessage
+        threadMessage?: CallThreadMessage,
+        prevArchiveDelay?: ThreadAutoArchiveDuration
     }> = new Map();
 
     private _voiceStateUpdateHandler?: any;
@@ -142,6 +143,15 @@ export default class AnnounceVCJoin extends BotPlugin {
         if (channelState.cooldownBy && Date.now() < channelState.cooldownBy) {
             if (channelState.thread) {
                 channelState.thread.setArchived(false);
+
+                // restore previous autoArchiveDuration if changed
+                if (
+                    channelState.prevArchiveDelay &&
+                    config.get("endCallThreadBehavior") === "1hrArchive"
+                ) {
+                    channelState.thread.setAutoArchiveDuration(channelState.prevArchiveDelay);
+                }
+
                 if (channelState.threadMessage && state.member) {
                     channelState.threadMessage.addParticipant(state.member);
                 }
@@ -182,6 +192,7 @@ export default class AnnounceVCJoin extends BotPlugin {
         const channelState = this.channelStates.get(channelId) || {};
         if (channelState.thread) {
             const endCallThreadBehavior = config.get("endCallThreadBehavior");
+            channelState.prevArchiveDelay = (channelState.thread.autoArchiveDuration || 60 * 24) as ThreadAutoArchiveDuration;
 
             if (endCallThreadBehavior === "archive") {
                 channelState.thread.setArchived();

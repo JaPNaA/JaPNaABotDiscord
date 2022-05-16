@@ -147,6 +147,11 @@ class AnnounceVCJoin extends plugin_js_1.default {
         if (channelState.cooldownBy && Date.now() < channelState.cooldownBy) {
             if (channelState.thread) {
                 channelState.thread.setArchived(false);
+                // restore previous autoArchiveDuration if changed
+                if (channelState.prevArchiveDelay &&
+                    config.get("endCallThreadBehavior") === "1hrArchive") {
+                    channelState.thread.setAutoArchiveDuration(channelState.prevArchiveDelay);
+                }
                 if (channelState.threadMessage && state.member) {
                     channelState.threadMessage.addParticipant(state.member);
                 }
@@ -186,6 +191,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
         const channelState = this.channelStates.get(channelId) || {};
         if (channelState.thread) {
             const endCallThreadBehavior = config.get("endCallThreadBehavior");
+            channelState.prevArchiveDelay = (channelState.thread.autoArchiveDuration || 60 * 24);
             if (endCallThreadBehavior === "archive") {
                 channelState.thread.setArchived();
             }
