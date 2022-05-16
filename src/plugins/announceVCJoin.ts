@@ -3,7 +3,7 @@ import Bot from "../main/bot/bot/bot.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
-import { getSnowflakeNum, stringToArgs } from "../main/utils/allUtils.js";
+import { getSnowflakeNum, stringToArgs, toOne } from "../main/utils/allUtils.js";
 import Logger from "../main/utils/logger.js";
 import mention from "../main/utils/str/mention.js";
 
@@ -41,15 +41,22 @@ export default class AnnounceVCJoin extends BotPlugin {
             type: "string",
             comment: 'What should happen to a thread (if made) after call ends? ("archive", "1hrArchive", "none")',
             default: "1hrArchive"
+        },
+        deleteLonelyCalls: {
+            type: "boolean",
+            comment: "If only one person was in the call, should delete message after call ends?",
+            default: false
         }
     };
 
     private channelStates: Map<string, {
         cooldownBy?: number,
         isWaitingForDelay?: boolean,
+        announcementMessage?: Message,
         thread?: ThreadChannel,
         threadMessage?: CallThreadMessage,
-        prevArchiveDelay?: ThreadAutoArchiveDuration
+        prevArchiveDelay?: ThreadAutoArchiveDuration,
+        wasNotLonelyCall?: boolean
     }> = new Map();
 
     private _voiceStateUpdateHandler?: any;
@@ -126,6 +133,8 @@ export default class AnnounceVCJoin extends BotPlugin {
             channelState.threadMessage.addParticipant(state.member);
         }
 
+        if (channel.members.size > 1) { channelState.wasNotLonelyCall = true; }
+
         if (channel.members.size !== 1) { return; }  // first person to join
 
         if (channelState.isWaitingForDelay) { return; } // cancel if channel is already waiting for delay
@@ -168,11 +177,11 @@ export default class AnnounceVCJoin extends BotPlugin {
             await channelState.threadMessage.send();
         } else {
             channelState.thread = undefined;
-            await this.bot.client.send(
+            channelState.announcementMessage = toOne(await this.bot.client.send(
                 announceInChannelId, {
                 allowedMentions: { users: [] },
                 content: `${state.member && mention(state.member?.id)} joined <#${channelId}>`
-            });
+            }));
         }
 
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
@@ -190,6 +199,27 @@ export default class AnnounceVCJoin extends BotPlugin {
         if (channel.members.size > 0) { return; } // not everyone left
 
         const channelState = this.channelStates.get(channelId) || {};
+
+        // delete lonely calls
+        if (!channelState.wasNotLonelyCall && config.get("deleteLonelyCalls")) {
+            if (channelState.thread &&
+                channelState.thread.messages.cache.size <= 1 // don't delete thread if messages sent in thread
+            ) {
+                // delete thread create announcement
+                const announceInChannelId = config.get("announceIn");
+                this._deleteMessageInChannel(announceInChannelId, channelState.thread.id);
+
+                await channelState.thread.delete("Lonely call");
+                channelState.thread = undefined;
+            }
+
+            if (channelState.announcementMessage) {
+                await channelState.announcementMessage.delete();
+                channelState.announcementMessage = undefined;
+            }
+        }
+
+        // archive thread
         if (channelState.thread) {
             const endCallThreadBehavior = config.get("endCallThreadBehavior");
             channelState.prevArchiveDelay = (channelState.thread.autoArchiveDuration || 60 * 24) as ThreadAutoArchiveDuration;
@@ -202,6 +232,16 @@ export default class AnnounceVCJoin extends BotPlugin {
         }
 
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
+    }
+
+    private async _deleteMessageInChannel(channelId: string, messageId: string) {
+        if (!channelId) { return; }
+        const channel = await this.bot.client.getChannel(channelId);
+        if (!channel?.isText()) { return; }
+        const message = await channel.messages.fetch(messageId);
+        if (!message || !message.deletable) { return; }
+
+        await message.delete();
     }
 
     private _wait(ms: number): Promise<void> {

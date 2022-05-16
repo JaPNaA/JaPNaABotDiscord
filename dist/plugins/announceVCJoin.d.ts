@@ -36,6 +36,11 @@ export default class AnnounceVCJoin extends BotPlugin {
             comment: string;
             default: string;
         };
+        deleteLonelyCalls: {
+            type: string;
+            comment: string;
+            default: boolean;
+        };
     };
     private channelStates;
     private _voiceStateUpdateHandler?;
@@ -48,6 +53,7 @@ export default class AnnounceVCJoin extends BotPlugin {
      */
     private _onVCJoin;
     private _onVCLeave;
+    private _deleteMessageInChannel;
     private _wait;
     private _getNowFormatted;
     _start(): void;

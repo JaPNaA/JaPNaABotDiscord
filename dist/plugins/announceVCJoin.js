@@ -42,6 +42,11 @@ class AnnounceVCJoin extends plugin_js_1.default {
             type: "string",
             comment: 'What should happen to a thread (if made) after call ends? ("archive", "1hrArchive", "none")',
             default: "1hrArchive"
+        },
+        deleteLonelyCalls: {
+            type: "boolean",
+            comment: "If only one person was in the call, should delete message after call ends?",
+            default: false
         }
     };
     channelStates = new Map();
@@ -126,6 +131,9 @@ class AnnounceVCJoin extends plugin_js_1.default {
         if (channelState.thread && !channelState.thread.archived && channelState.threadMessage && state.member) {
             channelState.threadMessage.addParticipant(state.member);
         }
+        if (channel.members.size > 1) {
+            channelState.wasNotLonelyCall = true;
+        }
         if (channel.members.size !== 1) {
             return;
         } // first person to join
@@ -168,10 +176,10 @@ class AnnounceVCJoin extends plugin_js_1.default {
         }
         else {
             channelState.thread = undefined;
-            await this.bot.client.send(announceInChannelId, {
+            channelState.announcementMessage = (0, allUtils_js_1.toOne)(await this.bot.client.send(announceInChannelId, {
                 allowedMentions: { users: [] },
                 content: `${state.member && (0, mention_js_1.default)(state.member?.id)} joined <#${channelId}>`
-            });
+            }));
         }
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
     }
@@ -189,6 +197,23 @@ class AnnounceVCJoin extends plugin_js_1.default {
             return;
         } // not everyone left
         const channelState = this.channelStates.get(channelId) || {};
+        // delete lonely calls
+        if (!channelState.wasNotLonelyCall && config.get("deleteLonelyCalls")) {
+            if (channelState.thread &&
+                channelState.thread.messages.cache.size <= 1 // don't delete thread if messages sent in thread
+            ) {
+                // delete thread create announcement
+                const announceInChannelId = config.get("announceIn");
+                this._deleteMessageInChannel(announceInChannelId, channelState.thread.id);
+                await channelState.thread.delete("Lonely call");
+                channelState.thread = undefined;
+            }
+            if (channelState.announcementMessage) {
+                await channelState.announcementMessage.delete();
+                channelState.announcementMessage = undefined;
+            }
+        }
+        // archive thread
         if (channelState.thread) {
             const endCallThreadBehavior = config.get("endCallThreadBehavior");
             channelState.prevArchiveDelay = (channelState.thread.autoArchiveDuration || 60 * 24);
@@ -200,6 +225,20 @@ class AnnounceVCJoin extends plugin_js_1.default {
             }
         }
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
+    }
+    async _deleteMessageInChannel(channelId, messageId) {
+        if (!channelId) {
+            return;
+        }
+        const channel = await this.bot.client.getChannel(channelId);
+        if (!channel?.isText()) {
+            return;
+        }
+        const message = await channel.messages.fetch(messageId);
+        if (!message || !message.deletable) {
+            return;
+        }
+        await message.delete();
     }
     _wait(ms) {
         return new Promise(res => setTimeout(() => res(), ms));
