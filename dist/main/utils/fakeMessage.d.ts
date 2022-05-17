@@ -1,8 +1,8 @@
-import { TextChannel, User, Guild } from "discord.js";
+import { User, Guild, TextBasedChannel } from "discord.js";
 import IMessage from "../adapters/IMessage";
 declare function fakeMessage(data: {
     author: User;
-    channel: TextChannel;
+    channel: TextBasedChannel;
     guild: Guild;
     id: string;
     content: string;

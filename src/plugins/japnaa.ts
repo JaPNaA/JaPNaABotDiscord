@@ -17,6 +17,8 @@ import ellipsisize from "../main/utils/str/ellipsisize";
 import vm from "node:vm";
 import { inspect } from "node:util";
 import CommandArguments from "../main/bot/command/commandArguments";
+import { TextChannel } from "discord.js";
+import fakeMessage from "../main/utils/fakeMessage";
 
 type SpamCallback = () => Promise<boolean>;
 
@@ -426,6 +428,26 @@ class Japnaa extends BotPlugin {
         });
     }
 
+    /**
+     * Create a thread and pretend to recieve the message in the thread
+     */
+    async thread(event: DiscordCommandEvent) {
+        const message = event.arguments;
+        const channel = (await this.bot.client.getChannel(event.channelId)) as TextChannel;
+        const thread = await channel.threads.create({
+            name: ellipsisize(message, 100),
+            startMessage: event.messageId
+        });
+
+        this.bot.rawEventAdapter.onMessage(fakeMessage({
+            author: (await this.bot.client.getUser(event.userId))!,
+            channel: thread,
+            content: message,
+            guild: (await this.bot.client.getServer(event.serverId))!,
+            id: event.messageId
+        }));
+    }
+
     _stop(): void {
         this._stopAllSpam();
     }
@@ -557,6 +579,17 @@ class Japnaa extends BotPlugin {
                     ["sev log(2)", "Evaluates log (base 10) 2"],
                     ["sev 2 ** 2", "Evaluates 2^2"],
                     ["sev let total = 0; for (let i = 0; i < 100; i++) { total += i; } total", "Sum all integers from 0 to 99"]
+                ]
+            }
+        });
+
+        const precommand = this.bot.precommandManager.precommands[0].names[0] || "!";
+
+        this._registerDefaultCommand("thread", this.thread, {
+            help: {
+                description: "Creates a thread with your message as title. If your message is a command, the bot act as if you sent that message in the thread.",
+                examples: [
+                    [`thread ${precommand}echo a`, `Creates a thread with title "${precommand}echo a" then, the bot will send "a" in the thread`]
                 ]
             }
         });

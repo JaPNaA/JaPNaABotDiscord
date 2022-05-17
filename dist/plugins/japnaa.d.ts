@@ -95,6 +95,10 @@ declare class Japnaa extends BotPlugin {
      * @param args message to send
      */
     tell(event: DiscordCommandEvent): Promise<void>;
+    /**
+     * Create a thread and pretend to recieve the message in the thread
+     */
+    thread(event: DiscordCommandEvent): Promise<void>;
     _stop(): void;
     _start(): void;
 }
