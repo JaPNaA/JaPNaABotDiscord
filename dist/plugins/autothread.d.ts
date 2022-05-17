@@ -27,12 +27,19 @@ export default class AutoThread extends BotPlugin {
             comment: string;
             default: string;
         };
+        deleteEmptyThreads: {
+            type: string;
+            comment: string;
+            default: boolean;
+        };
     };
     private cooldowns;
     private cooldownCancelFuncs;
+    private _threadUpdateHandler?;
     constructor(bot: Bot);
     toggleAutothread(event: DiscordCommandEvent): Promise<void>;
     messageHandler(event: DiscordMessageEvent): Promise<void>;
+    private _onThreadUpdate;
     private addCooldownDoneTimeout;
     private extractTitleFromMessage;
     private _isNaturalMessage;

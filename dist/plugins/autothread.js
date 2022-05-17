@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
+const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 /**
  * Autothread plugin; automatically makes threads
  */
@@ -29,10 +30,16 @@ class AutoThread extends plugin_js_1.default {
             type: "string",
             comment: "Will not make a thread if this keyword is found. Empty string to disable",
             default: "[no thread]"
+        },
+        deleteEmptyThreads: {
+            type: "boolean",
+            comment: "[IN DEVELOPMENT] Deletes threads if they're empty and automatically archived.",
+            default: false
         }
     };
     cooldowns = new Map();
     cooldownCancelFuncs = [];
+    _threadUpdateHandler;
     constructor(bot) {
         super(bot);
         this.pluginName = "autothread";
@@ -85,6 +92,31 @@ class AutoThread extends plugin_js_1.default {
             this.addCooldownDoneTimeout(() => channel.permissionOverwrites.delete(channel.guild.roles.everyone), cooldownTime);
         }
     }
+    async _onThreadUpdate(oldState, newState) {
+        const config = await this.config.getAllUserSettingsInChannel(newState.id);
+        if (!config.get("deleteEmptyThreads")) {
+            return;
+        } // ignore; don't delete threads
+        if (oldState.ownerId !== this.bot.client.id) {
+            return;
+        } //* ignore; thread not made by bot (UNTESTED)
+        if (oldState.archived || !newState.archived) {
+            return;
+        } // ignore; not change to archive
+        if (oldState.archiveTimestamp === null || oldState.autoArchiveDuration === null) {
+            return;
+        } // lack of information
+        const autoArchiveTimestamp = oldState.archiveTimestamp + oldState.autoArchiveDuration * 60e3;
+        if (Date.now() < autoArchiveTimestamp) {
+            return;
+        } // ignore; manual archive
+        if (newState.messages.cache.size > 0 ||
+            newState.messageCount === null ||
+            newState.messageCount > 0) {
+            return;
+        } // ignore; contains or has chance to contain messages
+        await newState.delete();
+    }
     addCooldownDoneTimeout(func, cooldownTime) {
         const timeout = setTimeout(() => {
             func();
@@ -131,6 +163,10 @@ class AutoThread extends plugin_js_1.default {
         this.cooldowns.set(channelId, Date.now() + time);
     }
     _start() {
+        this.bot.client.client.on("threadUpdate", this._threadUpdateHandler = (oldState, newState) => {
+            this._onThreadUpdate(oldState, newState)
+                .catch(err => logger_js_1.default.error(err));
+        });
         this._registerDefaultCommand("autothread", this.toggleAutothread, {
             group: "Communication",
             help: {
@@ -144,6 +180,9 @@ class AutoThread extends plugin_js_1.default {
         this._registerEventHandler("message", this.messageHandler);
     }
     _stop() {
+        if (this._threadUpdateHandler) {
+            this.bot.client.client.off("threadUpdate", this._threadUpdateHandler);
+        }
         while (this.cooldownCancelFuncs.length > 0) {
             this.cooldownCancelFuncs[this.cooldownCancelFuncs.length - 1]();
         }
