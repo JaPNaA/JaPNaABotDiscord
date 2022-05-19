@@ -20,7 +20,7 @@ class Reminders extends BotPlugin {
     public userConfigSchema = {
         "minRepeatInterval": {
             type: "number",
-            comment: "The minimum interval between repeating reminders",
+            comment: "The minimum interval (seconds) between repeating reminders",
             default: 60 * 30
         }
     };

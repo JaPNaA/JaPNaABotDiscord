@@ -18,7 +18,7 @@ class Reminders extends plugin_js_1.default {
     userConfigSchema = {
         "minRepeatInterval": {
             type: "number",
-            comment: "The minimum interval between repeating reminders",
+            comment: "The minimum interval (seconds) between repeating reminders",
             default: 60 * 30
         }
     };
