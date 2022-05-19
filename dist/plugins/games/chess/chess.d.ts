@@ -13,6 +13,7 @@ declare class Chess extends Game {
     private commandParser;
     constructor(botHooks: Bot, parentPlugin: Games, channelId: string, initer: string);
     execCommand(event: DiscordCommandEvent): void;
+    _sendBoard(): void;
     _start(): Promise<void>;
     _stop(): void;
 }

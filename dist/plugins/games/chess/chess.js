@@ -30,7 +30,11 @@ class Chess extends game_1.default {
         for (const move of moves) {
             this.commandParser.tryExec(move);
             console.log(this.board.toString());
+            console.log(this.board.history.toString());
         }
+        this._sendBoard();
+    }
+    _sendBoard() {
         this.bot.client.send(this.channelId, "```" + this.board.toString() + "```");
     }
     async _start() {
@@ -38,6 +42,14 @@ class Chess extends game_1.default {
         // console.log(await this.lobby.getPlayers());
         // this.lobby.addPlayer(this.initer);
         this._registerCommand(this.commandManager, "exec", this.execCommand);
+        this._registerCommand(this.commandManager, "board", () => this._sendBoard());
+        this._registerCommand(this.commandManager, "undo", () => {
+            this.board.undo();
+            this._sendBoard();
+        });
+        this._registerCommand(this.commandManager, "history", () => {
+            this.bot.client.send(this.channelId, this.board.history.toString());
+        });
     }
     _stop() { }
 }
