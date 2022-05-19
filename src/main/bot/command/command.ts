@@ -142,10 +142,11 @@ class BotCommand {
 
         const messageShort = "An error occured\n```" + error.message;
         const messageLong =
-            "```An error occured\n" + errorStr +
+            "```An error occured" +
             "\nCommand: " + this.commandName +
             "\nArguments: " + argString +
-            "\nEvent: " + inspect(commandEvent, { depth: 3 });
+            "\nEvent: " + inspect(commandEvent, { depth: 3 }) +
+            "\n" + errorStr;
 
         Logger.warn(messageLong);
 

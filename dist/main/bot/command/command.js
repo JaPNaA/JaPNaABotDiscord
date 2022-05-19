@@ -102,10 +102,11 @@ class BotCommand {
     sendError(commandEvent, argString, error) {
         const errorStr = (0, createErrorString_1.default)(error);
         const messageShort = "An error occured\n```" + error.message;
-        const messageLong = "```An error occured\n" + errorStr +
+        const messageLong = "```An error occured" +
             "\nCommand: " + this.commandName +
             "\nArguments: " + argString +
-            "\nEvent: " + (0, util_1.inspect)(commandEvent, { depth: 3 });
+            "\nEvent: " + (0, util_1.inspect)(commandEvent, { depth: 3 }) +
+            "\n" + errorStr;
         logger_js_1.default.warn(messageLong);
         this.bot.client.send(commandEvent.channelId, messageShort.slice(0, 1997) + "```");
     }
