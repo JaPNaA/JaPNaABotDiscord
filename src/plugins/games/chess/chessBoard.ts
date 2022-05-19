@@ -1,7 +1,9 @@
-import { charToPiece, Piece, PieceType } from "./chessPieces";
+import { ChessHistory, MoveData } from "./chessHistory";
+import { charToPiece, King, Piece, PieceType } from "./chessPieces";
 
 export default class ChessBoard {
     public blackTurn: boolean = false;
+    public history: ChessHistory = new ChessHistory();
 
     private board: (Piece | null)[][];
     private captures: Piece[] = [];

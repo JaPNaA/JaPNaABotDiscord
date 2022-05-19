@@ -1,4 +1,5 @@
 import ChessBoard from "./chessBoard";
+import { MoveData } from "./chessHistory";
 import { charToPiece, Piece, PieceType } from "./chessPieces";
 
 export default class CommandParser {
@@ -9,7 +10,7 @@ export default class CommandParser {
 
     constructor(private board: ChessBoard) { }
 
-    parsePGN(str: string): MoveData | undefined {
+    parsePGN(str: string): PartialMoveData | undefined {
         const match = CommandParser.pgnRegex.exec(str);
         if (!match) { return; }
         const [
@@ -62,7 +63,6 @@ export default class CommandParser {
         const [movePeice, moveTo] = moves[0];
 
         this.board.move(movePeice.x, movePeice.y, moveTo[0], moveTo[1]);
-        this.board.blackTurn = !this.board.blackTurn;
     }
 
     private _xStrToInt(xStr: string) {
@@ -74,14 +74,8 @@ export default class CommandParser {
     }
 }
 
-interface MoveData {
+interface PartialMoveData extends Partial<MoveData> {
     piece: PieceType;
     targetX: number;
     targetY: number;
-    fromX?: number;
-    fromY?: number;
-    capture?: boolean;
-    check?: boolean;
-    checkmate?: boolean;
-    promotion?: PieceType;
 }

@@ -1,6 +1,8 @@
+import { ChessHistory } from "./chessHistory";
 import { Piece, PieceType } from "./chessPieces";
 export default class ChessBoard {
     blackTurn: boolean;
+    history: ChessHistory;
     private board;
     private captures;
     constructor();
@@ -10,6 +12,11 @@ export default class ChessBoard {
     hasPieceOn(x: number, y: number): boolean;
     hasColorPieceOn(x: number, y: number, isBlack: boolean): boolean;
     move(fromX: number, fromY: number, toX: number, toY: number): void;
+    private _moveNoCheck;
+    undo(): void;
+    isCheck(forBlack: boolean): boolean;
+    isCheckmate(forBlack: boolean): boolean;
     getPieces(pieceType: PieceType, isBlack: boolean): Piece[];
+    getColorPieces(isBlack: boolean): Piece[];
     toString(): string;
 }
