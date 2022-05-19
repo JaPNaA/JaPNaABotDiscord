@@ -55,7 +55,6 @@ class CommandParser {
         }
         const [movePeice, moveTo] = moves[0];
         this.board.move(movePeice.x, movePeice.y, moveTo[0], moveTo[1]);
-        this.board.blackTurn = !this.board.blackTurn;
     }
     _xStrToInt(xStr) {
         return CommandParser.xStrToInt[xStr.toLowerCase()];
