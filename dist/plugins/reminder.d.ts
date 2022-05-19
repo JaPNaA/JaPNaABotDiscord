@@ -6,6 +6,7 @@ import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
  * Reminders plugin
  */
 declare class Reminders extends BotPlugin {
+    static hardMinimumReminderRepeatInterval: number;
     userConfigSchema: {
         minRepeatInterval: {
             type: string;

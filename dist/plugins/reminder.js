@@ -14,6 +14,7 @@ const ABSOLUTE_TIME_STR_REGEX = /^(\d+):(\d+)(:(\d+)(\.(\d+))?)?\s*((a|p)m?)?$/i
  * Reminders plugin
  */
 class Reminders extends plugin_js_1.default {
+    static hardMinimumReminderRepeatInterval = 2000; // hard minimum, repeating every: 2 seconds
     userConfigSchema = {
         "minRepeatInterval": {
             type: "number",
@@ -84,7 +85,7 @@ class Reminders extends plugin_js_1.default {
             const intervalStr = args.get("--repeat-interval") || args.get("--time");
             const interval = this._parseTimeStr(intervalStr, 0);
             const minInterval = (await this.config.getInChannel(event.channelId, "minRepeatInterval")) * 1000;
-            if (interval < Math.max(2000, minInterval)) { // hardcode min 2 seconds
+            if (interval < Math.max(Reminders.hardMinimumReminderRepeatInterval, minInterval)) {
                 throw new Error("Repeat interval is too small.");
             }
             reminder.repeat = true;
@@ -118,7 +119,7 @@ class Reminders extends plugin_js_1.default {
         if (args.get("--repeat-interval")) {
             const interval = this._parseTimeStr(args.get("--repeat-interval"), 0);
             const minInterval = (await this.config.getInChannel(event.channelId, "minRepeatInterval")) * 1000;
-            if (interval < Math.max(2000, minInterval)) { // hardcode min 2 seconds
+            if (interval < Math.max(Reminders.hardMinimumReminderRepeatInterval, minInterval)) {
                 throw new Error("Repeat interval is too small.");
             }
             reminder.repeat = true;
