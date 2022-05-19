@@ -7,6 +7,7 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 const commandArguments_js_1 = __importDefault(require("../main/bot/command/commandArguments.js"));
+const removeFromArray_js_1 = __importDefault(require("../main/utils/removeFromArray.js"));
 const RELATIVE_TIME_STR_REGEX = /^(\d+)([a-z]+)$/;
 const ABSOLUTE_TIME_STR_REGEX = /^(\d+):(\d+)(:(\d+)(\.(\d+))?)?\s*((a|p)m?)?$/i;
 /**
@@ -92,6 +93,48 @@ class Reminders extends plugin_js_1.default {
         this._addReminder(reminder);
         this.bot.client.send(event.channelId, `Reminder set on ${this._reminderToString(reminder)}`);
     }
+    async edit_reminder(event) {
+        const args = new commandArguments_js_1.default(event.arguments).parse({
+            overloads: [["index"]],
+            flags: [
+                ["--repeat", "--rep", "-r"],
+                ["--no-repeat", "-nr"]
+            ],
+            namedOptions: [
+                ["--repeat-interval", "--interval", "-i"],
+                ["--time", "-t"],
+                ["--title", "--rename"]
+            ],
+            required: ['index'],
+            exclutions: [['--no-repeat', '--repeat']]
+        });
+        const reminder = this._getReminderByIndexOrTitle(args.get("index"), event.channelId);
+        if (args.get("--title")) {
+            reminder.title = args.get("--title");
+        }
+        if (args.get("--time")) {
+            reminder.targetTime = this._parseTimeStr(args.get("--time"), Date.now());
+        }
+        if (args.get("--repeat-interval")) {
+            const interval = this._parseTimeStr(args.get("--repeat-interval"), 0);
+            const minInterval = (await this.config.getInChannel(event.channelId, "minRepeatInterval")) * 1000;
+            if (interval < Math.max(2000, minInterval)) { // hardcode min 2 seconds
+                throw new Error("Repeat interval is too small.");
+            }
+            reminder.repeat = true;
+            reminder.interval = [interval];
+        }
+        if (args.get("--repeat")) {
+            reminder.repeat = true;
+        }
+        if (args.get("--no-repeat")) {
+            reminder.repeat = false;
+        }
+        this.bot.client.send(event.channelId, `Edited the event created by ${(0, mention_js_1.default)(reminder.setterUserId)}:\n` +
+            this._reminderToString(reminder));
+        this._sortReminders();
+        this._updateReminders();
+    }
     list_reminders(event) {
         const reminders = this._getChannelReminders(event.channelId);
         const strArr = [];
@@ -99,24 +142,16 @@ class Reminders extends plugin_js_1.default {
         for (const reminder of reminders) {
             strArr.push(`${index++}. ${this._reminderToString(reminder)}`);
         }
-        this.bot.client.send(event.channelId, strArr.join("\n"));
+        if (strArr.length) {
+            this.bot.client.send(event.channelId, strArr.join("\n"));
+        }
+        else {
+            this.bot.client.send(event.channelId, "No reminders are set in this channel.");
+        }
     }
     cancel_reminder(event) {
-        const index = parseInt(event.arguments) - 1;
-        if (isNaN(index)) {
-            this.bot.client.send(event.channelId, "Invalid index. Specify an integer");
-            return;
-        }
-        const reminder = this._getChannelReminders(event.channelId)[index];
-        if (!reminder) {
-            this.bot.client.send(event.channelId, "No reminder is at index " + event.arguments);
-            return;
-        }
-        const actualIndex = this._reminders.indexOf(reminder);
-        if (actualIndex < 0) {
-            throw new Error("Reminder not found in database");
-        }
-        this._reminders.splice(actualIndex, 1);
+        const reminder = this._getReminderByIndexOrTitle(event.arguments, event.channelId);
+        (0, removeFromArray_js_1.default)(this._reminders, reminder);
         this.bot.client.send(event.channelId, "Reminder **" + reminder.title + "** from " +
             (0, mention_js_1.default)(reminder.setterUserId) + "was canceled.");
     }
@@ -154,8 +189,37 @@ class Reminders extends plugin_js_1.default {
             throw new Error("Too many reminders scheduled");
         }
         this._reminders.push(reminder);
-        this._reminders.sort((a, b) => a.targetTime - b.targetTime);
+        this._sortReminders();
         this._updateReminders();
+    }
+    _sortReminders() {
+        this._reminders.sort((a, b) => a.targetTime - b.targetTime);
+    }
+    _getReminderByIndexOrTitle(indexOrTitle, channelId) {
+        const index = parseInt(indexOrTitle) - 1;
+        const reminders = this._getChannelReminders(channelId);
+        if (isNaN(index) || index < 0) {
+            // identify by title
+            const matchingReminders = reminders.filter(reminder => reminder.title.toLowerCase().includes(indexOrTitle.toLowerCase()));
+            const exactMatch = matchingReminders.find(reminder => reminder.title.toLowerCase() === indexOrTitle.toLowerCase());
+            if (exactMatch) {
+                return exactMatch;
+            }
+            if (matchingReminders.length > 1) {
+                throw new Error(`Ambigious reminder. ("${matchingReminders[0].title}" or "${matchingReminders[1].title}"?)`);
+            }
+            if (matchingReminders.length <= 0) {
+                throw new Error("No matching reminders.");
+            }
+            return matchingReminders[0];
+        }
+        else {
+            // identify by index
+            if (!reminders[index]) {
+                throw new Error("No reminder is at index " + index);
+            }
+            return reminders[index];
+        }
     }
     _getChannelReminders(channelId) {
         const reminders = [];
@@ -245,6 +309,26 @@ class Reminders extends plugin_js_1.default {
             },
             noDM: true
         });
+        this._registerDefaultCommand("edit reminder", this.edit_reminder, {
+            group: "Reminders",
+            help: {
+                description: "Edit a reminder.",
+                examples: [
+                    ["edit reminder 1 --title \"new title\"", "Changes the title of the first reminder to _new title_"],
+                    ["edit reminder 2 -t 20:00 -r -i 24h", "Changes the the second reminder to trigger on 20:00, repeating every 24 hours"],
+                    ["edit reminder \"oven\" -nr", "Stops the reminder with 'oven' in the title from repeating (it will go off one more time)."]
+                ],
+                overloads: [{
+                        "<index or title>": "The index or title of the reminder",
+                        "--title": "The title of the reminder",
+                        "--time/-t": "The next time the reminder will go off.",
+                        "--repeat/-r": "Flag. Sets the reminder to repeat",
+                        "--no-repeat/-nr": "Flag. Sets the reminder to stop repeating",
+                        "--interval-interval/-i": "The interval between reminders."
+                    }]
+            },
+            noDM: true
+        });
         this._registerDefaultCommand("list reminders", this.list_reminders, {
             group: "Reminders",
             help: {
@@ -256,10 +340,11 @@ class Reminders extends plugin_js_1.default {
             help: {
                 description: "Cancel a reminder given index in channel",
                 examples: [
-                    ["cancel reminder 1", "Cancels the first reminder"]
+                    ["cancel reminder 1", "Cancels the first reminder"],
+                    ["cancel reminder oven", "Cancels a reminder with 'oven' in the title"]
                 ],
                 overloads: [{
-                        "<index>": "Number. The index of the event from the `list reminders` command."
+                        "<index or title>": "Number. The index of the event from the `list reminders` command."
                     }]
             }
         });
