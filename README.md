@@ -38,7 +38,8 @@ You can view all commands by messaging the bot `!help`.
 
 You can add your own simple command like this:
 ```javascript
-jbot.getBot().registerCommand("hello world", function(bot, event, args) {
+const bot = jbot.getBot();
+bot.defaultPrecommand.commandManager.register("hello world", "testing", function(event) {
     bot.send(event.channelId, "World: Hello!");
 });
 ```
