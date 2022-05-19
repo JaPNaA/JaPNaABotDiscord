@@ -45,7 +45,18 @@ class Reminders extends plugin_js_1.default {
         "hours": 3600e3,
         "d": 8.64e7,
         "day": 8.64e7,
-        "days": 8.64e7
+        "days": 8.64e7,
+        "w": 6.048e8,
+        "we": 6.048e8,
+        "wk": 6.048e8,
+        "wks": 6.048e8,
+        "week": 6.048e8,
+        "weeks": 6.048e8,
+        "y": 3.15576e10,
+        "ye": 3.15576e10,
+        "yr": 3.15576e10,
+        "yrs": 3.15576e10,
+        "years": 3.15576e10,
     };
     _reminders;
     _remindersTimeoutId = null;
