@@ -36,6 +36,15 @@ class JapnaaWeird extends plugin_js_1.default {
     your(event) {
         this.bot.client.send(event.channelId, "parabola");
     }
+    what_should_i_wear(event) {
+        this.bot.client.send(event.channelId, "It's -273.15°C in space, so you should wear:\n" +
+            "  - nothing on your head\n" +
+            "  - nothing on your torso\n" +
+            "  - nothing on your legs\n" +
+            "  - nothing on your feet\n" +
+            "  - nothing on your hands\n" +
+            "You cannot save this outfit by telling to me `save outfit`!");
+    }
     /**
      * Listens for messages with 'lol' and deviations
      */
@@ -66,6 +75,11 @@ class JapnaaWeird extends plugin_js_1.default {
         this._registerDefaultCommand("jap", this.jap);
         this._registerDefaultCommand("tetris", this.tetris);
         this._registerDefaultCommand("your", this.your);
+        this._registerDefaultCommand("what should i wear", this.what_should_i_wear, {
+            help: {
+                description: "Replies with a message in memory of 'outfit based on weather bot.' If JaPNaA feels like it some day, they may reimplement the behavior in JaPNaABot."
+            }
+        });
         this._registerEventHandler("message", this.onmessageHandler_lol);
     }
     _stop() {

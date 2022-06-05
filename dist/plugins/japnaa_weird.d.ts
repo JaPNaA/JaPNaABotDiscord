@@ -21,6 +21,7 @@ declare class JapnaaWeird extends BotPlugin {
      * ebola your parabola
      */
     your(event: DiscordCommandEvent): void;
+    what_should_i_wear(event: DiscordCommandEvent): void;
     /**
      * Listens for messages with 'lol' and deviations
      */
