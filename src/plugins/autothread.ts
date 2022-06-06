@@ -34,7 +34,7 @@ export default class AutoThread extends BotPlugin {
         },
         deleteEmptyThreads: {
             type: "boolean",
-            comment: "[IN DEVELOPMENT] Deletes threads if they're empty and automatically archived.",
+            comment: "Deletes automatic threads if they're automatically archived with no messages.",
             default: false
         }
     };
@@ -107,9 +107,20 @@ export default class AutoThread extends BotPlugin {
 
         const autoArchiveTimestamp = oldState.archiveTimestamp + (oldState.autoArchiveDuration as number) * 60e3;
         if (Date.now() < autoArchiveTimestamp) { return; } // ignore; manual archive
-        if (newState.messages.cache.size > 0 ||
+
+        let messageCacheSize = newState.messages.cache.size;
+        if (messageCacheSize === 1) {
+            const firstMessage = newState.messages.cache.at(0);
+            if (firstMessage && firstMessage.type === "THREAD_STARTER_MESSAGE") {
+                messageCacheSize -= 1; // first message is not message
+            }
+        }
+
+        if (messageCacheSize > 0 ||
             newState.messageCount === null ||
-            newState.messageCount > 0) { return; } // ignore; contains or has chance to contain messages
+            newState.messageCount > 0) {
+            return;
+        } // ignore; contains or has chance to contain messages
 
         await newState.delete();
     }

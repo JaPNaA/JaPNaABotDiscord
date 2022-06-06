@@ -33,7 +33,7 @@ class AutoThread extends plugin_js_1.default {
         },
         deleteEmptyThreads: {
             type: "boolean",
-            comment: "[IN DEVELOPMENT] Deletes threads if they're empty and automatically archived.",
+            comment: "Deletes automatic threads if they're automatically archived with no messages.",
             default: false
         }
     };
@@ -110,7 +110,14 @@ class AutoThread extends plugin_js_1.default {
         if (Date.now() < autoArchiveTimestamp) {
             return;
         } // ignore; manual archive
-        if (newState.messages.cache.size > 0 ||
+        let messageCacheSize = newState.messages.cache.size;
+        if (messageCacheSize === 1) {
+            const firstMessage = newState.messages.cache.at(0);
+            if (firstMessage && firstMessage.type === "THREAD_STARTER_MESSAGE") {
+                messageCacheSize -= 1; // first message is not message
+            }
+        }
+        if (messageCacheSize > 0 ||
             newState.messageCount === null ||
             newState.messageCount > 0) {
             return;
