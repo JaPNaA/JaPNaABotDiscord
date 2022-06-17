@@ -42,6 +42,7 @@ export default class AutoThread extends BotPlugin {
     private _onThreadUpdate;
     private addCooldownDoneTimeout;
     private extractTitleFromMessage;
+    private unMentionify;
     private _isNaturalMessage;
     private isCool;
     private setCooldown;

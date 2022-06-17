@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
+const getSnowflakeNum_js_1 = __importDefault(require("../main/utils/getSnowflakeNum.js"));
 /**
  * Autothread plugin; automatically makes threads
  */
@@ -82,7 +83,7 @@ class AutoThread extends plugin_js_1.default {
         const cooldownTime = config.get("cooldownTime") * 1000;
         const disableChatCooldown = config.get("disableChatCooldown");
         await channel.threads.create({
-            name: (0, ellipsisize_js_1.default)(this.extractTitleFromMessage(event.message) || "Untitled", 100),
+            name: (0, ellipsisize_js_1.default)(await this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });
         this.setCooldown(event.channelId, cooldownTime);
@@ -135,7 +136,7 @@ class AutoThread extends plugin_js_1.default {
         };
         this.cooldownCancelFuncs.push(cancelFunc);
     }
-    extractTitleFromMessage(message) {
+    async extractTitleFromMessage(message) {
         const firstLine = message
             .replace(/[_\*]/g, "") // remove formatting characters
             .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
@@ -148,14 +149,34 @@ class AutoThread extends plugin_js_1.default {
         if (firstLine.length < 25) {
             return firstLine;
         }
-        const extractedTitle = firstLine
+        const extractedTitle = (await this.unMentionify(firstLine)) // swap <@###> -> @username
             .split(/\s+/)
-            .filter(e => !STOP_WORDS.has(e.replace(/\W/g, "").toLowerCase())).join(" ");
+            .filter(e => !STOP_WORDS.has(// remove stop words
+        e.replace(/\W/g, "").toLowerCase())).join(" ");
         // extracted nothing, back out
         if (extractedTitle.length === 0) {
             return firstLine;
         }
         return extractedTitle;
+    }
+    async unMentionify(str) {
+        const regex = /<@[!@&]?\d+>/g;
+        let strParts = [];
+        let lastIndex = 0;
+        for (let match; match = regex.exec(str);) {
+            const snowflake = (0, getSnowflakeNum_js_1.default)(match[0]);
+            if (!snowflake) {
+                continue;
+            }
+            const user = await this.bot.client.getUser(snowflake);
+            if (!user) {
+                continue;
+            }
+            strParts.push(str.slice(lastIndex, match.index));
+            strParts.push("@" + user.username);
+            lastIndex = match.index + match[0].length;
+        }
+        return strParts.join("") + str.slice(lastIndex);
     }
     async _isNaturalMessage(event) {
         const user = await this.bot.client.getUser(event.userId);

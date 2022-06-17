@@ -6,6 +6,7 @@ import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 import { TextChannel, ThreadChannel } from "discord.js";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
 import Logger from "../main/utils/logger.js";
+import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
 
 /**
  * Autothread plugin; automatically makes threads
@@ -82,7 +83,7 @@ export default class AutoThread extends BotPlugin {
         const disableChatCooldown = config.get("disableChatCooldown");
 
         await channel.threads.create({
-            name: ellipsisize(this.extractTitleFromMessage(event.message) || "Untitled", 100),
+            name: ellipsisize(await this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });
 
@@ -140,7 +141,7 @@ export default class AutoThread extends BotPlugin {
         this.cooldownCancelFuncs.push(cancelFunc);
     }
 
-    private extractTitleFromMessage(message: string) {
+    private async extractTitleFromMessage(message: string) {
         const firstLine = message
             .replace(/[_\*]/g, "") // remove formatting characters
             .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
@@ -151,15 +152,34 @@ export default class AutoThread extends BotPlugin {
         // already short enough -- no need for further extraction
         if (firstLine.length < 25) { return firstLine; }
 
-        const extractedTitle = firstLine
+        const extractedTitle = (await this.unMentionify(firstLine)) // swap <@###> -> @username
             .split(/\s+/)
-            .filter(e => !STOP_WORDS.has(
+            .filter(e => !STOP_WORDS.has( // remove stop words
                 e.replace(/\W/g, "").toLowerCase()
             )).join(" ");
 
         // extracted nothing, back out
         if (extractedTitle.length === 0) { return firstLine; }
         return extractedTitle;
+    }
+
+    private async unMentionify(str: string): Promise<string> {
+        const regex = /<@[!@&]?\d+>/g;
+        let strParts = [];
+        let lastIndex = 0;
+
+        for (let match; match = regex.exec(str);) {
+            const snowflake = getSnowflakeNum(match[0]);
+            if (!snowflake) { continue; }
+            const user = await this.bot.client.getUser(snowflake);
+            if (!user) { continue; }
+
+            strParts.push(str.slice(lastIndex, match.index));
+            strParts.push("@" + user.username);
+            lastIndex = match.index + match[0].length;
+        }
+
+        return strParts.join("") + str.slice(lastIndex);
     }
 
     private async _isNaturalMessage(event: DiscordMessageEvent): Promise<boolean> {
