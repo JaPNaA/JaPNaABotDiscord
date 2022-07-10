@@ -166,13 +166,19 @@ class AnnounceVCJoin extends plugin_js_1.default {
             }
             return;
         }
+        // anounce call start
         if (config.get("makeThread") && !announceInChannel.isThread()) {
             const thread = await announceInChannel.threads.create({
                 name: `call in ${channel.name} at ${this._getNowFormatted()}`
             });
             channelState.thread = thread;
             channelState.threadMessage = new CallThreadMessage(channelId, thread, state.member);
-            await channelState.threadMessage.send();
+            if (state.channel) {
+                for (const member of state.channel.members) {
+                    channelState.threadMessage.addParticipant(member[1]);
+                }
+            }
+            await channelState.threadMessage.sendIfNotAlready();
         }
         else {
             channelState.thread = undefined;
@@ -181,6 +187,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
                 content: `${state.member && (0, mention_js_1.default)(state.member?.id)} joined <#${channelId}>`
             }));
         }
+        channelState.wasNotLonelyCall = channel.members.size > 1;
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
     }
     async _onVCLeave(state) {
@@ -276,17 +283,20 @@ class CallThreadMessage {
     voiceChannelId;
     thread;
     starter;
-    message;
+    messagePromise;
     additionalParticipants = [];
     constructor(voiceChannelId, thread, starter) {
         this.voiceChannelId = voiceChannelId;
         this.thread = thread;
         this.starter = starter;
     }
-    async send() {
+    async sendIfNotAlready() {
+        if (this.messagePromise) {
+            return;
+        }
         if (this.starter) {
-            this.message = await this.thread.send(this.generateMessageStr(false));
-            this.message.edit(this.generateMessageStr());
+            this.messagePromise = this.thread.send(this.generateMessageStr(false));
+            (await this.messagePromise).edit(this.generateMessageStr());
         }
     }
     async addParticipant(participant) {
@@ -297,10 +307,8 @@ class CallThreadMessage {
             return;
         }
         this.additionalParticipants.push(participant);
-        if (!this.message) {
-            await this.send();
-        }
-        this.message.edit(this.generateMessageStr());
+        await this.sendIfNotAlready();
+        (await this.messagePromise).edit(this.generateMessageStr());
     }
     generateMessageStr(mentionStarter = true) {
         const starterMention = this.starter ? (0, mention_js_1.default)(this.starter.user.id) : "someone";

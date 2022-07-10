@@ -50,6 +50,7 @@ export default class AnnounceVCJoin extends BotPlugin {
     };
 
     private channelStates: Map<string, {
+        /** Time until new announce can be made */
         cooldownBy?: number,
         isWaitingForDelay?: boolean,
         announcementMessage?: Message,
@@ -168,13 +169,19 @@ export default class AnnounceVCJoin extends BotPlugin {
             return;
         }
 
+        // anounce call start
         if (config.get("makeThread") && !announceInChannel.isThread()) {
             const thread = await announceInChannel.threads.create({
                 name: `call in ${channel.name} at ${this._getNowFormatted()}`
             });
             channelState.thread = thread;
             channelState.threadMessage = new CallThreadMessage(channelId, thread, state.member);
-            await channelState.threadMessage.send();
+            if (state.channel) {
+                for (const member of state.channel.members) {
+                    channelState.threadMessage.addParticipant(member[1]);
+                }
+            }
+            await channelState.threadMessage.sendIfNotAlready();
         } else {
             channelState.thread = undefined;
             channelState.announcementMessage = toOne(await this.bot.client.send(
@@ -184,6 +191,7 @@ export default class AnnounceVCJoin extends BotPlugin {
             }));
         }
 
+        channelState.wasNotLonelyCall = channel.members.size > 1;
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
     }
 
@@ -282,16 +290,17 @@ export default class AnnounceVCJoin extends BotPlugin {
 }
 
 class CallThreadMessage {
-    private message?: Message;
+    private messagePromise?: Promise<Message>;
     private additionalParticipants: GuildMember[] = [];
 
     constructor(private voiceChannelId: string, private thread: ThreadChannel, private starter: GuildMember | null) {
     }
 
-    public async send() {
+    public async sendIfNotAlready() {
+        if (this.messagePromise) { return; }
         if (this.starter) {
-            this.message = await this.thread.send(this.generateMessageStr(false));
-            this.message.edit(this.generateMessageStr());
+            this.messagePromise = this.thread.send(this.generateMessageStr(false));
+            (await this.messagePromise).edit(this.generateMessageStr());
         }
     }
 
@@ -299,10 +308,8 @@ class CallThreadMessage {
         if (this.starter && participant.id === this.starter.id) { return; }
         if (this.additionalParticipants.find(p => p.id == participant.id)) { return; }
         this.additionalParticipants.push(participant);
-        if (!this.message) {
-            await this.send();
-        }
-        this.message!.edit(this.generateMessageStr());
+        await this.sendIfNotAlready();
+        (await this.messagePromise)!.edit(this.generateMessageStr());
     }
 
     private generateMessageStr(mentionStarter: boolean = true) {
