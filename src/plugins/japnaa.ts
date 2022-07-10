@@ -32,6 +32,9 @@ class Japnaa extends BotPlugin {
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
 
+    /** Last-used `random` command arguments per channel */
+    lastRandomCommands: Map<string, string> = new Map();
+
     public userConfigSchema = {
         "spam.limit": {
             type: "number",
@@ -123,6 +126,14 @@ class Japnaa extends BotPlugin {
     async random(event: DiscordCommandEvent) {
         const [maxArg, minArg, stepArg, timesArg] = stringToArgs(event.arguments);
 
+        // random again branch
+        if (maxArg && maxArg.toLowerCase() === "again") {
+            return this.random_again(event);
+        }
+
+        // don't record `random again` in history
+        this.lastRandomCommands.set(event.channelId, event.arguments);
+
         // random string branch
         if (maxArg && maxArg.toLowerCase() === "string") {
             return this.random_string(event);
@@ -192,6 +203,18 @@ class Japnaa extends BotPlugin {
         const rand = options[Math.floor(Math.random() * options.length)];
 
         return this.bot.client.send(event.channelId, `Select from [${options.join(", ")}]:\n**${rand}**`);
+    }
+
+    private async random_again(event: DiscordCommandEvent) {
+        const last = this.lastRandomCommands.get(event.channelId);
+        if (!last) {
+            return this.bot.client.send(event.channelId, "No previous random command");
+        }
+
+        await this.random({
+            ...event,
+            arguments: last
+        });
     }
 
     private _parseFloatWithDefault(str: string, defaultNum: number) {
@@ -485,7 +508,7 @@ class Japnaa extends BotPlugin {
 
         this._registerDefaultCommand("random", this.random, {
             help: {
-                description: "Generates a random thing. Subcommands `string` and `select` exist.",
+                description: "Generates a random thing. Subcommands `string`, `select` and `again` exist.",
                 overloads: [{
                     "[max]": "Optional. The maximum of the random number",
                     "[min]": "Optional. The minimum of the random number",
@@ -497,6 +520,8 @@ class Japnaa extends BotPlugin {
                 }, {
                     "\"select\"": "\"select\", will respond with a randomly selected item.",
                     "<...items>": "Items to choose from. Separated by spaces."
+                }, {
+                    "\"again\"": "\"again\", will rerun the previous `random` command.",
                 }],
                 examples: [
                     ["random", "A random number between 0 to 1 with no step"],
@@ -508,6 +533,7 @@ class Japnaa extends BotPlugin {
                     ["random string", "A random string 128 characters long"],
                     ["random string 10", "A random string 10 characters long"],
                     ["random select a b c", "Selects one of a, b, or c randomly"],
+                    ["random again", "repeats the previous `random` command"]
                 ]
             },
             group: "Utils"

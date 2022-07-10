@@ -15,6 +15,8 @@ declare class Japnaa extends BotPlugin {
     };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
+    /** Last-used `random` command arguments per channel */
+    lastRandomCommands: Map<string, string>;
     userConfigSchema: {
         "spam.limit": {
             type: string;
@@ -47,6 +49,7 @@ declare class Japnaa extends BotPlugin {
     random(event: DiscordCommandEvent): Promise<import("discord.js").Message<boolean> | import("discord.js").Message<boolean>[] | undefined>;
     private random_string;
     private random_select;
+    private random_again;
     private _parseFloatWithDefault;
     /**
      * Begins spamming from spam que with interval

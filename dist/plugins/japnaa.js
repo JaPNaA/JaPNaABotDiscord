@@ -24,6 +24,8 @@ class Japnaa extends plugin_js_1.default {
     spamQue;
     /** Spam setInterval return */
     spamInterval;
+    /** Last-used `random` command arguments per channel */
+    lastRandomCommands = new Map();
     userConfigSchema = {
         "spam.limit": {
             type: "number",
@@ -106,6 +108,12 @@ class Japnaa extends plugin_js_1.default {
      */
     async random(event) {
         const [maxArg, minArg, stepArg, timesArg] = (0, stringToArgs_1.default)(event.arguments);
+        // random again branch
+        if (maxArg && maxArg.toLowerCase() === "again") {
+            return this.random_again(event);
+        }
+        // don't record `random again` in history
+        this.lastRandomCommands.set(event.channelId, event.arguments);
         // random string branch
         if (maxArg && maxArg.toLowerCase() === "string") {
             return this.random_string(event);
@@ -157,6 +165,16 @@ class Japnaa extends plugin_js_1.default {
         }
         const rand = options[Math.floor(Math.random() * options.length)];
         return this.bot.client.send(event.channelId, `Select from [${options.join(", ")}]:\n**${rand}**`);
+    }
+    async random_again(event) {
+        const last = this.lastRandomCommands.get(event.channelId);
+        if (!last) {
+            return this.bot.client.send(event.channelId, "No previous random command");
+        }
+        await this.random({
+            ...event,
+            arguments: last
+        });
     }
     _parseFloatWithDefault(str, defaultNum) {
         if (!str) {
@@ -417,7 +435,7 @@ class Japnaa extends plugin_js_1.default {
         });
         this._registerDefaultCommand("random", this.random, {
             help: {
-                description: "Generates a random thing. Subcommands `string` and `select` exist.",
+                description: "Generates a random thing. Subcommands `string`, `select` and `again` exist.",
                 overloads: [{
                         "[max]": "Optional. The maximum of the random number",
                         "[min]": "Optional. The minimum of the random number",
@@ -429,6 +447,8 @@ class Japnaa extends plugin_js_1.default {
                     }, {
                         "\"select\"": "\"select\", will respond with a randomly selected item.",
                         "<...items>": "Items to choose from. Separated by spaces."
+                    }, {
+                        "\"again\"": "\"again\", will rerun the previous `random` command.",
                     }],
                 examples: [
                     ["random", "A random number between 0 to 1 with no step"],
@@ -440,6 +460,7 @@ class Japnaa extends plugin_js_1.default {
                     ["random string", "A random string 128 characters long"],
                     ["random string 10", "A random string 10 characters long"],
                     ["random select a b c", "Selects one of a, b, or c randomly"],
+                    ["random again", "repeats the previous `random` command"]
                 ]
             },
             group: "Utils"
