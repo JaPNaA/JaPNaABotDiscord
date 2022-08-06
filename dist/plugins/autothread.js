@@ -39,6 +39,11 @@ class AutoThread extends plugin_js_1.default {
             comment: "Deletes automatic threads if they're automatically archived with no messages.",
             default: false
         },
+        threadCommands: {
+            type: "boolean",
+            comment: "Should run commands in a new thread?",
+            default: true
+        },
         autothreadSubscribers: {
             type: "object",
             comment: "The userId of people to add to autothreads",
@@ -87,12 +92,18 @@ class AutoThread extends plugin_js_1.default {
         if (!this.isCool(event.channelId)) {
             return;
         }
-        // exception for `!autothread` not to be handled
-        if (event.precommandName &&
-            event.message.slice(event.precommandName.name.length).toLowerCase().startsWith("autothread")) {
-            return;
+        // if is command
+        if (event.precommandName) {
+            // cancel if don't thread commands
+            if (!config.get("threadCommands")) {
+                return;
+            }
+            // cancel if is `!autothread`
+            if (event.message.slice(event.precommandName.name.length).toLowerCase().startsWith("autothread")) {
+                return;
+            }
         }
-        // create thread and respond in thread
+        // create thread
         const thread = await channel.threads.create({
             name: (0, ellipsisize_js_1.default)(await this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId

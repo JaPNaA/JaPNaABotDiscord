@@ -33,6 +33,11 @@ export default class AutoThread extends BotPlugin {
             comment: string;
             default: boolean;
         };
+        threadCommands: {
+            type: string;
+            comment: string;
+            default: boolean;
+        };
         autothreadSubscribers: {
             type: string;
             comment: string;
