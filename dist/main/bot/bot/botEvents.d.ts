@@ -10,8 +10,14 @@ declare class BotEvent {
     stop: EventHandlers<void>;
     message: EventHandlers<DiscordMessageEvent>;
     command: EventHandlers<DiscordCommandEvent>;
-    send: EventHandlers<string | MessageOptions>;
-    sendDM: EventHandlers<string | IMessageObject>;
+    send: EventHandlers<{
+        channelId: string;
+        content: string | MessageOptions;
+    }>;
+    sendDM: EventHandlers<{
+        userId: string;
+        content: string | IMessageObject;
+    }>;
     sent: EventHandlers<DiscordMessageEvent>;
     beforeMemoryWrite: EventHandlers<void>;
     afterMemoryWrite: EventHandlers<void>;

@@ -11,7 +11,7 @@ class PrecommandDispatcher {
     constructor(private bot: Bot, manager: PrecommandManager) {
         this.manager = manager;
 
-        this.bot.events.message.addHandler(this.onMessage.bind(this));
+        this.bot.events.message._addSystemHandler(this.onMessage.bind(this));
     }
 
     onMessage(message: DiscordMessageEvent): void {

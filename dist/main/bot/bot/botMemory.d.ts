@@ -24,7 +24,7 @@ declare class Memory {
     /**
      * Writes memory to disk
      */
-    writeOut(): void;
+    writeOut(): Promise<void>;
     /**
      * Autowrite interval callback
      */

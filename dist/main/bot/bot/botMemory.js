@@ -51,9 +51,13 @@ class Memory {
     /**
      * Writes memory to disk
      */
-    writeOut() {
+    async writeOut() {
         this.bot.newAsyncRequest();
-        this.bot.events.beforeMemoryWrite.dispatch();
+        const { preventedSystem } = await this.bot.events.beforeMemoryWrite.dispatch();
+        if (preventedSystem) {
+            logger_js_1.default.log("Memory write out prevented.");
+            return;
+        }
         fs_1.default.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
         this.memoryChanged = false;
     }

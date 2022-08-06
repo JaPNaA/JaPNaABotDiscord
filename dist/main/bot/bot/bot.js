@@ -116,7 +116,7 @@ class Bot {
             this.onReady();
         }
         else {
-            this.events.ready.addHandler(this.onReady.bind(this));
+            this.events.ready._addSystemHandler(this.onReady.bind(this));
         }
     }
     registerDefaultPrecommands() {

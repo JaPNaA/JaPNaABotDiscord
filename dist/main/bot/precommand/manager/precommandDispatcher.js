@@ -10,7 +10,7 @@ class PrecommandDispatcher {
     constructor(bot, manager) {
         this.bot = bot;
         this.manager = manager;
-        this.bot.events.message.addHandler(this.onMessage.bind(this));
+        this.bot.events.message._addSystemHandler(this.onMessage.bind(this));
     }
     onMessage(message) {
         logger_1.default.log_message("<<", message.message);

@@ -109,7 +109,7 @@ class BotClient {
             Logger.error(error);
         });
 
-        this.bot.events.ready.addHandler(this.onReady.bind(this));
+        this.bot.events.ready._addSystemHandler(this.onReady.bind(this));
     }
 
     onReady(): void {
@@ -148,7 +148,11 @@ class BotClient {
             throw new TypeError("Cannot send to non-text channel");
         }
 
-        this.bot.events.send.dispatch(message);
+        const { preventedSystem } = await this.bot.events.send.dispatch({
+            channelId: channelId,
+            content: message
+        });
+        if (preventedSystem) { throw new Error("Cannot send message -- blocked"); }
 
         if (typeof message === "string") {
             if (message.trim().length === 0) {
@@ -185,24 +189,27 @@ class BotClient {
         let user = await this.getUser(userId);
         let promise: Promise<Message | Message[]>;
 
-        if (user) {
-            if (typeof message === "object" && message.hasOwnProperty("message")) {
-                promise = user.send(message as any);
-            } else {
-                if (typeof message === "string" && message.trim().length === 0) {
-                    message = "_This message is empty_";
-                }
-                promise = user.send(message as any);
-            }
+        if (!user) { throw new Error("User not found"); }
+
+        const { preventedSystem } = await this.bot.events.sendDM.dispatch({
+            userId: userId,
+            content: message
+        });
+        if (preventedSystem) { throw new Error("Cannot send message -- blocked"); }
+
+        if (typeof message === "object" && message.hasOwnProperty("message")) {
+            promise = user.send(message as any);
         } else {
-            return Promise.reject();
+            if (typeof message === "string" && message.trim().length === 0) {
+                message = "_This message is empty_";
+            }
+            promise = user.send(message as any);
         }
 
         if (failCallback) {
             promise.catch(() => failCallback());
         }
 
-        this.bot.events.sendDM.dispatch(message);
 
         return promise;
     }

@@ -96,7 +96,7 @@ class BotClient {
         this.client.on("error", function (error) {
             logger_js_1.default.error(error);
         });
-        this.bot.events.ready.addHandler(this.onReady.bind(this));
+        this.bot.events.ready._addSystemHandler(this.onReady.bind(this));
     }
     onReady() {
         this.id = this.client.user.id;
@@ -125,7 +125,13 @@ class BotClient {
         if (!textChannel.isText()) {
             throw new TypeError("Cannot send to non-text channel");
         }
-        this.bot.events.send.dispatch(message);
+        const { preventedSystem } = await this.bot.events.send.dispatch({
+            channelId: channelId,
+            content: message
+        });
+        if (preventedSystem) {
+            throw new Error("Cannot send message -- blocked");
+        }
         if (typeof message === "string") {
             if (message.trim().length === 0) {
                 message = "_This message is empty_";
@@ -157,24 +163,28 @@ class BotClient {
         logger_js_1.default.log_message("D>", message);
         let user = await this.getUser(userId);
         let promise;
-        if (user) {
-            if (typeof message === "object" && message.hasOwnProperty("message")) {
-                promise = user.send(message);
-            }
-            else {
-                if (typeof message === "string" && message.trim().length === 0) {
-                    message = "_This message is empty_";
-                }
-                promise = user.send(message);
-            }
+        if (!user) {
+            throw new Error("User not found");
+        }
+        const { preventedSystem } = await this.bot.events.sendDM.dispatch({
+            userId: userId,
+            content: message
+        });
+        if (preventedSystem) {
+            throw new Error("Cannot send message -- blocked");
+        }
+        if (typeof message === "object" && message.hasOwnProperty("message")) {
+            promise = user.send(message);
         }
         else {
-            return Promise.reject();
+            if (typeof message === "string" && message.trim().length === 0) {
+                message = "_This message is empty_";
+            }
+            promise = user.send(message);
         }
         if (failCallback) {
             promise.catch(() => failCallback());
         }
-        this.bot.events.sendDM.dispatch(message);
         return promise;
     }
     getChannel(channelId) {

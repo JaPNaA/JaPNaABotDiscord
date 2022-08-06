@@ -138,7 +138,7 @@ class Bot {
         if (this.client.isReady()) {
             this.onReady();
         } else {
-            this.events.ready.addHandler(this.onReady.bind(this));
+            this.events.ready._addSystemHandler(this.onReady.bind(this));
         }
     }
 

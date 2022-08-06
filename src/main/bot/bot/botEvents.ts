@@ -13,8 +13,14 @@ class BotEvent {
     public message = new EventHandlers<DiscordMessageEvent>();
     public command = new EventHandlers<DiscordCommandEvent>();
 
-    public send = new EventHandlers<string | MessageOptions>();
-    public sendDM = new EventHandlers<string | IMessageObject>();
+    public send = new EventHandlers<{
+        channelId: string,
+        content: string | MessageOptions
+    }>();
+    public sendDM = new EventHandlers<{
+        userId: string,
+        content: string | IMessageObject
+    }>();
     public sent = new EventHandlers<DiscordMessageEvent>();
 
     public beforeMemoryWrite = new EventHandlers();
