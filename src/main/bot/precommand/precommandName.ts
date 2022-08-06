@@ -1,9 +1,12 @@
 import { Precommand } from "./precommand";
 
 class PrecommandName {
-    precommand: Precommand;
-    index: number;
-    name: string;
+    /** Associated Precommand */
+    public precommand: Precommand;
+    /** Index of precommand name in parent precommand */
+    public index: number;
+    /** The precommand string */
+    public name: string;
 
     constructor(precommand: Precommand, index: number) {
         this.precommand = precommand;
