@@ -76,14 +76,14 @@ class Bot {
      */
     newAsyncRequest() {
         this.activeAsnycRequests++;
-        this.events.dispatch("addasync", this.activeAsnycRequests);
+        this.events.addAsync.dispatch(this.activeAsnycRequests);
     }
     /**
      * Remove asnyc request to wait for
      */
     doneAsyncRequest() {
         this.activeAsnycRequests--;
-        this.events.dispatch("doneasync", this.activeAsnycRequests);
+        this.events.doneAsync.dispatch(this.activeAsnycRequests);
     }
     /** Checks if there're more active asnyc requests */
     hasActiveAsyncRequests() {
@@ -116,7 +116,7 @@ class Bot {
             this.onReady();
         }
         else {
-            this.events.on("ready", this.onReady.bind(this));
+            this.events.ready.addHandler(this.onReady.bind(this));
         }
     }
     registerDefaultPrecommands() {
@@ -156,7 +156,7 @@ class Bot {
      */
     stop() {
         this.pluginManager.unregisterAllPlugins();
-        this.events.dispatch("stop", null);
+        this.events.stop.dispatch();
         this.memory.writeOut();
     }
     /** Restarts bot on command */
@@ -170,7 +170,7 @@ class Bot {
      * ready callback
      */
     onReady() {
-        this.events.dispatch("start", null);
+        this.events.start.dispatch();
         logger_js_1.default.log("Started");
     }
 }

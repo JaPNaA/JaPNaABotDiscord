@@ -205,7 +205,7 @@ class AutoThread extends plugin_js_1.default {
             },
             noDM: true
         });
-        this._registerEventHandler("message", this.messageHandler);
+        this.bot.events.message.addHandler(this.messageHandler.bind(this));
     }
     _stop() {
         if (this._threadUpdateHandler) {

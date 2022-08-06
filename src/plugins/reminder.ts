@@ -325,7 +325,7 @@ class Reminders extends BotPlugin {
             if (this.bot.client.isReady()) {
                 this._updateReminders();
             } else {
-                this.bot.events.on("ready", () => {
+                this.bot.events.ready.addHandler(() => {
                     this._updateReminders();
                 });
             }

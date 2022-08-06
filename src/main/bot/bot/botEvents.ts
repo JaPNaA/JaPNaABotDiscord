@@ -1,56 +1,29 @@
-import EventName from "../types/eventName.js";
-
-import tryRun from "../../utils/tryRun";
-import Logger from "../../utils/logger.js";
-import EventHandler from "../types/eventHandler.js";
+import { MessageOptions } from "discord.js";
+import DiscordCommandEvent from "../events/discordCommandEvent.js";
+import DiscordMessageEvent from "../events/discordMessageEvent.js";
+import { EventHandlers } from "../events/eventHandlers.js";
+import IMessageObject from "../types/messageObject.js";
 import Bot from "./bot.js";
 
 class BotEvent {
-    events: { [x: string]: EventHandler[] } = {
-        "ready": [],
-        "start": [],
-        "stop": [],
+    public ready = new EventHandlers();
+    public start = new EventHandlers();
+    public stop = new EventHandlers();
 
-        "message": [],
-        "command": [],
+    public message = new EventHandlers<DiscordMessageEvent>();
+    public command = new EventHandlers<DiscordCommandEvent>();
 
-        "send": [],
-        "senddm": [],
-        "sent": [],
+    public send = new EventHandlers<string | MessageOptions>();
+    public sendDM = new EventHandlers<string | IMessageObject>();
+    public sent = new EventHandlers<DiscordMessageEvent>();
 
-        "beforememorywrite": [],
-        "aftermemorywrite": [],
+    public beforeMemoryWrite = new EventHandlers();
+    public afterMemoryWrite = new EventHandlers();
 
-        "addasync": [],
-        "doneasync": []
-    };
+    public addAsync = new EventHandlers<number>();
+    public doneAsync = new EventHandlers<number>();
 
-    constructor(private bot: Bot) { }
-
-    on(name: EventName, func: EventHandler): void {
-        this.events[name].push(func);
-    }
-
-    async dispatch(name: EventName, event: any): Promise<string[]> {
-        const errors: string[] = [];
-        const promises: Promise<any>[] = [];
-
-        Logger.log_message("Event: " + name);
-
-        for (let handler of this.events[name]) {
-            promises.push(tryRun(() => handler(event))
-                .then(error => {
-                    if (error) {
-                        errors.push(error);
-                        Logger.warn(error);
-                    }
-                }));
-        }
-
-        await Promise.all(promises);
-
-        return errors;
-    }
+    constructor(bot: Bot) { }
 }
 
 export default BotEvent;

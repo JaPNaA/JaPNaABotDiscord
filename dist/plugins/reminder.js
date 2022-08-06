@@ -293,7 +293,7 @@ class Reminders extends plugin_js_1.default {
                 this._updateReminders();
             }
             else {
-                this.bot.events.on("ready", () => {
+                this.bot.events.ready.addHandler(() => {
                     this._updateReminders();
                 });
             }

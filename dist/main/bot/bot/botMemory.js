@@ -53,7 +53,7 @@ class Memory {
      */
     writeOut() {
         this.bot.newAsyncRequest();
-        this.bot.events.dispatch("beforememorywrite", null);
+        this.bot.events.beforeMemoryWrite.dispatch();
         fs_1.default.writeFile(this.memoryPath, JSON.stringify(this.memory), this._doneWriteMemory.bind(this));
         this.memoryChanged = false;
     }

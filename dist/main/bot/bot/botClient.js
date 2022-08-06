@@ -96,7 +96,7 @@ class BotClient {
         this.client.on("error", function (error) {
             logger_js_1.default.error(error);
         });
-        this.bot.events.on("ready", this.onReady.bind(this));
+        this.bot.events.ready.addHandler(this.onReady.bind(this));
     }
     onReady() {
         this.id = this.client.user.id;
@@ -125,7 +125,7 @@ class BotClient {
         if (!textChannel.isText()) {
             throw new TypeError("Cannot send to non-text channel");
         }
-        this.bot.events.dispatch("send", message);
+        this.bot.events.send.dispatch(message);
         if (typeof message === "string") {
             if (message.trim().length === 0) {
                 message = "_This message is empty_";
@@ -174,7 +174,7 @@ class BotClient {
         if (failCallback) {
             promise.catch(() => failCallback());
         }
-        this.bot.events.dispatch("senddm", this);
+        this.bot.events.sendDM.dispatch(message);
         return promise;
     }
     getChannel(channelId) {

@@ -90,7 +90,7 @@ class Bot {
      */
     public newAsyncRequest(): void {
         this.activeAsnycRequests++;
-        this.events.dispatch("addasync", this.activeAsnycRequests);
+        this.events.addAsync.dispatch(this.activeAsnycRequests);
     }
 
     /**
@@ -98,7 +98,7 @@ class Bot {
      */
     public doneAsyncRequest(): void {
         this.activeAsnycRequests--;
-        this.events.dispatch("doneasync", this.activeAsnycRequests);
+        this.events.doneAsync.dispatch(this.activeAsnycRequests);
     }
 
     /** Checks if there're more active asnyc requests */
@@ -138,7 +138,7 @@ class Bot {
         if (this.client.isReady()) {
             this.onReady();
         } else {
-            this.events.on("ready", this.onReady.bind(this));
+            this.events.ready.addHandler(this.onReady.bind(this));
         }
     }
 
@@ -189,7 +189,7 @@ class Bot {
      */
     public stop(): void {
         this.pluginManager.unregisterAllPlugins();
-        this.events.dispatch("stop", null);
+        this.events.stop.dispatch();
         this.memory.writeOut();
     }
 
@@ -205,7 +205,7 @@ class Bot {
      * ready callback
      */
     private onReady(): void {
-        this.events.dispatch("start", null);
+        this.events.start.dispatch();
         Logger.log("Started");
     }
 }

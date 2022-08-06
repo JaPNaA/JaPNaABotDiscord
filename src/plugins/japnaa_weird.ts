@@ -93,7 +93,7 @@ class JapnaaWeird extends BotPlugin {
             }
         });
 
-        this._registerEventHandler("message", this.onmessageHandler_lol);
+        this.bot.events.message.addHandler(this.onmessageHandler_lol.bind(this));
     }
 
     _stop(): void {

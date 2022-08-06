@@ -33,13 +33,13 @@ class RawEventAdapter {
             createdTimestamp: message.createdTimestamp
         };
         if (this.bot.client.isSelf(messageEvent.userId)) {
-            this.bot.events.dispatch("sent", messageEvent);
+            this.bot.events.sent.dispatch(messageEvent);
             return;
         }
-        this.bot.events.dispatch("message", messageEvent);
+        this.bot.events.message.dispatch(messageEvent);
     }
     onReady() {
-        this.bot.events.dispatch("ready", null);
+        this.bot.events.ready.dispatch();
     }
 }
 exports.default = RawEventAdapter;

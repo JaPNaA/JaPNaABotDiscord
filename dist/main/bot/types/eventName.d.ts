@@ -1,2 +1,2 @@
-declare type EventName = "ready" | "start" | "stop" | "message" | "command" | "send" | "senddm" | "sent" | "beforememorywrite" | "aftermemorywrite" | "addasync" | "doneasync";
+declare type EventName = "ready" | "start" | "stop" | "message" | "command" | "send" | "sendDM" | "sent" | "beforeMemoryWrite" | "afterMemoryWrite" | "addAsync" | "doneAsync";
 export default EventName;

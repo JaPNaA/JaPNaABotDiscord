@@ -217,7 +217,7 @@ export default class AutoThread extends BotPlugin {
             noDM: true
         });
 
-        this._registerEventHandler("message", this.messageHandler);
+        this.bot.events.message.addHandler(this.messageHandler.bind(this));
     }
 
     _stop() {

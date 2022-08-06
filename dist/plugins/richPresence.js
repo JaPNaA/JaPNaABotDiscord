@@ -58,7 +58,7 @@ class RichPresence extends plugin_1.default {
         }
     }
     _start() {
-        this.bot.events.on("ready", () => {
+        this.bot.events.ready.addHandler(() => {
             if (this.lastPresence) {
                 this.updatePresence(this.lastPresence.type, this.lastPresence.name);
             }

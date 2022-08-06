@@ -229,7 +229,7 @@ async function stop(timeout) {
     await new Promise(function (resolve) {
         if (bot.hasActiveAsyncRequests()) {
             logger_js_1.default.log("Waiting for async requests to finish...");
-            bot.events.on("doneasync", function () {
+            bot.events.doneAsync.addHandler(function () {
                 if (!bot.hasActiveAsyncRequests()) {
                     logger_js_1.default.log("Async requests done");
                     resolve(true);

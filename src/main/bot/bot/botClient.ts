@@ -109,7 +109,7 @@ class BotClient {
             Logger.error(error);
         });
 
-        this.bot.events.on("ready", this.onReady.bind(this));
+        this.bot.events.ready.addHandler(this.onReady.bind(this));
     }
 
     onReady(): void {
@@ -148,7 +148,7 @@ class BotClient {
             throw new TypeError("Cannot send to non-text channel");
         }
 
-        this.bot.events.dispatch("send", message);
+        this.bot.events.send.dispatch(message);
 
         if (typeof message === "string") {
             if (message.trim().length === 0) {
@@ -202,7 +202,7 @@ class BotClient {
             promise.catch(() => failCallback());
         }
 
-        this.bot.events.dispatch("senddm", this);
+        this.bot.events.sendDM.dispatch(message);
 
         return promise;
     }

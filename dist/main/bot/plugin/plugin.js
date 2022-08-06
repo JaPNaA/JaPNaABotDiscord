@@ -39,10 +39,6 @@ class BotPlugin {
         }
         commandManager.registerUnkownCommandHanlder(func.bind(this));
     }
-    /** Adds a handler function to an event */
-    _registerEventHandler(name, callback) {
-        this.bot.events.on(name, callback.bind(this));
-    }
     /** Adds a handler function to a precommand */
     _registerPrecommand(precommand, callback) {
         const precommandManager = this.bot.precommandManager;

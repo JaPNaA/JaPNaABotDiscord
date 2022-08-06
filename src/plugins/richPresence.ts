@@ -69,7 +69,7 @@ export default class RichPresence extends BotPlugin {
     }
 
     public _start(): void {
-        this.bot.events.on("ready", () => {
+        this.bot.events.ready.addHandler(() => {
             if (this.lastPresence) {
                 this.updatePresence(this.lastPresence.type, this.lastPresence.name);
             }

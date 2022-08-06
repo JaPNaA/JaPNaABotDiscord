@@ -10,7 +10,7 @@ class PrecommandDispatcher {
     constructor(bot, manager) {
         this.bot = bot;
         this.manager = manager;
-        this.bot.events.on("message", this.onMessage.bind(this));
+        this.bot.events.message.addHandler(this.onMessage.bind(this));
     }
     onMessage(message) {
         logger_1.default.log_message("<<", message.message);
@@ -21,7 +21,7 @@ class PrecommandDispatcher {
             return;
         }
         const commandEvent = this._createDiscordCommandEvent(messageEvent);
-        this.bot.events.dispatch("command", commandEvent);
+        this.bot.events.command.dispatch(commandEvent);
         commandEvent.precommandName.precommand.callback(commandEvent);
     }
     _createDiscordCommandEvent(messageEvent) {

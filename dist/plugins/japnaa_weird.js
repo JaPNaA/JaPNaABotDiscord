@@ -80,7 +80,7 @@ class JapnaaWeird extends plugin_js_1.default {
                 description: "Replies with a message in memory of 'outfit based on weather bot.' If JaPNaA feels like it some day, they may reimplement the behavior in JaPNaABot."
             }
         });
-        this._registerEventHandler("message", this.onmessageHandler_lol);
+        this.bot.events.message.addHandler(this.onmessageHandler_lol.bind(this));
     }
     _stop() {
         // do nothing
