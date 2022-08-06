@@ -49,6 +49,7 @@ export default class AutoThread extends BotPlugin {
     private _threadUpdateHandler?;
     constructor(bot: Bot);
     toggleAutothread(event: DiscordCommandEvent): Promise<void>;
+    archiveThreads(event: DiscordCommandEvent): Promise<void>;
     messageHandler(event: DiscordMessageEvent, eventControls: EventControls): Promise<void>;
     private _onThreadUpdate;
     private addCooldownDoneTimeout;

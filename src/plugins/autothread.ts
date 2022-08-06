@@ -80,6 +80,17 @@ export default class AutoThread extends BotPlugin {
         }
     }
 
+    public async archiveThreads(event: DiscordCommandEvent) {
+        const channel = await this.bot.client.getChannel(event.channelId);
+        if (channel && channel.isText() && 'threads' in channel) {
+            channel.threads.cache.forEach(thread => {
+                if (!thread.archived) {
+                    thread.setArchived();
+                }
+            })
+        }
+    }
+
     public async messageHandler(event: DiscordMessageEvent, eventControls: EventControls) {
         const config = await this.config.getAllUserSettingsInChannel(event.channelId);
         if (!config.get("enabled")) { return; }
@@ -267,6 +278,15 @@ export default class AutoThread extends BotPlugin {
             },
             noDM: true
         });
+
+        this._registerDefaultCommand("archive threads", this.archiveThreads, {
+            group: "Communication",
+            help: {
+                description: "Archives all active threads in the channel."
+            },
+            noDM: true,
+            requiredDiscordPermission: "MANAGE_THREADS"
+        })
 
         this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
     }
