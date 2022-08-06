@@ -8,6 +8,7 @@ const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const getSnowflakeNum_js_1 = __importDefault(require("../main/utils/getSnowflakeNum.js"));
 const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
+const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 /**
  * Autothread plugin; automatically makes threads
  */
@@ -37,6 +38,11 @@ class AutoThread extends plugin_js_1.default {
             type: "boolean",
             comment: "Deletes automatic threads if they're automatically archived with no messages.",
             default: false
+        },
+        autothreadSubscribers: {
+            type: "object",
+            comment: "The userId of people to add to autothreads",
+            default: []
         }
     };
     cooldowns = new Map();
@@ -91,6 +97,16 @@ class AutoThread extends plugin_js_1.default {
             name: (0, ellipsisize_js_1.default)(await this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });
+        // sets cooldowns
+        const cooldownTime = config.get("cooldownTime") * 1000;
+        const disableChatCooldown = config.get("disableChatCooldown");
+        this.setCooldown(event.channelId, cooldownTime);
+        if (disableChatCooldown) {
+            // prevent people from sending messages while on cooldown
+            channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
+            this.addCooldownDoneTimeout(() => channel.permissionOverwrites.delete(channel.guild.roles.everyone), cooldownTime);
+        }
+        // if the bot responds to the message (ex. command), respond in thread
         eventControls.preventSystemNext();
         eventControls.stopPropagation();
         this.bot.rawEventAdapter.onMessage((0, fakeMessage_js_1.default)({
@@ -100,14 +116,18 @@ class AutoThread extends plugin_js_1.default {
             guild: (await this.bot.client.getServer(event.serverId)),
             id: event.messageId
         }));
-        // sets cooldowns
-        const cooldownTime = config.get("cooldownTime") * 1000;
-        const disableChatCooldown = config.get("disableChatCooldown");
-        this.setCooldown(event.channelId, cooldownTime);
-        if (disableChatCooldown) {
-            // prevent people from sending messages while on cooldown
-            channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
-            this.addCooldownDoneTimeout(() => channel.permissionOverwrites.delete(channel.guild.roles.everyone), cooldownTime);
+        // add thread subscribers
+        const subscribers = config.get("autothreadSubscribers");
+        if (Array.isArray(subscribers) && subscribers.length > 0) {
+            const subscribersToNotice = subscribers.filter(id => id !== event.userId);
+            if (subscribersToNotice.length > 0) {
+                let messageText = thread.name + ": subscribed\n" +
+                    subscribersToNotice
+                        .map(id => (0, mention_js_1.default)(id))
+                        .join(" ");
+                const message = await thread.send(messageText);
+                await message.delete();
+            }
         }
     }
     async _onThreadUpdate(oldState, newState) {

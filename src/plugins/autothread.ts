@@ -9,6 +9,7 @@ import Logger from "../main/utils/logger.js";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
 import { EventControls } from "../main/bot/events/eventHandlers.js";
 import fakeMessage from "../main/utils/fakeMessage.js";
+import mention from "../main/utils/str/mention.js";
 
 /**
  * Autothread plugin; automatically makes threads
@@ -39,6 +40,11 @@ export default class AutoThread extends BotPlugin {
             type: "boolean",
             comment: "Deletes automatic threads if they're automatically archived with no messages.",
             default: false
+        },
+        autothreadSubscribers: {
+            type: "object",
+            comment: "The userId of people to add to autothreads",
+            default: []
         }
     };
 
@@ -93,17 +99,6 @@ export default class AutoThread extends BotPlugin {
             startMessage: event.messageId
         });
 
-        eventControls.preventSystemNext();
-        eventControls.stopPropagation();
-
-        this.bot.rawEventAdapter.onMessage(fakeMessage({
-            author: (await this.bot.client.getUser(event.userId))!,
-            channel: thread,
-            content: event.message,
-            guild: (await this.bot.client.getServer(event.serverId))!,
-            id: event.messageId
-        }));
-
         // sets cooldowns
         const cooldownTime = config.get("cooldownTime") * 1000;
         const disableChatCooldown = config.get("disableChatCooldown");
@@ -116,6 +111,33 @@ export default class AutoThread extends BotPlugin {
                 () => channel.permissionOverwrites.delete(channel.guild.roles.everyone),
                 cooldownTime
             )
+        }
+
+        // if the bot responds to the message (ex. command), respond in thread
+        eventControls.preventSystemNext();
+        eventControls.stopPropagation();
+
+        this.bot.rawEventAdapter.onMessage(fakeMessage({
+            author: (await this.bot.client.getUser(event.userId))!,
+            channel: thread,
+            content: event.message,
+            guild: (await this.bot.client.getServer(event.serverId))!,
+            id: event.messageId
+        }));
+
+        // add thread subscribers
+        const subscribers = config.get("autothreadSubscribers");
+        if (Array.isArray(subscribers) && subscribers.length > 0) {
+            const subscribersToNotice = subscribers.filter(id => id !== event.userId);
+            if (subscribersToNotice.length > 0) {
+                let messageText =
+                    thread.name + ": subscribed\n" +
+                    subscribersToNotice
+                        .map(id => mention(id))
+                        .join(" ");
+                const message = await thread.send(messageText);
+                await message.delete();
+            }
         }
     }
 
