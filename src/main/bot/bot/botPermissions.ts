@@ -15,7 +15,7 @@ class BotPermissions {
         const role = await this.bot.client.getRole(roleId, serverId);
 
         if (!role) { return new Permissions(); }
-        let permissions: Permissions = new Permissions(role.permissions.bitfield);
+        let permissions: Permissions = new Permissions(role.permissions);
         if (channelId) {
             permissions.importCustomPermissions(
                 this.memory.get(createKey.permissions(),
@@ -43,7 +43,7 @@ class BotPermissions {
         let server: Guild | undefined;
         let user: GuildMember | undefined;
         let roles: Role[] | undefined;
-        let permissionsNum: bigint = 0n;
+        const permissions = new Permissions();
 
         if (serverId) {
             server = await this.bot.client.getServer(serverId);
@@ -53,12 +53,9 @@ class BotPermissions {
 
             roles = Array.from(user.roles.cache.values());
 
-            let permissions: bigint = user.permissions.bitfield;
-
-            permissionsNum |= permissions;
+            permissions.addPermissions(user.permissions);
         }
 
-        let permissions: Permissions = new Permissions(permissionsNum);
         permissions.importCustomPermissions(
             this.memory.get(createKey.permissions(), createKey.user_global(userId))
         );

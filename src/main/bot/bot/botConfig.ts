@@ -1,5 +1,6 @@
 import { JSONObject, JSONType } from "../../types/jsonObject.js";
 import NestedObject from "../../types/nestedObjectStrMap";
+import ObjectStrMap from "../../types/objectStrMap.js";
 import createKey from "../utils/locationKeyCreator.js";
 import Bot from "./bot.js";
 
@@ -15,7 +16,7 @@ class Config {
     /** Tell the users that the bot doesn't know command? */
     doAlertCommandDoesNotExist: boolean;
     /** Overrides for bot commands */
-    commandRequiredPermissionOverrides: NestedObject;
+    commandRequiredPermissionOverrides: NestedObject<NestedObject<ObjectStrMap>>;
     /** How often to auto-write memory to disk? */
     autoWriteTimeInterval: number;
     /** Gitlab link to the bot */
@@ -34,7 +35,7 @@ class Config {
         this.themeColor = parseInt((this.config["bot.themeColor"] as string), 16);
         this.loggingLevel = (this.config["bot.logging"] || 3) as number;
         this.doAlertCommandDoesNotExist = (this.config["bot.alertCommandDoesNotExist"] || false) as boolean;
-        this.commandRequiredPermissionOverrides = (this.config["bot.commandRequiredPermissionOverrides"] || {}) as NestedObject;
+        this.commandRequiredPermissionOverrides = (this.config["bot.commandRequiredPermissionOverrides"] || {}) as any;
         this.autoWriteTimeInterval = (this.config["memory.autoWriteInterval"] || 60 * 1000 /* Every minute */) as number;
         this.gitlabLink = (this.config.gitlabLink || "... oh wait hold on I don't have it...") as string;
         this.addLink = (this.config.addLink || "... oh wait I don't know how to...") as string;

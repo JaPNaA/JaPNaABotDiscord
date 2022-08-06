@@ -57,7 +57,8 @@ class CommandManager {
         let pluginOverrides = this.bot.config.commandRequiredPermissionOverrides[locationKeyCreator_js_1.default.plugin(command.pluginName)];
         let overridingRequiredPermission = pluginOverrides && pluginOverrides[command.commandName];
         if (overridingRequiredPermission) {
-            command.requiredPermission = overridingRequiredPermission;
+            command.requiredCustomPermission = overridingRequiredPermission.custom;
+            command.requiredDiscordPermission = overridingRequiredPermission.discord;
         }
     }
     addCommandToGroup(groupName, command) {

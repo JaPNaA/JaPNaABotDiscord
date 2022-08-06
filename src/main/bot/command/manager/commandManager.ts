@@ -4,10 +4,10 @@ import BotCommand from "../command.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
 import createKey from "../../utils/locationKeyCreator.js";
-import ObjectStrMap from "../../../types/objectStrMap";
 import UnknownCommandHandler from "./unknownCommandHandler.js";
 import Bot from "../../bot/bot.js";
 import removeFromArray from "../../../utils/removeFromArray.js";
+import { PermissionString } from "discord.js";
 
 class CommandManager {
     dispatch: CommandDispatcher;
@@ -62,14 +62,15 @@ class CommandManager {
     private applyConfigToCommand(command: BotCommand): void {
         if (!command.pluginName) { return; }
 
-        let pluginOverrides: ObjectStrMap = this.bot.config.commandRequiredPermissionOverrides[
+        let pluginOverrides = this.bot.config.commandRequiredPermissionOverrides[
             createKey.plugin(command.pluginName)
         ];
-        let overridingRequiredPermission: string =
+        let overridingRequiredPermission =
             pluginOverrides && pluginOverrides[command.commandName];
 
         if (overridingRequiredPermission) {
-            command.requiredPermission = overridingRequiredPermission;
+            command.requiredCustomPermission = overridingRequiredPermission.custom;
+            command.requiredDiscordPermission = overridingRequiredPermission.discord as PermissionString;
         }
     }
 

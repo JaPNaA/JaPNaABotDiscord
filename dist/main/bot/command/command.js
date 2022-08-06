@@ -12,8 +12,10 @@ class BotCommand {
     bot;
     /** Function to call when command is called */
     func;
-    /** Permission required to run command */
-    requiredPermission;
+    /** Custom permission required to run command */
+    requiredCustomPermission;
+    /** Discord permission required to run command */
+    requiredDiscordPermission;
     /** Is using this command in Direct Messages disallowed? */
     noDM;
     /** Help for the command */
@@ -27,7 +29,8 @@ class BotCommand {
     constructor(bot, commandName, pluginName, func, options) {
         this.bot = bot;
         this.func = func;
-        this.requiredPermission = options && options.requiredPermission;
+        this.requiredCustomPermission = options && options.requiredCustomPermission;
+        this.requiredDiscordPermission = options && options.requiredDiscordPermission;
         this.noDM = (options && options.noDM) || false;
         this.help = options && options.help;
         this.group = options && options.group;
@@ -67,11 +70,18 @@ class BotCommand {
                     reasonCannotRun: "You cannot run this command in Direct Messages"
                 };
             }
-            if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
+            if (this.requiredDiscordPermission && !permissions.hasDiscord(this.requiredDiscordPermission)) {
                 return {
                     canRun: false,
                     reasonCannotRun: (0, mention_1.default)(commandEvent.userId) + " **You must have `" +
-                        this.requiredPermission + "` permissions to run this command.**"
+                        this.requiredDiscordPermission + "` permissions to run this command.**"
+                };
+            }
+            if (this.requiredCustomPermission && !permissions.hasCustom(this.requiredCustomPermission)) {
+                return {
+                    canRun: false,
+                    reasonCannotRun: (0, mention_1.default)(commandEvent.userId) + " **You must have custom `" +
+                        this.requiredCustomPermission + "` permissions to run this command.**"
                 };
             }
             return { canRun: true };

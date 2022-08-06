@@ -8,6 +8,7 @@ import mention from "../../utils/str/mention";
 import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
+import { PermissionString } from "discord.js";
 
 type CleanCommandContent = {
     /** The cleaned message */
@@ -30,8 +31,10 @@ class BotCommand {
     bot: Bot;
     /** Function to call when command is called */
     func: BotCommandCallback;
-    /** Permission required to run command */
-    requiredPermission: string | undefined;
+    /** Custom permission required to run command */
+    requiredCustomPermission: string | undefined;
+    /** Discord permission required to run command */
+    requiredDiscordPermission: PermissionString | undefined;
     /** Is using this command in Direct Messages disallowed? */
     noDM: boolean;
     /** Help for the command */
@@ -46,7 +49,8 @@ class BotCommand {
     constructor(bot: Bot, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions) {
         this.bot = bot;
         this.func = func;
-        this.requiredPermission = options && options.requiredPermission;
+        this.requiredCustomPermission = options && options.requiredCustomPermission;
+        this.requiredDiscordPermission = options && options.requiredDiscordPermission;
         this.noDM = (options && options.noDM) || false;
         this.help = options && options.help;
         this.group = options && options.group;
@@ -101,11 +105,19 @@ class BotCommand {
                 };
             }
 
-            if (this.requiredPermission && !permissions.has(this.requiredPermission)) {
+            if (this.requiredDiscordPermission && !permissions.hasDiscord(this.requiredDiscordPermission)) {
                 return {
                     canRun: false,
                     reasonCannotRun: mention(commandEvent.userId) + " **You must have `" +
-                        this.requiredPermission + "` permissions to run this command.**"
+                        this.requiredDiscordPermission + "` permissions to run this command.**"
+                };
+            }
+
+            if (this.requiredCustomPermission && !permissions.hasCustom(this.requiredCustomPermission)) {
+                return {
+                    canRun: false,
+                    reasonCannotRun: mention(commandEvent.userId) + " **You must have custom `" +
+                        this.requiredCustomPermission + "` permissions to run this command.**"
                 };
             }
 

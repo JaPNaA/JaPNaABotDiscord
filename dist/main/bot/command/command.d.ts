@@ -3,6 +3,7 @@ import BotCommandCallback from "./commandCallback.js";
 import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
+import { PermissionString } from "discord.js";
 declare type CleanCommandContent = {
     /** The cleaned message */
     commandContent: string;
@@ -21,8 +22,10 @@ declare class BotCommand {
     bot: Bot;
     /** Function to call when command is called */
     func: BotCommandCallback;
-    /** Permission required to run command */
-    requiredPermission: string | undefined;
+    /** Custom permission required to run command */
+    requiredCustomPermission: string | undefined;
+    /** Discord permission required to run command */
+    requiredDiscordPermission: PermissionString | undefined;
     /** Is using this command in Direct Messages disallowed? */
     noDM: boolean;
     /** Help for the command */

@@ -1,7 +1,7 @@
 import ObjectStrMap from "./objectStrMap";
 
-type NestedObject = {
-    [x: string]: ObjectStrMap;
+type NestedObject<T = ObjectStrMap> = {
+    [x: string]: T;
 };
 
 export default NestedObject;

@@ -159,7 +159,7 @@ class Bot {
                 help: {
                     description: "Restarts the bot"
                 },
-                requiredPermission: "BOT_ADMINISTRATOR",
+                requiredCustomPermission: "BOT_ADMINISTRATOR",
                 group: "Utils"
             }
         );

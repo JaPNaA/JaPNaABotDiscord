@@ -17,7 +17,7 @@ class BotPermissions {
         if (!role) {
             return new permissions_js_1.default();
         }
-        let permissions = new permissions_js_1.default(role.permissions.bitfield);
+        let permissions = new permissions_js_1.default(role.permissions);
         if (channelId) {
             permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.role_channel(serverId, roleId, channelId)));
         }
@@ -33,7 +33,7 @@ class BotPermissions {
         let server;
         let user;
         let roles;
-        let permissionsNum = 0n;
+        const permissions = new permissions_js_1.default();
         if (serverId) {
             server = await this.bot.client.getServer(serverId);
             if (!server) {
@@ -44,10 +44,8 @@ class BotPermissions {
                 return new permissions_js_1.default();
             }
             roles = Array.from(user.roles.cache.values());
-            let permissions = user.permissions.bitfield;
-            permissionsNum |= permissions;
+            permissions.addPermissions(user.permissions);
         }
-        let permissions = new permissions_js_1.default(permissionsNum);
         permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId)));
         if (roles) {
             for (let role of roles) {

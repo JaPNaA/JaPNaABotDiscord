@@ -1,5 +1,6 @@
 import { JSONType } from "../../types/jsonObject.js";
 import NestedObject from "../../types/nestedObjectStrMap";
+import ObjectStrMap from "../../types/objectStrMap.js";
 import Bot from "./bot.js";
 declare class Config {
     /** Original config */
@@ -13,7 +14,7 @@ declare class Config {
     /** Tell the users that the bot doesn't know command? */
     doAlertCommandDoesNotExist: boolean;
     /** Overrides for bot commands */
-    commandRequiredPermissionOverrides: NestedObject;
+    commandRequiredPermissionOverrides: NestedObject<NestedObject<ObjectStrMap>>;
     /** How often to auto-write memory to disk? */
     autoWriteTimeInterval: number;
     /** Gitlab link to the bot */

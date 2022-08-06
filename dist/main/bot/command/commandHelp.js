@@ -9,7 +9,8 @@ function getFullCommandHelp(command, help) {
         ...help || { description: "" },
         group: command.group,
         noDM: command.noDM || false,
-        requiredPermission: command.requiredPermission,
+        requiredDiscordPermission: command.requiredDiscordPermission,
+        requiredCustomPermission: command.requiredCustomPermission,
         fromPlugin: command.pluginName
     };
 }

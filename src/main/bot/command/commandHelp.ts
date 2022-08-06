@@ -14,8 +14,10 @@ export interface BotCommandHelpFull extends BotCommandHelp {
     group?: string;
     /** Disallow the use of the command in Direct Messages? */
     noDM: boolean;
-    /** The required permission to run the command */
-    requiredPermission?: string;
+    /** The required discord permission to run the command */
+    requiredDiscordPermission?: string;
+    /** The required custom permission to run the command */
+    requiredCustomPermission?: string;
     /** The plugin where the command in from */
     fromPlugin?: string;
 }
@@ -28,7 +30,8 @@ export function getFullCommandHelp(command: BotCommand, help?: BotCommandHelp | 
         ...help || { description: "" },
         group: command.group,
         noDM: command.noDM || false,
-        requiredPermission: command.requiredPermission,
+        requiredDiscordPermission: command.requiredDiscordPermission,
+        requiredCustomPermission: command.requiredCustomPermission,
         fromPlugin: command.pluginName
     }
 }
