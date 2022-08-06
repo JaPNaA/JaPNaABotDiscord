@@ -56,7 +56,7 @@ class Japnaa extends plugin_js_1.default {
     /**
      * Safe eval command
      */
-    sev(event) {
+    async sev(event) {
         // Adapted from https://github.com/hacksparrow/safe-eval/blob/master/index.js
         const sandbox = {};
         const resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000);
@@ -79,11 +79,11 @@ class Japnaa extends plugin_js_1.default {
         node_vm_1.default.runInNewContext(script, sandbox, {
             timeout: 100
         });
-        this._sendJSCodeBlock(event.channelId, (0, node_util_1.inspect)(sandbox[resultKey]));
+        await this._sendJSCodeBlock(event.channelId, (0, node_util_1.inspect)(sandbox[resultKey]));
     }
-    _sendJSCodeBlock(channelId, str) {
+    async _sendJSCodeBlock(channelId, str) {
         const cleanStr = (0, ellipsisize_1.default)(str.replace(/ {4}/g, "\t"), 2000 - 9);
-        this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
+        await this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
     }
     /**
      * says whatever you say
@@ -143,7 +143,7 @@ class Japnaa extends plugin_js_1.default {
         for (let i = 0; i < times; i++) {
             results.push((0, random_1.default)(min, max, step));
         }
-        this.bot.client.send(event.channelId, (0, ellipsisize_1.default)(`${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`, 2000 - 2) + "**");
+        await this.bot.client.send(event.channelId, (0, ellipsisize_1.default)(`${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`, 2000 - 2) + "**");
     }
     async random_string(event) {
         const [stringArg, lengthArg] = (0, stringToArgs_1.default)(event.arguments);

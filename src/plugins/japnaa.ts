@@ -69,7 +69,7 @@ class Japnaa extends BotPlugin {
     /**
      * Safe eval command
      */
-    public sev(event: DiscordCommandEvent) {
+    public async sev(event: DiscordCommandEvent) {
         // Adapted from https://github.com/hacksparrow/safe-eval/blob/master/index.js
         const sandbox: { [x: string]: any } = {}
         const resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000)
@@ -93,13 +93,13 @@ class Japnaa extends BotPlugin {
             timeout: 100
         });
 
-        this._sendJSCodeBlock(event.channelId, inspect(sandbox[resultKey]));
+        await this._sendJSCodeBlock(event.channelId, inspect(sandbox[resultKey]));
     }
 
 
-    private _sendJSCodeBlock(channelId: string, str: string) {
+    private async _sendJSCodeBlock(channelId: string, str: string) {
         const cleanStr = ellipsisize(str.replace(/ {4}/g, "\t"), 2000 - 9);
-        this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
+        await this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
     }
 
     /**
@@ -167,7 +167,7 @@ class Japnaa extends BotPlugin {
         const results = [];
         for (let i = 0; i < times; i++) { results.push(random(min, max, step)); }
 
-        this.bot.client.send(event.channelId,
+        await this.bot.client.send(event.channelId,
             ellipsisize(
                 `${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`,
                 2000 - 2

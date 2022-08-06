@@ -37,7 +37,7 @@ declare class Japnaa extends BotPlugin {
     /**
      * Safe eval command
      */
-    sev(event: DiscordCommandEvent): void;
+    sev(event: DiscordCommandEvent): Promise<void>;
     private _sendJSCodeBlock;
     /**
      * says whatever you say
