@@ -605,6 +605,9 @@ class Default extends plugin_js_1.default {
     }
     _getHumanReadableConfigString(config, plugin) {
         const msg = [];
+        if (config.size <= 0) {
+            return "// No configurable options";
+        }
         for (const [key, value] of config) {
             msg.push(this._getHumanReadableConfigItemString(key, value, plugin));
         }

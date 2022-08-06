@@ -660,6 +660,10 @@ class Default extends BotPlugin {
     private _getHumanReadableConfigString(config: Map<string, any>, plugin: BotPlugin) {
         const msg = [];
 
+        if (config.size <= 0) {
+            return "// No configurable options";
+        }
+
         for (const [key, value] of config) {
             msg.push(this._getHumanReadableConfigItemString(key, value, plugin));
         }
