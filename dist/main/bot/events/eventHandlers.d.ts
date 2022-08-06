@@ -32,9 +32,6 @@ export declare class EventHandlers<T = void> {
      * Not cancelled with `stopPropagation`, but cancelled by `preventSystemNext`.
      */
     private systemHandlers;
-    private shouldStopPropagation;
-    private shouldPreventSystem;
-    private eventControls;
     addHandler(handler: EventHandler<T>): void;
     addHighPriorityHandler(handler: EventHandler<T>): void;
     _addSystemHandler(handler: EventHandler<T>): void;

@@ -40,13 +40,6 @@ export class EventHandlers<T = void> {
      */
     private systemHandlers: EventHandler<T>[] = [];
 
-    private shouldStopPropagation = false;
-    private shouldPreventSystem = false;
-
-    private eventControls: EventControls = {
-        stopPropagation: () => this.shouldStopPropagation = true,
-        preventSystemNext: () => this.shouldPreventSystem = true
-    }
 
     public addHandler(handler: EventHandler<T>) {
         this.normalHandlers.push(handler);
@@ -73,33 +66,38 @@ export class EventHandlers<T = void> {
     }
 
     public async dispatch(data: T): Promise<{ stoppedPropagation: boolean, preventedSystem: boolean }> {
-        this.shouldStopPropagation = false;
-        this.shouldPreventSystem = false;
+        let shouldStopPropagation = false;
+        let shouldPreventSystem = false;
 
-        await this.runEventHandlerArr(this.highPriorityHandlers, data);
-
-        if (!this.shouldStopPropagation) {
-            await this.runEventHandlerArr(this.normalHandlers, data);
+        const eventControls = {
+            stopPropagation: () => shouldStopPropagation = true,
+            preventSystemNext: () => shouldPreventSystem = true
         }
 
-        if (!this.shouldPreventSystem) {
-            await this.runEventHandlerArr(this.systemHandlers, data);
+        await this.runEventHandlerArr(this.highPriorityHandlers, data, eventControls);
+
+        if (!shouldStopPropagation) {
+            await this.runEventHandlerArr(this.normalHandlers, data, eventControls);
+        }
+
+        if (!shouldPreventSystem) {
+            await this.runEventHandlerArr(this.systemHandlers, data, eventControls);
         }
 
         return {
-            stoppedPropagation: this.shouldStopPropagation,
-            preventedSystem: this.shouldPreventSystem
-        }
+            stoppedPropagation: shouldStopPropagation,
+            preventedSystem: shouldPreventSystem
+        };
     }
 
-    private async runEventHandlerArr(arr: EventHandler<T>[], data: T) {
+    private async runEventHandlerArr(arr: EventHandler<T>[], data: T, eventControls: EventControls) {
         const errors: string[] = [];
         const promises: Promise<any>[] = [];
 
         Logger.log_message("Event: " + data);
 
         for (const handler of arr) {
-            promises.push(tryRun(() => handler(data, this.eventControls))
+            promises.push(tryRun(() => handler(data, eventControls))
                 .then(error => {
                     if (error) {
                         errors.push(error);

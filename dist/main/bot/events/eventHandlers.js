@@ -21,12 +21,6 @@ class EventHandlers {
      * Not cancelled with `stopPropagation`, but cancelled by `preventSystemNext`.
      */
     systemHandlers = [];
-    shouldStopPropagation = false;
-    shouldPreventSystem = false;
-    eventControls = {
-        stopPropagation: () => this.shouldStopPropagation = true,
-        preventSystemNext: () => this.shouldPreventSystem = true
-    };
     addHandler(handler) {
         this.normalHandlers.push(handler);
     }
@@ -46,26 +40,30 @@ class EventHandlers {
         (0, removeFromArray_1.default)(this.systemHandlers, handler);
     }
     async dispatch(data) {
-        this.shouldStopPropagation = false;
-        this.shouldPreventSystem = false;
-        await this.runEventHandlerArr(this.highPriorityHandlers, data);
-        if (!this.shouldStopPropagation) {
-            await this.runEventHandlerArr(this.normalHandlers, data);
+        let shouldStopPropagation = false;
+        let shouldPreventSystem = false;
+        const eventControls = {
+            stopPropagation: () => shouldStopPropagation = true,
+            preventSystemNext: () => shouldPreventSystem = true
+        };
+        await this.runEventHandlerArr(this.highPriorityHandlers, data, eventControls);
+        if (!shouldStopPropagation) {
+            await this.runEventHandlerArr(this.normalHandlers, data, eventControls);
         }
-        if (!this.shouldPreventSystem) {
-            await this.runEventHandlerArr(this.systemHandlers, data);
+        if (!shouldPreventSystem) {
+            await this.runEventHandlerArr(this.systemHandlers, data, eventControls);
         }
         return {
-            stoppedPropagation: this.shouldStopPropagation,
-            preventedSystem: this.shouldPreventSystem
+            stoppedPropagation: shouldStopPropagation,
+            preventedSystem: shouldPreventSystem
         };
     }
-    async runEventHandlerArr(arr, data) {
+    async runEventHandlerArr(arr, data, eventControls) {
         const errors = [];
         const promises = [];
         logger_1.default.log_message("Event: " + data);
         for (const handler of arr) {
-            promises.push((0, tryRun_1.default)(() => handler(data, this.eventControls))
+            promises.push((0, tryRun_1.default)(() => handler(data, eventControls))
                 .then(error => {
                 if (error) {
                     errors.push(error);
