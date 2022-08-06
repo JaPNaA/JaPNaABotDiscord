@@ -158,8 +158,13 @@ class Default extends BotPlugin {
             let canRun: boolean = true;
 
             if (
-                command.requiredPermission !== undefined &&
-                !permissions.has(command.requiredPermission)
+                (
+                    command.requiredDiscordPermission !== undefined &&
+                    !permissions.hasDiscord(command.requiredDiscordPermission)
+                ) || (
+                    command.requiredCustomPermission !== undefined &&
+                    !permissions.hasCustom(command.requiredCustomPermission)
+                )
             ) {
                 canRun = false;
             }
@@ -271,12 +276,15 @@ class Default extends BotPlugin {
      * Appends the permissions for a command in help in embed
      */
     _appendHelpPermissions(fields: object[], help: BotCommandHelpFull): void {
-        let requiredPermissionMarkdown: string =
-            help.requiredPermission ? "**" + help.requiredPermission + "**" : "none";
+        let requiredDiscordPermissionMarkdown: string =
+            help.requiredDiscordPermission ? "**" + help.requiredDiscordPermission + "**" : "none";
+        let requiredCustomPermissionMarkdown: string =
+            help.requiredCustomPermission ? "**" + help.requiredCustomPermission + "**" : "none";
         let runInDMMarkdown: string = help.noDM ? "**no**" : "allowed";
 
         let value: string =
-            "Required permission: " + requiredPermissionMarkdown +
+            "Required Discord permission: " + requiredDiscordPermissionMarkdown +
+            "\nRequired custom permission: " + requiredCustomPermissionMarkdown +
             "\nRun in DMs: " + runInDMMarkdown;
 
         fields.push({

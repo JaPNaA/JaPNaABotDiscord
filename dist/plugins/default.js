@@ -248,9 +248,11 @@ class Default extends plugin_js_1.default {
      * Appends the permissions for a command in help in embed
      */
     _appendHelpPermissions(fields, help) {
-        let requiredPermissionMarkdown = help.requiredPermission ? "**" + help.requiredPermission + "**" : "none";
+        let requiredDiscordPermissionMarkdown = help.requiredDiscordPermission ? "**" + help.requiredDiscordPermission + "**" : "none";
+        let requiredCustomPermissionMarkdown = help.requiredCustomPermission ? "**" + help.requiredCustomPermission + "**" : "none";
         let runInDMMarkdown = help.noDM ? "**no**" : "allowed";
-        let value = "Required permission: " + requiredPermissionMarkdown +
+        let value = "Required Discord permission: " + requiredDiscordPermissionMarkdown +
+            "\nRequired custom permission: " + requiredCustomPermissionMarkdown +
             "\nRun in DMs: " + runInDMMarkdown;
         fields.push({
             name: "**Permissions**",
