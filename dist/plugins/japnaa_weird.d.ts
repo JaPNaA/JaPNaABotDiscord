@@ -2,6 +2,7 @@ import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
+import { EventControls } from "../main/bot/events/eventHandlers";
 /**
  * The weirder side of JaPNaABot
  */
@@ -25,9 +26,9 @@ declare class JapnaaWeird extends BotPlugin {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    onmessageHandler_lol(event: DiscordMessageEvent): Promise<void>;
+    onmessageHandler_lol(event: DiscordMessageEvent, eventControls: EventControls): Promise<void>;
     private _countL$wl;
-    _isNaturalMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean>;
+    _isUserMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean>;
     _start(): void;
     _stop(): void;
 }

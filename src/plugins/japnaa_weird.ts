@@ -3,6 +3,7 @@ import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
+import { EventControls } from "../main/bot/events/eventHandlers";
 
 /**
  * The weirder side of JaPNaABot
@@ -56,15 +57,18 @@ class JapnaaWeird extends BotPlugin {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    async onmessageHandler_lol(event: DiscordMessageEvent) {
-        if (!await this._isNaturalMessage(this.bot, event)) { return; }
+    async onmessageHandler_lol(event: DiscordMessageEvent, eventControls: EventControls) {
+        if (!await this._isUserMessage(this.bot, event)) { return; }
 
         const numL$wl = this._countL$wl(event.message);
 
         if (numL$wl) {
             let str = "no ".repeat(numL$wl);
             this.bot.client.send(event.channelId, str);
-        } else if (this.lolRegexp.test(event.message)) { // contains valid 'lol'
+            // ignore commands with matching l$wl
+            if (event.precommandName) { eventControls.preventSystemNext(); }
+        } else if (this.lolRegexp.test(event.message) && !event.precommandName) {
+            // ^ contains valid 'lol' and is not command
             this.bot.client.send(event.channelId, "lol");
         }
     }
@@ -75,10 +79,9 @@ class JapnaaWeird extends BotPlugin {
         return i;
     }
 
-    async _isNaturalMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean> {
+    async _isUserMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean> {
         const user = await bot.client.getUser(event.userId);
         return Boolean(
-            !event.precommandName && // is not a command
             user && !user.bot
         );
     }

@@ -48,16 +48,21 @@ class JapnaaWeird extends plugin_js_1.default {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    async onmessageHandler_lol(event) {
-        if (!await this._isNaturalMessage(this.bot, event)) {
+    async onmessageHandler_lol(event, eventControls) {
+        if (!await this._isUserMessage(this.bot, event)) {
             return;
         }
         const numL$wl = this._countL$wl(event.message);
         if (numL$wl) {
             let str = "no ".repeat(numL$wl);
             this.bot.client.send(event.channelId, str);
+            // ignore commands with matching l$wl
+            if (event.precommandName) {
+                eventControls.preventSystemNext();
+            }
         }
-        else if (this.lolRegexp.test(event.message)) { // contains valid 'lol'
+        else if (this.lolRegexp.test(event.message) && !event.precommandName) {
+            // ^ contains valid 'lol' and is not command
             this.bot.client.send(event.channelId, "lol");
         }
     }
@@ -66,10 +71,9 @@ class JapnaaWeird extends plugin_js_1.default {
         for (let match; match = this.l$wlRegexp.exec(str); i++) { }
         return i;
     }
-    async _isNaturalMessage(bot, event) {
+    async _isUserMessage(bot, event) {
         const user = await bot.client.getUser(event.userId);
-        return Boolean(!event.precommandName && // is not a command
-            user && !user.bot);
+        return Boolean(user && !user.bot);
     }
     _start() {
         this._registerDefaultCommand("jap", this.jap);
