@@ -839,7 +839,7 @@ class Default extends BotPlugin {
         });
 
         this._registerDefaultCommand("edit permission", this.edit_permission, {
-            requiredCustomPermission: "ADMINISTRATOR",
+            requiredDiscordPermission: "ADMINISTRATOR",
             help: {
                 description: "Edits the permissions of a person or role.",
                 overloads: [{

@@ -760,7 +760,7 @@ class Default extends plugin_js_1.default {
             group: "Communication"
         });
         this._registerDefaultCommand("edit permission", this.edit_permission, {
-            requiredCustomPermission: "ADMINISTRATOR",
+            requiredDiscordPermission: "ADMINISTRATOR",
             help: {
                 description: "Edits the permissions of a person or role.",
                 overloads: [{
