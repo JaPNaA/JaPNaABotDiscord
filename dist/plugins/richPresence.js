@@ -75,7 +75,7 @@ class RichPresence extends plugin_1.default {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
         this._registerDefaultCommand("watch", this.watch, {
             help: {
@@ -89,7 +89,7 @@ class RichPresence extends plugin_1.default {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
         this._registerDefaultCommand("listen to", this.listen_to, {
             help: {
@@ -103,7 +103,7 @@ class RichPresence extends plugin_1.default {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
         this._registerDefaultCommand("stream", this.stream, {
             help: {
@@ -117,7 +117,7 @@ class RichPresence extends plugin_1.default {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
     }
     _stop() { }

@@ -366,7 +366,7 @@ class Japnaa extends BotPlugin {
                 this.bot.client.send(event.channelId, "All spam on this server stopped");
                 return;
             case "stop all":
-                if (this.bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
+                if (this.bot.permissions.getPermissions_global(event.userId).hasCustom("BOT_ADMINISTRATOR")) {
                     this._stopAllSpam();
                     this.bot.client.send(event.channelId, "All spam on every server stopped");
                 } else {

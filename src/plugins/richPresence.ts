@@ -87,7 +87,7 @@ export default class RichPresence extends BotPlugin {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
 
         this._registerDefaultCommand("watch", this.watch, {
@@ -102,7 +102,7 @@ export default class RichPresence extends BotPlugin {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
 
         this._registerDefaultCommand("listen to", this.listen_to, {
@@ -117,7 +117,7 @@ export default class RichPresence extends BotPlugin {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
 
         this._registerDefaultCommand("stream", this.stream, {
@@ -132,7 +132,7 @@ export default class RichPresence extends BotPlugin {
                 ]
             },
             group: "Rich Presence",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
     }
 

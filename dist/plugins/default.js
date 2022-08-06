@@ -149,8 +149,9 @@ class Default extends plugin_js_1.default {
         return commands.map(command => {
             let name = command.commandName;
             let canRun = true;
-            if (command.requiredPermission !== undefined &&
-                !permissions.has(command.requiredPermission)) {
+            if ((command.requiredDiscordPermission !== undefined &&
+                !permissions.hasDiscord(command.requiredDiscordPermission)) || (command.requiredCustomPermission !== undefined &&
+                !permissions.hasCustom(command.requiredCustomPermission))) {
                 canRun = false;
             }
             if (command.noDM && event.isDM) {
@@ -309,7 +310,7 @@ class Default extends plugin_js_1.default {
      */
     i_am_the_bot_admin(event) {
         if (this.bot.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.firstAdmin())) {
-            if (this.bot.permissions.getPermissions_global(event.userId).has("BOT_ADMINISTRATOR")) {
+            if (this.bot.permissions.getPermissions_global(event.userId).hasCustom("BOT_ADMINISTRATOR")) {
                 this.bot.client.send(event.channelId, "Yes. You are the bot admin.");
             }
             else {
@@ -451,13 +452,9 @@ class Default extends plugin_js_1.default {
         const assignerPermissions = await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
         // check if can assign permission
         if (permissions_js_1.default.specialCustoms.includes(permission) && // if special permission
-            !assignerPermissions.has("BOT_ADMINISTRATOR") // and is not admin
+            !assignerPermissions.hasCustom("BOT_ADMINISTRATOR") // and is not admin
         ) {
             this.bot.client.send(event.channelId, "Cannot assign special custom permission");
-            return;
-        }
-        else if (permissions_js_1.default.keys.includes(permission)) {
-            this.bot.client.send(event.channelId, "Cannot assign discord permissions, you must assign them yourself.");
             return;
         }
         // check if user exists, if assigning to user
@@ -484,7 +481,7 @@ class Default extends plugin_js_1.default {
             }
         }
         else if (ns === "g") { // global namespace
-            if (!assignerPermissions.has("BOT_ADMINISTRATOR")) {
+            if (!assignerPermissions.hasCustom("BOT_ADMINISTRATOR")) {
                 this.bot.client.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
                 return;
             }
@@ -541,7 +538,7 @@ class Default extends plugin_js_1.default {
             if (!server) {
                 throw new Error("Could not find server or channel");
             }
-            if (!(await this.bot.permissions.getPermissions_channel(event.userId, server.id, location)).has("ADMINISTRATOR")) {
+            if (!(await this.bot.permissions.getPermissions_channel(event.userId, server.id, location)).hasDiscord("ADMINISTRATOR")) {
                 throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that channel");
             }
             humanReadableLocation = `<#${location}>`;
@@ -552,7 +549,7 @@ class Default extends plugin_js_1.default {
                 location = event.serverId;
             }
             // check permissions
-            if (!(await this.bot.permissions.getPermissions_channel(event.userId, location, event.channelId)).has("ADMINISTRATOR")) {
+            if (!(await this.bot.permissions.getPermissions_channel(event.userId, location, event.channelId)).hasDiscord("ADMINISTRATOR")) {
                 throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that server");
             }
             config = await plugin.config.getAllUserSettingsInServer(location);
@@ -702,7 +699,7 @@ class Default extends plugin_js_1.default {
     }
     _start() {
         this._registerDefaultCommand("eval", this.eval, {
-            requiredPermission: "BOT_ADMINISTRATOR",
+            requiredCustomPermission: "BOT_ADMINISTRATOR",
             help: {
                 description: "Evaluates the arguments as JavaScript.",
                 overloads: [{
@@ -728,7 +725,7 @@ class Default extends plugin_js_1.default {
             group: "Testing"
         });
         this._registerDefaultCommand("pretend get", this.pretend_get, {
-            requiredPermission: "BOT_ADMINISTRATOR",
+            requiredCustomPermission: "BOT_ADMINISTRATOR",
             help: {
                 description: "The bot will pretend that it recieved a message.",
                 overloads: [{
@@ -745,7 +742,7 @@ class Default extends plugin_js_1.default {
             group: "Testing"
         });
         this._registerDefaultCommand("forward to", this.forward_to, {
-            requiredPermission: "BOT_ADMINISTRATOR",
+            requiredCustomPermission: "BOT_ADMINISTRATOR",
             help: {
                 description: "The bot will forward any message from a command to a different channel.",
                 overloads: [{
@@ -763,7 +760,7 @@ class Default extends plugin_js_1.default {
             group: "Communication"
         });
         this._registerDefaultCommand("edit permission", this.edit_permission, {
-            requiredPermission: "ADMINISTRATOR",
+            requiredCustomPermission: "ADMINISTRATOR",
             help: {
                 description: "Edits the permissions of a person or role.",
                 overloads: [{
@@ -817,10 +814,10 @@ class Default extends plugin_js_1.default {
                     ]
                 ]
             },
-            requiredPermission: "ADMINISTRATOR"
+            requiredDiscordPermission: "ADMINISTRATOR"
         });
         this._registerDefaultCommand("send", this.send, {
-            requiredPermission: "BOT_ADMINISTRATOR",
+            requiredCustomPermission: "BOT_ADMINISTRATOR",
             help: {
                 description: "Makes the bot send a message to a specified channel.",
                 overloads: [{
@@ -913,7 +910,7 @@ class Default extends plugin_js_1.default {
                 description: "Updates the 'japnaabot' node module to the newest version"
             },
             group: "Other",
-            requiredPermission: "BOT_ADMINISTRATOR"
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
         });
         this._registerDefaultCommand("uptime", this.uptime, {
             help: {
