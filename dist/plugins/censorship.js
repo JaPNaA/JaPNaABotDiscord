@@ -26,7 +26,7 @@ class Censorship extends plugin_js_1.default {
             default: false
         },
         targets: {
-            type: "array",
+            type: "object",
             comment: "What to censor. Array of RegEx strings (case insensitive).",
             default: ["\\[censor this message\\]"]
         }

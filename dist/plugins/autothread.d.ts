@@ -2,6 +2,7 @@ import Bot from "../main/bot/bot/bot.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
+import { EventControls } from "../main/bot/events/eventHandlers.js";
 /**
  * Autothread plugin; automatically makes threads
  */
@@ -38,12 +39,12 @@ export default class AutoThread extends BotPlugin {
     private _threadUpdateHandler?;
     constructor(bot: Bot);
     toggleAutothread(event: DiscordCommandEvent): Promise<void>;
-    messageHandler(event: DiscordMessageEvent): Promise<void>;
+    messageHandler(event: DiscordMessageEvent, eventControls: EventControls): Promise<void>;
     private _onThreadUpdate;
     private addCooldownDoneTimeout;
     private extractTitleFromMessage;
     private unMentionify;
-    private _isNaturalMessage;
+    private _isUserMessage;
     private isCool;
     private setCooldown;
     _start(): void;

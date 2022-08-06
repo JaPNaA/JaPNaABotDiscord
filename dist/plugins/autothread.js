@@ -7,6 +7,7 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const getSnowflakeNum_js_1 = __importDefault(require("../main/utils/getSnowflakeNum.js"));
+const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
 /**
  * Autothread plugin; automatically makes threads
  */
@@ -61,12 +62,12 @@ class AutoThread extends plugin_js_1.default {
             this.bot.client.send(event.channelId, "Autothread enabled.");
         }
     }
-    async messageHandler(event) {
+    async messageHandler(event, eventControls) {
         const config = await this.config.getAllUserSettingsInChannel(event.channelId);
         if (!config.get("enabled")) {
             return;
         }
-        if (!(await this._isNaturalMessage(event))) {
+        if (!(await this._isUserMessage(event))) {
             return;
         }
         const noThreadKeyword = config.get("noThreadKeyword");
@@ -80,12 +81,28 @@ class AutoThread extends plugin_js_1.default {
         if (!this.isCool(event.channelId)) {
             return;
         }
-        const cooldownTime = config.get("cooldownTime") * 1000;
-        const disableChatCooldown = config.get("disableChatCooldown");
-        await channel.threads.create({
+        // exception for `!autothread` not to be handled
+        if (event.precommandName &&
+            event.message.slice(event.precommandName.name.length).toLowerCase().startsWith("autothread")) {
+            return;
+        }
+        // create thread and respond in thread
+        const thread = await channel.threads.create({
             name: (0, ellipsisize_js_1.default)(await this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });
+        eventControls.preventSystemNext();
+        eventControls.stopPropagation();
+        this.bot.rawEventAdapter.onMessage((0, fakeMessage_js_1.default)({
+            author: (await this.bot.client.getUser(event.userId)),
+            channel: thread,
+            content: event.message,
+            guild: (await this.bot.client.getServer(event.serverId)),
+            id: event.messageId
+        }));
+        // sets cooldowns
+        const cooldownTime = config.get("cooldownTime") * 1000;
+        const disableChatCooldown = config.get("disableChatCooldown");
         this.setCooldown(event.channelId, cooldownTime);
         if (disableChatCooldown) {
             // prevent people from sending messages while on cooldown
@@ -178,10 +195,9 @@ class AutoThread extends plugin_js_1.default {
         }
         return strParts.join("") + str.slice(lastIndex);
     }
-    async _isNaturalMessage(event) {
+    async _isUserMessage(event) {
         const user = await this.bot.client.getUser(event.userId);
-        return Boolean(!event.precommandName && // is not a command
-            user && !user.bot);
+        return Boolean(user && !user.bot);
     }
     isCool(channelId) {
         const cooldown = this.cooldowns.get(channelId);
@@ -205,7 +221,7 @@ class AutoThread extends plugin_js_1.default {
             },
             noDM: true
         });
-        this.bot.events.message.addHandler(this.messageHandler.bind(this));
+        this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
     }
     _stop() {
         if (this._threadUpdateHandler) {

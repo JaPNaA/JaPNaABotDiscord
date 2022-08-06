@@ -7,6 +7,8 @@ import { TextChannel, ThreadChannel } from "discord.js";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
 import Logger from "../main/utils/logger.js";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
+import { EventControls } from "../main/bot/events/eventHandlers.js";
+import fakeMessage from "../main/utils/fakeMessage.js";
 
 /**
  * Autothread plugin; automatically makes threads
@@ -67,10 +69,10 @@ export default class AutoThread extends BotPlugin {
         }
     }
 
-    public async messageHandler(event: DiscordMessageEvent) {
+    public async messageHandler(event: DiscordMessageEvent, eventControls: EventControls) {
         const config = await this.config.getAllUserSettingsInChannel(event.channelId);
         if (!config.get("enabled")) { return; }
-        if (!(await this._isNaturalMessage(event))) { return; }
+        if (!(await this._isUserMessage(event))) { return; }
 
         const noThreadKeyword = config.get("noThreadKeyword");
         if (noThreadKeyword && event.message.includes(noThreadKeyword)) { return; }
@@ -79,14 +81,32 @@ export default class AutoThread extends BotPlugin {
 
         if (!this.isCool(event.channelId)) { return; }
 
-        const cooldownTime = config.get("cooldownTime") * 1000;
-        const disableChatCooldown = config.get("disableChatCooldown");
+        // exception for `!autothread` not to be handled
+        if (
+            event.precommandName &&
+            event.message.slice(event.precommandName.name.length).toLowerCase().startsWith("autothread")
+        ) { return; }
 
-        await channel.threads.create({
+        // create thread and respond in thread
+        const thread = await channel.threads.create({
             name: ellipsisize(await this.extractTitleFromMessage(event.message) || "Untitled", 100),
             startMessage: event.messageId
         });
 
+        eventControls.preventSystemNext();
+        eventControls.stopPropagation();
+
+        this.bot.rawEventAdapter.onMessage(fakeMessage({
+            author: (await this.bot.client.getUser(event.userId))!,
+            channel: thread,
+            content: event.message,
+            guild: (await this.bot.client.getServer(event.serverId))!,
+            id: event.messageId
+        }));
+
+        // sets cooldowns
+        const cooldownTime = config.get("cooldownTime") * 1000;
+        const disableChatCooldown = config.get("disableChatCooldown");
         this.setCooldown(event.channelId, cooldownTime);
 
         if (disableChatCooldown) {
@@ -182,10 +202,9 @@ export default class AutoThread extends BotPlugin {
         return strParts.join("") + str.slice(lastIndex);
     }
 
-    private async _isNaturalMessage(event: DiscordMessageEvent): Promise<boolean> {
+    private async _isUserMessage(event: DiscordMessageEvent): Promise<boolean> {
         const user = await this.bot.client.getUser(event.userId);
         return Boolean(
-            !event.precommandName && // is not a command
             user && !user.bot
         );
     }
@@ -217,7 +236,7 @@ export default class AutoThread extends BotPlugin {
             noDM: true
         });
 
-        this.bot.events.message.addHandler(this.messageHandler.bind(this));
+        this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
     }
 
     _stop() {
