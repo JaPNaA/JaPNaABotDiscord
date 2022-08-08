@@ -165,7 +165,7 @@ export default class AutoThread extends BotPlugin {
     private async _onThreadUpdate(oldState: ThreadChannel, newState: ThreadChannel) {
         const config = await this.config.getAllUserSettingsInChannel(newState.id);
         if (!config.get("deleteEmptyThreads")) { return; } // ignore; don't delete threads
-        if (oldState.ownerId !== this.bot.client.id) { return; } //* ignore; thread not made by bot (UNTESTED)
+        if (oldState.ownerId !== this.bot.client.id) { return; } // ignore; thread not made by bot (UNTESTED)
         if (oldState.archived || !newState.archived) { return; } // ignore; not change to archive
         if (oldState.archiveTimestamp === null || oldState.autoArchiveDuration === null) { return; } // lack of information
 

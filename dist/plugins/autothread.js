@@ -158,7 +158,7 @@ class AutoThread extends plugin_js_1.default {
         } // ignore; don't delete threads
         if (oldState.ownerId !== this.bot.client.id) {
             return;
-        } //* ignore; thread not made by bot (UNTESTED)
+        } // ignore; thread not made by bot (UNTESTED)
         if (oldState.archived || !newState.archived) {
             return;
         } // ignore; not change to archive
