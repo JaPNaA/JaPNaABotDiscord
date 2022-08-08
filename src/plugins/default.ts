@@ -942,7 +942,10 @@ class Default extends BotPlugin {
                     "scope": "Configure in __c__hannel, __s__erver, or __g__lobal",
                     "location": "Channel or server",
                     "[key]": "Optional. Specify a key to view or edit",
-                    "[value]": "Optional. JSON or \'delete\'. If provided, edits key."
+                    "[value]": "Optional. JSON or \'delete\'. If provided, edits key.",
+                    "--append/-a": "Flag. Appends `value` instead of replacing. Only for array values.",
+                    "--remove/-r": "Flag. Removes `value` from the array value.",
+                    "--subkey/-x": "Optional. If specified, updates an object value by replacing object[subkey]."
                 }],
                 examples: [
                     [
@@ -964,6 +967,18 @@ class Default extends BotPlugin {
                     [
                         "config autothread c here noThreadKeyword delete",
                         "Reset the noThreadKeyword config for plugin autothread to it's default value. (May be inherited from server or globals)"
+                    ],
+                    [
+                        "config autothread c here autothreadSubscribers --add \"501862082334031883\"",
+                        "Adds user with id 501862082334031883 to the autothreadSubscribers array"
+                    ],
+                    [
+                        "config autothread c here autothreadSubscribers --remove \"501862082334031883\"",
+                        "Removes user with id 501862082334031883 to the autothreadSubscribers array"
+                    ],
+                    [
+                        "config autothread c here autothreadSubscribers --subkey 0 \"501862082334031883\"",
+                        "Replaces the first user in the autothreadSubscribers array to 501862082334031883"
                     ]
                 ]
             },
