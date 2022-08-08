@@ -8,6 +8,7 @@ import SlapJack from "./games/slapjack.js";
 import Presidents from "./games/presidents/presidents.js";
 import Chess from "./games/chess/chess";
 import Bot from "../main/bot/bot/bot.js";
+import { RockPaperScissors } from "./games/rockPaperScissors.js";
 
 interface GameClass {
     new(bot: Bot, parentPlugin: Games, channelId: string, initer: string): Game
@@ -30,7 +31,10 @@ class Games extends BotPlugin {
         "kings": Presidents,
         "scum": Presidents,
 
-        "chess": Chess
+        "chess": Chess,
+
+        "rps": RockPaperScissors,
+        "rock paper scissors": RockPaperScissors
     };
 
     constructor(bot: Bot) {

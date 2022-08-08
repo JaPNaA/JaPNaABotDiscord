@@ -7,6 +7,7 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
 const presidents_js_1 = __importDefault(require("./games/presidents/presidents.js"));
 const chess_1 = __importDefault(require("./games/chess/chess"));
+const rockPaperScissors_js_1 = require("./games/rockPaperScissors.js");
 /**
  * Games!
  */
@@ -21,7 +22,9 @@ class Games extends plugin_js_1.default {
         "presidents": presidents_js_1.default,
         "kings": presidents_js_1.default,
         "scum": presidents_js_1.default,
-        "chess": chess_1.default
+        "chess": chess_1.default,
+        "rps": rockPaperScissors_js_1.RockPaperScissors,
+        "rock paper scissors": rockPaperScissors_js_1.RockPaperScissors
     };
     constructor(bot) {
         super(bot);
