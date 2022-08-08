@@ -11,7 +11,8 @@ export default class CommandArguments {
     constructor(private args: string) { }
 
     public parse(options: CommandArgumentParseOptions): CommandArgumentData {
-        const strings = this.getStrings();
+        const strings = options.parseQuotes === false ?
+            this.args.split(/\s+/) : this.getStrings();
         const data = new CommandArgumentData(
             this._generateAliasMap(options),
             options.check || {},
@@ -278,33 +279,33 @@ interface CommandArgumentParseOptions {
      * 
      * The best fitting overload will be used.
      */
-    overloads: string[][],
+    overloads: string[][];
 
     /**
      * Allow the last argument to be filled with the remaining strings
-     *   ex. !spam 4 True i am spamming and counting
-     *   with overloads [["times", "countEnabled", "message"]]
+     *   ex. `!spam 4 True i am spamming and counting`
+     *   with overloads `[["times", "countEnabled", "message"]]`
      *   will put "i am spamming and counting" in the message argument
      * 
      * False by default
      */
-    allowMultifinal?: boolean,
+    allowMultifinal?: boolean;
 
     /**
      * Named options can be provided by the user in any order.
-     *   ex. !set reminder 4 d --repeat-times 2 This reminder will ring 3
-     *       times with a 4 day interval in between
+     *   ex. `!set reminder 4 d --repeat-times 2 This reminder will ring 3
+     *       times with a 4 day interval in between`
      * 
-     * For consistancy, try to start short named option names with '-' and
+     * For consistency, try to start short named option names with '-' and
      * long names with '--'; ex. "-rt" and "--repeat-times"
      */
-    namedOptions?: (string[] | string)[],
+    namedOptions?: (string[] | string)[];
 
     /**
      * Flags are like namedOptions, but doesn't expect the next string to
-     * be part of the option -- only existance is checked
+     * be part of the option -- only existence is checked
      */
-    flags?: (string[] | string)[],
+    flags?: (string[] | string)[];
 
     /**
      * Check the user arguments?
@@ -317,12 +318,12 @@ interface CommandArgumentParseOptions {
      */
     check?: {
         [name: string]: Checker
-    },
+    };
 
     /**
      * Which arguments are required?
      */
-    required?: string[],
+    required?: string[];
 
     /**
      * List of options can't be specified together
@@ -330,4 +331,14 @@ interface CommandArgumentParseOptions {
      *   will mark !set reminder --repeat --delay-sequence "4 5 2" invalid
      */
     exclusions?: string[][];
+
+    /**
+     * Will parse quotes? Default is true.
+     * 
+     * If true, passing `"quoted argument"` -> `argument = "quoted argument"`
+     * 
+     * If false, passing `"quoted argument"` ->
+     * `argument1 = '"quoted'; argument2 = 'argument"';`
+     */
+    parseQuotes?: boolean;
 }

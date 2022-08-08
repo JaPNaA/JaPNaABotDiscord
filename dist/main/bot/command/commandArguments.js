@@ -14,8 +14,9 @@ class CommandArguments {
         this.args = args;
     }
     parse(options) {
-        const strings = this.getStrings();
-        const data = new CommandArgumentData(this._generateAliasMap(options), options.check || {}, options.flags || [], options.exclutions || []);
+        const strings = options.parseQuotes === false ?
+            this.args.split(/\s+/) : this.getStrings();
+        const data = new CommandArgumentData(this._generateAliasMap(options), options.check || {}, options.flags || [], options.exclusions || []);
         this._getNamedArgsAndFlags(strings, options, data);
         this._getOrderedArguments(strings, options, data);
         return data;
