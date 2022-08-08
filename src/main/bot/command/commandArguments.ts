@@ -16,7 +16,7 @@ export default class CommandArguments {
             this._generateAliasMap(options),
             options.check || {},
             options.flags || [],
-            options.exclutions || []
+            options.exclusions || []
         );
 
         this._getNamedArgsAndFlags(strings, options, data);
@@ -329,5 +329,5 @@ interface CommandArgumentParseOptions {
      *   ex. [["--repeat", "--delay-sequence"]]
      *   will mark !set reminder --repeat --delay-sequence "4 5 2" invalid
      */
-    exclutions?: string[][];
+    exclusions?: string[][];
 }

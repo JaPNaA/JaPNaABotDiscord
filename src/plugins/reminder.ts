@@ -132,7 +132,7 @@ class Reminders extends BotPlugin {
                 ["--title", "--rename"]
             ],
             required: ['index'],
-            exclutions: [['--no-repeat', '--repeat']]
+            exclusions: [['--no-repeat', '--repeat']]
         });
         const reminder = this._getReminderByIndexOrTitle(args.get("index"), event.channelId);
 
