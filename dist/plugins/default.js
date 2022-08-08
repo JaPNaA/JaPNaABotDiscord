@@ -34,6 +34,8 @@ const stringToArgs_js_1 = __importDefault(require("../main/utils/str/stringToArg
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
+const commandArguments_js_1 = __importDefault(require("../main/bot/command/commandArguments.js"));
+const removeFromArray_js_1 = __importDefault(require("../main/utils/removeFromArray.js"));
 /**
  * Normal commands every bot shoud have
  */
@@ -515,13 +517,32 @@ class Default extends plugin_js_1.default {
         }
     }
     async configCommand(event) {
-        const args = (0, stringToArgs_js_1.default)(event.arguments);
-        const [pluginArg, scope, locationArg, key, ...valueArr] = args;
-        const valueStr = valueArr.join(" ");
-        if (!pluginArg || !scope || !locationArg) {
-            throw new Error("Invalid arguments");
-        }
-        const plugin = this.bot.pluginManager.getPlugin(pluginArg);
+        const args = new commandArguments_js_1.default(event.arguments).parse({
+            overloads: [
+                ["--plugin", "--scope", "--location", "--key", "--value"],
+                []
+            ],
+            namedOptions: [
+                ["--plugin", "-p"], ["--scope", "-s"], ["--location", "-l"],
+                ["--key", "-k"], ["--value", "-v"], ["--subkey", "-x"]
+            ],
+            flags: [
+                ["--append", "-a"], ["--remove", "-r"]
+            ],
+            exclusions: [
+                ["--subkey", "--append", "--remove"]
+            ],
+            required: [
+                "--plugin", "--scope", "--location"
+            ],
+            parseQuotes: false,
+            allowMultifinal: true
+        });
+        const locationArg = args.get("--location");
+        const scopeChar = args.get("--scope")[0].toLowerCase();
+        const key = args.get("--key");
+        const valueStr = args.get("--value");
+        const plugin = this.bot.pluginManager.getPlugin(args.get("--plugin"));
         if (!plugin) {
             throw new Error("Plugin doesn't exist or isn't loaded");
         }
@@ -529,7 +550,8 @@ class Default extends plugin_js_1.default {
         let location = (0, getSnowflakeNum_1.default)(locationArg) || locationArg;
         let humanReadableLocation;
         let config;
-        if (scope[0] === "c") {
+        // resolve scope
+        if (scopeChar === "c") {
             if (shouldAutoLocation) {
                 location = event.channelId;
             }
@@ -544,7 +566,7 @@ class Default extends plugin_js_1.default {
             humanReadableLocation = `<#${location}>`;
             config = await plugin.config.getAllUserSettingsInChannel(location);
         }
-        else if (scope[0] === "s") {
+        else if (scopeChar === "s") {
             if (shouldAutoLocation) {
                 location = event.serverId;
             }
@@ -555,53 +577,109 @@ class Default extends plugin_js_1.default {
             config = await plugin.config.getAllUserSettingsInServer(location);
             humanReadableLocation = "server";
         }
-        else if (scope[0] === "g") {
+        else if (scopeChar === "g") {
             throw new Error("Cannot assign global config using this command. Please edit the config file instead.");
         }
         else {
             throw new Error("Invalid scope. (channel, server or global)");
         }
+        // get key
         if (key) {
             if (!config.has(key)) {
                 throw new Error("Config option doesn't exist");
             }
             if (["delete", "default", "remove", "reset"].includes(valueStr)) {
-                if (scope[0] === "c") {
+                // delete key
+                if (scopeChar === "c") {
                     plugin.config.deleteInChannel(location, key);
                 }
-                else if (scope[0] === "s") {
+                else if (scopeChar === "s") {
                     plugin.config.deleteInServer(location, key);
                 }
                 else {
                     throw new Error("Unknown error");
                 }
-                this.bot.client.send(event.channelId, "Deleted key.");
+                return this.bot.client.send(event.channelId, "Deleted key.");
             }
             else if (valueStr) {
-                const value = JSON.parse(valueStr);
-                if (typeof value !== plugin.config.getUserSettingType(key)) {
-                    throw new Error("Value type doesn't match schema");
+                // update key
+                let previousValue;
+                if (scopeChar === "c") {
+                    previousValue = await plugin.config.getInChannel(location, key);
                 }
-                if (scope[0] === "c") {
-                    plugin.config.setInChannel(location, key, value);
+                else if (scopeChar === "s") {
+                    previousValue = await plugin.config.getInServer(location, key);
                 }
-                else if (scope[0] === "s") {
+                else {
+                    throw new Error("Unknown error");
+                }
+                // modify value
+                let valueArg = JSON.parse(valueStr);
+                let value;
+                if (args.get("--subkey")) {
+                    if (typeof previousValue === "object") {
+                        value = this._jsonCopy(previousValue);
+                        if (Array.isArray(value)) {
+                            const index = parseInt(args.get("--subkey"));
+                            if (index in value) {
+                                value[index] = valueArg;
+                            }
+                            else {
+                                throw new Error("Index out of bounds. (Use the --append flag to add items)");
+                            }
+                        }
+                        else {
+                            value[args.get("--subkey")] = valueArg;
+                        }
+                    }
+                    else {
+                        throw new Error("Cannot access using subkey of non-object");
+                    }
+                }
+                else if (args.get("--append")) {
+                    if (!Array.isArray(previousValue)) {
+                        throw new Error("Current value is not an array");
+                    }
+                    value = this._jsonCopy(previousValue);
+                    value.push(valueArg);
+                }
+                else if (args.get("--remove")) {
+                    if (!Array.isArray(previousValue)) {
+                        throw new Error("Current value is not an array");
+                    }
+                    value = this._jsonCopy(previousValue);
+                    (0, removeFromArray_js_1.default)(value, valueArg);
+                }
+                else {
+                    if (typeof valueArg !== plugin.config.getUserSettingType(key)) {
+                        throw new Error("Value type doesn't match schema");
+                    }
+                    value = valueArg;
+                }
+                // set value
+                if (scopeChar === "c") {
+                    await plugin.config.setInChannel(location, key, value);
+                }
+                else if (scopeChar === "s") {
                     plugin.config.setInServer(location, key, value);
                 }
                 else {
                     throw new Error("Unknown error");
                 }
-                this.bot.client.send(event.channelId, "Updated config.");
+                return this.bot.client.send(event.channelId, "Updated config.");
             }
             else {
-                this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+                return this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
                     "```js\n" + this._getHumanReadableConfigItemString(key, config.get(key), plugin) + "```");
             }
         }
         else {
-            this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+            return this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
                 "```js\n" + this._getHumanReadableConfigString(config, plugin) + "```");
         }
+    }
+    _jsonCopy(object) {
+        return JSON.parse(JSON.stringify(object));
     }
     _getHumanReadableConfigString(config, plugin) {
         const msg = [];

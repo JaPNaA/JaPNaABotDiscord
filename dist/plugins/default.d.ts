@@ -72,7 +72,8 @@ declare class Default extends BotPlugin {
      * @param argString arguments ns, type, action, id, permission
      */
     edit_permission(event: DiscordCommandEvent): Promise<void>;
-    configCommand(event: DiscordCommandEvent): Promise<void>;
+    configCommand(event: DiscordCommandEvent): Promise<import("discord.js").Message<boolean> | import("discord.js").Message<boolean>[]>;
+    private _jsonCopy;
     private _getHumanReadableConfigString;
     private _getHumanReadableConfigItemString;
     /**

@@ -118,7 +118,7 @@ class Reminders extends plugin_js_1.default {
                 ["--title", "--rename"]
             ],
             required: ['index'],
-            exclutions: [['--no-repeat', '--repeat']]
+            exclusions: [['--no-repeat', '--repeat']]
         });
         const reminder = this._getReminderByIndexOrTitle(args.get("index"), event.channelId);
         if (args.get("--title")) {
