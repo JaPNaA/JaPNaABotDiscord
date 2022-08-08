@@ -81,6 +81,20 @@ class Lobby {
         }
         this.parentGame.parentPlugin._lockAndGetDMHandle(userId, this.parentGame);
         this.players.push(userId);
+
+        if (this.settings.autoStart) {
+            if (
+                (
+                    this.settings.maxPlayers === undefined ||
+                    this.players.length <= this.settings.maxPlayers
+                ) && (
+                    this.settings.minPlayers === undefined ||
+                    this.players.length >= this.settings.minPlayers
+                )
+            ) {
+                this.finishPlayerGathering();
+            }
+        }
     }
 
     private handleJoinError(err: Error, userId: string) {
@@ -134,15 +148,19 @@ class Lobby {
             return;
         }
 
-        this.stopLobby();
-        if (this.playersPromiseRes) {
-            this.playersPromiseRes(this.players);
-        }
+        this.finishPlayerGathering();
 
         this.bot.client.send(this.parentGame.channelId,
             `Starting ${this.parentGame.gameName} with players:\n` +
             this.players.map(id => mention(id)).join(", ")
         );
+    }
+
+    private finishPlayerGathering() {
+        this.stopLobby();
+        if (this.playersPromiseRes) {
+            this.playersPromiseRes(this.players);
+        }
     }
 
     private sendAboutMessage() {
@@ -199,8 +217,22 @@ class Lobby {
 interface LobbySettings {
     minPlayers?: number;
     maxPlayers?: number;
+
+    /**
+     * Description of the game
+     */
     description?: string;
+
+    /**
+     * Does the game require players to use their DMs?
+     */
     dmLock?: boolean;
+
+    /**
+     * Start as soon as enough players join?
+     * (Instead of waiting for the `start` command?)
+     */
+    autoStart?: boolean;
 }
 
 class DMAlreadyLockedError extends Error {

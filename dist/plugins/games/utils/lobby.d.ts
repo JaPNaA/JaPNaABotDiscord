@@ -21,6 +21,7 @@ declare class Lobby {
     private leaveCommand;
     private listPlayersCommand;
     private startCommand;
+    private finishPlayerGathering;
     private sendAboutMessage;
     stopLobby(): void;
     _registerCommand(name: string, callback: BotCommandCallback): void;
@@ -28,7 +29,18 @@ declare class Lobby {
 interface LobbySettings {
     minPlayers?: number;
     maxPlayers?: number;
+    /**
+     * Description of the game
+     */
     description?: string;
+    /**
+     * Does the game require players to use their DMs?
+     */
     dmLock?: boolean;
+    /**
+     * Start as soon as enough players join?
+     * (Instead of waiting for the `start` command?)
+     */
+    autoStart?: boolean;
 }
 export default Lobby;

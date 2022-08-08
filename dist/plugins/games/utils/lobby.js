@@ -74,6 +74,13 @@ class Lobby {
         }
         this.parentGame.parentPlugin._lockAndGetDMHandle(userId, this.parentGame);
         this.players.push(userId);
+        if (this.settings.autoStart) {
+            if ((this.settings.maxPlayers === undefined ||
+                this.players.length <= this.settings.maxPlayers) && (this.settings.minPlayers === undefined ||
+                this.players.length >= this.settings.minPlayers)) {
+                this.finishPlayerGathering();
+            }
+        }
     }
     handleJoinError(err, userId) {
         if (err instanceof AlreadyJoinedError) {
@@ -118,12 +125,15 @@ class Lobby {
             this.bot.client.send(event.channelId, `There are few players. (Min is ${minPlayers})`);
             return;
         }
+        this.finishPlayerGathering();
+        this.bot.client.send(this.parentGame.channelId, `Starting ${this.parentGame.gameName} with players:\n` +
+            this.players.map(id => (0, mention_1.default)(id)).join(", "));
+    }
+    finishPlayerGathering() {
         this.stopLobby();
         if (this.playersPromiseRes) {
             this.playersPromiseRes(this.players);
         }
-        this.bot.client.send(this.parentGame.channelId, `Starting ${this.parentGame.gameName} with players:\n` +
-            this.players.map(id => (0, mention_1.default)(id)).join(", "));
     }
     sendAboutMessage() {
         const { maxPlayers, minPlayers } = this.settings;
