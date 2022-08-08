@@ -244,12 +244,38 @@ class Default extends BotPlugin {
     _appendHelpExamples(fields: object[], help: BotCommandHelp, event: DiscordCommandEvent): void {
         if (!help.examples) { return; }
 
-        fields.push({
-            name: "**Examples**",
-            value: help.examples.map(e =>
-                "`" + event.precommandName.name + e[0] + "` - " + e[1] + ""
-            ).join("\n")
-        });
+        const MAX_VALUE_LENGTH = 1024;
+
+        let sectionsCount = 0;
+        function addSection(str: string) {
+            fields.push({
+                name: "**Examples**" + (sectionsCount ? ` (${sectionsCount + 1})` : ""),
+                value: str
+            });
+            sectionsCount++;
+        }
+
+        const strings = help.examples.map(e =>
+            "`" + event.precommandName.name + e[0] + "` - " + e[1] + ""
+        );
+
+        let buffer = "";
+        for (const str of strings) {
+            if (buffer.length + str.length > MAX_VALUE_LENGTH) {
+                if (buffer) {
+                    addSection(buffer);
+                    buffer = "";
+                } else {
+                    addSection(ellipsisize(str, MAX_VALUE_LENGTH));
+                }
+            }
+
+            buffer += str + "\n";
+        }
+
+        if (buffer) {
+            addSection(buffer);
+        }
     }
 
     /**

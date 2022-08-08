@@ -223,10 +223,32 @@ class Default extends plugin_js_1.default {
         if (!help.examples) {
             return;
         }
-        fields.push({
-            name: "**Examples**",
-            value: help.examples.map(e => "`" + event.precommandName.name + e[0] + "` - " + e[1] + "").join("\n")
-        });
+        const MAX_VALUE_LENGTH = 1024;
+        let sectionsCount = 0;
+        function addSection(str) {
+            fields.push({
+                name: "**Examples**" + (sectionsCount ? ` (${sectionsCount + 1})` : ""),
+                value: str
+            });
+            sectionsCount++;
+        }
+        const strings = help.examples.map(e => "`" + event.precommandName.name + e[0] + "` - " + e[1] + "");
+        let buffer = "";
+        for (const str of strings) {
+            if (buffer.length + str.length > MAX_VALUE_LENGTH) {
+                if (buffer) {
+                    addSection(buffer);
+                    buffer = "";
+                }
+                else {
+                    addSection((0, ellipsisize_js_1.default)(str, MAX_VALUE_LENGTH));
+                }
+            }
+            buffer += str + "\n";
+        }
+        if (buffer) {
+            addSection(buffer);
+        }
     }
     /**
      * Creates an help embed object in embed
