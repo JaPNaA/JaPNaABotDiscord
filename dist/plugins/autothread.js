@@ -146,7 +146,7 @@ class AutoThread extends plugin_js_1.default {
                     subscribersToNotice
                         .map(id => (0, mention_js_1.default)(id))
                         .join(" ");
-                const message = await thread.send(messageText);
+                const message = await thread.send({ content: messageText, allowedMentions: { users: [] } });
                 await message.delete();
             }
         }

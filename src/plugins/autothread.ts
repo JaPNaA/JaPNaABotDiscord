@@ -156,7 +156,7 @@ export default class AutoThread extends BotPlugin {
                     subscribersToNotice
                         .map(id => mention(id))
                         .join(" ");
-                const message = await thread.send(messageText);
+                const message = await thread.send({ content: messageText, allowedMentions: { users: [] } });
                 await message.delete();
             }
         }
