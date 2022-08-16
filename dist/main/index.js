@@ -193,9 +193,10 @@ function start(apiToken, botConfig, pathToMemoryFile) {
     client = new discord_js_1.default.Client({
         intents: [
             discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_MESSAGES,
-            discord_js_1.Intents.FLAGS.DIRECT_MESSAGES, discord_js_1.Intents.FLAGS.GUILD_VOICE_STATES
+            discord_js_1.Intents.FLAGS.DIRECT_MESSAGES, discord_js_1.Intents.FLAGS.GUILD_VOICE_STATES,
+            discord_js_1.Intents.FLAGS.GUILD_MESSAGE_REACTIONS
         ],
-        partials: ["CHANNEL", "MESSAGE"]
+        partials: ["CHANNEL", "MESSAGE", "REACTION"]
     });
     client.login(token);
     client.on("ready", () => bot.rawEventAdapter.onReady());

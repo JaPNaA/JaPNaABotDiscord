@@ -39,7 +39,8 @@
     "richPresence",
     "reminder",
     "autothread",
-    "announceVCJoin"
+    "announceVCJoin",
+    "reactionRoles"
   ],
 
   // Plugins running in bot (external)
