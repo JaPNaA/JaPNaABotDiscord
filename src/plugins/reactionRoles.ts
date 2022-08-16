@@ -111,6 +111,13 @@ export default class ReactionRoles extends BotPlugin {
             await member.roles.remove(reactionRoll.rollId);
         });
 
+        this.bot.client.client.on("messageDelete", message => {
+            if (message.id in this.messageReactionRoleMap) {
+                delete this.messageReactionRoleMap[message.id];
+            }
+            this.writeMemory();
+        });
+
         this._registerDefaultCommand("create reaction roll", this.createReactionRoll, {
             help: {
                 description: "Creates a message that assigns a roll upon reaction"
