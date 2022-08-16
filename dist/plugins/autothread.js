@@ -142,11 +142,12 @@ class AutoThread extends plugin_js_1.default {
         if (Array.isArray(subscribers) && subscribers.length > 0) {
             const subscribersToNotice = subscribers.filter(id => id !== event.userId);
             if (subscribersToNotice.length > 0) {
-                let messageText = thread.name + ": subscribed\n" +
+                const message = await thread.send("(Adding subscribers...)");
+                const messageText = thread.name + ": subscribed\n" +
                     subscribersToNotice
                         .map(id => (0, mention_js_1.default)(id))
                         .join(" ");
-                const message = await thread.send({ content: messageText, allowedMentions: { users: [] } });
+                await message.edit(messageText);
                 await message.delete();
             }
         }

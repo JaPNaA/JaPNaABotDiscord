@@ -151,12 +151,13 @@ export default class AutoThread extends BotPlugin {
         if (Array.isArray(subscribers) && subscribers.length > 0) {
             const subscribersToNotice = subscribers.filter(id => id !== event.userId);
             if (subscribersToNotice.length > 0) {
-                let messageText =
+                const message = await thread.send("(Adding subscribers...)");
+                const messageText =
                     thread.name + ": subscribed\n" +
                     subscribersToNotice
                         .map(id => mention(id))
                         .join(" ");
-                const message = await thread.send({ content: messageText, allowedMentions: { users: [] } });
+                await message.edit(messageText);
                 await message.delete();
             }
         }
