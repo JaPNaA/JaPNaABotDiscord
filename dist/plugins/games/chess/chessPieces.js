@@ -54,6 +54,7 @@ class Pawn extends Piece {
     getValidMoves() {
         const moves = [];
         if (this.isBlack) {
+            // advance
             if (this.board.isEmpty(this.x, this.y - 1)) {
                 moves.push([this.x, this.y - 1]);
                 if (this.y >= 6 &&
@@ -61,14 +62,29 @@ class Pawn extends Piece {
                     moves.push([this.x, this.y - 2]);
                 }
             }
+            // capture
             if (this.board.hasColorPieceOn(this.x - 1, this.y - 1, !this.isBlack)) {
                 moves.push([this.x - 1, this.y - 1]);
             }
             if (this.board.hasColorPieceOn(this.x + 1, this.y - 1, !this.isBlack)) {
                 moves.push([this.x + 1, this.y - 1]);
             }
+            // en passe
+            const lastMove = this.board.history.getLastMove();
+            if (lastMove && !lastMove.isCastle && lastMove.piece === Pawn &&
+                lastMove.targetY - lastMove.fromY >= 2 && lastMove.fromY <= 1) {
+                if (this.board.hasColorPieceOn(this.x - 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x - 1) {
+                    moves.push([this.x - 1, this.y - 1, true]);
+                }
+                if (this.board.hasColorPieceOn(this.x + 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x + 1) {
+                    moves.push([this.x + 1, this.y - 1, true]);
+                }
+            }
         }
         else {
+            // advance
             if (this.board.isEmpty(this.x, this.y + 1)) {
                 moves.push([this.x, this.y + 1]);
                 if (this.y <= 1 &&
@@ -76,11 +92,25 @@ class Pawn extends Piece {
                     moves.push([this.x, this.y + 2]);
                 }
             }
+            // capture
             if (this.board.hasColorPieceOn(this.x - 1, this.y + 1, !this.isBlack)) {
                 moves.push([this.x - 1, this.y + 1]);
             }
             if (this.board.hasColorPieceOn(this.x + 1, this.y + 1, !this.isBlack)) {
                 moves.push([this.x + 1, this.y + 1]);
+            }
+            // en passe
+            const lastMove = this.board.history.getLastMove();
+            if (lastMove && !lastMove.isCastle && lastMove.piece === Pawn &&
+                lastMove.targetY - lastMove.fromY <= -2 && lastMove.fromY >= 6) {
+                if (this.board.hasColorPieceOn(this.x - 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x - 1) {
+                    moves.push([this.x - 1, this.y + 1, true]);
+                }
+                if (this.board.hasColorPieceOn(this.x + 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x + 1) {
+                    moves.push([this.x + 1, this.y + 1, true]);
+                }
             }
         }
         return moves;

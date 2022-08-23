@@ -1,4 +1,4 @@
-import { ChessHistory, MoveData } from "./chessHistory";
+import { ChessHistory, NormalMoveData } from "./chessHistory";
 import { charToPiece, King, Piece, PieceType } from "./chessPieces";
 
 export default class ChessBoard {
@@ -54,10 +54,12 @@ export default class ChessBoard {
         return piece !== null && piece.isBlack === isBlack;
     }
 
-    public move(fromX: number, fromY: number, toX: number, toY: number) {
-        const historyRecord = this._moveNoCheck(fromX, fromY, toX, toY);
-        // blackTurn has already been flipped in _moveNoCheck
+    public move(fromX: number, fromY: number, toX: number, toY: number, enPasse?: boolean) {
+        const historyRecord = enPasse ?
+            this._moveEnPasseNoCheck(fromX, fromY, toX, toY)
+            : this._moveNoCheck(fromX, fromY, toX, toY);
 
+        // blackTurn has already been flipped in _moveNoCheck
         if (this.isCheck(!this.blackTurn)) {
             this.undo();
             throw new Error("King in check");
@@ -67,7 +69,19 @@ export default class ChessBoard {
         historyRecord.checkmate = this.isCheckmate(this.blackTurn);
     }
 
-    private _moveNoCheck(fromX: number, fromY: number, toX: number, toY: number): MoveData {
+    private _moveEnPasseNoCheck(fromX: number, fromY: number, toX: number, toY: number) {
+        const capture = this.board[fromY][toX];
+        if (!capture) { throw new Error("Tried to en passe without piece capture"); }
+        this.board[fromY][toX] = null;
+
+        const historyRecord = this._moveNoCheck(fromX, fromY, toX, toY);
+        historyRecord.enPasse = true;
+        historyRecord.capture = true;
+        historyRecord.capturedPiece = capture;
+        return historyRecord;
+    }
+
+    private _moveNoCheck(fromX: number, fromY: number, toX: number, toY: number): NormalMoveData {
         const piece = this.board[fromY][fromX];
         if (piece === null) { throw new Error(`No piece on (${fromX}, ${fromY}).`) }
         this.board[fromY][fromX] = null;
@@ -89,6 +103,8 @@ export default class ChessBoard {
             fromY: fromY,
             capture: targetPosPiece !== null,
             capturedPiece: targetPosPiece ? targetPosPiece : undefined,
+            enPasse: false,
+            isCastle: false as false,
             check: false,
             checkmate: false
         };
@@ -104,6 +120,10 @@ export default class ChessBoard {
         const move = this.history.popMove();
         if (!move) { return; }
 
+        if (move.isCastle) {
+            throw new Error("Undo castle not implemented");
+        }
+
         const piece = this.board[move.targetY][move.targetX];
         if (piece === null) { throw new Error(`No piece on (${move.targetX}, ${move.targetY}).`); }
         this.board[move.targetY][move.targetX] = null;
@@ -116,9 +136,17 @@ export default class ChessBoard {
 
         if (move.capture) {
             if (!move.capturedPiece) { throw new Error("Undoing corrupted move"); }
-            this.board[move.targetY][move.targetX] = move.capturedPiece;
-            move.capturedPiece.x = move.targetX;
-            move.capturedPiece.y = move.targetY;
+            let capturedPieceX = move.targetX;
+            let capturedPieceY = move.targetY;
+
+            if (move.enPasse) {
+                capturedPieceX = move.targetX;
+                capturedPieceY = move.fromY;
+            }
+
+            this.board[capturedPieceY][capturedPieceX] = move.capturedPiece;
+            move.capturedPiece.x = capturedPieceX;
+            move.capturedPiece.y = capturedPieceY;
         }
 
         this.blackTurn = !this.blackTurn;

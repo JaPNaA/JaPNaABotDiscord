@@ -1,4 +1,4 @@
-import { Piece, PieceType } from "./chessPieces";
+import { King, Piece, PieceType } from "./chessPieces";
 
 export class ChessHistory {
     private moves: MoveData[] = [];
@@ -13,14 +13,30 @@ export class ChessHistory {
         return this.moves.pop();
     }
 
+    public getLastMove() {
+        return this.moves[this.moves.length - 1];
+    }
+
+    public hasKingMoved(isBlack: boolean) {
+        for (let i = isBlack ? 1 : 0; i < this.moves.length; i += 2) {
+            const move = this.moves[i];
+            if (move.isCastle) {
+                return true;
+            } else if (move.piece === King) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public wasChecked() {
         if (this.moves.length <= 0) { return false; }
-        return this.moves[this.moves.length - 1].check;
+        return this.getLastMove().check;
     }
 
     public wasCheckmated() {
         if (this.moves.length <= 0) { return false; }
-        return this.moves[this.moves.length - 1].checkmate;
+        return this.getLastMove().checkmate;
     }
 
     public toString(): string {
@@ -41,6 +57,10 @@ export class ChessHistory {
     }
 
     private moveToString(move: MoveData): string {
+        if (move.isCastle) {
+            return move.queenSide ? "O-O-O" : "O-O";
+        }
+
         return String.fromCharCode('a'.charCodeAt(0) + move.fromX) +
             (move.fromY + 1) + move.piece.name +
             (move.capture ? "x" : "") +
@@ -53,15 +73,28 @@ export class ChessHistory {
     }
 }
 
-export interface MoveData {
+export type MoveData = NormalMoveData | CastleMoveData;
+
+interface _MoveData {
+    isCastle: boolean;
+    check: boolean;
+    checkmate: boolean;
+}
+
+export interface NormalMoveData extends _MoveData {
     piece: PieceType;
     targetX: number;
     targetY: number;
     fromX: number;
     fromY: number;
     capture: boolean;
-    check: boolean;
-    checkmate: boolean;
+    enPasse: boolean;
+    isCastle: false;
     promotion?: PieceType;
     capturedPiece?: Piece;
+}
+
+export interface CastleMoveData extends _MoveData {
+    isCastle: true;
+    queenSide: boolean;
 }

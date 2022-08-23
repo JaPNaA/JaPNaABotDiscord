@@ -51,6 +51,8 @@ class Chess extends game_1.default {
             this.bot.client.send(this.channelId, this.board.history.toString());
         });
     }
-    _stop() { }
+    _stop() {
+        this.lobby.removeAllPlayers();
+    }
 }
 exports.default = Chess;

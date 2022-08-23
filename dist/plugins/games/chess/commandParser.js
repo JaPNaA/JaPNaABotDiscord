@@ -4,13 +4,18 @@ const chessPieces_1 = require("./chessPieces");
 class CommandParser {
     board;
     static pgnRegex = /([rnbqk])?([a-h])?([1-8])?(x)?([a-h])([1-8])(\+|#|=([rnbq]))?/i;
+    static gameEndRegex = /(0-1)|(1-0)|(1\/2-1\/2)/i;
+    static castleRegex = /o-o(-o)?/i;
     static xStrToInt = {
         'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7
     };
     constructor(board) {
         this.board = board;
     }
-    parsePGN(str) {
+    /**
+     * Parses a normal move (one piece moves) in PGN format
+     */
+    parsePGNNormal(str) {
         const match = CommandParser.pgnRegex.exec(str);
         if (!match) {
             return;
@@ -28,8 +33,28 @@ class CommandParser {
             promotion: promotionStr ? chessPieces_1.charToPiece[promotionStr.toLowerCase()] : undefined
         };
     }
+    execCastleIfIs(str) {
+        const match = CommandParser.castleRegex.exec(str);
+        if (match) {
+            throw new Error("Castle not implemented");
+        }
+        return false;
+    }
+    execGameEndIfIs(str) {
+        const match = CommandParser.gameEndRegex.exec(str);
+        if (match) {
+            throw new Error("Game ending not implemented");
+        }
+        return false;
+    }
     tryExec(command) {
-        const moveData = this.parsePGN(command);
+        if (this.execCastleIfIs(command)) {
+            return;
+        }
+        if (this.execGameEndIfIs(command)) {
+            return;
+        }
+        const moveData = this.parsePGNNormal(command);
         if (!moveData) {
             throw new Error("Invalid command");
         }
@@ -54,7 +79,10 @@ class CommandParser {
             throw new Error("No legal moves");
         }
         const [movePeice, moveTo] = moves[0];
-        this.board.move(movePeice.x, movePeice.y, moveTo[0], moveTo[1]);
+        this.board.move(movePeice.x, movePeice.y, // piece location
+        moveTo[0], moveTo[1], // new piece location
+        moveTo[2] // en passe
+        );
     }
     _xStrToInt(xStr) {
         return CommandParser.xStrToInt[xStr.toLowerCase()];

@@ -1,7 +1,14 @@
 import ChessBoard from "./chessBoard";
+import { MoveData } from "./chessHistory";
 
 export type PieceType = new (isBlack: boolean, x: number, y: number, board: ChessBoard) => Piece;
-type MoveList = [number, number][];
+/**
+ * List of moves.
+ * A move consists of an (x: number, y: number) coordinate a piece can move to.
+ * If the piece is a Pawn, (x: number, y: number, enPasse: true)
+ * represents an en passe.
+ */
+type MoveList = ([number, number, boolean?])[];
 
 export abstract class Piece {
     public abstract displayCharWhite: string;
@@ -59,6 +66,7 @@ export class Pawn extends Piece {
         const moves: MoveList = [];
 
         if (this.isBlack) {
+            // advance
             if (this.board.isEmpty(this.x, this.y - 1)) {
                 moves.push([this.x, this.y - 1]);
                 if (
@@ -68,13 +76,32 @@ export class Pawn extends Piece {
                     moves.push([this.x, this.y - 2]);
                 }
             }
+            // capture
             if (this.board.hasColorPieceOn(this.x - 1, this.y - 1, !this.isBlack)) {
                 moves.push([this.x - 1, this.y - 1]);
             }
             if (this.board.hasColorPieceOn(this.x + 1, this.y - 1, !this.isBlack)) {
                 moves.push([this.x + 1, this.y - 1]);
             }
+            // en passe
+            const lastMove = this.board.history.getLastMove();
+            if (lastMove && !lastMove.isCastle && lastMove.piece === Pawn &&
+                lastMove.targetY - lastMove.fromY >= 2 && lastMove.fromY <= 1) {
+                if (
+                    this.board.hasColorPieceOn(this.x - 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x - 1
+                ) {
+                    moves.push([this.x - 1, this.y - 1, true]);
+                }
+                if (
+                    this.board.hasColorPieceOn(this.x + 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x + 1
+                ) {
+                    moves.push([this.x + 1, this.y - 1, true]);
+                }
+            }
         } else {
+            // advance
             if (this.board.isEmpty(this.x, this.y + 1)) {
                 moves.push([this.x, this.y + 1]);
                 if (
@@ -84,11 +111,29 @@ export class Pawn extends Piece {
                     moves.push([this.x, this.y + 2]);
                 }
             }
+            // capture
             if (this.board.hasColorPieceOn(this.x - 1, this.y + 1, !this.isBlack)) {
                 moves.push([this.x - 1, this.y + 1]);
             }
             if (this.board.hasColorPieceOn(this.x + 1, this.y + 1, !this.isBlack)) {
                 moves.push([this.x + 1, this.y + 1]);
+            }
+            // en passe
+            const lastMove = this.board.history.getLastMove();
+            if (lastMove && !lastMove.isCastle && lastMove.piece === Pawn &&
+                lastMove.targetY - lastMove.fromY <= -2 && lastMove.fromY >= 6) {
+                if (
+                    this.board.hasColorPieceOn(this.x - 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x - 1
+                ) {
+                    moves.push([this.x - 1, this.y + 1, true]);
+                }
+                if (
+                    this.board.hasColorPieceOn(this.x + 1, this.y, !this.isBlack) &&
+                    lastMove.fromX == this.x + 1
+                ) {
+                    moves.push([this.x + 1, this.y + 1, true]);
+                }
             }
         }
 

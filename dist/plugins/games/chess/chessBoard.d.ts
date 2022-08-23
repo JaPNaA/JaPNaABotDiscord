@@ -11,7 +11,8 @@ export default class ChessBoard {
     isEmpty(x: number, y: number): boolean;
     hasPieceOn(x: number, y: number): boolean;
     hasColorPieceOn(x: number, y: number, isBlack: boolean): boolean;
-    move(fromX: number, fromY: number, toX: number, toY: number): void;
+    move(fromX: number, fromY: number, toX: number, toY: number, enPasse?: boolean): void;
+    private _moveEnPasseNoCheck;
     private _moveNoCheck;
     undo(): void;
     isCheck(forBlack: boolean): boolean;

@@ -58,7 +58,9 @@ class Chess extends Game {
     }
 
 
-    _stop() { }
+    _stop() {
+        this.lobby.removeAllPlayers();
+    }
 }
 
 export default Chess;

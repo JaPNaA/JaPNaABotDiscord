@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ChessHistory = void 0;
+const chessPieces_1 = require("./chessPieces");
 class ChessHistory {
     moves = [];
     constructor() { }
@@ -10,17 +11,32 @@ class ChessHistory {
     popMove() {
         return this.moves.pop();
     }
+    getLastMove() {
+        return this.moves[this.moves.length - 1];
+    }
+    hasKingMoved(isBlack) {
+        for (let i = isBlack ? 1 : 0; i < this.moves.length; i += 2) {
+            const move = this.moves[i];
+            if (move.isCastle) {
+                return true;
+            }
+            else if (move.piece === chessPieces_1.King) {
+                return true;
+            }
+        }
+        return false;
+    }
     wasChecked() {
         if (this.moves.length <= 0) {
             return false;
         }
-        return this.moves[this.moves.length - 1].check;
+        return this.getLastMove().check;
     }
     wasCheckmated() {
         if (this.moves.length <= 0) {
             return false;
         }
-        return this.moves[this.moves.length - 1].checkmate;
+        return this.getLastMove().checkmate;
     }
     toString() {
         const str = [];
@@ -38,6 +54,9 @@ class ChessHistory {
         return str.join("");
     }
     moveToString(move) {
+        if (move.isCastle) {
+            return move.queenSide ? "O-O-O" : "O-O";
+        }
         return String.fromCharCode('a'.charCodeAt(0) + move.fromX) +
             (move.fromY + 1) + move.piece.name +
             (move.capture ? "x" : "") +

@@ -1,6 +1,12 @@
 import ChessBoard from "./chessBoard";
 export declare type PieceType = new (isBlack: boolean, x: number, y: number, board: ChessBoard) => Piece;
-declare type MoveList = [number, number][];
+/**
+ * List of moves.
+ * A move consists of an (x: number, y: number) coordinate a piece can move to.
+ * If the piece is a Pawn, (x: number, y: number, enPasse: true)
+ * represents an en passe.
+ */
+declare type MoveList = ([number, number, boolean?])[];
 export declare abstract class Piece {
     isBlack: boolean;
     x: number;

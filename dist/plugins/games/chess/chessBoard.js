@@ -48,8 +48,10 @@ class ChessBoard {
         const piece = this.board[y][x];
         return piece !== null && piece.isBlack === isBlack;
     }
-    move(fromX, fromY, toX, toY) {
-        const historyRecord = this._moveNoCheck(fromX, fromY, toX, toY);
+    move(fromX, fromY, toX, toY, enPasse) {
+        const historyRecord = enPasse ?
+            this._moveEnPasseNoCheck(fromX, fromY, toX, toY)
+            : this._moveNoCheck(fromX, fromY, toX, toY);
         // blackTurn has already been flipped in _moveNoCheck
         if (this.isCheck(!this.blackTurn)) {
             this.undo();
@@ -57,6 +59,18 @@ class ChessBoard {
         }
         historyRecord.check = this.isCheck(this.blackTurn);
         historyRecord.checkmate = this.isCheckmate(this.blackTurn);
+    }
+    _moveEnPasseNoCheck(fromX, fromY, toX, toY) {
+        const capture = this.board[fromY][toX];
+        if (!capture) {
+            throw new Error("Tried to en passe without piece capture");
+        }
+        this.board[fromY][toX] = null;
+        const historyRecord = this._moveNoCheck(fromX, fromY, toX, toY);
+        historyRecord.enPasse = true;
+        historyRecord.capture = true;
+        historyRecord.capturedPiece = capture;
+        return historyRecord;
     }
     _moveNoCheck(fromX, fromY, toX, toY) {
         const piece = this.board[fromY][fromX];
@@ -79,6 +93,8 @@ class ChessBoard {
             fromY: fromY,
             capture: targetPosPiece !== null,
             capturedPiece: targetPosPiece ? targetPosPiece : undefined,
+            enPasse: false,
+            isCastle: false,
             check: false,
             checkmate: false
         };
@@ -90,6 +106,9 @@ class ChessBoard {
         const move = this.history.popMove();
         if (!move) {
             return;
+        }
+        if (move.isCastle) {
+            throw new Error("Undo castle not implemented");
         }
         const piece = this.board[move.targetY][move.targetX];
         if (piece === null) {
@@ -107,9 +126,15 @@ class ChessBoard {
             if (!move.capturedPiece) {
                 throw new Error("Undoing corrupted move");
             }
-            this.board[move.targetY][move.targetX] = move.capturedPiece;
-            move.capturedPiece.x = move.targetX;
-            move.capturedPiece.y = move.targetY;
+            let capturedPieceX = move.targetX;
+            let capturedPieceY = move.targetY;
+            if (move.enPasse) {
+                capturedPieceX = move.targetX;
+                capturedPieceY = move.fromY;
+            }
+            this.board[capturedPieceY][capturedPieceX] = move.capturedPiece;
+            move.capturedPiece.x = capturedPieceX;
+            move.capturedPiece.y = capturedPieceY;
         }
         this.blackTurn = !this.blackTurn;
     }
