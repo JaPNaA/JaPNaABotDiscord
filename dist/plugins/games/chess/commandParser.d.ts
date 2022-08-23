@@ -15,6 +15,7 @@ export default class CommandParser {
     execCastleIfIs(str: string): boolean;
     execGameEndIfIs(str: string): boolean;
     tryExec(command: string): void;
+    private getPossibleMoves;
     private _xStrToInt;
     private _yStrToInt;
 }

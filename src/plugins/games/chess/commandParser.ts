@@ -3,7 +3,7 @@ import { NormalMoveData } from "./chessHistory";
 import { charToPiece, Piece, PieceType } from "./chessPieces";
 
 export default class CommandParser {
-    private static pgnRegex = /([rnbqk])?([a-h])?([1-8])?(x)?([a-h])([1-8])(\+|#|=([rnbq]))?/i;
+    private static pgnRegex = /([RNBQKP])?([a-h])?([1-8])?(x)?([a-h])([1-8])(\+|#|=([RNBQ]))?/i;
     private static gameEndRegex = /(0-1)|(1-0)|(1\/2-1\/2)/i;
     private static castleRegex = /o-o(-o)?/i;
     private static xStrToInt: { [x: string]: number } = {
@@ -66,6 +66,27 @@ export default class CommandParser {
         const moveData = this.parsePGNNormal(command);
         if (!moveData) { throw new Error("Invalid command"); }
 
+        const moves = this.getPossibleMoves(moveData)
+
+        if (moves.length > 1) { throw new Error("Ambigious move"); }
+        if (moves.length < 1) {
+            if (command.toLowerCase().startsWith("b")) {
+                // in case "bxc6"-alike is interpreted as bishop move, try as pawn move
+                this.tryExec("p" + command);
+                return;
+            }
+            throw new Error("No legal moves");
+        }
+        const [movePeice, moveTo] = moves[0];
+
+        this.board.move(
+            movePeice.x, movePeice.y, // piece location
+            moveTo[0], moveTo[1], // new piece location
+            moveTo[2] // en passe
+        );
+    }
+
+    private getPossibleMoves(moveData: PartialMoveData) {
         const pieces = this.board.getPieces(moveData.piece, this.board.blackTurn);
         const moves: [Piece, [number, number, boolean?]][] = [];
         for (const piece of pieces) {
@@ -81,16 +102,7 @@ export default class CommandParser {
                 }
             }
         }
-
-        if (moves.length > 1) { throw new Error("Ambigious move"); }
-        if (moves.length < 1) { throw new Error("No legal moves"); }
-        const [movePeice, moveTo] = moves[0];
-
-        this.board.move(
-            movePeice.x, movePeice.y, // piece location
-            moveTo[0], moveTo[1], // new piece location
-            moveTo[2] // en passe
-        );
+        return moves;
     }
 
     private _xStrToInt(xStr: string) {

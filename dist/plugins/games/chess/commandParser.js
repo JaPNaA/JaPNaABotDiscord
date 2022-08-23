@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const chessPieces_1 = require("./chessPieces");
 class CommandParser {
     board;
-    static pgnRegex = /([rnbqk])?([a-h])?([1-8])?(x)?([a-h])([1-8])(\+|#|=([rnbq]))?/i;
+    static pgnRegex = /([RNBQKP])?([a-h])?([1-8])?(x)?([a-h])([1-8])(\+|#|=([RNBQ]))?/i;
     static gameEndRegex = /(0-1)|(1-0)|(1\/2-1\/2)/i;
     static castleRegex = /o-o(-o)?/i;
     static xStrToInt = {
@@ -58,6 +58,25 @@ class CommandParser {
         if (!moveData) {
             throw new Error("Invalid command");
         }
+        const moves = this.getPossibleMoves(moveData);
+        if (moves.length > 1) {
+            throw new Error("Ambigious move");
+        }
+        if (moves.length < 1) {
+            if (command.toLowerCase().startsWith("b")) {
+                // in case "bxc6"-alike is interpreted as bishop move, try as pawn move
+                this.tryExec("p" + command);
+                return;
+            }
+            throw new Error("No legal moves");
+        }
+        const [movePeice, moveTo] = moves[0];
+        this.board.move(movePeice.x, movePeice.y, // piece location
+        moveTo[0], moveTo[1], // new piece location
+        moveTo[2] // en passe
+        );
+    }
+    getPossibleMoves(moveData) {
         const pieces = this.board.getPieces(moveData.piece, this.board.blackTurn);
         const moves = [];
         for (const piece of pieces) {
@@ -72,17 +91,7 @@ class CommandParser {
                 }
             }
         }
-        if (moves.length > 1) {
-            throw new Error("Ambigious move");
-        }
-        if (moves.length < 1) {
-            throw new Error("No legal moves");
-        }
-        const [movePeice, moveTo] = moves[0];
-        this.board.move(movePeice.x, movePeice.y, // piece location
-        moveTo[0], moveTo[1], // new piece location
-        moveTo[2] // en passe
-        );
+        return moves;
     }
     _xStrToInt(xStr) {
         return CommandParser.xStrToInt[xStr.toLowerCase()];
