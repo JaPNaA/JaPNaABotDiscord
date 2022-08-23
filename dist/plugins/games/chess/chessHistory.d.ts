@@ -6,6 +6,12 @@ export declare class ChessHistory {
     popMove(): MoveData | undefined;
     getLastMove(): MoveData;
     hasKingMoved(isBlack: boolean): boolean;
+    /**
+     * This method will return true (even incorrectly) if the side castles.
+     * Should be fine for one-king (normal) games. Method intended for
+     * castle condition checking.
+     */
+    hasRookMoved(isBlack: boolean, x: number, y: number): boolean;
     wasChecked(): boolean;
     wasCheckmated(): boolean;
     toString(): string;

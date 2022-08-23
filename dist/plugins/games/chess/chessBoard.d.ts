@@ -12,10 +12,12 @@ export default class ChessBoard {
     hasPieceOn(x: number, y: number): boolean;
     hasColorPieceOn(x: number, y: number, isBlack: boolean): boolean;
     move(fromX: number, fromY: number, toX: number, toY: number, enPasse?: boolean): void;
+    castle(fromKingX: number, fromKingY: number, toKingX: number, toKingY: number, fromRookX: number, fromRookY: number, toRookX: number, toRookY: number, isQueenSide: boolean): void;
     private _moveEnPasseNoCheck;
     private _moveNoCheck;
     undo(): void;
     isCheck(forBlack: boolean): boolean;
+    isSafe(forBlack: boolean, x: number, y: number): boolean;
     isCheckmate(forBlack: boolean): boolean;
     getPieces(pieceType: PieceType, isBlack: boolean): Piece[];
     getColorPieces(isBlack: boolean): Piece[];

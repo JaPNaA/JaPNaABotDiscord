@@ -60,6 +60,29 @@ class ChessBoard {
         historyRecord.check = this.isCheck(this.blackTurn);
         historyRecord.checkmate = this.isCheckmate(this.blackTurn);
     }
+    castle(fromKingX, fromKingY, toKingX, toKingY, fromRookX, fromRookY, toRookX, toRookY, isQueenSide) {
+        // this should be checking for validity;
+        // move below logic to private _castle
+        const king = this.board[fromKingY][fromKingX];
+        this.board[fromKingY][fromKingX] = null;
+        if (!king) {
+            throw new Error("Castle but can't find king.");
+        }
+        const rook = this.board[fromRookY][fromRookX];
+        this.board[fromRookY][fromRookX] = null;
+        if (!rook) {
+            throw new Error("Castle but can't find rook.");
+        }
+        this.board[toKingY][toKingX] = king;
+        this.board[toRookY][toRookX] = rook;
+        this.blackTurn = !this.blackTurn;
+        this.history.recordMove({
+            isCastle: true,
+            check: this.isCheck(this.blackTurn),
+            checkmate: this.isCheckmate(this.blackTurn),
+            queenSide: isQueenSide
+        });
+    }
     _moveEnPasseNoCheck(fromX, fromY, toX, toY) {
         const capture = this.board[fromY][toX];
         if (!capture) {
@@ -144,15 +167,18 @@ class ChessBoard {
             return false;
         }
         const king = kings[0];
+        return !this.isSafe(forBlack, king.x, king.y);
+    }
+    isSafe(forBlack, x, y) {
         const opponentPieces = this.getColorPieces(!forBlack);
         for (const opponentPiece of opponentPieces) {
             for (const possibleMove of opponentPiece.getValidMoves()) {
-                if (possibleMove[0] === king.x && possibleMove[1] === king.y) {
-                    return true;
+                if (possibleMove[0] === x && possibleMove[1] === y) {
+                    return false;
                 }
             }
         }
-        return false;
+        return true;
     }
     isCheckmate(forBlack) {
         const pieces = this.getColorPieces(forBlack);

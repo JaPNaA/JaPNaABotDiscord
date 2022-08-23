@@ -26,6 +26,23 @@ class ChessHistory {
         }
         return false;
     }
+    /**
+     * This method will return true (even incorrectly) if the side castles.
+     * Should be fine for one-king (normal) games. Method intended for
+     * castle condition checking.
+     */
+    hasRookMoved(isBlack, x, y) {
+        for (let i = isBlack ? 1 : 0; i < this.moves.length; i += 2) {
+            const move = this.moves[i];
+            if (move.isCastle) {
+                return true;
+            }
+            else if (move.piece === chessPieces_1.Rook && move.fromX === x && move.fromY === y) {
+                return true;
+            }
+        }
+        return false;
+    }
     wasChecked() {
         if (this.moves.length <= 0) {
             return false;

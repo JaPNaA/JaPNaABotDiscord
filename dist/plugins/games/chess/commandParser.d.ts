@@ -13,6 +13,8 @@ export default class CommandParser {
      */
     parsePGNNormal(str: string): PartialMoveData | undefined;
     execCastleIfIs(str: string): boolean;
+    private isLineOfSpacesSafe;
+    private isLineOfSpacesEmptyExceptEnds;
     execGameEndIfIs(str: string): boolean;
     tryExec(command: string): void;
     private getPossibleMoves;

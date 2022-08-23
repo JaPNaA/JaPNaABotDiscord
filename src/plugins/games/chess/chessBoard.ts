@@ -69,6 +69,34 @@ export default class ChessBoard {
         historyRecord.checkmate = this.isCheckmate(this.blackTurn);
     }
 
+    public castle(
+        fromKingX: number, fromKingY: number, toKingX: number, toKingY: number,
+        fromRookX: number, fromRookY: number, toRookX: number, toRookY: number,
+        isQueenSide: boolean
+    ) {
+        // this should be checking for validity;
+        // move below logic to private _castle
+        const king = this.board[fromKingY][fromKingX];
+        this.board[fromKingY][fromKingX] = null;
+        if (!king) { throw new Error("Castle but can't find king."); }
+
+        const rook = this.board[fromRookY][fromRookX];
+        this.board[fromRookY][fromRookX] = null;
+        if (!rook) { throw new Error("Castle but can't find rook."); }
+
+        this.board[toKingY][toKingX] = king;
+        this.board[toRookY][toRookX] = rook;
+
+        this.blackTurn = !this.blackTurn;
+
+        this.history.recordMove({
+            isCastle: true,
+            check: this.isCheck(this.blackTurn),
+            checkmate: this.isCheckmate(this.blackTurn),
+            queenSide: isQueenSide
+        });
+    }
+
     private _moveEnPasseNoCheck(fromX: number, fromY: number, toX: number, toY: number) {
         const capture = this.board[fromY][toX];
         if (!capture) { throw new Error("Tried to en passe without piece capture"); }
@@ -156,17 +184,20 @@ export default class ChessBoard {
         const kings = this.getPieces(King, forBlack);
         if (kings.length != 1) { return false; }
         const king = kings[0];
+        return !this.isSafe(forBlack, king.x, king.y);
+    }
+
+    public isSafe(forBlack: boolean, x: number, y: number) {
         const opponentPieces = this.getColorPieces(!forBlack);
 
         for (const opponentPiece of opponentPieces) {
             for (const possibleMove of opponentPiece.getValidMoves()) {
-                if (possibleMove[0] === king.x && possibleMove[1] === king.y) {
-                    return true;
+                if (possibleMove[0] === x && possibleMove[1] === y) {
+                    return false;
                 }
             }
         }
-
-        return false;
+        return true;
     }
 
     public isCheckmate(forBlack: boolean): boolean {
