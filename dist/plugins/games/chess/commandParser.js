@@ -44,10 +44,22 @@ class CommandParser {
     }
     execGameEndIfIs(str) {
         const match = CommandParser.gameEndRegex.exec(str);
-        if (match) {
-            throw new Error("Game ending not implemented");
+        if (!match) {
+            return false;
         }
-        return false;
+        const [fullMatchStr, blackWin, whiteWin, draw] = match;
+        if (whiteWin && this.board.blackTurn) {
+            throw new Error("Black resigns; White wins. Game end handler not implemented.");
+        }
+        else if (blackWin && !this.board.blackTurn) {
+            throw new Error("White resigns; Black wins. Game end handler not implemented.");
+        }
+        else if (draw) {
+            throw new Error("Draw offering not implemented");
+        }
+        else {
+            throw new Error("You cannot make yourself win.");
+        }
     }
     tryExec(command) {
         if (this.execCastleIfIs(command)) {
