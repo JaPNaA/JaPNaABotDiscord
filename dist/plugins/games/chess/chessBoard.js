@@ -60,7 +60,36 @@ class ChessBoard {
         historyRecord.check = this.isCheck(this.blackTurn);
         historyRecord.checkmate = this.isCheckmate(this.blackTurn);
     }
-    castle(fromKingX, fromKingY, toKingX, toKingY, fromRookX, fromRookY, toRookX, toRookY, isQueenSide) {
+    castle(queenSide) {
+        const king = this.getPieces(chessPieces_1.King, this.blackTurn)[0];
+        if (!king) {
+            throw new Error("No king on board");
+        }
+        if (this.history.hasKingMoved(this.blackTurn)) {
+            throw new Error("Cannot castle after King moves");
+        }
+        const kingTargetX = king.x + 2 * (queenSide ? -1 : 1);
+        const rookX = queenSide ? 0 : 7;
+        const rookTargetX = king.x + 1 * (queenSide ? -1 : 1);
+        if (this.history.hasRookMoved(this.blackTurn, rookX, king.y)) {
+            throw new Error("Cannot castle after Rook moves.");
+        }
+        if (!this._isLineOfSpacesSafe(this.blackTurn, king.x, kingTargetX, king.y)) {
+            throw new Error("Cannot castle through check.");
+        }
+        if (!this._isLineOfSpacesEmptyExceptEnds(king.x, rookX, king.y)) {
+            throw new Error("Cannot castle through pieces.");
+        }
+        this._castle(king.x, king.y, kingTargetX, king.y, rookX, king.y, rookTargetX, king.y);
+        this.blackTurn = !this.blackTurn;
+        this.history.recordMove({
+            isCastle: true,
+            check: this.isCheck(this.blackTurn),
+            checkmate: this.isCheckmate(this.blackTurn),
+            queenSide: queenSide
+        });
+    }
+    _castle(fromKingX, fromKingY, toKingX, toKingY, fromRookX, fromRookY, toRookX, toRookY) {
         // this should be checking for validity;
         // move below logic to private _castle
         const king = this.board[fromKingY][fromKingX];
@@ -75,13 +104,26 @@ class ChessBoard {
         }
         this.board[toKingY][toKingX] = king;
         this.board[toRookY][toRookX] = rook;
-        this.blackTurn = !this.blackTurn;
-        this.history.recordMove({
-            isCastle: true,
-            check: this.isCheck(this.blackTurn),
-            checkmate: this.isCheckmate(this.blackTurn),
-            queenSide: isQueenSide
-        });
+    }
+    _isLineOfSpacesSafe(blackTurn, fromX, toX, y) {
+        const lowerX = Math.min(fromX, toX);
+        const higherX = Math.max(fromX, toX);
+        for (let x = lowerX; x <= higherX; x++) {
+            if (!this.isSafe(blackTurn, x, y)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    _isLineOfSpacesEmptyExceptEnds(fromX, toX, y) {
+        const lowerX = Math.min(fromX, toX);
+        const higherX = Math.max(fromX, toX);
+        for (let x = lowerX + 1; x < higherX; x++) {
+            if (!this.isEmpty(x, y)) {
+                return false;
+            }
+        }
+        return true;
     }
     _moveEnPasseNoCheck(fromX, fromY, toX, toY) {
         const capture = this.board[fromY][toX];
