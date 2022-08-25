@@ -86,7 +86,15 @@ class ChessBoard {
             isCastle: true,
             check: this.isCheck(this.blackTurn),
             checkmate: this.isCheckmate(this.blackTurn),
-            queenSide: queenSide
+            queenSide: queenSide,
+            fromKingX: king.x,
+            fromKingY: king.y,
+            toKingX: kingTargetX,
+            toKingY: king.y,
+            fromRookX: rookX,
+            fromRookY: king.y,
+            toRookX: rookTargetX,
+            toRookY: king.y
         });
     }
     _castle(fromKingX, fromKingY, toKingX, toKingY, fromRookX, fromRookY, toRookX, toRookY) {
@@ -173,20 +181,15 @@ class ChessBoard {
             return;
         }
         if (move.isCastle) {
-            throw new Error("Undo castle not implemented");
+            this._undoCastle(move);
         }
-        const piece = this.board[move.targetY][move.targetX];
-        if (piece === null) {
-            throw new Error(`No piece on (${move.targetX}, ${move.targetY}).`);
+        else {
+            this._undoNormalMove(move);
         }
-        this.board[move.targetY][move.targetX] = null;
-        const targetPosPiece = this.board[move.fromY][move.fromX];
-        if (targetPosPiece !== null) {
-            throw new Error(`Piece already on (${move.fromX}, ${move.fromY})`);
-        }
-        this.board[move.fromY][move.fromX] = piece;
-        piece.x = move.fromX;
-        piece.y = move.fromY;
+        this.blackTurn = !this.blackTurn;
+    }
+    _undoNormalMove(move) {
+        this._unmove(move.fromX, move.fromY, move.targetX, move.targetY);
         if (move.capture) {
             if (!move.capturedPiece) {
                 throw new Error("Undoing corrupted move");
@@ -201,7 +204,24 @@ class ChessBoard {
             move.capturedPiece.x = capturedPieceX;
             move.capturedPiece.y = capturedPieceY;
         }
-        this.blackTurn = !this.blackTurn;
+    }
+    _undoCastle(move) {
+        this._unmove(move.fromKingX, move.fromKingY, move.toKingX, move.toKingY);
+        this._unmove(move.fromRookX, move.fromRookY, move.toRookX, move.toRookY);
+    }
+    _unmove(fromX, fromY, toX, toY) {
+        const piece = this.board[toY][toX];
+        if (piece === null) {
+            throw new Error(`No piece on (${toX}, ${toY}).`);
+        }
+        this.board[toY][toX] = null;
+        const targetPosPiece = this.board[fromY][fromX];
+        if (targetPosPiece !== null) {
+            throw new Error(`Piece already on (${fromX}, ${fromY})`);
+        }
+        this.board[fromY][fromX] = piece;
+        piece.x = fromX;
+        piece.y = fromY;
     }
     isCheck(forBlack) {
         const kings = this.getPieces(chessPieces_1.King, forBlack);

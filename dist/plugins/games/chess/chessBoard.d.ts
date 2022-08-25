@@ -19,6 +19,9 @@ export default class ChessBoard {
     private _moveEnPasseNoCheck;
     private _moveNoCheck;
     undo(): void;
+    private _undoNormalMove;
+    private _undoCastle;
+    private _unmove;
     isCheck(forBlack: boolean): boolean;
     isSafe(forBlack: boolean, x: number, y: number): boolean;
     isCheckmate(forBlack: boolean): boolean;

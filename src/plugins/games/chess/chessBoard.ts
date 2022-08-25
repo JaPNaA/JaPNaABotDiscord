@@ -1,4 +1,4 @@
-import { ChessHistory, NormalMoveData } from "./chessHistory";
+import { CastleMoveData, ChessHistory, MoveData, NormalMoveData } from "./chessHistory";
 import { charToPiece, King, Piece, PieceType } from "./chessPieces";
 
 export default class ChessBoard {
@@ -103,7 +103,15 @@ export default class ChessBoard {
             isCastle: true,
             check: this.isCheck(this.blackTurn),
             checkmate: this.isCheckmate(this.blackTurn),
-            queenSide: queenSide
+            queenSide: queenSide,
+            fromKingX: king.x,
+            fromKingY: king.y,
+            toKingX: kingTargetX,
+            toKingY: king.y,
+            fromRookX: rookX,
+            fromRookY: king.y,
+            toRookX: rookTargetX,
+            toRookY: king.y
         });
     }
 
@@ -201,18 +209,16 @@ export default class ChessBoard {
         if (!move) { return; }
 
         if (move.isCastle) {
-            throw new Error("Undo castle not implemented");
+            this._undoCastle(move);
+        } else {
+            this._undoNormalMove(move);
         }
 
-        const piece = this.board[move.targetY][move.targetX];
-        if (piece === null) { throw new Error(`No piece on (${move.targetX}, ${move.targetY}).`); }
-        this.board[move.targetY][move.targetX] = null;
+        this.blackTurn = !this.blackTurn;
+    }
 
-        const targetPosPiece = this.board[move.fromY][move.fromX];
-        if (targetPosPiece !== null) { throw new Error(`Piece already on (${move.fromX}, ${move.fromY})`); }
-        this.board[move.fromY][move.fromX] = piece;
-        piece.x = move.fromX;
-        piece.y = move.fromY;
+    private _undoNormalMove(move: NormalMoveData) {
+        this._unmove(move.fromX, move.fromY, move.targetX, move.targetY);
 
         if (move.capture) {
             if (!move.capturedPiece) { throw new Error("Undoing corrupted move"); }
@@ -228,8 +234,23 @@ export default class ChessBoard {
             move.capturedPiece.x = capturedPieceX;
             move.capturedPiece.y = capturedPieceY;
         }
+    }
 
-        this.blackTurn = !this.blackTurn;
+    private _undoCastle(move: CastleMoveData) {
+        this._unmove(move.fromKingX, move.fromKingY, move.toKingX, move.toKingY);
+        this._unmove(move.fromRookX, move.fromRookY, move.toRookX, move.toRookY);
+    }
+
+    private _unmove(fromX: number, fromY: number, toX: number, toY: number) {
+        const piece = this.board[toY][toX];
+        if (piece === null) { throw new Error(`No piece on (${toX}, ${toY}).`); }
+        this.board[toY][toX] = null;
+
+        const targetPosPiece = this.board[fromY][fromX];
+        if (targetPosPiece !== null) { throw new Error(`Piece already on (${fromX}, ${fromY})`); }
+        this.board[fromY][fromX] = piece;
+        piece.x = fromX;
+        piece.y = fromY;
     }
 
     public isCheck(forBlack: boolean): boolean {

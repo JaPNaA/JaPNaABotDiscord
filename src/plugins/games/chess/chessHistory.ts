@@ -114,4 +114,14 @@ export interface NormalMoveData extends _MoveData {
 export interface CastleMoveData extends _MoveData {
     isCastle: true;
     queenSide: boolean;
+
+    fromKingX: number;
+    fromKingY: number;
+    toKingX: number;
+    toKingY: number;
+
+    fromRookX: number;
+    fromRookY: number;
+    toRookX: number;
+    toRookY: number;
 }
