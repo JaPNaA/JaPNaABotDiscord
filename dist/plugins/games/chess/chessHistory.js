@@ -67,6 +67,7 @@ class ChessHistory {
             else {
                 str.push((moveNumber++) + ". " + moveStr + " ");
             }
+            isBlackMove = !isBlackMove;
         }
         return str.join("");
     }
@@ -74,8 +75,9 @@ class ChessHistory {
         if (move.isCastle) {
             return move.queenSide ? "O-O-O" : "O-O";
         }
-        return String.fromCharCode('a'.charCodeAt(0) + move.fromX) +
-            (move.fromY + 1) + move.piece.name +
+        return chessPieces_1.pieceToPGNChar.get(move.piece) +
+            String.fromCharCode('a'.charCodeAt(0) + move.fromX) +
+            (move.fromY + 1) +
             (move.capture ? "x" : "") +
             String.fromCharCode('a'.charCodeAt(0) + move.targetX) +
             (move.targetY + 1) +

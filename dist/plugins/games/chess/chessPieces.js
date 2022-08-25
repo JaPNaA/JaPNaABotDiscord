@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.charToPiece = exports.King = exports.Queen = exports.Bishop = exports.Knight = exports.Rook = exports.Pawn = exports.Piece = void 0;
+exports.pieceToPGNChar = exports.charToPiece = exports.King = exports.Queen = exports.Bishop = exports.Knight = exports.Rook = exports.Pawn = exports.Piece = void 0;
 class Piece {
     isBlack;
     x;
@@ -204,3 +204,11 @@ exports.charToPiece = {
     'q': Queen,
     'k': King
 };
+exports.pieceToPGNChar = new Map([
+    [Pawn, ''],
+    [Rook, 'R'],
+    [Knight, 'N'],
+    [Bishop, 'B'],
+    [Queen, 'Q'],
+    [King, 'K']
+]);

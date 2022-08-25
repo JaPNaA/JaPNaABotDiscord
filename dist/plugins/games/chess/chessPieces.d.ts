@@ -61,4 +61,5 @@ export declare class King extends Piece {
 export declare const charToPiece: {
     [x: string]: PieceType;
 };
+export declare const pieceToPGNChar: Map<PieceType, string>;
 export {};

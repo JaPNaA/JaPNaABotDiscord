@@ -1,5 +1,4 @@
 import ChessBoard from "./chessBoard";
-import { MoveData } from "./chessHistory";
 
 export type PieceType = new (isBlack: boolean, x: number, y: number, board: ChessBoard) => Piece;
 /**
@@ -233,3 +232,12 @@ export const charToPiece: { [x: string]: PieceType } = {
     'q': Queen,
     'k': King
 };
+
+export const pieceToPGNChar = new Map<PieceType, string>([
+    [Pawn, ''],
+    [Rook, 'R'],
+    [Knight, 'N'],
+    [Bishop, 'B'],
+    [Queen, 'Q'],
+    [King, 'K']
+]);

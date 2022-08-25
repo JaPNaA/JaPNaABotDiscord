@@ -1,4 +1,4 @@
-import { King, Piece, PieceType, Rook } from "./chessPieces";
+import { King, Piece, pieceToPGNChar, PieceType, Rook } from "./chessPieces";
 
 export class ChessHistory {
     private moves: MoveData[] = [];
@@ -68,6 +68,7 @@ export class ChessHistory {
             } else {
                 str.push((moveNumber++) + ". " + moveStr + " ");
             }
+            isBlackMove = !isBlackMove;
         }
 
         return str.join("");
@@ -78,8 +79,9 @@ export class ChessHistory {
             return move.queenSide ? "O-O-O" : "O-O";
         }
 
-        return String.fromCharCode('a'.charCodeAt(0) + move.fromX) +
-            (move.fromY + 1) + move.piece.name +
+        return pieceToPGNChar.get(move.piece) +
+            String.fromCharCode('a'.charCodeAt(0) + move.fromX) +
+            (move.fromY + 1) +
             (move.capture ? "x" : "") +
             String.fromCharCode('a'.charCodeAt(0) + move.targetX) +
             (move.targetY + 1) +
