@@ -69,11 +69,13 @@ class Lobby {
         if (this.players.includes(userId)) {
             throw new AlreadyJoinedError();
         }
-        if (!this.parentGame.parentPlugin._isDMLockAvailable(userId)) {
-            throw new DMAlreadyLockedError();
+        if (this.settings.dmLock) {
+            if (!this.parentGame.parentPlugin._isDMLockAvailable(userId)) {
+                throw new DMAlreadyLockedError();
+            }
+            this.parentGame.parentPlugin._lockAndGetDMHandle(userId, this.parentGame);
+            this.players.push(userId);
         }
-        this.parentGame.parentPlugin._lockAndGetDMHandle(userId, this.parentGame);
-        this.players.push(userId);
         if (this.settings.autoStart) {
             if ((this.settings.maxPlayers === undefined ||
                 this.players.length <= this.settings.maxPlayers) && (this.settings.minPlayers === undefined ||
