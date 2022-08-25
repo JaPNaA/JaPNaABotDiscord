@@ -15,7 +15,7 @@ abstract class Game extends BotPlugin {
     gameEnded: boolean = false;
 
     constructor(bot: Bot, parentPlugin: Games, channelId: string) {
-        super(bot)
+        super(bot);
         this.parentPlugin = parentPlugin;
         this.channelId = channelId;
 
