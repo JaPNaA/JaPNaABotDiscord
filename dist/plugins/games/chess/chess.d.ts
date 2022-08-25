@@ -14,6 +14,7 @@ declare class Chess extends Game {
     constructor(botHooks: Bot, parentPlugin: Games, channelId: string, initer: string);
     execCommand(event: DiscordCommandEvent): void;
     _sendBoard(): void;
+    _sendError(error: any, channelId: string): void;
     _start(): Promise<void>;
     _stop(): void;
 }

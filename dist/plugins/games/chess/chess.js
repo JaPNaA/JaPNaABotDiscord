@@ -7,6 +7,7 @@ const game_1 = __importDefault(require("../../games/game"));
 const lobby_1 = __importDefault(require("../utils/lobby"));
 const chessBoard_1 = __importDefault(require("./chessBoard"));
 const commandParser_1 = __importDefault(require("./commandParser"));
+const errors_1 = require("./errors");
 class Chess extends game_1.default {
     initer;
     _gamePluginName = "chess";
@@ -26,16 +27,27 @@ class Chess extends game_1.default {
         });
     }
     execCommand(event) {
-        const moves = event.arguments.split(/\s+/);
-        for (const move of moves) {
-            this.commandParser.tryExec(move);
-            console.log(this.board.toString());
-            console.log(this.board.history.toString());
+        try {
+            const moves = event.arguments.split(/\s+/);
+            for (const move of moves) {
+                this.commandParser.tryExec(move);
+            }
+            this._sendBoard();
         }
-        this._sendBoard();
+        catch (err) {
+            this._sendError(err, event.channelId);
+        }
     }
     _sendBoard() {
         this.bot.client.send(this.channelId, "```" + this.board.toString() + "```");
+    }
+    _sendError(error, channelId) {
+        if (error instanceof errors_1.ChessError) {
+            this.bot.client.send(channelId, "Error: " + error.message);
+        }
+        else {
+            throw error;
+        }
     }
     async _start() {
         // this.bot.client.send(this.channelId, "Chess lobby started.");
@@ -49,6 +61,15 @@ class Chess extends game_1.default {
         });
         this._registerCommand(this.commandManager, "history", () => {
             this.bot.client.send(this.channelId, this.board.history.toString());
+        });
+        this._registerUnknownCommandHandler(this.commandManager, event => {
+            try {
+                this.commandParser.tryExec(event.commandContent);
+                this._sendBoard();
+            }
+            catch (err) {
+                this._sendError(err, event.channelId);
+            }
         });
     }
     _stop() {

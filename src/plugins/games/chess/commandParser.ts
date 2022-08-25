@@ -1,6 +1,7 @@
 import ChessBoard from "./chessBoard";
 import { NormalMoveData } from "./chessHistory";
-import { charToPiece, King, Piece, PieceType } from "./chessPieces";
+import { charToPiece, Piece, PieceType } from "./chessPieces";
+import { ChessParseError, ChessUnknownError } from "./errors";
 
 export default class CommandParser {
     private static pgnRegex = /([RNBQKP])?([a-h])?([1-8])?(x)?([a-h])([1-8])(\+|#|=([RNBQ]))?/i;
@@ -58,13 +59,13 @@ export default class CommandParser {
         if (!match) { return false; }
         const [fullMatchStr, blackWin, whiteWin, draw] = match;
         if (whiteWin && this.board.blackTurn) {
-            throw new Error("Black resigns; White wins. Game end handler not implemented.");
+            throw new ChessUnknownError("Black resigns; White wins. Game end handler not implemented.");
         } else if (blackWin && !this.board.blackTurn) {
-            throw new Error("White resigns; Black wins. Game end handler not implemented.");
+            throw new ChessUnknownError("White resigns; Black wins. Game end handler not implemented.");
         } else if (draw) {
-            throw new Error("Draw offering not implemented");
+            throw new ChessUnknownError("Draw offering not implemented");
         } else {
-            throw new Error("You cannot make yourself win.");
+            throw new ChessUnknownError("You cannot make yourself win.");
         }
     }
 
@@ -73,18 +74,18 @@ export default class CommandParser {
         if (this.execGameEndIfIs(command)) { return; }
 
         const moveData = this.parsePGNNormal(command);
-        if (!moveData) { throw new Error("Invalid command"); }
+        if (!moveData) { throw new ChessParseError("Invalid command"); }
 
         const moves = this.getPossibleMoves(moveData)
 
-        if (moves.length > 1) { throw new Error("Ambigious move"); }
+        if (moves.length > 1) { throw new ChessParseError("Ambigious move. More than one move matches criteria."); }
         if (moves.length < 1) {
             if (command.toLowerCase().startsWith("b")) {
                 // in case "bxc6"-alike is interpreted as bishop move, try as pawn move
                 this.tryExec("p" + command);
                 return;
             }
-            throw new Error("No legal moves");
+            throw new ChessParseError("No legal moves");
         }
         const [movePeice, moveTo] = moves[0];
 

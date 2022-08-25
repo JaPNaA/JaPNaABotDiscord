@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const chessHistory_1 = require("./chessHistory");
 const chessPieces_1 = require("./chessPieces");
+const errors_1 = require("./errors");
 class ChessBoard {
     blackTurn = false;
     history = new chessHistory_1.ChessHistory();
@@ -55,7 +56,7 @@ class ChessBoard {
         // blackTurn has already been flipped in _moveNoCheck
         if (this.isCheck(!this.blackTurn)) {
             this.undo();
-            throw new Error("King in check");
+            throw new errors_1.ChessInvalidMoveError("King in check");
         }
         historyRecord.check = this.isCheck(this.blackTurn);
         historyRecord.checkmate = this.isCheckmate(this.blackTurn);
@@ -63,22 +64,22 @@ class ChessBoard {
     castle(queenSide) {
         const king = this.getPieces(chessPieces_1.King, this.blackTurn)[0];
         if (!king) {
-            throw new Error("No king on board");
+            throw new errors_1.ChessInvalidMoveError("No king on board");
         }
         if (this.history.hasKingMoved(this.blackTurn)) {
-            throw new Error("Cannot castle after King moves");
+            throw new errors_1.ChessInvalidMoveError("Cannot castle after King moves");
         }
         const kingTargetX = king.x + 2 * (queenSide ? -1 : 1);
         const rookX = queenSide ? 0 : 7;
         const rookTargetX = king.x + 1 * (queenSide ? -1 : 1);
         if (this.history.hasRookMoved(this.blackTurn, rookX, king.y)) {
-            throw new Error("Cannot castle after Rook moves.");
+            throw new errors_1.ChessInvalidMoveError("Cannot castle after Rook moves.");
         }
         if (!this._isLineOfSpacesSafe(this.blackTurn, king.x, kingTargetX, king.y)) {
-            throw new Error("Cannot castle through check.");
+            throw new errors_1.ChessInvalidMoveError("Cannot castle through check.");
         }
         if (!this._isLineOfSpacesEmptyExceptEnds(king.x, rookX, king.y)) {
-            throw new Error("Cannot castle through pieces.");
+            throw new errors_1.ChessInvalidMoveError("Cannot castle through pieces.");
         }
         this._castle(king.x, king.y, kingTargetX, king.y, rookX, king.y, rookTargetX, king.y);
         this.blackTurn = !this.blackTurn;
@@ -103,12 +104,12 @@ class ChessBoard {
         const king = this.board[fromKingY][fromKingX];
         this.board[fromKingY][fromKingX] = null;
         if (!king) {
-            throw new Error("Castle but can't find king.");
+            throw new errors_1.ChessUnknownError("Castle but can't find king.");
         }
         const rook = this.board[fromRookY][fromRookX];
         this.board[fromRookY][fromRookX] = null;
         if (!rook) {
-            throw new Error("Castle but can't find rook.");
+            throw new errors_1.ChessUnknownError("Castle but can't find rook.");
         }
         this.board[toKingY][toKingX] = king;
         this.board[toRookY][toRookX] = rook;
@@ -136,7 +137,7 @@ class ChessBoard {
     _moveEnPasseNoCheck(fromX, fromY, toX, toY) {
         const capture = this.board[fromY][toX];
         if (!capture) {
-            throw new Error("Tried to en passe without piece capture");
+            throw new errors_1.ChessInvalidMoveError("Tried to en passe without piece capture");
         }
         this.board[fromY][toX] = null;
         const historyRecord = this._moveNoCheck(fromX, fromY, toX, toY);
@@ -148,7 +149,7 @@ class ChessBoard {
     _moveNoCheck(fromX, fromY, toX, toY) {
         const piece = this.board[fromY][fromX];
         if (piece === null) {
-            throw new Error(`No piece on (${fromX}, ${fromY}).`);
+            throw new errors_1.ChessUnknownError(`No piece on (${fromX}, ${fromY}).`);
         }
         this.board[fromY][fromX] = null;
         const targetPosPiece = this.board[toY][toX];
@@ -192,7 +193,7 @@ class ChessBoard {
         this._unmove(move.fromX, move.fromY, move.targetX, move.targetY);
         if (move.capture) {
             if (!move.capturedPiece) {
-                throw new Error("Undoing corrupted move");
+                throw new errors_1.ChessUnknownError("Undoing corrupted move");
             }
             let capturedPieceX = move.targetX;
             let capturedPieceY = move.targetY;
@@ -212,12 +213,12 @@ class ChessBoard {
     _unmove(fromX, fromY, toX, toY) {
         const piece = this.board[toY][toX];
         if (piece === null) {
-            throw new Error(`No piece on (${toX}, ${toY}).`);
+            throw new errors_1.ChessUnknownError(`No piece on (${toX}, ${toY}).`);
         }
         this.board[toY][toX] = null;
         const targetPosPiece = this.board[fromY][fromX];
         if (targetPosPiece !== null) {
-            throw new Error(`Piece already on (${fromX}, ${fromY})`);
+            throw new errors_1.ChessUnknownError(`Piece already on (${fromX}, ${fromY})`);
         }
         this.board[fromY][fromX] = piece;
         piece.x = fromX;

@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const chessPieces_1 = require("./chessPieces");
+const errors_1 = require("./errors");
 class CommandParser {
     board;
     static pgnRegex = /([RNBQKP])?([a-h])?([1-8])?(x)?([a-h])([1-8])(\+|#|=([RNBQ]))?/i;
@@ -49,16 +50,16 @@ class CommandParser {
         }
         const [fullMatchStr, blackWin, whiteWin, draw] = match;
         if (whiteWin && this.board.blackTurn) {
-            throw new Error("Black resigns; White wins. Game end handler not implemented.");
+            throw new errors_1.ChessUnknownError("Black resigns; White wins. Game end handler not implemented.");
         }
         else if (blackWin && !this.board.blackTurn) {
-            throw new Error("White resigns; Black wins. Game end handler not implemented.");
+            throw new errors_1.ChessUnknownError("White resigns; Black wins. Game end handler not implemented.");
         }
         else if (draw) {
-            throw new Error("Draw offering not implemented");
+            throw new errors_1.ChessUnknownError("Draw offering not implemented");
         }
         else {
-            throw new Error("You cannot make yourself win.");
+            throw new errors_1.ChessUnknownError("You cannot make yourself win.");
         }
     }
     tryExec(command) {
@@ -70,11 +71,11 @@ class CommandParser {
         }
         const moveData = this.parsePGNNormal(command);
         if (!moveData) {
-            throw new Error("Invalid command");
+            throw new errors_1.ChessParseError("Invalid command");
         }
         const moves = this.getPossibleMoves(moveData);
         if (moves.length > 1) {
-            throw new Error("Ambigious move");
+            throw new errors_1.ChessParseError("Ambigious move. More than one move matches criteria.");
         }
         if (moves.length < 1) {
             if (command.toLowerCase().startsWith("b")) {
@@ -82,7 +83,7 @@ class CommandParser {
                 this.tryExec("p" + command);
                 return;
             }
-            throw new Error("No legal moves");
+            throw new errors_1.ChessParseError("No legal moves");
         }
         const [movePeice, moveTo] = moves[0];
         this.board.move(movePeice.x, movePeice.y, // piece location

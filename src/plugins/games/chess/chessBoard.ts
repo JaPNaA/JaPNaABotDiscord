@@ -1,5 +1,6 @@
-import { CastleMoveData, ChessHistory, MoveData, NormalMoveData } from "./chessHistory";
+import { CastleMoveData, ChessHistory, NormalMoveData } from "./chessHistory";
 import { charToPiece, King, Piece, PieceType } from "./chessPieces";
+import { ChessInvalidMoveError, ChessUnknownError } from "./errors";
 
 export default class ChessBoard {
     public blackTurn: boolean = false;
@@ -62,7 +63,7 @@ export default class ChessBoard {
         // blackTurn has already been flipped in _moveNoCheck
         if (this.isCheck(!this.blackTurn)) {
             this.undo();
-            throw new Error("King in check");
+            throw new ChessInvalidMoveError("King in check");
         }
 
         historyRecord.check = this.isCheck(this.blackTurn);
@@ -71,9 +72,9 @@ export default class ChessBoard {
 
     public castle(queenSide: boolean) {
         const king = this.getPieces(King, this.blackTurn)[0];
-        if (!king) { throw new Error("No king on board"); }
+        if (!king) { throw new ChessInvalidMoveError("No king on board"); }
         if (this.history.hasKingMoved(this.blackTurn)) {
-            throw new Error("Cannot castle after King moves");
+            throw new ChessInvalidMoveError("Cannot castle after King moves");
         }
 
         const kingTargetX = king.x + 2 * (queenSide ? -1 : 1);
@@ -81,15 +82,15 @@ export default class ChessBoard {
         const rookTargetX = king.x + 1 * (queenSide ? -1 : 1);
 
         if (this.history.hasRookMoved(this.blackTurn, rookX, king.y)) {
-            throw new Error("Cannot castle after Rook moves.");
+            throw new ChessInvalidMoveError("Cannot castle after Rook moves.");
         }
 
         if (!this._isLineOfSpacesSafe(this.blackTurn, king.x, kingTargetX, king.y)) {
-            throw new Error("Cannot castle through check.");
+            throw new ChessInvalidMoveError("Cannot castle through check.");
         }
 
         if (!this._isLineOfSpacesEmptyExceptEnds(king.x, rookX, king.y)) {
-            throw new Error("Cannot castle through pieces.");
+            throw new ChessInvalidMoveError("Cannot castle through pieces.");
         }
 
         this._castle(
@@ -123,11 +124,11 @@ export default class ChessBoard {
         // move below logic to private _castle
         const king = this.board[fromKingY][fromKingX];
         this.board[fromKingY][fromKingX] = null;
-        if (!king) { throw new Error("Castle but can't find king."); }
+        if (!king) { throw new ChessUnknownError("Castle but can't find king."); }
 
         const rook = this.board[fromRookY][fromRookX];
         this.board[fromRookY][fromRookX] = null;
-        if (!rook) { throw new Error("Castle but can't find rook."); }
+        if (!rook) { throw new ChessUnknownError("Castle but can't find rook."); }
 
         this.board[toKingY][toKingX] = king;
         this.board[toRookY][toRookX] = rook;
@@ -159,7 +160,7 @@ export default class ChessBoard {
 
     private _moveEnPasseNoCheck(fromX: number, fromY: number, toX: number, toY: number) {
         const capture = this.board[fromY][toX];
-        if (!capture) { throw new Error("Tried to en passe without piece capture"); }
+        if (!capture) { throw new ChessInvalidMoveError("Tried to en passe without piece capture"); }
         this.board[fromY][toX] = null;
 
         const historyRecord = this._moveNoCheck(fromX, fromY, toX, toY);
@@ -171,7 +172,7 @@ export default class ChessBoard {
 
     private _moveNoCheck(fromX: number, fromY: number, toX: number, toY: number): NormalMoveData {
         const piece = this.board[fromY][fromX];
-        if (piece === null) { throw new Error(`No piece on (${fromX}, ${fromY}).`) }
+        if (piece === null) { throw new ChessUnknownError(`No piece on (${fromX}, ${fromY}).`) }
         this.board[fromY][fromX] = null;
 
         const targetPosPiece = this.board[toY][toX];
@@ -221,7 +222,7 @@ export default class ChessBoard {
         this._unmove(move.fromX, move.fromY, move.targetX, move.targetY);
 
         if (move.capture) {
-            if (!move.capturedPiece) { throw new Error("Undoing corrupted move"); }
+            if (!move.capturedPiece) { throw new ChessUnknownError("Undoing corrupted move"); }
             let capturedPieceX = move.targetX;
             let capturedPieceY = move.targetY;
 
@@ -243,11 +244,11 @@ export default class ChessBoard {
 
     private _unmove(fromX: number, fromY: number, toX: number, toY: number) {
         const piece = this.board[toY][toX];
-        if (piece === null) { throw new Error(`No piece on (${toX}, ${toY}).`); }
+        if (piece === null) { throw new ChessUnknownError(`No piece on (${toX}, ${toY}).`); }
         this.board[toY][toX] = null;
 
         const targetPosPiece = this.board[fromY][fromX];
-        if (targetPosPiece !== null) { throw new Error(`Piece already on (${fromX}, ${fromY})`); }
+        if (targetPosPiece !== null) { throw new ChessUnknownError(`Piece already on (${fromX}, ${fromY})`); }
         this.board[fromY][fromX] = piece;
         piece.x = fromX;
         piece.y = fromY;

@@ -5,6 +5,7 @@ import Lobby from "../utils/lobby";
 import ChessBoard from "./chessBoard";
 import CommandParser from "./commandParser";
 import DiscordCommandEvent from "../../../main/bot/events/discordCommandEvent";
+import { ChessError } from "./errors";
 
 class Chess extends Game {
     _gamePluginName: string = "chess"
@@ -27,19 +28,29 @@ class Chess extends Game {
     }
 
     execCommand(event: DiscordCommandEvent) {
-        const moves = event.arguments.split(/\s+/);
-
-        for (const move of moves) {
-            this.commandParser.tryExec(move);
-            console.log(this.board.toString());
-            console.log(this.board.history.toString());
+        try {
+            const moves = event.arguments.split(/\s+/);
+    
+            for (const move of moves) {
+                this.commandParser.tryExec(move);
+            }
+    
+            this._sendBoard();
+        } catch (err) {
+            this._sendError(err, event.channelId);
         }
-
-        this._sendBoard();
     }
 
     _sendBoard() {
         this.bot.client.send(this.channelId, "```" + this.board.toString() + "```");
+    }
+
+    _sendError(error: any, channelId: string) {
+        if (error instanceof ChessError) {
+            this.bot.client.send(channelId, "Error: " + error.message);
+        } else {
+            throw error;
+        }
     }
 
     async _start() {
@@ -54,6 +65,14 @@ class Chess extends Game {
         });
         this._registerCommand(this.commandManager, "history", () => {
             this.bot.client.send(this.channelId, this.board.history.toString());
+        });
+        this._registerUnknownCommandHandler(this.commandManager, event => {
+            try {
+                this.commandParser.tryExec(event.commandContent);
+                this._sendBoard();
+            } catch (err) {
+                this._sendError(err, event.channelId);
+            }
         });
     }
 
