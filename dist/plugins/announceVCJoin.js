@@ -35,7 +35,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
         },
         makeThread: {
             type: "boolean",
-            comment: "Should the message should actually be a thread?",
+            comment: "Should create a thread with the announcement message?",
             default: false
         },
         endCallThreadBehavior: {
@@ -129,7 +129,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
         this.channelStates.set(channelId, channelState); // case where empty
         // add member to call thread, if active
         if (channelState.thread && !channelState.thread.archived && channelState.threadMessage && state.member) {
-            channelState.threadMessage.addParticipant(state.member);
+            channelState.threadMessage.addParticipantAndUpdateMessage(state.member);
         }
         if (channel.members.size > 1) {
             channelState.wasNotLonelyCall = true;
@@ -161,31 +161,32 @@ class AnnounceVCJoin extends plugin_js_1.default {
                     channelState.thread.setAutoArchiveDuration(channelState.prevArchiveDelay);
                 }
                 if (channelState.threadMessage && state.member) {
-                    channelState.threadMessage.addParticipant(state.member);
+                    channelState.threadMessage.addParticipantAndUpdateMessage(state.member);
                 }
             }
             return;
         }
         // anounce call start
+        // Always send announcement message, even if creating thread
+        // Discord doesn't send (mobile) notifications for thread creation
+        channelState.thread = undefined;
+        channelState.announcementMessage = (0, allUtils_js_1.toOne)(await this.bot.client.send(announceInChannelId, {
+            allowedMentions: { users: [] },
+            content: `${state.member && (0, mention_js_1.default)(state.member?.id)} joined <#${channelId}>`
+        }));
         if (config.get("makeThread") && !announceInChannel.isThread()) {
             const thread = await announceInChannel.threads.create({
-                name: `call in ${channel.name} at ${this._getNowFormatted()}`
+                name: `call in ${channel.name} at ${this._getNowFormatted()}`,
+                startMessage: channelState.announcementMessage
             });
             channelState.thread = thread;
             channelState.threadMessage = new CallThreadMessage(channelId, thread, state.member);
+            channelState.threadMessage.sendIfNotAlready();
             if (state.channel) {
                 for (const member of state.channel.members) {
-                    channelState.threadMessage.addParticipant(member[1]);
+                    channelState.threadMessage.addParticipantAndUpdateMessage(member[1]);
                 }
             }
-            await channelState.threadMessage.sendIfNotAlready();
-        }
-        else {
-            channelState.thread = undefined;
-            channelState.announcementMessage = (0, allUtils_js_1.toOne)(await this.bot.client.send(announceInChannelId, {
-                allowedMentions: { users: [] },
-                content: `${state.member && (0, mention_js_1.default)(state.member?.id)} joined <#${channelId}>`
-            }));
         }
         channelState.wasNotLonelyCall = channel.members.size > 1;
         channelState.cooldownBy = Date.now() + config.get("announceCooldown") * 1000;
@@ -206,16 +207,20 @@ class AnnounceVCJoin extends plugin_js_1.default {
         const channelState = this.channelStates.get(channelId) || {};
         // delete lonely calls
         if (!channelState.wasNotLonelyCall && config.get("deleteLonelyCalls")) {
-            if (channelState.thread &&
-                channelState.thread.messages.cache.size <= 1 // don't delete thread if messages sent in thread
-            ) {
-                // delete thread create announcement
-                const announceInChannelId = config.get("announceIn");
-                this._deleteMessageInChannel(announceInChannelId, channelState.thread.id);
-                await channelState.thread.delete("Lonely call");
-                channelState.thread = undefined;
+            if (channelState.thread) {
+                // don't delete thread if messages sent in thread
+                // 1st message: starter message; 2nd message: CallThreadMessage (participants message)
+                if (channelState.thread.messages.cache.size <= 2) {
+                    // delete announcement message too
+                    if (channelState.announcementMessage) {
+                        await channelState.announcementMessage.delete();
+                        channelState.announcementMessage = undefined;
+                    }
+                    await channelState.thread.delete("Lonely call");
+                    channelState.thread = undefined;
+                }
             }
-            if (channelState.announcementMessage) {
+            else if (channelState.announcementMessage) {
                 await channelState.announcementMessage.delete();
                 channelState.announcementMessage = undefined;
             }
@@ -295,11 +300,13 @@ class CallThreadMessage {
             return;
         }
         if (this.starter) {
-            this.messagePromise = this.thread.send(this.generateMessageStr(false));
-            (await this.messagePromise).edit(this.generateMessageStr());
+            this.messagePromise = this.thread.send("Adding you to the thread...");
+            const message = await this.messagePromise;
+            await message.edit((0, mention_js_1.default)(this.starter.id));
+            await message.edit(this.generateMessageStr());
         }
     }
-    async addParticipant(participant) {
+    async addParticipantAndUpdateMessage(participant) {
         if (this.starter && participant.id === this.starter.id) {
             return;
         }
@@ -310,13 +317,12 @@ class CallThreadMessage {
         await this.sendIfNotAlready();
         (await this.messagePromise).edit(this.generateMessageStr());
     }
-    generateMessageStr(mentionStarter = true) {
-        const starterMention = this.starter ? (0, mention_js_1.default)(this.starter.user.id) : "someone";
-        const starterName = this.starter ? this.starter.displayName : "someone";
-        let str = "Call started by " + (mentionStarter ? starterMention : starterName) + " in <#" + this.voiceChannelId + ">";
-        if (this.additionalParticipants.length) {
-            str += "\nParticipants: " + this.additionalParticipants.map(p => (0, mention_js_1.default)(p.id)).join(", ");
+    generateMessageStr() {
+        if (this.additionalParticipants.length > 0) {
+            return "Participants: " + this.additionalParticipants.map(p => (0, mention_js_1.default)(p.id)).join(", ");
         }
-        return str;
+        else {
+            return "No participants yet...";
+        }
     }
 }
