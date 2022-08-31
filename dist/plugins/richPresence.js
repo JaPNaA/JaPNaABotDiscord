@@ -6,10 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_1 = __importDefault(require("../main/bot/plugin/plugin"));
 class RichPresence extends plugin_1.default {
     lastPresence;
+    lastStatus = "online";
     constructor(bot) {
         super(bot);
         this.pluginName = "richPresence";
         this.lastPresence = this.bot.memory.get(this.pluginName, "lastPresence");
+        this.lastStatus = this.bot.memory.get(this.pluginName, "lastStatus") || "online";
     }
     /**
      * Changes rich presence to play a game
@@ -39,6 +41,17 @@ class RichPresence extends plugin_1.default {
     stream(event) {
         this.updatePresence("stream", event.arguments);
     }
+    set_status(event) {
+        if (event.arguments === "online" ||
+            event.arguments === "idle" ||
+            event.arguments === "dnd" ||
+            event.arguments === "invisible") {
+            this.updateStatus(event.arguments);
+        }
+        else {
+            this.bot.client.send(event.channelId, `\`${event.arguments}\` is not a valid status.`);
+        }
+    }
     updatePresence(type, name) {
         this.lastPresence = { type, name };
         this.bot.memory.write(this.pluginName, "lastPresence", this.lastPresence);
@@ -57,11 +70,17 @@ class RichPresence extends plugin_1.default {
                 break;
         }
     }
+    updateStatus(status) {
+        this.bot.client.client.user?.setStatus(status);
+        this.lastStatus = status;
+        this.bot.memory.write(this.pluginName, "lastStatus", this.lastStatus);
+    }
     _start() {
         this.bot.events.ready.addHandler(() => {
             if (this.lastPresence) {
                 this.updatePresence(this.lastPresence.type, this.lastPresence.name);
             }
+            this.updateStatus(this.lastStatus);
         });
         this._registerDefaultCommand("play", this.play, {
             help: {
@@ -114,6 +133,20 @@ class RichPresence extends plugin_1.default {
                 examples: [
                     ["stream", "Removes the \"streaming\" tag"],
                     ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
+                ]
+            },
+            group: "Rich Presence",
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
+        });
+        this._registerDefaultCommand("set status", this.set_status, {
+            help: {
+                description: "Sets the bot's status (online, idle, dnd, invisible, etc.)",
+                overloads: [{
+                        "status": "The status (online, idle, dnd, invisible)"
+                    }],
+                examples: [
+                    ["set status online", "Sets the bot's status to online (green)"],
+                    ["set status idle", "Sets the bot's status to idle (yellow)"]
                 ]
             },
             group: "Rich Presence",

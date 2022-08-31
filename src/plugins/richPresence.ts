@@ -1,3 +1,4 @@
+import { PresenceStatusData } from "discord.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin";
@@ -9,11 +10,13 @@ export default class RichPresence extends BotPlugin {
         type: PresenceType,
         name: string
     };
+    private lastStatus: PresenceStatusData = "online";
 
     constructor(bot: Bot) {
         super(bot);
-        this.pluginName = "richPresence"
+        this.pluginName = "richPresence";
         this.lastPresence = this.bot.memory.get(this.pluginName, "lastPresence");
+        this.lastStatus = this.bot.memory.get(this.pluginName, "lastStatus") || "online";
     }
 
     /**
@@ -48,6 +51,19 @@ export default class RichPresence extends BotPlugin {
         this.updatePresence("stream", event.arguments);
     }
 
+    public set_status(event: DiscordCommandEvent): void {
+        if (
+            event.arguments === "online" ||
+            event.arguments === "idle" ||
+            event.arguments === "dnd" ||
+            event.arguments === "invisible"
+        ) {
+            this.updateStatus(event.arguments);
+        } else {
+            this.bot.client.send(event.channelId, `\`${event.arguments}\` is not a valid status.`);
+        }
+    }
+
     private updatePresence(type: PresenceType, name: string): void {
         this.lastPresence = { type, name };
         this.bot.memory.write(this.pluginName, "lastPresence", this.lastPresence);
@@ -68,11 +84,18 @@ export default class RichPresence extends BotPlugin {
         }
     }
 
+    private updateStatus(status: PresenceStatusData) {
+        this.bot.client.client.user?.setStatus(status);
+        this.lastStatus = status;
+        this.bot.memory.write(this.pluginName, "lastStatus", this.lastStatus);
+    }
+
     public _start(): void {
         this.bot.events.ready.addHandler(() => {
             if (this.lastPresence) {
                 this.updatePresence(this.lastPresence.type, this.lastPresence.name);
             }
+            this.updateStatus(this.lastStatus);
         });
 
         this._registerDefaultCommand("play", this.play, {
@@ -129,6 +152,21 @@ export default class RichPresence extends BotPlugin {
                 examples: [
                     ["stream", "Removes the \"streaming\" tag"],
                     ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
+                ]
+            },
+            group: "Rich Presence",
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
+        });
+
+        this._registerDefaultCommand("set status", this.set_status, {
+            help: {
+                description: "Sets the bot's status (online, idle, dnd, invisible, etc.)",
+                overloads: [{
+                    "status": "The status (online, idle, dnd, invisible)"
+                }],
+                examples: [
+                    ["set status online", "Sets the bot's status to online (green)"],
+                    ["set status idle", "Sets the bot's status to idle (yellow)"]
                 ]
             },
             group: "Rich Presence",

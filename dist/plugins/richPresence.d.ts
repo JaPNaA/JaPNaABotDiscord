@@ -3,6 +3,7 @@ import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin";
 export default class RichPresence extends BotPlugin {
     private lastPresence?;
+    private lastStatus;
     constructor(bot: Bot);
     /**
      * Changes rich presence to play a game
@@ -24,7 +25,9 @@ export default class RichPresence extends BotPlugin {
      * @param args string to set as stream
      */
     stream(event: DiscordCommandEvent): void;
+    set_status(event: DiscordCommandEvent): void;
     private updatePresence;
+    private updateStatus;
     _start(): void;
     _stop(): void;
 }
