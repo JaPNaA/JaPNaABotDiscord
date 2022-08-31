@@ -76,7 +76,7 @@ export default class CommandParser {
         const moveData = this.parsePGNNormal(command);
         if (!moveData) { throw new ChessParseError("Invalid command"); }
 
-        const moves = this.getPossibleMoves(moveData)
+        const moves = this.getPossibleMoves(moveData);
 
         if (moves.length > 1) { throw new ChessParseError("Ambigious move. More than one move matches criteria."); }
         if (moves.length < 1) {
