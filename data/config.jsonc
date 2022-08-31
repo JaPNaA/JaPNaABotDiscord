@@ -64,10 +64,10 @@
     //     custom: "[CUSTOM_PERMISSION_NAME]",
     //     discord: "[DISCORD_PERMISSION_NAME]"
     //   }
+    // },
+    // "plugin.japnaa": {
+    //   "spam": { "custom": "SPAMMER" },
+    //   "count": { "discord": "MANAGE_MESSAGES" }
     // }
-    "plugin.japnaa": {
-      "spam": { "custom": "SPAMMER" },
-      "count": { "discord": "MANAGE_MESSAGES" }
-    }
   }
 }
