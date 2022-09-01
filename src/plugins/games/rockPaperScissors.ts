@@ -9,7 +9,7 @@ export class RockPaperScissors extends Game {
     public lobby: Lobby;
     private choices: Map<string, RPS> = new Map();
 
-    constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string) {
+    constructor(bot: Bot, parentPlugin: Games, channelId: string, private initer: string) {
         super(bot, parentPlugin, channelId);
         this.gameName = "Rock Paper Scissors";
         this.lobby = new Lobby(this, bot);
@@ -20,10 +20,10 @@ export class RockPaperScissors extends Game {
             minPlayers: 2,
             autoStart: true
         });
-        this.lobby.addPlayer(initer);
     }
 
     _start() {
+        this.lobby.addPlayer(this.initer);
         this.lobby.getPlayers()
             .then(players => this.requestChoice(players));
     }

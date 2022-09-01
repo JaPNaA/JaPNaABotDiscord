@@ -3,6 +3,7 @@ import Games from "../games";
 import Game from "./game";
 import Lobby from "./utils/lobby";
 export declare class RockPaperScissors extends Game {
+    private initer;
     lobby: Lobby;
     private choices;
     constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string);

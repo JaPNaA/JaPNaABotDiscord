@@ -8,10 +8,12 @@ const mention_1 = __importDefault(require("../../main/utils/str/mention"));
 const game_1 = __importDefault(require("./game"));
 const lobby_1 = __importDefault(require("./utils/lobby"));
 class RockPaperScissors extends game_1.default {
+    initer;
     lobby;
     choices = new Map();
     constructor(bot, parentPlugin, channelId, initer) {
         super(bot, parentPlugin, channelId);
+        this.initer = initer;
         this.gameName = "Rock Paper Scissors";
         this.lobby = new lobby_1.default(this, bot);
         this.lobby.setSettings({
@@ -21,9 +23,9 @@ class RockPaperScissors extends game_1.default {
             minPlayers: 2,
             autoStart: true
         });
-        this.lobby.addPlayer(initer);
     }
     _start() {
+        this.lobby.addPlayer(this.initer);
         this.lobby.getPlayers()
             .then(players => this.requestChoice(players));
     }

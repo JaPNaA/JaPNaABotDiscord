@@ -8,6 +8,7 @@ const slapjack_js_1 = __importDefault(require("./games/slapjack.js"));
 const presidents_js_1 = __importDefault(require("./games/presidents/presidents.js"));
 const chess_1 = __importDefault(require("./games/chess/chess"));
 const rockPaperScissors_js_1 = require("./games/rockPaperScissors.js");
+const othello_js_1 = require("./games/othello.js");
 /**
  * Games!
  */
@@ -24,7 +25,11 @@ class Games extends plugin_js_1.default {
         "scum": presidents_js_1.default,
         "chess": chess_1.default,
         "rps": rockPaperScissors_js_1.RockPaperScissors,
-        "rock paper scissors": rockPaperScissors_js_1.RockPaperScissors
+        "rock paper scissors": rockPaperScissors_js_1.RockPaperScissors,
+        "othello": othello_js_1.Othello,
+        "reversi": othello_js_1.Othello,
+        "オセロ": othello_js_1.Othello,
+        "リバーシ": othello_js_1.Othello,
     };
     constructor(bot) {
         super(bot);
