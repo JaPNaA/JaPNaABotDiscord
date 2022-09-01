@@ -1,9 +1,11 @@
 /// <reference types="node" />
 import DiscordMessageEvent from "../main/bot/events/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
+import { JSONObject } from "../main/types/jsonObject.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
-declare type SpamCallback = () => Promise<boolean>;
+import { Action, ReplyThreadSoft, SendPrivate } from "../main/bot/actions/actions";
+declare type SpamCallback = () => void;
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -15,6 +17,9 @@ declare class Japnaa extends BotPlugin {
     };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
+    spamAsyncStarted: number;
+    spamAsyncDone: number;
+    spamAsyncAllDoneCallback?: Function;
     /** Last-used `random` command arguments per channel */
     lastRandomCommands: Map<string, string>;
     userConfigSchema: {
@@ -33,20 +38,20 @@ declare class Japnaa extends BotPlugin {
     /**
      * makes the bot count
      */
-    count(event: DiscordMessageEvent): void;
+    count(event: DiscordMessageEvent): Generator<string, void, unknown>;
     /**
      * Safe eval command
      */
-    sev(event: DiscordCommandEvent): Promise<void>;
-    private _sendJSCodeBlock;
+    sev(event: DiscordCommandEvent): Generator<string, void, unknown>;
+    private _JSCodeBlock;
     /**
      * says whatever you say
      */
-    echo(event: DiscordCommandEvent): Promise<void>;
+    echo(event: DiscordCommandEvent): Generator<string | JSONObject, void, unknown>;
     /**
      * Generates random stuff
      */
-    random(event: DiscordCommandEvent): Promise<import("discord.js").Message<boolean> | import("discord.js").Message<boolean>[] | undefined>;
+    random(event: DiscordCommandEvent): Generator<string>;
     private random_string;
     private random_select;
     private random_again;
@@ -82,26 +87,26 @@ declare class Japnaa extends BotPlugin {
     /**
      * Actual spam function
      */
-    _spam(bot: Bot, channelId: string, serverId: string, amount: number, counter: boolean, message: string): void;
+    _spam(bot: Bot, channelId: string, serverId: string, amount: number, counter: boolean, message: string): AsyncGenerator<Action> | undefined;
     /**
      * Makes the bot spam stuff
      * @param args "stop" | [amount, [counter], ...message]
      */
-    spam_command(event: DiscordCommandEvent): Promise<void>;
+    spam_command(event: DiscordCommandEvent): AsyncGenerator<string | Action, void, unknown>;
     /**
      * Throws an error
      * @param args error message
      */
-    throw(event: DiscordCommandEvent): void;
+    throw(event: DiscordCommandEvent): Generator<never, void, unknown>;
     /**
      * Tell someone something through DMs
      * @param args message to send
      */
-    tell(event: DiscordCommandEvent): Promise<void>;
+    tell(event: DiscordCommandEvent): AsyncGenerator<string | SendPrivate, void, unknown>;
     /**
      * Create a thread and pretend to recieve the message in the thread
      */
-    thread(event: DiscordCommandEvent): Promise<void>;
+    thread(event: DiscordCommandEvent): AsyncGenerator<ReplyThreadSoft, void, unknown>;
     _stop(): void;
     _start(): void;
 }

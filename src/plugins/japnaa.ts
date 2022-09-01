@@ -17,10 +17,10 @@ import ellipsisize from "../main/utils/str/ellipsisize";
 import vm from "node:vm";
 import { inspect } from "node:util";
 import CommandArguments from "../main/bot/command/commandArguments";
-import { TextChannel } from "discord.js";
 import fakeMessage from "../main/utils/fakeMessage";
+import { Action, ReplyThreadSoft, Send, SendPrivate } from "../main/bot/actions/actions";
 
-type SpamCallback = () => Promise<boolean>;
+type SpamCallback = () => void;
 
 /**
  * Commonly used commands made by me, JaPNaA
@@ -31,6 +31,9 @@ class Japnaa extends BotPlugin {
     spamQue: { [x: string]: SpamCallback[] };
     /** Spam setInterval return */
     spamInterval: NodeJS.Timeout | null;
+    spamAsyncStarted = 0;
+    spamAsyncDone = 0;
+    spamAsyncAllDoneCallback?: Function;
 
     /** Last-used `random` command arguments per channel */
     lastRandomCommands: Map<string, string> = new Map();
@@ -60,16 +63,16 @@ class Japnaa extends BotPlugin {
     /**
      * makes the bot count
      */
-    count(event: DiscordMessageEvent): void {
+    *count(event: DiscordMessageEvent) {
         this.counter++;
         this.bot.memory.write(this.pluginName, "counter", this.counter);
-        this.bot.client.send(event.channelId, this.counter.toString() + "!");
+        yield this.counter + "!";
     }
 
     /**
      * Safe eval command
      */
-    public async sev(event: DiscordCommandEvent) {
+    public *sev(event: DiscordCommandEvent) {
         // Adapted from https://github.com/hacksparrow/safe-eval/blob/master/index.js
         const sandbox: { [x: string]: any } = {}
         const resultKey = 'SAFE_EVAL_' + Math.floor(Math.random() * 1000000)
@@ -93,19 +96,19 @@ class Japnaa extends BotPlugin {
             timeout: 100
         });
 
-        await this._sendJSCodeBlock(event.channelId, inspect(sandbox[resultKey]));
+        yield this._JSCodeBlock(inspect(sandbox[resultKey]));
     }
 
 
-    private async _sendJSCodeBlock(channelId: string, str: string) {
+    private _JSCodeBlock(str: string) {
         const cleanStr = ellipsisize(str.replace(/ {4}/g, "\t"), 2000 - 9);
-        await this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
+        return "```js\n" + cleanStr + "```";
     }
 
     /**
      * says whatever you say
      */
-    async echo(event: DiscordCommandEvent) {
+    *echo(event: DiscordCommandEvent) {
         let json: JSONObject | null = null;
         try {
             json = JSON.parse(event.arguments);
@@ -113,22 +116,19 @@ class Japnaa extends BotPlugin {
             // do nothing
         }
 
-        if (json) {
-            await this.bot.client.send(event.channelId, json);
-        } else {
-            await this.bot.client.send(event.channelId, event.arguments);
-        }
+        yield json ? json : event.arguments;
     }
 
     /**
      * Generates random stuff
      */
-    async random(event: DiscordCommandEvent) {
+    *random(event: DiscordCommandEvent): Generator<string> {
         const [maxArg, minArg, stepArg, timesArg] = stringToArgs(event.arguments);
 
         // random again branch
         if (maxArg && maxArg.toLowerCase() === "again") {
-            return this.random_again(event);
+            yield* this.random_again(event);
+            return;
         }
 
         // don't record `random again` in history
@@ -136,12 +136,14 @@ class Japnaa extends BotPlugin {
 
         // random string branch
         if (maxArg && maxArg.toLowerCase() === "string") {
-            return this.random_string(event);
+            yield* this.random_string(event);
+            return;
         }
 
         // random select branch
         if (maxArg && maxArg.toLowerCase() === "select") {
-            return this.random_select(event);
+            yield* this.random_select(event);
+            return;
         }
 
         let max = this._parseFloatWithDefault(maxArg, 1);
@@ -155,7 +157,7 @@ class Japnaa extends BotPlugin {
 
         // check if arguments are valid
         if (isNaN(max) || isNaN(min) || isNaN(step)) {
-            this.bot.client.send(event.channelId, "**Invalid arguments**");
+            yield "**Invalid arguments**";
             return;
         }
         if (min > max) {
@@ -167,51 +169,49 @@ class Japnaa extends BotPlugin {
         const results = [];
         for (let i = 0; i < times; i++) { results.push(random(min, max, step)); }
 
-        await this.bot.client.send(event.channelId,
-            ellipsisize(
-                `${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`,
-                2000 - 2
-            ) + "**"
-        );
+        yield ellipsisize(
+            `${min} to ${max} | ${step} \u2192\n**${results.join(", ")}`,
+            2000 - 2
+        ) + "**";
     }
 
-    private async random_string(event: DiscordCommandEvent) {
+    private *random_string(event: DiscordCommandEvent) {
         const [stringArg, lengthArg] = stringToArgs(event.arguments);
 
         const length = lengthArg ? parseInt(lengthArg) : 128;
         if (isNaN(length)) {
-            return this.bot.client.send(event.channelId, "Number required");
+            yield "Number required";
         }
 
         if (length > 1900) {
-            return this.bot.client.send(event.channelId, "String too long (max: 1900)");
+            yield "String too long (max: 1900)";
         }
 
-        return this.bot.client.send(event.channelId,
-            "```" +
+        yield "```" +
             randomString(length).replace(/`$/g, "` ") // because discord markup
-            + "```"
-        );
+            + "```";
     }
 
-    private async random_select(event: DiscordCommandEvent) {
+    private *random_select(event: DiscordCommandEvent) {
         const [selectArg, ...options] = stringToArgs(event.arguments);
         if (options.length <= 0) {
-            return this.bot.client.send(event.channelId, "Supply options to choose from");
+            yield "Supply options to choose from";
+            return;
         }
 
         const rand = options[Math.floor(Math.random() * options.length)];
 
-        return this.bot.client.send(event.channelId, `Select from [${options.join(", ")}]:\n**${rand}**`);
+        yield `Select from [${options.join(", ")}]:\n**${rand}**`;
     }
 
-    private async random_again(event: DiscordCommandEvent) {
+    private *random_again(event: DiscordCommandEvent) {
         const last = this.lastRandomCommands.get(event.channelId);
         if (!last) {
-            return this.bot.client.send(event.channelId, "No previous random command");
+            yield "No previous random command";
+            return;
         }
 
-        await this.random({
+        yield* this.random({
             ...event,
             arguments: last
         });
@@ -283,23 +283,21 @@ class Japnaa extends BotPlugin {
      */
     async _sendSpam() {
         const keys: string[] = Object.keys(this.spamQue);
-        const promises = [];
+
+        this.spamAsyncDone = this.spamAsyncStarted = 0;
+        const allDone = new Promise(res => this.spamAsyncAllDoneCallback = res);
 
         for (const key of keys) {
             const spamQue: SpamCallback[] = this.spamQue[key];
 
             const spamFunc = spamQue.shift();
             if (spamFunc) {
-                promises.push(
-                    spamFunc()
-                        .then(shouldContinue => {
-                            if (shouldContinue) { spamQue.push(spamFunc); }
-                        })
-                );
+                spamFunc();
             }
         }
 
-        await Promise.all(promises);
+        await allDone;
+        this._checkSpamInterval();
     }
 
     /**
@@ -324,34 +322,44 @@ class Japnaa extends BotPlugin {
     /**
      * Actual spam function
      */
-    _spam(bot: Bot, channelId: string, serverId: string, amount: number, counter: boolean, message: string): void {
-        let count: number = 0;
-        const spamCallback: SpamCallback = async function (): Promise<boolean> {
-            if (counter) {
-                await bot.client.send(channelId, `**${count + 1}/${amount}:** ${message}`);
-            } else {
-                await bot.client.send(channelId, message);
-            }
-            count++;
-            return count < amount;
-        };
-
+    _spam(bot: Bot, channelId: string, serverId: string, amount: number, counter: boolean, message: string): AsyncGenerator<Action> | undefined {
         // prevent empty message from being added to que
-        if (message.trim()) {
-            if (this.spamQue[serverId]) {
-                this.spamQue[serverId].push(spamCallback);
-            } else {
-                this.spamQue[serverId] = [spamCallback];
-            }
-            this._startSpam();
+        if (!message.trim()) { return; }
+
+        if (!this.spamQue[serverId]) {
+            this.spamQue[serverId] = [];
         }
+        this._startSpam();
+
+        const _this = this;
+        return async function* (): AsyncGenerator<Action> {
+            for (let count = 0; count < amount; count++) {
+                _this.spamAsyncStarted++;
+
+                if (counter) {
+                    yield new Send(channelId, `**${count + 1}/${amount}:** ${message}`);
+                } else {
+                    yield new Send(channelId, message);
+                }
+
+                _this.spamAsyncDone++;
+                if (_this.spamAsyncDone >= _this.spamAsyncStarted && _this.spamAsyncAllDoneCallback) {
+                    _this.spamAsyncAllDoneCallback();
+                }
+
+                await new Promise<void>(res => {
+                    _this.spamQue[serverId].push(() => res())
+                });
+            }
+        }();
+
     }
 
     /**
      * Makes the bot spam stuff
      * @param args "stop" | [amount, [counter], ...message]
      */
-    async spam_command(event: DiscordCommandEvent) {
+    async *spam_command(event: DiscordCommandEvent) {
         const args = new CommandArguments(event.arguments).parse({
             overloads: [["amount", "message"], ["message"]],
             flags: ["--count"],
@@ -363,25 +371,21 @@ class Japnaa extends BotPlugin {
         switch (args.get("message").toLowerCase()) {
             case "stop":
                 this._stopSpam(event.serverId);
-                this.bot.client.send(event.channelId, "All spam on this server stopped");
+                yield "All spam on this server stopped";
                 return;
             case "stop all":
                 if (this.bot.permissions.getPermissions_global(event.userId).hasCustom("BOT_ADMINISTRATOR")) {
                     this._stopAllSpam();
-                    this.bot.client.send(event.channelId, "All spam on every server stopped");
+                    yield "All spam on every server stopped";
                 } else {
-                    this.bot.client.send(event.channelId, mention(event.userId) + ", you don't have the permissions to do that.");
+                    yield mention(event.userId) + ", you don't have the permissions to do that.";
                 }
                 return;
             case "limit":
-                this.bot.client.send(event.channelId,
-                    "Your spam limit is: " + await this._getSpamLimit(event)
-                );
+                yield "Your spam limit is: " + await this._getSpamLimit(event);
                 return;
             case "que limit":
-                this.bot.client.send(event.channelId,
-                    "Server que limit: " + await this._getSpamQueLimit(event)
-                );
+                yield "Server que limit: " + await this._getSpamQueLimit(event);
                 return;
         }
 
@@ -393,7 +397,7 @@ class Japnaa extends BotPlugin {
         const spamQueLimit = await this._getSpamQueLimit(event);
 
         if (amount > spamLimit) {
-            this.bot.client.send(event.channelId, "You went over the spam limit (" + spamLimit + ")");
+            yield "You went over the spam limit (" + spamLimit + ")";
             return;
         }
 
@@ -403,18 +407,19 @@ class Japnaa extends BotPlugin {
             this.spamQue[server.id] &&
             this.spamQue[server.id].length + 1 > spamQueLimit
         ) {
-            this.bot.client.send(event.channelId, "**Too much spam already qued.**");
+            yield "**Too much spam already qued.**";
             return;
         }
 
-        this._spam(this.bot, event.channelId, event.serverId, amount, useCounter, message);
+        const gen = this._spam(this.bot, event.channelId, event.serverId, amount, useCounter, message);
+        if (gen) { yield* gen; }
     }
 
     /**
      * Throws an error
      * @param args error message
      */
-    throw(event: DiscordCommandEvent): void {
+    *throw(event: DiscordCommandEvent) {
         throw new Error(event.arguments || "User-Thrown Error");
     }
 
@@ -422,49 +427,46 @@ class Japnaa extends BotPlugin {
      * Tell someone something through DMs
      * @param args message to send
      */
-    async tell(event: DiscordCommandEvent) {
+    async *tell(event: DiscordCommandEvent) {
         let tagMatch: RegExpMatchArray | null = event.arguments.match(/^\s*<@\d+>\s*/);
 
         if (!tagMatch) {
-            this.bot.client.send(event.channelId,
-                "Invalid amount of arguments. See `" +
-                event.precommandName + "help tell` for help"
-            );
+            yield "Invalid amount of arguments. See `" +
+                event.precommandName + "help tell` for help";
             return;
         }
 
         let user: string | null = getSnowflakeNum(tagMatch[0]);
         if (!user) {
-            this.bot.client.send(event.channelId, "User does not exist.");
+            yield "User does not exist.";
             return;
         }
         let message: string = event.arguments.slice(tagMatch[0].length);
 
-        await this.bot.client.sendDM(user, {
-            content: mention(event.userId) + " told you",
-            embeds: [{
-                color: this.bot.config.themeColor,
-                description: message
-            }]
-        }, () => {
-            this.bot.client.send(event.channelId, "Failed to tell " + mention(user as string));
-        });
+        try {
+            yield new SendPrivate(user, {
+                content: mention(event.userId) + " told you",
+                embeds: [{
+                    color: this.bot.config.themeColor,
+                    description: message
+                }]
+            });
+        } catch (err) {
+            yield "Failed to tell " + mention(user as string);
+        }
     }
 
     /**
      * Create a thread and pretend to recieve the message in the thread
      */
-    async thread(event: DiscordCommandEvent) {
+    async *thread(event: DiscordCommandEvent) {
         const message = event.arguments;
-        const channel = (await this.bot.client.getChannel(event.channelId)) as TextChannel;
-        const thread = await channel.threads.create({
-            name: ellipsisize(message, 100),
-            startMessage: event.messageId
-        });
+        const thread = new ReplyThreadSoft(ellipsisize(message, 100));
+        yield thread;
 
         this.bot.rawEventAdapter.onMessage(fakeMessage({
             author: (await this.bot.client.getUser(event.userId))!,
-            channel: thread,
+            channel: thread.getThread(),
             content: message,
             guild: (await this.bot.client.getServer(event.serverId))!,
             id: event.messageId
