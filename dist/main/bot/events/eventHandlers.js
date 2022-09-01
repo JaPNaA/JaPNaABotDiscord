@@ -21,6 +21,18 @@ class EventHandlers {
      * Not cancelled with `stopPropagation`, but cancelled by `preventSystemNext`.
      */
     systemHandlers = [];
+    /**
+     * Adds a system-level handler, removed after the promise resolves
+     */
+    promise() {
+        return new Promise(res => {
+            const resFunc = () => {
+                res();
+                setImmediate(() => this._removeSystemHandler(resFunc));
+            };
+            this._addSystemHandler(resFunc);
+        });
+    }
     addHandler(handler) {
         this.normalHandlers.push(handler);
     }

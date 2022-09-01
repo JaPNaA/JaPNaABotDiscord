@@ -32,6 +32,10 @@ export declare class EventHandlers<T = void> {
      * Not cancelled with `stopPropagation`, but cancelled by `preventSystemNext`.
      */
     private systemHandlers;
+    /**
+     * Adds a system-level handler, removed after the promise resolves
+     */
+    promise(): Promise<void>;
     addHandler(handler: EventHandler<T>): void;
     addHighPriorityHandler(handler: EventHandler<T>): void;
     _addSystemHandler(handler: EventHandler<T>): void;

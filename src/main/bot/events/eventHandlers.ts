@@ -41,6 +41,19 @@ export class EventHandlers<T = void> {
     private systemHandlers: EventHandler<T>[] = [];
 
 
+    /**
+     * Adds a system-level handler, removed after the promise resolves
+     */
+    public promise() {
+        return new Promise<void>(res => {
+            const resFunc = () => {
+                res();
+                setImmediate(() => this._removeSystemHandler(resFunc));
+            };
+            this._addSystemHandler(resFunc);
+        })
+    }
+
     public addHandler(handler: EventHandler<T>) {
         this.normalHandlers.push(handler);
     }
