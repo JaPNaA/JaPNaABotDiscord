@@ -169,15 +169,18 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
         try {
-            for await (const action of this.func(commandEvent)) {
+            const gen = this.func(commandEvent);
+            let result;
+            do {
+                result = await gen.next();
+                const action = result.value;
                 if (action instanceof Action) {
                     await action.perform(this.bot, commandEvent);
-                } else {
+                } else if (action) {
                     await new ReplySoft(action)
                         .perform(this.bot, commandEvent);
                 }
-
-            }
+            } while (!result.done);
         } catch (error) {
             this.sendError(commandEvent, argString, error as Error);
         }

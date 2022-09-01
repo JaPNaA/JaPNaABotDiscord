@@ -124,15 +124,19 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent, argString) {
         try {
-            for await (const action of this.func(commandEvent)) {
+            const gen = this.func(commandEvent);
+            let result;
+            do {
+                result = await gen.next();
+                const action = result.value;
                 if (action instanceof actions_js_1.Action) {
                     await action.perform(this.bot, commandEvent);
                 }
-                else {
+                else if (action) {
                     await new actions_js_1.ReplySoft(action)
                         .perform(this.bot, commandEvent);
                 }
-            }
+            } while (!result.done);
         }
         catch (error) {
             this.sendError(commandEvent, argString, error);
