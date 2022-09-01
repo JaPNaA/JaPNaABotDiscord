@@ -9,6 +9,7 @@ import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
 import { PermissionString } from "discord.js";
+import { Action, ReplySoft } from "../actions/actions.js";
 
 type CleanCommandContent = {
     /** The cleaned message */
@@ -168,7 +169,15 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
         try {
-            await this.func(commandEvent);
+            for await (const action of this.func(commandEvent)) {
+                if (action instanceof Action) {
+                    await action.perform(this.bot, commandEvent);
+                } else {
+                    await new ReplySoft(action)
+                        .perform(this.bot, commandEvent);
+                }
+
+            }
         } catch (error) {
             this.sendError(commandEvent, argString, error as Error);
         }

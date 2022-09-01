@@ -7,6 +7,7 @@ const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 const createErrorString_1 = __importDefault(require("../../utils/str/createErrorString"));
 const util_1 = require("util");
 const mention_1 = __importDefault(require("../../utils/str/mention"));
+const actions_js_1 = require("../actions/actions.js");
 const whitespaceRegex = /\s/;
 class BotCommand {
     bot;
@@ -123,7 +124,15 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     async tryRunCommand(commandEvent, argString) {
         try {
-            await this.func(commandEvent);
+            for await (const action of this.func(commandEvent)) {
+                if (action instanceof actions_js_1.Action) {
+                    await action.perform(this.bot, commandEvent);
+                }
+                else {
+                    await new actions_js_1.ReplySoft(action)
+                        .perform(this.bot, commandEvent);
+                }
+            }
         }
         catch (error) {
             this.sendError(commandEvent, argString, error);
