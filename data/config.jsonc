@@ -23,7 +23,7 @@
   "memory.autoWriteInterval": 60000,
   
   // Link to add current bot
-  "addLink": "https://discordapp.com/api/oauth2/authorize?client_id=501862082334031883&permissions=8&scope=bot",
+  "addLink": "https://discord.com/oauth2/authorize?client_id=1014954073709097141&permissions=8&scope=bot",
 
   // Link to code
   "gitlabLink": "https://gitlab.com/JaPNaA/japnaabotdiscord",
