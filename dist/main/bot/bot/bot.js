@@ -160,8 +160,8 @@ class Bot {
         this.memory.writeOut();
     }
     /** Restarts bot on command */
-    restart(event) {
-        this.client.send(event.channelId, "**Restarting**");
+    *restart() {
+        yield "**Restarting**";
         logger_js_1.default.log("Restarting");
         this.stop();
         this.restartFunc();

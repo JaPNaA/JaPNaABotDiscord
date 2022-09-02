@@ -194,8 +194,8 @@ class Bot {
     }
 
     /** Restarts bot on command */
-    public restart(event: DiscordCommandEvent): void {
-        this.client.send(event.channelId, "**Restarting**");
+    public *restart() {
+        yield "**Restarting**";
         Logger.log("Restarting");
         this.stop();
         this.restartFunc();

@@ -1,4 +1,5 @@
-import { AllowedThreadTypeForTextChannel, MessageOptions, TextChannel, ThreadChannel, ThreadCreateOptions } from "discord.js";
+import { AllowedThreadTypeForTextChannel, Message, MessageOptions, TextChannel, ThreadChannel, ThreadCreateOptions } from "discord.js";
+import toOne from "../../utils/toOne";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
 
@@ -11,6 +12,8 @@ export abstract class Action {
  * function unless necessary.
  */
 export class ReplySoft extends Action {
+    private sentMessage?: Message | Message[];
+
     constructor(
         public message: string | MessageOptions
     ) { super(); }
@@ -24,18 +27,33 @@ export class ReplySoft extends Action {
             if (lastMessage && lastMessage.id !== event.messageId) {
                 try {
                     // reply
-                    (await channel.messages.fetch(event.messageId)).reply(this.message);
+                    this.sentMessage = await (await channel.messages.fetch(event.messageId)).reply(this.message);
                 } catch (err) {
                     // send normally
-                    return bot.client.send(event.channelId, this.message);
+                    this.sentMessage = await bot.client.send(event.channelId, this.message);
                 }
             } else {
                 // send normally
-                return bot.client.send(event.channelId, this.message);
+                this.sentMessage = await bot.client.send(event.channelId, this.message);
             }
         } else {
             throw new Error("Channel <#" + event.channelId + "> is not a text channel.");
         }
+    }
+
+    public getMessage(): Message {
+        if (!this.sentMessage) { throw new ActionNotYetPerformedError(); }
+        return toOne(this.sentMessage);
+    }
+}
+
+export class ReplyPrivate extends Action {
+    constructor(
+        public message: string | MessageOptions
+    ) { super(); }
+
+    public perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
+        return bot.client.sendDM(event.userId, this.message);
     }
 }
 
@@ -92,7 +110,33 @@ export class ReplyThreadSoft extends Action {
     }
 
     public getThread() {
-        if (!this.thread) { throw new Error("Action not yet performed"); }
+        if (!this.thread) { throw new ActionNotYetPerformedError(); }
         return this.thread;
+    }
+}
+
+/**
+ * Deletes a message. 'Soft' means the bot won't throw an error if
+ * the bot cannot delete the message.
+ */
+export class DeleteMessageSoft extends Action {
+    constructor(
+        public channelId: string,
+        public messageId: string
+    ) { super(); }
+
+    public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
+        const channel = await bot.client.getChannel(event.channelId);
+        if (channel?.isText()) {
+            channel.messages.fetch(event.messageId)
+                .then(message => message.delete())
+                .catch(_ => { });
+        }
+    }
+}
+
+class ActionNotYetPerformedError extends Error {
+    constructor() {
+        super("Action not yet performed");
     }
 }

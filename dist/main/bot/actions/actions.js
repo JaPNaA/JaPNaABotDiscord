@@ -1,7 +1,11 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ReplyThreadSoft = exports.SendPrivate = exports.Send = exports.ReplySoft = exports.Action = void 0;
+exports.DeleteMessageSoft = exports.ReplyThreadSoft = exports.SendPrivate = exports.Send = exports.ReplyPrivate = exports.ReplySoft = exports.Action = void 0;
 const discord_js_1 = require("discord.js");
+const toOne_1 = __importDefault(require("../../utils/toOne"));
 class Action {
 }
 exports.Action = Action;
@@ -11,6 +15,7 @@ exports.Action = Action;
  */
 class ReplySoft extends Action {
     message;
+    sentMessage;
     constructor(message) {
         super();
         this.message = message;
@@ -24,24 +29,41 @@ class ReplySoft extends Action {
             if (lastMessage && lastMessage.id !== event.messageId) {
                 try {
                     // reply
-                    (await channel.messages.fetch(event.messageId)).reply(this.message);
+                    this.sentMessage = await (await channel.messages.fetch(event.messageId)).reply(this.message);
                 }
                 catch (err) {
                     // send normally
-                    return bot.client.send(event.channelId, this.message);
+                    this.sentMessage = await bot.client.send(event.channelId, this.message);
                 }
             }
             else {
                 // send normally
-                return bot.client.send(event.channelId, this.message);
+                this.sentMessage = await bot.client.send(event.channelId, this.message);
             }
         }
         else {
             throw new Error("Channel <#" + event.channelId + "> is not a text channel.");
         }
     }
+    getMessage() {
+        if (!this.sentMessage) {
+            throw new ActionNotYetPerformedError();
+        }
+        return (0, toOne_1.default)(this.sentMessage);
+    }
 }
 exports.ReplySoft = ReplySoft;
+class ReplyPrivate extends Action {
+    message;
+    constructor(message) {
+        super();
+        this.message = message;
+    }
+    perform(bot, event) {
+        return bot.client.sendDM(event.userId, this.message);
+    }
+}
+exports.ReplyPrivate = ReplyPrivate;
 /**
  * Sends a message in a channel.
  */
@@ -102,9 +124,36 @@ class ReplyThreadSoft extends Action {
     }
     getThread() {
         if (!this.thread) {
-            throw new Error("Action not yet performed");
+            throw new ActionNotYetPerformedError();
         }
         return this.thread;
     }
 }
 exports.ReplyThreadSoft = ReplyThreadSoft;
+/**
+ * Deletes a message. 'Soft' means the bot won't throw an error if
+ * the bot cannot delete the message.
+ */
+class DeleteMessageSoft extends Action {
+    channelId;
+    messageId;
+    constructor(channelId, messageId) {
+        super();
+        this.channelId = channelId;
+        this.messageId = messageId;
+    }
+    async perform(bot, event) {
+        const channel = await bot.client.getChannel(event.channelId);
+        if (channel?.isText()) {
+            channel.messages.fetch(event.messageId)
+                .then(message => message.delete())
+                .catch(_ => { });
+        }
+    }
+}
+exports.DeleteMessageSoft = DeleteMessageSoft;
+class ActionNotYetPerformedError extends Error {
+    constructor() {
+        super("Action not yet performed");
+    }
+}

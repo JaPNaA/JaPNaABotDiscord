@@ -1,4 +1,4 @@
-import { AllowedThreadTypeForTextChannel, MessageOptions, ThreadChannel, ThreadCreateOptions } from "discord.js";
+import { AllowedThreadTypeForTextChannel, Message, MessageOptions, ThreadChannel, ThreadCreateOptions } from "discord.js";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
 export declare abstract class Action {
@@ -9,6 +9,13 @@ export declare abstract class Action {
  * function unless necessary.
  */
 export declare class ReplySoft extends Action {
+    message: string | MessageOptions;
+    private sentMessage?;
+    constructor(message: string | MessageOptions);
+    perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    getMessage(): Message;
+}
+export declare class ReplyPrivate extends Action {
     message: string | MessageOptions;
     constructor(message: string | MessageOptions);
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
@@ -42,4 +49,14 @@ export declare class ReplyThreadSoft extends Action {
     constructor(threadName: string, options?: Partial<ThreadCreateOptions<AllowedThreadTypeForTextChannel>>);
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
     getThread(): ThreadChannel;
+}
+/**
+ * Deletes a message. 'Soft' means the bot won't throw an error if
+ * the bot cannot delete the message.
+ */
+export declare class DeleteMessageSoft extends Action {
+    channelId: string;
+    messageId: string;
+    constructor(channelId: string, messageId: string);
+    perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
 }
