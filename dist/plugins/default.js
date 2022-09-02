@@ -197,7 +197,7 @@ class Default extends plugin_js_1.default {
         }
         else {
             // is server
-            yield "I've sent you some help!";
+            yield new actions_js_1.ReplyUnimportant("I've sent you some help!");
             yield new actions_js_1.ReplyPrivate({ embeds: [embed] });
         }
     }
@@ -302,7 +302,7 @@ class Default extends plugin_js_1.default {
         }
         else {
             // is server
-            yield "I've sent you some help!";
+            yield new actions_js_1.ReplyUnimportant("I've sent you some help!");
             yield new actions_js_1.ReplyPrivate({ embeds: [message] });
         }
     }
@@ -315,10 +315,10 @@ class Default extends plugin_js_1.default {
             yield* this._sendHelpAboutCommand(event, command, help);
         }
         else if (help === undefined) {
-            yield "Command `" + command + "` doesn't exist";
+            yield new actions_js_1.ReplyUnimportant("Command `" + command + "` doesn't exist");
         }
         else {
-            yield "Help for command `" + command + "` doesn't exist";
+            yield new actions_js_1.ReplyUnimportant("Help for command `" + command + "` doesn't exist");
         }
     }
     /**

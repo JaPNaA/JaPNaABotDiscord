@@ -8,17 +8,28 @@ export abstract class Action {
     public abstract performInteraction(bot: Bot, interaction: Interaction): Promise<any>;
 }
 
-/**
- * Replies to a message. 'Soft' means the bot will not always use the 'reply'
- * function unless necessary.
- */
-export class ReplySoft extends Action {
-    private sentMessage?: Message | Message[];
+abstract class Reply extends Action {
+    protected sentMessage?: Message | Message[];
 
     constructor(
         public message: string | MessageOptions
     ) { super(); }
 
+    public getMessage(): Message {
+        if (!this.sentMessage) { throw new ActionNotYetPerformedError(); }
+        return toOne(this.sentMessage);
+    }
+
+    protected async send(bot: Bot, channelId: string) {
+        this.sentMessage = await bot.client.send(channelId, this.message);
+    }
+}
+
+/**
+ * Replies to a message. 'Soft' means the bot will not always use the 'reply'
+ * function unless necessary.
+ */
+export class ReplySoft extends Reply {
     public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
         // if the last message was the command, send message normally but
         // if last message is not the command message, reply to command message
@@ -30,12 +41,10 @@ export class ReplySoft extends Action {
                     // reply
                     this.sentMessage = await (await channel.messages.fetch(event.messageId)).reply(this.message);
                 } catch (err) {
-                    // send normally
-                    this.sentMessage = await bot.client.send(event.channelId, this.message);
+                    await this.send(bot, event.channelId);
                 }
             } else {
-                // send normally
-                this.sentMessage = await bot.client.send(event.channelId, this.message);
+                await this.send(bot, event.channelId);
             }
         } else {
             throw new Error("Channel <#" + event.channelId + "> is not a text channel.");
@@ -47,32 +56,47 @@ export class ReplySoft extends Action {
             this.sentMessage = await followUpOrReply(bot, interaction, this.message as any);
         } else if (interaction.channelId) {
             // send normally
-            this.sentMessage = await bot.client.send(interaction.channelId, this.message);
+            this.send(bot, interaction.channelId);
         } else {
             throw new Error("Cannot respond.");
         }
     }
-
-    public getMessage(): Message {
-        if (!this.sentMessage) { throw new ActionNotYetPerformedError(); }
-        return toOne(this.sentMessage);
-    }
 }
 
-export class ReplyPrivate extends Action {
-    constructor(
-        public message: string | MessageOptions
-    ) { super(); }
-
+/**
+ * Replies to a message privately. Only the runner will
+ * see the message.
+ */
+export class ReplyPrivate extends Reply {
     public perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
         return bot.client.sendDM(event.userId, this.message);
     }
 
     public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
         if (interaction.isRepliable()) {
-            return followUpOrReply(bot, interaction, ephemeralize(this.message));
+            this.sentMessage = await followUpOrReply(bot, interaction, ephemeralize(this.message));
         } else {
-            return bot.client.sendDM(interaction.user.id, this.message);
+            this.sentMessage = await bot.client.sendDM(interaction.user.id, this.message);
+        }
+    }
+}
+
+/**
+ * Replies to a message. Will hide the message from others
+ * if convenient for the user.
+ */
+export class ReplyUnimportant extends Reply {
+    public perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
+        return this.send(bot, event.channelId);
+    }
+
+    public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
+        if (interaction.isRepliable()) {
+            this.sentMessage = await followUpOrReply(bot, interaction, ephemeralize(this.message));
+        } else if (interaction.channelId) {
+            this.send(bot, interaction.channelId);
+        } else {
+            this.sentMessage = await bot.client.sendDM(interaction.user.id, this.message);
         }
     }
 }

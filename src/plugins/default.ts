@@ -21,7 +21,7 @@ import { BotCommandHelp, BotCommandHelpFull } from "../main/bot/command/commandH
 import CommandArguments from "../main/bot/command/commandArguments.js";
 import { JSONObject, JSONType } from "../main/types/jsonObject.js";
 import removeFromArray from "../main/utils/removeFromArray.js";
-import { ReplyPrivate, Send } from "../main/bot/actions/actions.js";
+import { ReplyPrivate, ReplyUnimportant, Send } from "../main/bot/actions/actions.js";
 import inlinePromise from "../main/utils/async/inlinePromise.js";
 
 /**
@@ -216,7 +216,7 @@ class Default extends BotPlugin {
             yield { embeds: [embed] };
         } else {
             // is server
-            yield "I've sent you some help!";
+            yield new ReplyUnimportant("I've sent you some help!");
             yield new ReplyPrivate({ embeds: [embed] });
         }
     }
@@ -341,7 +341,7 @@ class Default extends BotPlugin {
             yield { embeds: [message] };
         } else {
             // is server
-            yield "I've sent you some help!";
+            yield new ReplyUnimportant("I've sent you some help!");
             yield new ReplyPrivate({ embeds: [message] });
         }
     }
@@ -355,9 +355,9 @@ class Default extends BotPlugin {
         if (help) {
             yield* this._sendHelpAboutCommand(event, command, help);
         } else if (help === undefined) {
-            yield "Command `" + command + "` doesn't exist";
+            yield new ReplyUnimportant("Command `" + command + "` doesn't exist");
         } else {
-            yield "Help for command `" + command + "` doesn't exist";
+            yield new ReplyUnimportant("Help for command `" + command + "` doesn't exist");
         }
     }
 

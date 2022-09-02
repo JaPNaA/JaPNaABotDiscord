@@ -3,23 +3,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleteMessageSoft = exports.ReplyThreadSoft = exports.SendPrivate = exports.Send = exports.ReplyPrivate = exports.ReplySoft = exports.Action = void 0;
+exports.DeleteMessageSoft = exports.ReplyThreadSoft = exports.SendPrivate = exports.Send = exports.ReplyUnimportant = exports.ReplyPrivate = exports.ReplySoft = exports.Action = void 0;
 const discord_js_1 = require("discord.js");
 const toOne_1 = __importDefault(require("../../utils/toOne"));
 class Action {
 }
 exports.Action = Action;
-/**
- * Replies to a message. 'Soft' means the bot will not always use the 'reply'
- * function unless necessary.
- */
-class ReplySoft extends Action {
+class Reply extends Action {
     message;
     sentMessage;
     constructor(message) {
         super();
         this.message = message;
     }
+    getMessage() {
+        if (!this.sentMessage) {
+            throw new ActionNotYetPerformedError();
+        }
+        return (0, toOne_1.default)(this.sentMessage);
+    }
+    async send(bot, channelId) {
+        this.sentMessage = await bot.client.send(channelId, this.message);
+    }
+}
+/**
+ * Replies to a message. 'Soft' means the bot will not always use the 'reply'
+ * function unless necessary.
+ */
+class ReplySoft extends Reply {
     async perform(bot, event) {
         // if the last message was the command, send message normally but
         // if last message is not the command message, reply to command message
@@ -32,13 +43,11 @@ class ReplySoft extends Action {
                     this.sentMessage = await (await channel.messages.fetch(event.messageId)).reply(this.message);
                 }
                 catch (err) {
-                    // send normally
-                    this.sentMessage = await bot.client.send(event.channelId, this.message);
+                    await this.send(bot, event.channelId);
                 }
             }
             else {
-                // send normally
-                this.sentMessage = await bot.client.send(event.channelId, this.message);
+                await this.send(bot, event.channelId);
             }
         }
         else {
@@ -51,39 +60,53 @@ class ReplySoft extends Action {
         }
         else if (interaction.channelId) {
             // send normally
-            this.sentMessage = await bot.client.send(interaction.channelId, this.message);
+            this.send(bot, interaction.channelId);
         }
         else {
             throw new Error("Cannot respond.");
         }
     }
-    getMessage() {
-        if (!this.sentMessage) {
-            throw new ActionNotYetPerformedError();
-        }
-        return (0, toOne_1.default)(this.sentMessage);
-    }
 }
 exports.ReplySoft = ReplySoft;
-class ReplyPrivate extends Action {
-    message;
-    constructor(message) {
-        super();
-        this.message = message;
-    }
+/**
+ * Replies to a message privately. Only the runner will
+ * see the message.
+ */
+class ReplyPrivate extends Reply {
     perform(bot, event) {
         return bot.client.sendDM(event.userId, this.message);
     }
     async performInteraction(bot, interaction) {
         if (interaction.isRepliable()) {
-            return followUpOrReply(bot, interaction, ephemeralize(this.message));
+            this.sentMessage = await followUpOrReply(bot, interaction, ephemeralize(this.message));
         }
         else {
-            return bot.client.sendDM(interaction.user.id, this.message);
+            this.sentMessage = await bot.client.sendDM(interaction.user.id, this.message);
         }
     }
 }
 exports.ReplyPrivate = ReplyPrivate;
+/**
+ * Replies to a message. Will hide the message from others
+ * if convenient for the user.
+ */
+class ReplyUnimportant extends Reply {
+    perform(bot, event) {
+        return this.send(bot, event.channelId);
+    }
+    async performInteraction(bot, interaction) {
+        if (interaction.isRepliable()) {
+            this.sentMessage = await followUpOrReply(bot, interaction, ephemeralize(this.message));
+        }
+        else if (interaction.channelId) {
+            this.send(bot, interaction.channelId);
+        }
+        else {
+            this.sentMessage = await bot.client.sendDM(interaction.user.id, this.message);
+        }
+    }
+}
+exports.ReplyUnimportant = ReplyUnimportant;
 /**
  * Sends a message in a channel.
  */

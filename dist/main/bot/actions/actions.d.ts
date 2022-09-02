@@ -5,21 +5,34 @@ export declare abstract class Action {
     abstract perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
     abstract performInteraction(bot: Bot, interaction: Interaction): Promise<any>;
 }
+declare abstract class Reply extends Action {
+    message: string | MessageOptions;
+    protected sentMessage?: Message | Message[];
+    constructor(message: string | MessageOptions);
+    getMessage(): Message;
+    protected send(bot: Bot, channelId: string): Promise<void>;
+}
 /**
  * Replies to a message. 'Soft' means the bot will not always use the 'reply'
  * function unless necessary.
  */
-export declare class ReplySoft extends Action {
-    message: string | MessageOptions;
-    private sentMessage?;
-    constructor(message: string | MessageOptions);
+export declare class ReplySoft extends Reply {
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
     performInteraction(bot: Bot, interaction: Interaction): Promise<void>;
-    getMessage(): Message;
 }
-export declare class ReplyPrivate extends Action {
-    message: string | MessageOptions;
-    constructor(message: string | MessageOptions);
+/**
+ * Replies to a message privately. Only the runner will
+ * see the message.
+ */
+export declare class ReplyPrivate extends Reply {
+    perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
+}
+/**
+ * Replies to a message. Will hide the message from others
+ * if convenient for the user.
+ */
+export declare class ReplyUnimportant extends Reply {
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
     performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
 }
@@ -68,3 +81,4 @@ export declare class DeleteMessageSoft extends Action {
     perform(bot: Bot): Promise<any>;
     performInteraction(bot: Bot): Promise<any>;
 }
+export {};

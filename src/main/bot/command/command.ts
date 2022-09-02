@@ -9,7 +9,7 @@ import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
 import { PermissionString } from "discord.js";
-import { Action, ReplySoft } from "../actions/actions.js";
+import { Action, ReplySoft, ReplyUnimportant } from "../actions/actions.js";
 
 type CleanCommandContent = {
     /** The cleaned message */
@@ -75,7 +75,7 @@ class BotCommand {
 
         const results = await this.testPermissions(commandEvent);
         if (!results.canRun && results.reasonCannotRun) {
-            yield new ReplySoft(results.reasonCannotRun);
+            yield new ReplyUnimportant(results.reasonCannotRun);
             return;
         }
 

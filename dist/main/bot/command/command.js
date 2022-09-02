@@ -52,7 +52,7 @@ class BotCommand {
         }
         const results = await this.testPermissions(commandEvent);
         if (!results.canRun && results.reasonCannotRun) {
-            yield new actions_js_1.ReplySoft(results.reasonCannotRun);
+            yield new actions_js_1.ReplyUnimportant(results.reasonCannotRun);
             return;
         }
         try {

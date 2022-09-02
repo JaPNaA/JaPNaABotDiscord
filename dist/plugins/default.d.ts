@@ -4,7 +4,7 @@ import BotCommand from "../main/bot/command/command.js";
 import { EmbedFieldData } from "discord.js";
 import Bot from "../main/bot/bot/bot.js";
 import { BotCommandHelp, BotCommandHelpFull } from "../main/bot/command/commandHelp.js";
-import { ReplyPrivate, Send } from "../main/bot/actions/actions.js";
+import { ReplyPrivate, ReplyUnimportant, Send } from "../main/bot/actions/actions.js";
 /**
  * Normal commands every bot shoud have
  */
@@ -38,7 +38,7 @@ declare class Default extends BotPlugin {
     /**
      * Sends general help information (all commands)
      */
-    _sendGeneralHelp(event: DiscordCommandEvent): AsyncGenerator<ReplyPrivate | "I've sent you some help!" | {
+    _sendGeneralHelp(event: DiscordCommandEvent): AsyncGenerator<ReplyUnimportant | ReplyPrivate | {
         embeds: object[];
     }, void, unknown>;
     /**
@@ -60,19 +60,19 @@ declare class Default extends BotPlugin {
     /**
      * Sends a help embed about a command
      */
-    _sendHelpAboutCommand(event: DiscordCommandEvent, command: string, help: BotCommandHelpFull): Generator<ReplyPrivate | "I've sent you some help!" | {
+    _sendHelpAboutCommand(event: DiscordCommandEvent, command: string, help: BotCommandHelpFull): Generator<ReplyUnimportant | ReplyPrivate | {
         embeds: object[];
     }, void, unknown>;
     /**
      * Sends help about a command, checks if the command and command help exists
      */
-    _sendSpecificHelp(event: DiscordCommandEvent, command: string): Generator<string | ReplyPrivate | {
+    _sendSpecificHelp(event: DiscordCommandEvent, command: string): Generator<ReplyUnimportant | ReplyPrivate | {
         embeds: object[];
     }, void, unknown>;
     /**
      * Pretends to recieve a message from soneone else
      */
-    help(event: DiscordCommandEvent): AsyncGenerator<string | ReplyPrivate | {
+    help(event: DiscordCommandEvent): AsyncGenerator<ReplyUnimportant | ReplyPrivate | {
         embeds: object[];
     }, void, unknown>;
     /**
