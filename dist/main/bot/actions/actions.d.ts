@@ -1,8 +1,9 @@
-import { AllowedThreadTypeForTextChannel, Message, MessageOptions, ThreadChannel, ThreadCreateOptions } from "discord.js";
+import { AllowedThreadTypeForTextChannel, CacheType, Interaction, Message, MessageOptions, ThreadChannel, ThreadCreateOptions } from "discord.js";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
 export declare abstract class Action {
     abstract perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    abstract performInteraction(bot: Bot, interaction: Interaction): Promise<any>;
 }
 /**
  * Replies to a message. 'Soft' means the bot will not always use the 'reply'
@@ -13,12 +14,14 @@ export declare class ReplySoft extends Action {
     private sentMessage?;
     constructor(message: string | MessageOptions);
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    performInteraction(bot: Bot, interaction: Interaction): Promise<void>;
     getMessage(): Message;
 }
 export declare class ReplyPrivate extends Action {
     message: string | MessageOptions;
     constructor(message: string | MessageOptions);
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
 }
 /**
  * Sends a message in a channel.
@@ -27,7 +30,8 @@ export declare class Send extends Action {
     channelId: string;
     message: string | MessageOptions;
     constructor(channelId: string, message: string | MessageOptions);
-    perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    perform(bot: Bot): Promise<any>;
+    performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
 }
 /**
  * Sends a message to a user privately (through DMs)
@@ -37,6 +41,7 @@ export declare class SendPrivate extends Action {
     message: string | MessageOptions;
     constructor(userId: string, message: string | MessageOptions);
     perform(bot: Bot): Promise<any>;
+    performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
 }
 /**
  * Creates a thread. 'Soft' means the bot may not create the thread if
@@ -48,6 +53,8 @@ export declare class ReplyThreadSoft extends Action {
     private thread?;
     constructor(threadName: string, options?: Partial<ThreadCreateOptions<AllowedThreadTypeForTextChannel>>);
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
+    private createThread;
     getThread(): ThreadChannel;
 }
 /**
@@ -58,5 +65,6 @@ export declare class DeleteMessageSoft extends Action {
     channelId: string;
     messageId: string;
     constructor(channelId: string, messageId: string);
-    perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    perform(bot: Bot): Promise<any>;
+    performInteraction(bot: Bot): Promise<any>;
 }

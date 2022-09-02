@@ -5,10 +5,14 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
-import fakeMessage from "../main/utils/fakeMessage.js";
 import { TextBasedChannel } from "discord.js";
+import { PrecommandWithCallback } from "../main/bot/precommand/precommand.js";
+import { ReplySoft } from "../main/bot/actions/actions.js";
+import Logger from "../main/utils/logger.js";
 
 export default class SlashCommands extends BotPlugin {
+    private precommand = new PrecommandWithCallback(this.bot, ["/"], () => { });
+
     constructor(bot: Bot) {
         super(bot);
         this.pluginName = "japnaaweird";
@@ -42,16 +46,73 @@ export default class SlashCommands extends BotPlugin {
         this.bot.client.client.on("interactionCreate", async interaction => {
             if (interaction.isCommand()) {
                 if (!interaction.member) { return; }
-                interaction.reply("Ok");
-                this.bot.rawEventAdapter.onMessage(fakeMessage({
-                    author: (await this.bot.client.getUser(interaction.member.user.id))!,
-                    channel: (await this.bot.client.getChannel(interaction.channelId)) as TextBasedChannel,
-                    content: this.bot.precommandManager.precommands[0].names[0] + interaction.commandName.replace(/_/g, " ") + " " + (interaction.options.getString("args") || ""),
-                    guild: (await this.bot.client.getServer(interaction.guildId!))!,
-                    id: interaction.id
-                }));
+                const matchingCommand = this.findMatchingCommand(interaction.commandName);
+                if (!matchingCommand) {
+                    interaction.reply({
+                        ephemeral: true,
+                        content: "Error: command not found"
+                    });
+                    return;
+                }
+
+                try {
+                    const gen = matchingCommand.tryRunCommandGenerator({
+                        username: interaction.user.username,
+                        userId: interaction.user.id,
+                        channelId: interaction.channelId,
+                        serverId: interaction.guildId || "",
+                        messageId: interaction.id,
+                        message: "",
+                        commandContent: "",
+                        createdTimestamp: interaction.createdTimestamp,
+                        isDM: !interaction.guildId,
+                        arguments: interaction.options.getString("args") || "",
+                        originalEvent: {
+                            author: (await this.bot.client.getUser(interaction.member.user.id))!,
+                            channel: (await this.bot.client.getChannel(interaction.channelId)) as TextBasedChannel,
+                            content: "",
+                            guild: (await this.bot.client.getServer(interaction.guildId!))!,
+                            id: interaction.id,
+                            createdTimestamp: interaction.createdTimestamp
+                        },
+                        precommandName: {
+                            precommand: this.precommand,
+                            index: 0,
+                            name: "/"
+                        }
+                    });
+
+                    for await (const action of gen) {
+                        await action.performInteraction(this.bot, interaction);
+                    }
+
+                    if (!interaction.replied) {
+                        interaction.reply({
+                            content: "Ok", ephemeral: true
+                        });
+                    }
+                } catch (err) {
+                    Logger.error(err);
+                }
             }
         });
+    }
+
+    private findMatchingCommand(commandName: string) {
+        for (const command of this.bot.defaultPrecommand.commandManager.commands) {
+            if (this.cleanCommandName(command.commandName) === this.cleanCommandName(commandName)) {
+                return command;
+            }
+        }
+        return null;
+    }
+
+    private strReplaceSpaces(str: string) {
+        return str.replace(/\s/g, "_");
+    }
+
+    private cleanCommandName(str: string) {
+        return this.strReplaceSpaces(str).toLowerCase();
     }
 
     _stop(): void {

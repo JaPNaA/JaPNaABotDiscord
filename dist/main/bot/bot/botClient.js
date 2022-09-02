@@ -204,6 +204,15 @@ class BotClient {
     getUser(userId) {
         return this.client.users.fetch(userId);
     }
+    async getMessageFromChannel(channelId, messageId) {
+        const channel = await this.getChannel(channelId);
+        if (channel?.isText()) {
+            return channel.messages.fetch(messageId);
+        }
+        else {
+            throw new Error("Channel doesn't exist or is not text");
+        }
+    }
     async getRole(roleId, serverId) {
         let server = await this.getServer(serverId);
         if (!server) {

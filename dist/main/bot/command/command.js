@@ -110,7 +110,7 @@ class BotCommand {
             return false;
         }
     }
-    sendError(commandEvent, error) {
+    getErrorAction(commandEvent, error) {
         const errorStr = (0, createErrorString_1.default)(error);
         const messageShort = "An error occured\n```" + error.message;
         const messageLong = "```An error occured" +
@@ -118,10 +118,9 @@ class BotCommand {
             "\nEvent: " + (0, util_1.inspect)(commandEvent, { depth: 3 }) +
             "\n" + errorStr;
         logger_js_1.default.warn(messageLong);
-        this.bot.client.send(commandEvent.channelId, messageShort.slice(0, 1997) + "```");
+        return new actions_js_1.ReplySoft(messageShort.slice(0, 1997) + "```");
     }
-    /** Tries to run command, and sends an error message if fails */
-    async tryRunCommand(commandEvent) {
+    async *tryRunCommandGenerator(commandEvent) {
         try {
             const gen = this.func(commandEvent);
             let result;
@@ -129,17 +128,38 @@ class BotCommand {
                 result = await gen.next();
                 const action = result.value;
                 if (action instanceof actions_js_1.Action) {
-                    await action.perform(this.bot, commandEvent);
+                    yield action;
                 }
                 else if (action) {
-                    await new actions_js_1.ReplySoft(action)
-                        .perform(this.bot, commandEvent);
+                    yield new actions_js_1.ReplySoft(action);
                 }
             } while (!result.done);
         }
         catch (error) {
-            this.sendError(commandEvent, error);
+            yield this.getErrorAction(commandEvent, error);
         }
+    }
+    /** Tries to run command, and sends an error message if fails */
+    async tryRunCommand(commandEvent) {
+        for await (const action of this.tryRunCommandGenerator(commandEvent)) {
+            action.perform(this.bot, commandEvent);
+        }
+        // try {
+        //     const gen = this.func(commandEvent);
+        //     let result;
+        //     do {
+        //         result = await gen.next();
+        //         const action = result.value;
+        //         if (action instanceof Action) {
+        //             await action.perform(this.bot, commandEvent);
+        //         } else if (action) {
+        //             await new ReplySoft(action)
+        //                 .perform(this.bot, commandEvent);
+        //         }
+        //     } while (!result.done);
+        // } catch (error) {
+        //     this.getErrorAction(commandEvent, error as Error);
+        // }
     }
 }
 exports.default = BotCommand;

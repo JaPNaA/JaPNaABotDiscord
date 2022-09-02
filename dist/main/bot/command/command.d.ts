@@ -4,6 +4,7 @@ import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
 import { PermissionString } from "discord.js";
+import { Action, ReplySoft } from "../actions/actions.js";
 declare type CleanCommandContent = {
     /** The cleaned message */
     commandContent: string;
@@ -55,7 +56,8 @@ declare class BotCommand {
      * @returns Did the command run OR not have enough permissions to run
      */
     testAndRun(commandEvent: DiscordCommandEvent): Promise<boolean>;
-    sendError(commandEvent: DiscordCommandEvent, error: Error): void;
+    getErrorAction(commandEvent: DiscordCommandEvent, error: Error): ReplySoft;
+    tryRunCommandGenerator(commandEvent: DiscordCommandEvent): AsyncGenerator<Action, void, unknown>;
     /** Tries to run command, and sends an error message if fails */
     tryRunCommand(commandEvent: DiscordCommandEvent): Promise<void>;
 }

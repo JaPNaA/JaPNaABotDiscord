@@ -66,6 +66,7 @@ declare class BotClient {
     getServerFromChannel(channelId: string): Promise<Guild | undefined>;
     getServer(serverId: string): Promise<Guild | undefined>;
     getUser(userId: string): Promise<User | undefined>;
+    getMessageFromChannel(channelId: string, messageId: string): Promise<Message>;
     getRole(roleId: string, serverId: string): Promise<Role | null>;
     getMemberFromServer(userId: string, serverId: string): Promise<GuildMember | undefined>;
     getPing(): number;

@@ -45,6 +45,18 @@ class ReplySoft extends Action {
             throw new Error("Channel <#" + event.channelId + "> is not a text channel.");
         }
     }
+    async performInteraction(bot, interaction) {
+        if (interaction.isRepliable()) {
+            this.sentMessage = await followUpOrReply(bot, interaction, this.message);
+        }
+        else if (interaction.channelId) {
+            // send normally
+            this.sentMessage = await bot.client.send(interaction.channelId, this.message);
+        }
+        else {
+            throw new Error("Cannot respond.");
+        }
+    }
     getMessage() {
         if (!this.sentMessage) {
             throw new ActionNotYetPerformedError();
@@ -62,6 +74,14 @@ class ReplyPrivate extends Action {
     perform(bot, event) {
         return bot.client.sendDM(event.userId, this.message);
     }
+    async performInteraction(bot, interaction) {
+        if (interaction.isRepliable()) {
+            return followUpOrReply(bot, interaction, ephemeralize(this.message));
+        }
+        else {
+            return bot.client.sendDM(interaction.user.id, this.message);
+        }
+    }
 }
 exports.ReplyPrivate = ReplyPrivate;
 /**
@@ -75,8 +95,16 @@ class Send extends Action {
         this.channelId = channelId;
         this.message = message;
     }
-    perform(bot, event) {
+    perform(bot) {
         return bot.client.send(this.channelId, this.message);
+    }
+    async performInteraction(bot, interaction) {
+        if (interaction.isRepliable() && this.channelId === interaction.channelId) {
+            return followUpOrReply(bot, interaction, this.message);
+        }
+        else {
+            this.perform(bot);
+        }
     }
 }
 exports.Send = Send;
@@ -94,6 +122,14 @@ class SendPrivate extends Action {
     perform(bot) {
         return bot.client.sendDM(this.userId, this.message);
     }
+    async performInteraction(bot, interaction) {
+        if (interaction.isRepliable() && this.userId === interaction.user.id) {
+            return followUpOrReply(bot, interaction, ephemeralize(this.message));
+        }
+        else {
+            this.perform(bot);
+        }
+    }
 }
 exports.SendPrivate = SendPrivate;
 /**
@@ -110,14 +146,22 @@ class ReplyThreadSoft extends Action {
         this.options = options;
     }
     async perform(bot, event) {
-        const channel = await bot.client.getChannel(event.channelId);
+        await this.createThread(bot, event.channelId, event.messageId);
+    }
+    async performInteraction(bot, interaction) {
+        if (interaction.channelId) {
+            await this.createThread(bot, interaction.channelId, undefined);
+        }
+    }
+    async createThread(bot, inChannel, replyMessage) {
+        const channel = await bot.client.getChannel(inChannel);
         if (!channel) {
             throw new Error("Channel not found");
         }
         if (channel instanceof discord_js_1.TextChannel) {
             this.thread = await channel.threads.create({
                 name: this.threadName,
-                startMessage: event.messageId,
+                startMessage: replyMessage,
                 ...this.options
             });
         }
@@ -142,18 +186,52 @@ class DeleteMessageSoft extends Action {
         this.channelId = channelId;
         this.messageId = messageId;
     }
-    async perform(bot, event) {
-        const channel = await bot.client.getChannel(event.channelId);
+    async perform(bot) {
+        const channel = await bot.client.getChannel(this.channelId);
         if (channel?.isText()) {
-            channel.messages.fetch(event.messageId)
+            channel.messages.fetch(this.messageId)
                 .then(message => message.delete())
                 .catch(_ => { });
         }
+    }
+    async performInteraction(bot) {
+        this.perform(bot);
     }
 }
 exports.DeleteMessageSoft = DeleteMessageSoft;
 class ActionNotYetPerformedError extends Error {
     constructor() {
         super("Action not yet performed");
+    }
+}
+async function followUpOrReply(bot, interaction, message) {
+    if (!interaction.isRepliable()) {
+        throw new Error("Cannot reply");
+    }
+    if (interaction.replied) {
+        const sentMessage = await interaction.followUp(message);
+        if (interaction.channelId) {
+            return bot.client.getMessageFromChannel(interaction.channelId, sentMessage.id);
+        }
+    }
+    else {
+        await interaction.reply(message);
+        if (interaction.channelId) {
+            return bot.client.getMessageFromChannel(interaction.channelId, (await interaction.fetchReply()).id);
+        }
+    }
+}
+function ephemeralize(message) {
+    if (typeof message === "string") {
+        return {
+            content: message,
+            ephemeral: true
+        };
+    }
+    else {
+        return {
+            ...message,
+            ephemeral: true
+        };
     }
 }

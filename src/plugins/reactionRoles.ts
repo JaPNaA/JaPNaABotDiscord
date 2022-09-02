@@ -115,7 +115,15 @@ export default class ReactionRoles extends BotPlugin {
 
         this._registerDefaultCommand("create reaction roll", this.createReactionRoll, {
             help: {
-                description: "Creates a message that assigns a roll upon reaction"
+                description: "Creates a message that assigns a roll upon reaction",
+                overloads: [{
+                    "<roll>": "The roll to give",
+                    "<emoji>": "Optional. The emoji users click"
+                }],
+                examples: [
+                    ["create reaction roll @myRoll", "Reacting allows users to get `myRoll`"],
+                    ["create reaction roll @myRoll :poop:", "Reacting with :poop: gives users `myRoll`"]
+                ]
             }
         });
     }

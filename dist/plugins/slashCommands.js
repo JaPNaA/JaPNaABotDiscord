@@ -8,8 +8,10 @@ const rest_1 = require("@discordjs/rest");
 const v9_1 = require("discord-api-types/v9");
 const builders_1 = require("@discordjs/builders");
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
-const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
+const precommand_js_1 = require("../main/bot/precommand/precommand.js");
+const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 class SlashCommands extends plugin_js_1.default {
+    precommand = new precommand_js_1.PrecommandWithCallback(this.bot, ["/"], () => { });
     constructor(bot) {
         super(bot);
         this.pluginName = "japnaaweird";
@@ -38,16 +40,68 @@ class SlashCommands extends plugin_js_1.default {
                 if (!interaction.member) {
                     return;
                 }
-                interaction.reply("Ok");
-                this.bot.rawEventAdapter.onMessage((0, fakeMessage_js_1.default)({
-                    author: (await this.bot.client.getUser(interaction.member.user.id)),
-                    channel: (await this.bot.client.getChannel(interaction.channelId)),
-                    content: this.bot.precommandManager.precommands[0].names[0] + interaction.commandName.replace(/_/g, " ") + " " + (interaction.options.getString("args") || ""),
-                    guild: (await this.bot.client.getServer(interaction.guildId)),
-                    id: interaction.id
-                }));
+                const matchingCommand = this.findMatchingCommand(interaction.commandName);
+                if (!matchingCommand) {
+                    interaction.reply({
+                        ephemeral: true,
+                        content: "Error: command not found"
+                    });
+                    return;
+                }
+                try {
+                    const gen = matchingCommand.tryRunCommandGenerator({
+                        username: interaction.user.username,
+                        userId: interaction.user.id,
+                        channelId: interaction.channelId,
+                        serverId: interaction.guildId || "",
+                        messageId: interaction.id,
+                        message: "",
+                        commandContent: "",
+                        createdTimestamp: interaction.createdTimestamp,
+                        isDM: !interaction.guildId,
+                        arguments: interaction.options.getString("args") || "",
+                        originalEvent: {
+                            author: (await this.bot.client.getUser(interaction.member.user.id)),
+                            channel: (await this.bot.client.getChannel(interaction.channelId)),
+                            content: "",
+                            guild: (await this.bot.client.getServer(interaction.guildId)),
+                            id: interaction.id,
+                            createdTimestamp: interaction.createdTimestamp
+                        },
+                        precommandName: {
+                            precommand: this.precommand,
+                            index: 0,
+                            name: "/"
+                        }
+                    });
+                    for await (const action of gen) {
+                        await action.performInteraction(this.bot, interaction);
+                    }
+                    if (!interaction.replied) {
+                        interaction.reply({
+                            content: "Ok", ephemeral: true
+                        });
+                    }
+                }
+                catch (err) {
+                    logger_js_1.default.error(err);
+                }
             }
         });
+    }
+    findMatchingCommand(commandName) {
+        for (const command of this.bot.defaultPrecommand.commandManager.commands) {
+            if (this.cleanCommandName(command.commandName) === this.cleanCommandName(commandName)) {
+                return command;
+            }
+        }
+        return null;
+    }
+    strReplaceSpaces(str) {
+        return str.replace(/\s/g, "_");
+    }
+    cleanCommandName(str) {
+        return this.strReplaceSpaces(str).toLowerCase();
     }
     _stop() {
         // do nothing

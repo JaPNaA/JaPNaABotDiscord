@@ -1,10 +1,11 @@
-import { AllowedThreadTypeForTextChannel, Message, MessageOptions, TextChannel, ThreadChannel, ThreadCreateOptions } from "discord.js";
+import { AllowedThreadTypeForTextChannel, CacheType, Interaction, InteractionReplyOptions, Message, MessageOptions, TextChannel, ThreadChannel, ThreadCreateOptions } from "discord.js";
 import toOne from "../../utils/toOne";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
 
 export abstract class Action {
     public abstract perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    public abstract performInteraction(bot: Bot, interaction: Interaction): Promise<any>;
 }
 
 /**
@@ -41,6 +42,17 @@ export class ReplySoft extends Action {
         }
     }
 
+    public async performInteraction(bot: Bot, interaction: Interaction) {
+        if (interaction.isRepliable()) {
+            this.sentMessage = await followUpOrReply(bot, interaction, this.message as any);
+        } else if (interaction.channelId) {
+            // send normally
+            this.sentMessage = await bot.client.send(interaction.channelId, this.message);
+        } else {
+            throw new Error("Cannot respond.");
+        }
+    }
+
     public getMessage(): Message {
         if (!this.sentMessage) { throw new ActionNotYetPerformedError(); }
         return toOne(this.sentMessage);
@@ -55,6 +67,14 @@ export class ReplyPrivate extends Action {
     public perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
         return bot.client.sendDM(event.userId, this.message);
     }
+
+    public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
+        if (interaction.isRepliable()) {
+            return followUpOrReply(bot, interaction, ephemeralize(this.message));
+        } else {
+            return bot.client.sendDM(interaction.user.id, this.message);
+        }
+    }
 }
 
 /**
@@ -66,8 +86,16 @@ export class Send extends Action {
         public message: string | MessageOptions
     ) { super(); }
 
-    public perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
+    public perform(bot: Bot): Promise<any> {
         return bot.client.send(this.channelId, this.message);
+    }
+
+    public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
+        if (interaction.isRepliable() && this.channelId === interaction.channelId) {
+            return followUpOrReply(bot, interaction, this.message as any);
+        } else {
+            this.perform(bot);
+        }
     }
 }
 
@@ -82,6 +110,14 @@ export class SendPrivate extends Action {
 
     public perform(bot: Bot): Promise<any> {
         return bot.client.sendDM(this.userId, this.message);
+    }
+
+    public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
+        if (interaction.isRepliable() && this.userId === interaction.user.id) {
+            return followUpOrReply(bot, interaction, ephemeralize(this.message as any));
+        } else {
+            this.perform(bot);
+        }
     }
 }
 
@@ -98,12 +134,22 @@ export class ReplyThreadSoft extends Action {
     ) { super(); }
 
     public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
-        const channel = await bot.client.getChannel(event.channelId);
+        await this.createThread(bot, event.channelId, event.messageId);
+    }
+
+    public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
+        if (interaction.channelId) {
+            await this.createThread(bot, interaction.channelId, undefined);
+        }
+    }
+
+    private async createThread(bot: Bot, inChannel: string, replyMessage: string | undefined) {
+        const channel = await bot.client.getChannel(inChannel);
         if (!channel) { throw new Error("Channel not found"); }
         if (channel instanceof TextChannel) {
             this.thread = await channel.threads.create({
                 name: this.threadName,
-                startMessage: event.messageId,
+                startMessage: replyMessage,
                 ...this.options
             });
         }
@@ -125,18 +171,51 @@ export class DeleteMessageSoft extends Action {
         public messageId: string
     ) { super(); }
 
-    public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
-        const channel = await bot.client.getChannel(event.channelId);
+    public async perform(bot: Bot): Promise<any> {
+        const channel = await bot.client.getChannel(this.channelId);
         if (channel?.isText()) {
-            channel.messages.fetch(event.messageId)
+            channel.messages.fetch(this.messageId)
                 .then(message => message.delete())
                 .catch(_ => { });
         }
+    }
+
+    public async performInteraction(bot: Bot): Promise<any> {
+        this.perform(bot);
     }
 }
 
 class ActionNotYetPerformedError extends Error {
     constructor() {
         super("Action not yet performed");
+    }
+}
+
+async function followUpOrReply(bot: Bot, interaction: Interaction, message: string | InteractionReplyOptions): Promise<Message | undefined> {
+    if (!interaction.isRepliable()) { throw new Error("Cannot reply"); }
+    if (interaction.replied) {
+        const sentMessage = await interaction.followUp(message);
+        if (interaction.channelId) {
+            return bot.client.getMessageFromChannel(interaction.channelId, sentMessage.id);
+        }
+    } else {
+        await interaction.reply(message);
+        if (interaction.channelId) {
+            return bot.client.getMessageFromChannel(interaction.channelId, (await interaction.fetchReply()).id);
+        }
+    }
+}
+
+function ephemeralize(message: string | MessageOptions): InteractionReplyOptions {
+    if (typeof message === "string") {
+        return {
+            content: message,
+            ephemeral: true
+        };
+    } else {
+        return {
+            ...message as any,
+            ephemeral: true
+        }
     }
 }
