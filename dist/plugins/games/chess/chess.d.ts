@@ -1,6 +1,7 @@
 import Game from "../../games/game";
 import Bot from "../../../main/bot/bot/bot";
 import Games from "../../games";
+import { DeleteMessageSoft } from "../../../main/bot/actions/actions";
 declare class Chess extends Game {
     private initer;
     _gamePluginName: string;
@@ -15,9 +16,9 @@ declare class Chess extends Game {
     private board;
     private commandParser;
     constructor(botHooks: Bot, parentPlugin: Games, channelId: string, initer: string);
-    _exec(userId: string, messageId: string, command: string): Promise<void>;
-    _sendBoard(): void;
-    _sendError(error: any, channelId: string): void;
+    _exec(userId: string, messageId: string, command: string): AsyncGenerator<DeleteMessageSoft, string, unknown>;
+    _boardToString(): string;
+    _errorToString(error: any, channelId: string): string;
     _isTurn(userId: string): boolean;
     _getWhitePlayer(): string;
     _getBlackPlayer(): string;

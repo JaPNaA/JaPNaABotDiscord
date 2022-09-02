@@ -37,12 +37,12 @@ class Presidents extends Game {
         this.game = new PresidentsMain(this.bot, this.parentPlugin, this);
     }
 
-    playerUse(event: DiscordCommandEvent) {
+    *playerUse(event: DiscordCommandEvent) {
         this.game.messageHandler.onMessage(event.userId, event, MessageType.use);
     }
 
-    playerPass(event: DiscordCommandEvent) {
-        this.game.messageHandler.onMessage(event.userId, event, MessageType.pass)
+    *playerPass(event: DiscordCommandEvent) {
+        this.game.messageHandler.onMessage(event.userId, event, MessageType.pass);
     }
 
     _startGame() {

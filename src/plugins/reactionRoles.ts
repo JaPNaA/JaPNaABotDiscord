@@ -1,3 +1,4 @@
+import { DeleteMessageSoft, ReplySoft } from "../main/bot/actions/actions";
 import Bot from "../main/bot/bot/bot";
 import CommandArguments from "../main/bot/command/commandArguments";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
@@ -21,7 +22,7 @@ export default class ReactionRoles extends BotPlugin {
         this.messageReactionRoleMap = this.bot.memory.get(this.pluginName, "messageReactionRollMap") || {};
     }
 
-    public async createReactionRoll(event: DiscordCommandEvent) {
+    public async *createReactionRoll(event: DiscordCommandEvent) {
         const args = new CommandArguments(event.arguments).parse({
             overloads: [["roll", "emoji"], ["emoji", "roll"]],
             required: ["roll"],
@@ -34,8 +35,7 @@ export default class ReactionRoles extends BotPlugin {
         const emoji = args.get("emoji") || SCROLL_EMOJI;
         const rollId = getSnowflakeNum(args.get("roll"));
         if (!rollId) {
-            this.bot.client.send(event.channelId, "Please specify a roll via mention.");
-            return;
+            return "Please specify a roll via mention.";
         }
 
         const server = await this.bot.client.getServer(event.serverId);
@@ -43,19 +43,21 @@ export default class ReactionRoles extends BotPlugin {
         const self = await this.bot.client.getMemberFromServer(this.bot.client.id!, event.serverId);
         if (!self) { throw new Error("Bot not in server"); }
         if (server.roles.comparePositions(self.roles.highest, rollId) <= 0) {
-            throw new Error("Cannot assign roll higher than bot's highest roll");
+            return "Bot cannot assign roll higher than bot's highest roll";
         }
 
         const sender = await this.bot.client.getMemberFromServer(event.userId, event.serverId);
         if (!sender) { throw new Error("Sender not in server"); }
         if (server.roles.comparePositions(sender.roles.highest, rollId) <= 0) {
-            throw new Error("Cannot assign roll higher than your highest roll");
+            return "You cannot assign roll higher than your highest roll";
         }
 
-        const message = toOne(await this.bot.client.send(event.channelId, {
+        const reply = new ReplySoft({
             content: `React with ${emoji} to get the <@&${rollId}> roll.`,
             allowedMentions: { users: [] }
-        }));
+        });
+        yield reply;
+        const message = reply.getMessage();
 
         this.messageReactionRoleMap[message.id] = {
             rollId: rollId,
@@ -76,14 +78,7 @@ export default class ReactionRoles extends BotPlugin {
 
         if (success) {
             this.writeMemory();
-
-            // delete command message
-            const channel = await this.bot.client.getChannel(event.channelId);
-            if (channel?.isText()) {
-                channel.messages.fetch(event.messageId)
-                    .then(message => message.delete())
-                    .catch(_ => { });
-            }
+            yield new DeleteMessageSoft(event.channelId, event.messageId);
         }
     }
 

@@ -6,6 +6,7 @@ import ChessBoard from "./chessBoard";
 import CommandParser from "./commandParser";
 import { ChessError } from "./errors";
 import mention from "../../../main/utils/str/mention";
+import { DeleteMessageSoft, ReplyPrivate, SendPrivate } from "../../../main/bot/actions/actions";
 
 class Chess extends Game {
     _gamePluginName: string = "chess"
@@ -41,10 +42,9 @@ class Chess extends Game {
         });
     }
 
-    async _exec(userId: string, messageId: string, command: string) {
+    async *_exec(userId: string, messageId: string, command: string) {
         if (!this._isTurn(userId)) {
-            this.bot.client.send(this.channelId, "It is not your turn");
-            return;
+            return "It is not your turn";
         }
 
         try {
@@ -52,34 +52,26 @@ class Chess extends Game {
 
             // if settings.deleteHistory, delete last message that triggered _exec
             if (this.lastCommandMessageId && this.settings.deleteHistory) {
-                const channel = await this.bot.client.getChannel(this.channelId);
-                if (channel && channel.isText()) {
-                    const message = await channel.messages.fetch(this.lastCommandMessageId);
-                    if (message) {
-                        await message.delete().catch(err => { });
-                    }
-                }
+                yield new DeleteMessageSoft(this.channelId, this.lastCommandMessageId);
             }
 
             this.lastCommandMessageId = messageId;
-            this._sendBoard();
+            return this._boardToString();
         } catch (err) {
-            this._sendError(err, this.channelId);
+            return this._errorToString(err, this.channelId);
         }
     }
 
-    _sendBoard() {
+    _boardToString() {
         const boardString = "```" + this.board.toString() + "```";
-        this.bot.client.send(this.channelId,
-            this.settings.blindfolded ? (
-                this.board.blackTurn ? "Black's turn" : "White's turn"
-            ) : boardString
-        );
+        return this.settings.blindfolded ? (
+            this.board.blackTurn ? "Black's turn" : "White's turn"
+        ) : boardString;
     }
 
-    _sendError(error: any, channelId: string) {
+    _errorToString(error: any, channelId: string) {
         if (error instanceof ChessError) {
-            this.bot.client.send(channelId, "Error: " + error.message);
+            return "Error: " + error.message;
         } else {
             throw error;
         }
@@ -113,83 +105,73 @@ class Chess extends Game {
         await this.bot.client.send(this.channelId,
             `${mention(this._getWhitePlayer())} plays white,\n` +
             `${mention(this._getBlackPlayer())} plays black.\n` +
-            `Do \`${precommand}MOVE\` or \`${precommand}exec MOVE\` to make a move (ex. \`${precommand}e4\` \`${precommand}exec nc3\`)\n` + 
+            `Do \`${precommand}MOVE\` or \`${precommand}exec MOVE\` to make a move (ex. \`${precommand}e4\` \`${precommand}exec nc3\`)\n` +
             `Before starting the game you can \`${precommand}flip board\`, \`${precommand}blindfold\`, and \`${precommand}hide history\`\n` +
             `During the game, you can ask for the \`${precommand}board\` and \`${precommand}history\`\n` +
             `You can take back moves with \`${precommand}undo\`.`
         );
-        this._sendBoard();
+        this._boardToString();
 
         this._registerCommand(this.commandManager, "exec", event => {
-            this._exec(event.userId, event.messageId, event.arguments);
+            return this._exec(event.userId, event.messageId, event.arguments);
         });
         this._registerUnknownCommandHandler(this.commandManager,
             event => this._exec(event.userId, event.messageId, event.commandContent)
         );
 
-        this._registerCommand(this.commandManager, "flip board", event => {
+        this._registerCommand(this.commandManager, "flip board", function* (this: Chess, event) {
             if (!this._isPlayer(event.userId)) { return; }
             if (this.players.length < 2) {
-                this.bot.client.send(event.channelId, "You don't need to flip the board in singleplayer");
-                return;
+                return "You don't need to flip the board in singleplayer";
             }
             if (this.board.history.getLastMove()) {
-                this.bot.client.send(event.channelId, "Cannot flip board in the middle of the game.");
-                return;
+                return "Cannot flip board in the middle of the game.";
             }
             this.settings.boardFlipped = !this.settings.boardFlipped;
-            this.bot.client.send(event.channelId,
-                `${mention(this._getWhitePlayer())} now plays white,\n` +
-                `${mention(this._getBlackPlayer())} now plays black`
-            );
+            return `${mention(this._getWhitePlayer())} now plays white,\n` +
+                `${mention(this._getBlackPlayer())} now plays black`;
         });
 
-        this._registerCommand(this.commandManager, "blindfold", event => {
+        this._registerCommand(this.commandManager, "blindfold", function* (this: Chess, event) {
             if (!this._isPlayer(event.userId)) { return; }
             this.settings.blindfolded = !this.settings.blindfolded;
 
-            this.bot.client.send(event.channelId,
-                this.settings.blindfolded ?
-                    "Hiding board" : "Showing board"
-            );
+            return this.settings.blindfolded ?
+                "Hiding board" : "Showing board"
         });
 
-        this._registerCommand(this.commandManager, "hide history", event => {
+        this._registerCommand(this.commandManager, "hide history", function* (this: Chess, event) {
             if (!this._isPlayer(event.userId)) { return; }
             this.settings.deleteHistory = !this.settings.deleteHistory;
 
-            this.bot.client.send(event.channelId,
-                this.settings.deleteHistory ?
-                    "Hiding history" : "Not hiding history"
-            );
+            return this.settings.deleteHistory ?
+                "Hiding history" : "Not hiding history";
         })
 
-        this._registerCommand(this.commandManager, "board", async event => {
+        this._registerCommand(this.commandManager, "board", async function* (this: Chess, event) {
             if (this._isPlayer(event.userId) || !this.settings.blindfolded) {
-                this._sendBoard();
+                return this._boardToString();
             } else if (this.settings.blindfolded) {
-                await this.bot.client.sendDM(event.userId,
-                    "Players are blindfolded.\n```" + this.board.toString() + "```"
-                );
+                return new ReplyPrivate("Players are blindfolded.\n```" + this.board.toString() + "```");
             }
         });
 
-        this._registerCommand(this.commandManager, "undo", event => {
+        this._registerCommand(this.commandManager, "undo", function* (this: Chess, event) {
             if (!this._isPlayer(event.userId)) { return; }
             this.board.undo();
-            this._sendBoard();
+            return this._boardToString();
         });
 
-        this._registerCommand(this.commandManager, "history", async event => {
+        this._registerCommand(this.commandManager, "history", async function* (this: Chess, event) {
             if (this.settings.deleteHistory) {
                 if (this._isPlayer(event.userId)) {
-                    await this.bot.client.send(event.channelId, "History is hidden");
+                    return "History is hidden";
                 } else {
-                    await this.bot.client.sendDM(event.userId, "Players can't view history.\n" + this.board.history.toString());
+                    return new ReplyPrivate("Players can't view history.\n" + this.board.history.toString());
                 }
-                return;
+            } else {
+                return this.board.history.toString();
             }
-            await this.bot.client.send(event.channelId, this.board.history.toString());
         });
     }
 

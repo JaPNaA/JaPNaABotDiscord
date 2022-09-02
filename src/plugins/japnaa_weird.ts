@@ -21,37 +21,37 @@ class JapnaaWeird extends BotPlugin {
     /**
      * Tetris is a racing game.
      */
-    tetris(event: DiscordCommandEvent): void {
-        this.bot.client.send(event.channelId, "**Tetris is a " + (event.arguments || "racing") + " game**");
+    *tetris(event: DiscordCommandEvent) {
+        yield "**Tetris is a " + (event.arguments || "racing") + " game**";
     }
 
     /**
      * JaP is kewl
      */
-    jap(event: DiscordCommandEvent): void {
-        this.bot.client.sendEmbed(event.channelId, {
-            color: this.bot.config.themeColor,
-            description: "**JaP is " + (event.arguments || "kewl") + "**"
-        });
+    *jap(event: DiscordCommandEvent) {
+        yield {
+            embeds: [{
+                color: this.bot.config.themeColor,
+                description: "**JaP is " + (event.arguments || "kewl") + "**"
+            }]
+        };
     }
 
     /**
      * ebola your parabola
      */
-    your(event: DiscordCommandEvent): void {
-        this.bot.client.send(event.channelId, "parabola");
+    *your() {
+        yield "parabola";
     }
 
-    what_should_i_wear(event: DiscordCommandEvent) {
-        this.bot.client.send(event.channelId,
-            "It's -273.15°C in space, so you should wear:\n" +
+    *what_should_i_wear() {
+        yield "It's -273.15°C in space, so you should wear:\n" +
             "  - nothing on your head\n" +
             "  - nothing on your torso\n" +
             "  - nothing on your legs\n" +
             "  - nothing on your feet\n" +
             "  - nothing on your hands\n" +
-            "You cannot save this outfit by telling to me `save outfit`!"
-        );
+            "You cannot save this outfit by telling to me `save outfit`!";
     }
 
     /**

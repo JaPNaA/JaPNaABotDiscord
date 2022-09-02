@@ -39,7 +39,7 @@ class RockPaperScissors extends game_1.default {
             this.bot.client.sendDM(player, message);
         }
     }
-    useCommand(event) {
+    *useCommand(event) {
         let choice;
         const char = event.arguments[0].toLowerCase();
         switch (char) {
@@ -60,8 +60,8 @@ class RockPaperScissors extends game_1.default {
             this.checkWinners();
         }
         else {
-            this.bot.client.send(event.channelId, "Choice recorded. Waiting for opponent..." +
-                (event.isDM ? "" : "\n(Also, you should probably make your choice in DMs)"));
+            return "Choice recorded. Waiting for opponent..." +
+                (event.isDM ? "" : "\n(Also, you should probably make your choice in DMs)");
         }
     }
     checkWinners() {

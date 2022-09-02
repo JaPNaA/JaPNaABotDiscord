@@ -45,7 +45,7 @@ export default class AnnounceVCJoin extends BotPlugin {
     private channelStates;
     private _voiceStateUpdateHandler?;
     constructor(bot: Bot);
-    command_announce_vc_join(event: DiscordCommandEvent): Promise<void>;
+    command_announce_vc_join(event: DiscordCommandEvent): AsyncGenerator<never, string, unknown>;
     private _onVoiceStateUpdate;
     /**
      * Preconditions:

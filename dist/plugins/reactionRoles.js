@@ -3,10 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const actions_1 = require("../main/bot/actions/actions");
 const commandArguments_1 = __importDefault(require("../main/bot/command/commandArguments"));
 const plugin_1 = __importDefault(require("../main/bot/plugin/plugin"));
 const getSnowflakeNum_1 = __importDefault(require("../main/utils/getSnowflakeNum"));
-const toOne_1 = __importDefault(require("../main/utils/toOne"));
 const SCROLL_EMOJI = "\ud83d\udcdc";
 class ReactionRoles extends plugin_1.default {
     messageReactionRoleMap;
@@ -15,7 +15,7 @@ class ReactionRoles extends plugin_1.default {
         this.pluginName = "reactionRoles";
         this.messageReactionRoleMap = this.bot.memory.get(this.pluginName, "messageReactionRollMap") || {};
     }
-    async createReactionRoll(event) {
+    async *createReactionRoll(event) {
         const args = new commandArguments_1.default(event.arguments).parse({
             overloads: [["roll", "emoji"], ["emoji", "roll"]],
             required: ["roll"],
@@ -27,8 +27,7 @@ class ReactionRoles extends plugin_1.default {
         const emoji = args.get("emoji") || SCROLL_EMOJI;
         const rollId = (0, getSnowflakeNum_1.default)(args.get("roll"));
         if (!rollId) {
-            this.bot.client.send(event.channelId, "Please specify a roll via mention.");
-            return;
+            return "Please specify a roll via mention.";
         }
         const server = await this.bot.client.getServer(event.serverId);
         if (!server) {
@@ -39,19 +38,21 @@ class ReactionRoles extends plugin_1.default {
             throw new Error("Bot not in server");
         }
         if (server.roles.comparePositions(self.roles.highest, rollId) <= 0) {
-            throw new Error("Cannot assign roll higher than bot's highest roll");
+            return "Bot cannot assign roll higher than bot's highest roll";
         }
         const sender = await this.bot.client.getMemberFromServer(event.userId, event.serverId);
         if (!sender) {
             throw new Error("Sender not in server");
         }
         if (server.roles.comparePositions(sender.roles.highest, rollId) <= 0) {
-            throw new Error("Cannot assign roll higher than your highest roll");
+            return "You cannot assign roll higher than your highest roll";
         }
-        const message = (0, toOne_1.default)(await this.bot.client.send(event.channelId, {
+        const reply = new actions_1.ReplySoft({
             content: `React with ${emoji} to get the <@&${rollId}> roll.`,
             allowedMentions: { users: [] }
-        }));
+        });
+        yield reply;
+        const message = reply.getMessage();
         this.messageReactionRoleMap[message.id] = {
             rollId: rollId,
             reactionEmoji: emoji
@@ -70,13 +71,7 @@ class ReactionRoles extends plugin_1.default {
         }
         if (success) {
             this.writeMemory();
-            // delete command message
-            const channel = await this.bot.client.getChannel(event.channelId);
-            if (channel?.isText()) {
-                channel.messages.fetch(event.messageId)
-                    .then(message => message.delete())
-                    .catch(_ => { });
-            }
+            yield new actions_1.DeleteMessageSoft(event.channelId, event.messageId);
         }
     }
     _start() {

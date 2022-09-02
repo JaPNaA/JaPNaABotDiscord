@@ -13,16 +13,21 @@ declare class JapnaaWeird extends BotPlugin {
     /**
      * Tetris is a racing game.
      */
-    tetris(event: DiscordCommandEvent): void;
+    tetris(event: DiscordCommandEvent): Generator<string, void, unknown>;
     /**
      * JaP is kewl
      */
-    jap(event: DiscordCommandEvent): void;
+    jap(event: DiscordCommandEvent): Generator<{
+        embeds: {
+            color: number;
+            description: string;
+        }[];
+    }, void, unknown>;
     /**
      * ebola your parabola
      */
-    your(event: DiscordCommandEvent): void;
-    what_should_i_wear(event: DiscordCommandEvent): void;
+    your(): Generator<string, void, unknown>;
+    what_should_i_wear(): Generator<string, void, unknown>;
     /**
      * Listens for messages with 'lol' and deviations
      */

@@ -59,7 +59,7 @@ class Games extends plugin_js_1.default {
         }
         this.playerGameMap.delete(userId);
     }
-    play(event) {
+    *play(event) {
         let currentGame = this.currentGames.get(event.channelId);
         if (currentGame) {
             // TODO: confirm to end current game
@@ -73,8 +73,8 @@ class Games extends plugin_js_1.default {
             game._start();
         }
         else {
-            this.bot.client.send(event.channelId, "That game doesn't exist :confused:\n" +
-                "Games available: " + this._listGames().join(", "));
+            return "That game doesn't exist :confused:\n" +
+                "Games available: " + this._listGames().join(", ");
         }
     }
     _getGame(name) {

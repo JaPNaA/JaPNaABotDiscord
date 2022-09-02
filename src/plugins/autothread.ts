@@ -62,25 +62,24 @@ export default class AutoThread extends BotPlugin {
         this.pluginName = "autothread";
     }
 
-    public async toggleAutothread(event: DiscordCommandEvent) {
+    public async *toggleAutothread(event: DiscordCommandEvent) {
         const channel = await this.bot.client.getChannel(event.channelId);
         if (!channel || channel.isThread()) {
-            this.bot.client.send(event.channelId, "Cannot create threads inside threads.");
-            return;
+            return "Cannot create threads inside threads.";
         }
 
         const isEnabled = await this.config.getInChannel(event.channelId, "enabled");
 
         if (isEnabled) {
             this.config.setInChannel(event.channelId, "enabled", false);
-            this.bot.client.send(event.channelId, "Autothread disabled.");
+            return "Autothread disabled.";
         } else {
             this.config.setInChannel(event.channelId, "enabled", true);
-            this.bot.client.send(event.channelId, "Autothread enabled.");
+            return "Autothread enabled.";
         }
     }
 
-    public async archiveThreads(event: DiscordCommandEvent) {
+    public async *archiveThreads(event: DiscordCommandEvent) {
         const channel = await this.bot.client.getChannel(event.channelId);
         if (channel && channel.isText() && 'threads' in channel) {
             channel.threads.cache.forEach(thread => {
@@ -287,7 +286,7 @@ export default class AutoThread extends BotPlugin {
             },
             noDM: true,
             requiredDiscordPermission: "MANAGE_THREADS"
-        })
+        });
 
         this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
     }

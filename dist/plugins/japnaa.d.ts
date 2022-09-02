@@ -38,16 +38,16 @@ declare class Japnaa extends BotPlugin {
     /**
      * makes the bot count
      */
-    count(event: DiscordMessageEvent): Generator<string, void, unknown>;
+    count(event: DiscordMessageEvent): Generator<never, string, unknown>;
     /**
      * Safe eval command
      */
-    sev(event: DiscordCommandEvent): Generator<string, void, unknown>;
+    sev(event: DiscordCommandEvent): Generator<never, string, unknown>;
     private _JSCodeBlock;
     /**
      * says whatever you say
      */
-    echo(event: DiscordCommandEvent): Generator<string | JSONObject, void, unknown>;
+    echo(event: DiscordCommandEvent): Generator<never, string | JSONObject, unknown>;
     /**
      * Generates random stuff
      */

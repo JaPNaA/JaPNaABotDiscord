@@ -55,17 +55,17 @@ class Lobby {
         this._registerCommand("players", this.listPlayersCommand);
     }
 
-    private joinCommand(event: DiscordCommandEvent) {
+    private *joinCommand(event: DiscordCommandEvent) {
         if (this.settings.maxPlayers && this.players.length >= this.settings.maxPlayers) {
-            this.bot.client.send(event.channelId, "No more players can join -- maximum reached.");
+            return "No more players can join -- maximum reached.";
         }
-        this.addPlayerAndAnnounce(event.userId);
+        return this.addPlayerGetAnnounceString(event.userId);
     }
 
-    private addPlayerAndAnnounce(userId: string) {
+    private addPlayerGetAnnounceString(userId: string) {
         try {
             this._addPlayer(userId);
-            this.bot.client.send(this.parentGame.channelId, mention(userId) + " has joined " + this.parentGame.gameName + "!");
+            return mention(userId) + " has joined " + this.parentGame.gameName + "!";
         } catch (err) {
             this.handleJoinError(err as Error, userId);
         }
@@ -110,10 +110,9 @@ class Lobby {
         }
     }
 
-    private leaveCommand(event: DiscordCommandEvent) {
+    private *leaveCommand(event: DiscordCommandEvent) {
         if (!this.players.includes(event.userId)) {
-            this.bot.client.send(event.channelId, mention(event.userId) + ", you were never in the game!");
-            return;
+            return mention(event.userId) + ", you were never in the game!";
         }
 
         if (this.settings.dmLock) {
@@ -121,41 +120,35 @@ class Lobby {
         }
 
         removeFromArray(this.players, event.userId);
-        this.bot.client.send(event.channelId, mention(event.userId) + " has left the game");
+        return mention(event.userId) + " has left the game";
     }
 
-    private listPlayersCommand(event: DiscordCommandEvent) {
+    private *listPlayersCommand() {
         let numPlayers = this.players.length;
 
         if (numPlayers === 0) {
-            this.bot.client.send(event.channelId, "No one is in this game.");
+            return "No one is in this game.";
         } else if (numPlayers === 1) {
-            this.bot.client.send(event.channelId, "Just " + mention(this.players[0]) + ", the Loner.");
+            return "Just " + mention(this.players[0]) + ", the Loner.";
         } else {
-            this.bot.client.send(event.channelId,
-                this.players.map(e => mention(e)).join(", ") +
-                " (" + numPlayers + " players)"
-            );
+            return this.players.map(e => mention(e)).join(", ") +
+                " (" + numPlayers + " players)";
         }
     }
 
-    private startCommand(event: DiscordCommandEvent) {
+    private *startCommand() {
         const { maxPlayers, minPlayers } = this.settings;
         if (maxPlayers !== undefined && this.players.length > maxPlayers) {
-            this.bot.client.send(event.channelId, `There are too many players. (Max is ${maxPlayers})`);
-            return;
+            return `There are too many players. (Max is ${maxPlayers})`;
         }
         if (minPlayers !== undefined && this.players.length < minPlayers) {
-            this.bot.client.send(event.channelId, `There are few players. (Min is ${minPlayers})`);
-            return;
+            return `There are few players. (Min is ${minPlayers})`;
         }
 
         this.finishPlayerGathering();
 
-        this.bot.client.send(this.parentGame.channelId,
-            `Starting ${this.parentGame.gameName} with players:\n` +
-            this.players.map(id => mention(id)).join(", ")
-        );
+        return `Starting ${this.parentGame.gameName} with players:\n` +
+            this.players.map(id => mention(id)).join(", ");
     }
 
     private finishPlayerGathering() {

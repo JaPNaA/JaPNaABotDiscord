@@ -55,7 +55,7 @@ class Japnaa extends plugin_js_1.default {
     *count(event) {
         this.counter++;
         this.bot.memory.write(this.pluginName, "counter", this.counter);
-        yield this.counter + "!";
+        return this.counter + "!";
     }
     /**
      * Safe eval command
@@ -83,7 +83,7 @@ class Japnaa extends plugin_js_1.default {
         node_vm_1.default.runInNewContext(script, sandbox, {
             timeout: 100
         });
-        yield this._JSCodeBlock((0, node_util_1.inspect)(sandbox[resultKey]));
+        return this._JSCodeBlock((0, node_util_1.inspect)(sandbox[resultKey]));
     }
     _JSCodeBlock(str) {
         const cleanStr = (0, ellipsisize_1.default)(str.replace(/ {4}/g, "\t"), 2000 - 9);
@@ -100,7 +100,7 @@ class Japnaa extends plugin_js_1.default {
         catch (err) {
             // do nothing
         }
-        yield json ? json : event.arguments;
+        return json ? json : event.arguments;
     }
     /**
      * Generates random stuff

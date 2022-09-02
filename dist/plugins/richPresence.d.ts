@@ -9,23 +9,23 @@ export default class RichPresence extends BotPlugin {
      * Changes rich presence to play a game
      * @param args string to set as play
      */
-    play(event: DiscordCommandEvent): void;
+    play(event: DiscordCommandEvent): Generator<never, void, unknown>;
     /**
      * Changes rich presence to watch a game
      * @param args string to set as watch
      */
-    watch(event: DiscordCommandEvent): void;
+    watch(event: DiscordCommandEvent): Generator<never, void, unknown>;
     /**
      * Changes rich presence to listen to a music
      * @param args string to set as music
      */
-    listen_to(event: DiscordCommandEvent): void;
+    listen_to(event: DiscordCommandEvent): Generator<never, void, unknown>;
     /**
      * Changes rich presence to stream a game
      * @param args string to set as stream
      */
-    stream(event: DiscordCommandEvent): void;
-    set_status(event: DiscordCommandEvent): void;
+    stream(event: DiscordCommandEvent): Generator<never, void, unknown>;
+    set_status(event: DiscordCommandEvent): Generator<never, void, unknown>;
     private updatePresence;
     private updateStatus;
     _start(): void;

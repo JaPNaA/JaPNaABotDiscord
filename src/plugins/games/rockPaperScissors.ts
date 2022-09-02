@@ -41,7 +41,7 @@ export class RockPaperScissors extends Game {
         }
     }
 
-    private useCommand(event: DiscordCommandEvent) {
+    private *useCommand(event: DiscordCommandEvent) {
         let choice: RPS;
         const char = event.arguments[0].toLowerCase();
         switch (char) {
@@ -62,10 +62,8 @@ export class RockPaperScissors extends Game {
         if (this.choices.size >= 2) {
             this.checkWinners();
         } else {
-            this.bot.client.send(event.channelId,
-                "Choice recorded. Waiting for opponent..." +
-                (event.isDM ? "" : "\n(Also, you should probably make your choice in DMs)")
-            );
+            return "Choice recorded. Waiting for opponent..." +
+                (event.isDM ? "" : "\n(Also, you should probably make your choice in DMs)");
         }
     }
 

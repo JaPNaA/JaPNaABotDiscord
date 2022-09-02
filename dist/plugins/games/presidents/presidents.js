@@ -31,10 +31,10 @@ class Presidents extends game_1.default {
         });
         this.game = new game_2.default(this.bot, this.parentPlugin, this);
     }
-    playerUse(event) {
+    *playerUse(event) {
         this.game.messageHandler.onMessage(event.userId, event, messageType_1.default.use);
     }
-    playerPass(event) {
+    *playerPass(event) {
         this.game.messageHandler.onMessage(event.userId, event, messageType_1.default.pass);
     }
     _startGame() {

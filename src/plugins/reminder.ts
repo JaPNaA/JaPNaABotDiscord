@@ -71,7 +71,7 @@ class Reminders extends BotPlugin {
         this._reminders = this.bot.memory.get(this.pluginName, "reminders") || [];
     }
 
-    async set_reminder(event: DiscordCommandEvent) {
+    async *set_reminder(event: DiscordCommandEvent) {
         const args = new CommandArguments(event.arguments).parse({
             overloads: [["--time", "-r", "--repeat-interval", "title"], ["--time", "title"], ["title"]],
             flags: [
@@ -116,10 +116,10 @@ class Reminders extends BotPlugin {
 
         this._addReminder(reminder);
 
-        this.bot.client.send(event.channelId, `Reminder set on ${this._reminderToString(reminder)}`);
+        yield `Reminder set on ${this._reminderToString(reminder)}`;
     }
 
-    async edit_reminder(event: DiscordCommandEvent) {
+    async *edit_reminder(event: DiscordCommandEvent) {
         const args = new CommandArguments(event.arguments).parse({
             overloads: [["index"]],
             flags: [
@@ -156,16 +156,14 @@ class Reminders extends BotPlugin {
             reminder.repeat = false;
         }
 
-        this.bot.client.send(event.channelId,
-            `Edited the event created by ${mention(reminder.setterUserId)}:\n` +
-            this._reminderToString(reminder)
-        );
+        yield `Edited the event created by ${mention(reminder.setterUserId)}:\n` +
+            this._reminderToString(reminder);
 
         this._sortReminders();
         this._updateReminders();
     }
 
-    list_reminders(event: DiscordCommandEvent) {
+    *list_reminders(event: DiscordCommandEvent) {
         const reminders = this._getChannelReminders(event.channelId);
 
         const strArr = [];
@@ -177,21 +175,19 @@ class Reminders extends BotPlugin {
         }
 
         if (strArr.length) {
-            this.bot.client.send(event.channelId, strArr.join("\n"));
+            yield strArr.join("\n");
         } else {
-            this.bot.client.send(event.channelId, "No reminders are set in this channel.");
+            yield "No reminders are set in this channel.";
         }
     }
 
-    cancel_reminder(event: DiscordCommandEvent) {
+    *cancel_reminder(event: DiscordCommandEvent) {
         const reminder = this._getReminderByIndexOrTitle(event.arguments, event.channelId);
 
         removeFromArray(this._reminders, reminder);
 
-        this.bot.client.send(event.channelId,
-            "Reminder **" + reminder.title + "** from " +
-            mention(reminder.setterUserId) + "was canceled."
-        );
+        yield "Reminder **" + reminder.title + "** from " +
+            mention(reminder.setterUserId) + "was canceled.";
     }
 
     _parseTimeStr(timeStr: string, relativeNow: number): number {

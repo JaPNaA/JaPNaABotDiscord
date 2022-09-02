@@ -18,10 +18,10 @@ declare class Reminders extends BotPlugin {
     private _reminders;
     private _remindersTimeoutId;
     constructor(bot: Bot);
-    set_reminder(event: DiscordCommandEvent): Promise<void>;
-    edit_reminder(event: DiscordCommandEvent): Promise<void>;
-    list_reminders(event: DiscordCommandEvent): void;
-    cancel_reminder(event: DiscordCommandEvent): void;
+    set_reminder(event: DiscordCommandEvent): AsyncGenerator<string, void, unknown>;
+    edit_reminder(event: DiscordCommandEvent): AsyncGenerator<string, void, unknown>;
+    list_reminders(event: DiscordCommandEvent): Generator<string, void, unknown>;
+    cancel_reminder(event: DiscordCommandEvent): Generator<string, void, unknown>;
     _parseTimeStr(timeStr: string, relativeNow: number): number;
     _addReminder(reminder: Reminder): void;
     _sortReminders(): void;

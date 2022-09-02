@@ -73,7 +73,7 @@ class Games extends BotPlugin {
         this.playerGameMap.delete(userId);
     }
 
-    private play(event: DiscordCommandEvent): void {
+    private *play(event: DiscordCommandEvent) {
         let currentGame = this.currentGames.get(event.channelId);
         if (currentGame) {
             // TODO: confirm to end current game
@@ -89,10 +89,8 @@ class Games extends BotPlugin {
             this.currentGames.set(event.channelId, game);
             game._start();
         } else {
-            this.bot.client.send(event.channelId,
-                "That game doesn't exist :confused:\n" +
-                "Games available: " + this._listGames().join(", ")
-            );
+            return "That game doesn't exist :confused:\n" +
+                "Games available: " + this._listGames().join(", ");
         }
     }
 

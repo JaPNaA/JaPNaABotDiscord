@@ -16,8 +16,8 @@ declare class Presidents extends Game {
     game: PresidentsMain;
     lobby: Lobby;
     constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string);
-    playerUse(event: DiscordCommandEvent): void;
-    playerPass(event: DiscordCommandEvent): void;
+    playerUse(event: DiscordCommandEvent): Generator<never, void, unknown>;
+    playerPass(event: DiscordCommandEvent): Generator<never, void, unknown>;
     _startGame(): void;
     _start(): Promise<void>;
     _stop(): void;

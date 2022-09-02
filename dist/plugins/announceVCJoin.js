@@ -55,7 +55,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
         super(bot);
         this.pluginName = "announceVCJoin";
     }
-    async command_announce_vc_join(event) {
+    async *command_announce_vc_join(event) {
         const [voiceChannelStr, announceChannelStr] = (0, allUtils_js_1.stringToArgs)(event.arguments);
         const voiceChannelId = (0, allUtils_js_1.getSnowflakeNum)(voiceChannelStr);
         if (!voiceChannelId) {
@@ -79,22 +79,22 @@ class AnnounceVCJoin extends plugin_js_1.default {
             }
             this.config.setInChannel(voiceChannelId, "enabled", true);
             this.config.setInChannel(voiceChannelId, "announceIn", announceChannelId);
-            this.bot.client.send(event.channelId, "Announcing joins for <#" + voiceChannelId + "> to <#" + announceChannelId + ">");
+            return "Announcing joins for <#" + voiceChannelId + "> to <#" + announceChannelId + ">";
         }
         else {
             const currentlyEnabled = await this.config.getInChannel(voiceChannelId, "enabled");
             if (currentlyEnabled) {
                 this.config.setInChannel(voiceChannelId, "enabled", false);
-                this.bot.client.send(event.channelId, "Disabled announcing for <#" + voiceChannelId + ">");
+                return "Disabled announcing for <#" + voiceChannelId + ">";
             }
             else {
                 const existingAnnounceIn = await this.config.getInChannel(voiceChannelId, "announceIn");
                 if (existingAnnounceIn) {
                     this.config.setInChannel(voiceChannelId, "enabled", true);
-                    this.bot.client.send(event.channelId, "Announcing joins for <#" + voiceChannelId + "> to <#" + existingAnnounceIn + ">");
+                    return "Announcing joins for <#" + voiceChannelId + "> to <#" + existingAnnounceIn + ">";
                 }
                 else {
-                    this.bot.client.send(event.channelId, "Missing channel to announce to");
+                    return "Missing channel to announce to";
                 }
             }
         }

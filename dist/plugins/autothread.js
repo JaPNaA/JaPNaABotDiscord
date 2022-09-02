@@ -57,23 +57,22 @@ class AutoThread extends plugin_js_1.default {
         super(bot);
         this.pluginName = "autothread";
     }
-    async toggleAutothread(event) {
+    async *toggleAutothread(event) {
         const channel = await this.bot.client.getChannel(event.channelId);
         if (!channel || channel.isThread()) {
-            this.bot.client.send(event.channelId, "Cannot create threads inside threads.");
-            return;
+            return "Cannot create threads inside threads.";
         }
         const isEnabled = await this.config.getInChannel(event.channelId, "enabled");
         if (isEnabled) {
             this.config.setInChannel(event.channelId, "enabled", false);
-            this.bot.client.send(event.channelId, "Autothread disabled.");
+            return "Autothread disabled.";
         }
         else {
             this.config.setInChannel(event.channelId, "enabled", true);
-            this.bot.client.send(event.channelId, "Autothread enabled.");
+            return "Autothread enabled.";
         }
     }
-    async archiveThreads(event) {
+    async *archiveThreads(event) {
         const channel = await this.bot.client.getChannel(event.channelId);
         if (channel && channel.isText() && 'threads' in channel) {
             channel.threads.cache.forEach(thread => {

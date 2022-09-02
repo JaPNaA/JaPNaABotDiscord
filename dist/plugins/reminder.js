@@ -65,7 +65,7 @@ class Reminders extends plugin_js_1.default {
         this.pluginName = "reminder";
         this._reminders = this.bot.memory.get(this.pluginName, "reminders") || [];
     }
-    async set_reminder(event) {
+    async *set_reminder(event) {
         const args = new commandArguments_js_1.default(event.arguments).parse({
             overloads: [["--time", "-r", "--repeat-interval", "title"], ["--time", "title"], ["title"]],
             flags: [
@@ -103,9 +103,9 @@ class Reminders extends plugin_js_1.default {
             reminder.interval = [interval];
         }
         this._addReminder(reminder);
-        this.bot.client.send(event.channelId, `Reminder set on ${this._reminderToString(reminder)}`);
+        yield `Reminder set on ${this._reminderToString(reminder)}`;
     }
-    async edit_reminder(event) {
+    async *edit_reminder(event) {
         const args = new commandArguments_js_1.default(event.arguments).parse({
             overloads: [["index"]],
             flags: [
@@ -142,12 +142,12 @@ class Reminders extends plugin_js_1.default {
         if (args.get("--no-repeat")) {
             reminder.repeat = false;
         }
-        this.bot.client.send(event.channelId, `Edited the event created by ${(0, mention_js_1.default)(reminder.setterUserId)}:\n` +
-            this._reminderToString(reminder));
+        yield `Edited the event created by ${(0, mention_js_1.default)(reminder.setterUserId)}:\n` +
+            this._reminderToString(reminder);
         this._sortReminders();
         this._updateReminders();
     }
-    list_reminders(event) {
+    *list_reminders(event) {
         const reminders = this._getChannelReminders(event.channelId);
         const strArr = [];
         let index = 1;
@@ -155,17 +155,17 @@ class Reminders extends plugin_js_1.default {
             strArr.push(`${index++}. ${this._reminderToString(reminder)}`);
         }
         if (strArr.length) {
-            this.bot.client.send(event.channelId, strArr.join("\n"));
+            yield strArr.join("\n");
         }
         else {
-            this.bot.client.send(event.channelId, "No reminders are set in this channel.");
+            yield "No reminders are set in this channel.";
         }
     }
-    cancel_reminder(event) {
+    *cancel_reminder(event) {
         const reminder = this._getReminderByIndexOrTitle(event.arguments, event.channelId);
         (0, removeFromArray_js_1.default)(this._reminders, reminder);
-        this.bot.client.send(event.channelId, "Reminder **" + reminder.title + "** from " +
-            (0, mention_js_1.default)(reminder.setterUserId) + "was canceled.");
+        yield "Reminder **" + reminder.title + "** from " +
+            (0, mention_js_1.default)(reminder.setterUserId) + "was canceled.";
     }
     _parseTimeStr(timeStr, relativeNow) {
         let match;

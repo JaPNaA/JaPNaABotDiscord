@@ -66,7 +66,7 @@ class Japnaa extends BotPlugin {
     *count(event: DiscordMessageEvent) {
         this.counter++;
         this.bot.memory.write(this.pluginName, "counter", this.counter);
-        yield this.counter + "!";
+        return this.counter + "!";
     }
 
     /**
@@ -96,7 +96,7 @@ class Japnaa extends BotPlugin {
             timeout: 100
         });
 
-        yield this._JSCodeBlock(inspect(sandbox[resultKey]));
+        return this._JSCodeBlock(inspect(sandbox[resultKey]));
     }
 
 
@@ -116,7 +116,7 @@ class Japnaa extends BotPlugin {
             // do nothing
         }
 
-        yield json ? json : event.arguments;
+        return json ? json : event.arguments;
     }
 
     /**

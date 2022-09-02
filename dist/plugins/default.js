@@ -36,6 +36,8 @@ const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
 const commandArguments_js_1 = __importDefault(require("../main/bot/command/commandArguments.js"));
 const removeFromArray_js_1 = __importDefault(require("../main/utils/removeFromArray.js"));
+const actions_js_1 = require("../main/bot/actions/actions.js");
+const inlinePromise_js_1 = __importDefault(require("../main/utils/async/inlinePromise.js"));
 /**
  * Normal commands every bot shoud have
  */
@@ -46,20 +48,20 @@ class Default extends plugin_js_1.default {
         this.pluginName = "default";
         this.sawUpdateBotWarning = false;
     }
-    ping(event) {
-        this.bot.client.send(event.channelId, "Pong! Took " + Math.round(this.bot.client.getPing()) + "ms"); // * should be using abstraction
+    *ping() {
+        return "Pong! Took " + Math.round(this.bot.client.getPing()) + "ms";
     }
-    eval(event) {
+    *eval(event) {
         let str = (0, util_1.inspect)(eval(event.arguments));
-        this._sendJSCodeBlock(event.channelId, str);
+        return this._JSCodeBlock(str);
     }
     /**
      * Logs a message to the console with a logging level of "log"
      */
-    log_message(event) {
+    *log_message(event) {
         logger_js_1.default.log(event.arguments);
     }
-    async user_info(event) {
+    async *user_info(event) {
         let userId = event.userId;
         let response = [];
         if (event.arguments) {
@@ -68,7 +70,7 @@ class Default extends plugin_js_1.default {
                 userId = newUserId;
             }
             else {
-                this.bot.client.send(event.channelId, "**User does not exist.**");
+                yield "**User does not exist.**";
                 return;
             }
         }
@@ -126,18 +128,20 @@ class Default extends plugin_js_1.default {
                     value: permissions.customToString() + "\n"
                 });
             }
-            this.bot.client.sendEmbed(event.channelId, {
-                color: this.bot.config.themeColor,
-                author: {
-                    name: "Information for " + user.username,
-                    icon_url: user.avatarURL({ size: 128 }) || undefined
-                },
-                fields: response,
-                timestamp: new Date()
-            });
+            yield {
+                embeds: [{
+                        color: this.bot.config.themeColor,
+                        author: {
+                            name: "Information for " + user.username,
+                            icon_url: user.avatarURL({ size: 128 }) || undefined
+                        },
+                        fields: response,
+                        timestamp: new Date()
+                    }]
+            };
         }
         else {
-            this.bot.client.send(event.channelId, "**User does not exist.**");
+            yield "**User does not exist.**";
         }
     }
     /**
@@ -170,7 +174,7 @@ class Default extends plugin_js_1.default {
     /**
      * Sends general help information (all commands)
      */
-    async _sendGeneralHelp(event) {
+    async *_sendGeneralHelp(event) {
         let fields = [];
         let embed = {
             color: this.bot.config.themeColor,
@@ -189,12 +193,12 @@ class Default extends plugin_js_1.default {
                 "*You can type " + event.precommandName.precommand + "help [commandName] to get more information on a command.*"
         });
         if (event.isDM) {
-            this.bot.client.sendEmbed(event.channelId, embed);
+            yield { embeds: [embed] };
         }
         else {
             // is server
-            this.bot.client.send(event.channelId, "I've sent you some help!");
-            this.bot.client.sendDM(event.userId, { embeds: [embed] });
+            yield "I've sent you some help!";
+            yield new actions_js_1.ReplyPrivate({ embeds: [embed] });
         }
     }
     /**
@@ -287,63 +291,63 @@ class Default extends plugin_js_1.default {
     /**
      * Sends a help embed about a command
      */
-    _sendHelpAboutCommand(event, command, help) {
+    *_sendHelpAboutCommand(event, command, help) {
         const fields = [];
         this._appendHelpOverloads(fields, help, event, command);
         this._appendHelpExamples(fields, help, event);
         this._appendHelpPermissions(fields, help);
         const message = this._createHelpEmbedObject(fields, help, event, command, this.bot);
         if (event.isDM) {
-            this.bot.client.sendEmbed(event.channelId, message);
+            yield { embeds: [message] };
         }
         else {
             // is server
-            this.bot.client.send(event.channelId, "I've sent you some help!");
-            this.bot.client.sendDM(event.userId, { embeds: [message] });
+            yield "I've sent you some help!";
+            yield new actions_js_1.ReplyPrivate({ embeds: [message] });
         }
     }
     /**
      * Sends help about a command, checks if the command and command help exists
      */
-    _sendSpecificHelp(event, command) {
+    *_sendSpecificHelp(event, command) {
         let help = this.bot.defaultPrecommand.commandManager.getHelp(command);
         if (help) {
-            this._sendHelpAboutCommand(event, command, help);
+            yield* this._sendHelpAboutCommand(event, command, help);
         }
         else if (help === undefined) {
-            this.bot.client.send(event.channelId, "Command `" + command + "` doesn't exist");
+            yield "Command `" + command + "` doesn't exist";
         }
         else {
-            this.bot.client.send(event.channelId, "Help for command `" + command + "` doesn't exist");
+            yield "Help for command `" + command + "` doesn't exist";
         }
     }
     /**
      * Pretends to recieve a message from soneone else
      */
-    help(event) {
+    async *help(event) {
         let cleanArgs = event.arguments.toLowerCase().trim();
         if (cleanArgs) {
-            this._sendSpecificHelp(event, cleanArgs);
+            yield* this._sendSpecificHelp(event, cleanArgs);
         }
         else {
-            this._sendGeneralHelp(event);
+            yield* this._sendGeneralHelp(event);
         }
     }
     /**
      * Sets the bot admin
      */
-    i_am_the_bot_admin(event) {
+    *i_am_the_bot_admin(event) {
         if (this.bot.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.firstAdmin())) {
             if (this.bot.permissions.getPermissions_global(event.userId).hasCustom("BOT_ADMINISTRATOR")) {
-                this.bot.client.send(event.channelId, "Yes. You are the bot admin.");
+                yield "Yes. You are the bot admin.";
             }
             else {
-                this.bot.client.send(event.channelId, "You are not the bot admin.");
+                yield "You are not the bot admin.";
             }
             return;
         }
         else {
-            this.bot.client.send(event.channelId, "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**");
+            yield "**`::    Y O U   A R E   T H E   B O T   A D M I N    ::`**";
             this.bot.memory.write(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.firstAdmin(), event.userId, true);
             this.bot.permissions.editPermissions_user_global(event.userId, "BOT_ADMINISTRATOR", true);
         }
@@ -351,23 +355,20 @@ class Default extends plugin_js_1.default {
     /**
      * Pretends to recieve a message from soneone else
      */
-    async pretend_get(event) {
+    async *pretend_get(event) {
         let tagMatch = event.arguments.match(/^\s*<@[!@&]?\d+>\s*/);
         if (!tagMatch) {
-            this.bot.client.send(event.channelId, "Invalid amount of arguments. See `" +
-                event.precommandName.name + "help pretend get` for help");
-            return;
+            return "Invalid amount of arguments. See `" +
+                event.precommandName.name + "help pretend get` for help";
         }
         let userId = (0, getSnowflakeNum_1.default)(tagMatch[0]);
         if (!userId) {
-            this.bot.client.send(event.channelId, "Invalid syntax. See `" + event.precommandName.name + "help pretend get`");
-            return;
+            return "Invalid syntax. See `" + event.precommandName.name + "help pretend get`";
         }
         let user = await this.bot.client.getUser(userId);
         let message = event.arguments.slice(tagMatch[0].length).trim();
         if (!user) {
-            this.bot.client.send(event.channelId, "Could not find user" + (0, mention_js_1.default)(userId));
-            return;
+            return "Could not find user" + (0, mention_js_1.default)(userId);
         }
         let channel = await this.bot.client.getChannel(event.channelId);
         let guild = await this.bot.client.getServer(event.serverId);
@@ -385,7 +386,7 @@ class Default extends plugin_js_1.default {
     /**
      * Pretends to recieve a message from someone else
      */
-    async forward_to(event) {
+    async *forward_to(event) {
         let firstWhitespaceMatch = event.arguments.match(/\s/);
         if (!firstWhitespaceMatch) {
             return;
@@ -398,8 +399,7 @@ class Default extends plugin_js_1.default {
         let channel = await this.bot.client.getChannel(channelId);
         let message = event.arguments.slice(tagMatch.length).trim();
         if (!channel) {
-            this.bot.client.send(event.channelId, "Could not find channel " + channelId);
-            return;
+            return "Could not find channel " + channelId;
         }
         this.bot.client.sentMessageRecorder.startRecordingMessagesSentToChannel(event.channelId);
         let author = await this.bot.client.getUser(event.userId);
@@ -417,23 +417,20 @@ class Default extends plugin_js_1.default {
         let sentMessages = this.bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {
-            this.bot.client.send(channelId, message);
+            yield new actions_js_1.Send(channelId, message);
         }
     }
     /**
      * Sends a message to a channel
      * @param argString arguments ns, type, action, id, permission
      */
-    async edit_permission(event) {
+    async *edit_permission(event) {
         const args = (0, stringToArgs_js_1.default)(event.arguments);
         const _bot = this.bot;
-        function sendHelp() {
-            _bot.client.send(event.channelId, "Invalid arguments. See `" +
-                event.precommandName.name + "help edit permission` for help");
-        }
+        const helpStr = "Invalid arguments. See `" +
+            event.precommandName.name + "help edit permission` for help";
         if (args.length !== 5) {
-            sendHelp();
-            return;
+            return helpStr;
         }
         // Arguments pharsing
         /** Namespace (channel, server, global) */
@@ -445,8 +442,7 @@ class Default extends plugin_js_1.default {
         /** Id of user or role */
         const id = (0, getSnowflakeNum_1.default)(args[3]);
         if (!id) {
-            sendHelp();
-            return;
+            return helpStr;
         }
         /** Permission name */
         const permission = args[4].trim().toUpperCase();
@@ -458,8 +454,7 @@ class Default extends plugin_js_1.default {
             willHavePermission = false;
         }
         else {
-            sendHelp();
-            return;
+            return helpStr;
         }
         let isAssignUser;
         if (type === 'u') {
@@ -469,8 +464,7 @@ class Default extends plugin_js_1.default {
             isAssignUser = false;
         }
         else {
-            sendHelp();
-            return;
+            return helpStr;
         }
         /** Permissions for assigner */
         const assignerPermissions = await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, event.channelId);
@@ -478,14 +472,12 @@ class Default extends plugin_js_1.default {
         if (permissions_js_1.default.specialCustoms.includes(permission) && // if special permission
             !assignerPermissions.hasCustom("BOT_ADMINISTRATOR") // and is not admin
         ) {
-            this.bot.client.send(event.channelId, "Cannot assign special custom permission");
-            return;
+            return "Cannot assign special custom permission";
         }
         // check if user exists, if assigning to user
         if (type === "u") {
             if (!await this.bot.client.getMemberFromServer(id, event.serverId)) {
-                this.bot.client.send(event.channelId, "User not found");
-                return;
+                return "User not found";
             }
         }
         if (ns === "c") { // channel namespace
@@ -506,24 +498,20 @@ class Default extends plugin_js_1.default {
         }
         else if (ns === "g") { // global namespace
             if (!assignerPermissions.hasCustom("BOT_ADMINISTRATOR")) {
-                this.bot.client.send(event.channelId, "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions");
-                return;
+                return "You require **`BOT_ADMINISTRATOR`** permissions to assign global permissions";
             }
             if (isAssignUser) { // assign to user
                 if (!this.bot.client.getMemberFromServer(id, event.serverId)) {
-                    this.bot.client.send(event.channelId, "User not found");
-                    return;
+                    return "User not found";
                 }
                 this.bot.permissions.editPermissions_user_global(id, permission, willHavePermission);
             }
             else { // assign to role
-                this.bot.client.send(event.channelId, "Global roles are not a thing.");
-                return;
+                return "Global roles are not a thing.";
             }
         }
         else {
-            sendHelp();
-            return;
+            return helpStr;
         }
         // Send confirmation message
         const namespaceStrMap = {
@@ -532,13 +520,13 @@ class Default extends plugin_js_1.default {
             "g": "everywhere"
         };
         if (willHavePermission) {
-            this.bot.client.send(event.channelId, "Given " + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in " + namespaceStrMap[ns]);
+            return "Given " + (0, mention_js_1.default)(id) + " the permission `" + permission + "` in " + namespaceStrMap[ns];
         }
         else {
-            this.bot.client.send(event.channelId, "Removed " + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from " + namespaceStrMap[ns]);
+            return "Removed " + (0, mention_js_1.default)(id) + "'s permission (`" + permission + "`) from " + namespaceStrMap[ns];
         }
     }
-    async configCommand(event) {
+    async *configCommand(event) {
         const args = new commandArguments_js_1.default(event.arguments).parse({
             overloads: [
                 ["--plugin", "--scope", "--location", "--key", "--value"],
@@ -583,7 +571,7 @@ class Default extends plugin_js_1.default {
                 throw new Error("Could not find server or channel");
             }
             if (!(await this.bot.permissions.getPermissions_channel(event.userId, server.id, location)).hasDiscord("ADMINISTRATOR")) {
-                throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that channel");
+                return "You do not have permission (`ADMINISTRATOR`) to configure that channel";
             }
             humanReadableLocation = `<#${location}>`;
             config = await plugin.config.getAllUserSettingsInChannel(location);
@@ -594,21 +582,21 @@ class Default extends plugin_js_1.default {
             }
             // check permissions
             if (!(await this.bot.permissions.getPermissions_channel(event.userId, location, event.channelId)).hasDiscord("ADMINISTRATOR")) {
-                throw new Error("You do not have permission (`ADMINISTRATOR`) to configure that server");
+                return "You do not have permission (`ADMINISTRATOR`) to configure that server";
             }
             config = await plugin.config.getAllUserSettingsInServer(location);
             humanReadableLocation = "server";
         }
         else if (scopeChar === "g") {
-            throw new Error("Cannot assign global config using this command. Please edit the config file instead.");
+            return "Cannot assign global config using this command. Please edit the config file instead.";
         }
         else {
-            throw new Error("Invalid scope. (channel, server or global)");
+            return "Invalid scope. (channel, server or global)";
         }
         // get key
         if (key) {
             if (!config.has(key)) {
-                throw new Error("Config option doesn't exist");
+                return "Config option doesn't exist";
             }
             if (["delete", "default", "remove", "reset"].includes(valueStr)) {
                 // delete key
@@ -621,7 +609,7 @@ class Default extends plugin_js_1.default {
                 else {
                     throw new Error("Unknown error");
                 }
-                return this.bot.client.send(event.channelId, "Deleted key.");
+                return "Deleted key.";
             }
             else if (valueStr) {
                 // update key
@@ -647,7 +635,7 @@ class Default extends plugin_js_1.default {
                                 value[index] = valueArg;
                             }
                             else {
-                                throw new Error("Index out of bounds. (Use the --append flag to add items)");
+                                return "Index out of bounds. (Use the --append flag to add items)";
                             }
                         }
                         else {
@@ -655,26 +643,26 @@ class Default extends plugin_js_1.default {
                         }
                     }
                     else {
-                        throw new Error("Cannot access using subkey of non-object");
+                        return "Cannot access using subkey of non-object";
                     }
                 }
                 else if (args.get("--append")) {
                     if (!Array.isArray(previousValue)) {
-                        throw new Error("Current value is not an array");
+                        return "Current value is not an array";
                     }
                     value = this._jsonCopy(previousValue);
                     value.push(valueArg);
                 }
                 else if (args.get("--remove")) {
                     if (!Array.isArray(previousValue)) {
-                        throw new Error("Current value is not an array");
+                        return "Current value is not an array";
                     }
                     value = this._jsonCopy(previousValue);
                     (0, removeFromArray_js_1.default)(value, valueArg);
                 }
                 else {
                     if (typeof valueArg !== plugin.config.getUserSettingType(key)) {
-                        throw new Error("Value type doesn't match schema");
+                        return "Value type doesn't match schema";
                     }
                     value = valueArg;
                 }
@@ -688,16 +676,16 @@ class Default extends plugin_js_1.default {
                 else {
                     throw new Error("Unknown error");
                 }
-                return this.bot.client.send(event.channelId, "Updated config.");
+                return "Updated config.";
             }
             else {
-                return this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
-                    "```js\n" + this._getHumanReadableConfigItemString(key, config.get(key), plugin) + "```");
+                return `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+                    "```js\n" + this._getHumanReadableConfigItemString(key, config.get(key), plugin) + "```";
             }
         }
         else {
-            return this.bot.client.send(event.channelId, `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
-                "```js\n" + this._getHumanReadableConfigString(config, plugin) + "```");
+            return `**Config for ${plugin.pluginName} in ${humanReadableLocation}**` +
+                "```js\n" + this._getHumanReadableConfigString(config, plugin) + "```";
         }
     }
     _jsonCopy(object) {
@@ -721,7 +709,7 @@ class Default extends plugin_js_1.default {
      * Sends a message to a channel
      * @param args arguments [channelId, ...message]
      */
-    send(event) {
+    *send(event) {
         let whitespaceMatch = event.arguments.match(/\s/);
         if (!whitespaceMatch) {
             return;
@@ -730,75 +718,76 @@ class Default extends plugin_js_1.default {
         if (!whitespaceIndex) {
             throw new Error("Unknown error");
         }
-        this.bot.client.send(event.arguments.slice(0, whitespaceIndex), event.arguments.slice(whitespaceIndex + 1));
+        return new actions_js_1.Send(event.arguments.slice(0, whitespaceIndex), event.arguments.slice(whitespaceIndex + 1));
     }
     /**
      * Sends link to add bot to server
      */
-    link(event) {
-        this.bot.client.sendEmbed(event.channelId, {
-            color: this.bot.config.themeColor,
-            description: "You can add me to another server with this link:\n" + this.bot.config.addLink
-        });
+    *link(event) {
+        return { embeds: [{
+                    color: this.bot.config.themeColor,
+                    description: "You can add me to another server with this link:\n" + this.bot.config.addLink
+                }] };
     }
     /**
      * Sends link to view code of bot (like what you're doing right now!)
      */
-    code(event) {
-        this.bot.client.send(event.channelId, "You can view my code here:\n" + this.bot.config.gitlabLink);
+    *code(event) {
+        return "You can view my code here:\n" + this.bot.config.gitlabLink;
     }
     /**
      * Updates the bot
      */
-    update_bot(event) {
+    async *update_bot(event) {
         let cleanArgs = event.arguments.trim().toLowerCase();
         if (cleanArgs === "confirm") {
             if (this.sawUpdateBotWarning) {
-                this._actuallyUpdateBot(this.bot, event);
+                yield* this._actuallyUpdateBot(this.bot, event);
                 return;
             }
         }
-        this.bot.client.send(event.channelId, "Confirm updating the bot with `" + event.precommandName.name +
+        yield "Confirm updating the bot with `" + event.precommandName.name +
             "update bot confirm`.\n" +
-            "**The bot process will exit after the update.**");
+            "**The bot process will exit after the update.**";
         this.sawUpdateBotWarning = true;
     }
     /**
      * Actually updates the bot
      */
-    _actuallyUpdateBot(bot, event) {
-        childProcess.exec("npm install gitlab:japnaa/japnaabotdiscord", callback.bind(this));
-        async function callback(error, stdout, stderr) {
-            if (error) {
-                logger_js_1.default.error(error);
-                await this.bot.client.send(event.channelId, "Error updating bot. See logs.");
-            }
-            else {
-                await this.bot.client.send(event.channelId, "Update successful. Stopping...");
-            }
-            logger_js_1.default.log(stdout);
-            logger_js_1.default.log(stderr);
-            this._endBotProcess();
+    async *_actuallyUpdateBot(bot, event) {
+        const childProcessComplete = (0, inlinePromise_js_1.default)();
+        childProcess.exec("npm install gitlab:japnaa/japnaabotdiscord", (error, stdout, stderr) => childProcessComplete.res([error, stdout, stderr]));
+        const [error, stdout, stderr] = await childProcessComplete.promise;
+        if (error) {
+            logger_js_1.default.error(error);
+            yield "Error updating bot. See logs.";
         }
+        else {
+            yield "Update successful. Stopping...";
+        }
+        logger_js_1.default.log(stdout);
+        logger_js_1.default.log(stderr);
+        this._endBotProcess();
     }
     _endBotProcess() {
         logger_js_1.default.log("Exiting process...");
         japnaabot.stop(10000).then(() => process.exit(0));
     }
-    uptime(event) {
-        childProcess.exec("uptime", (error, stdout, stderr) => {
-            if (error) {
-                logger_js_1.default.error(error);
-                this.bot.client.send(event.channelId, "Failed to get uptime.");
-            }
-            else {
-                this.bot.client.send(event.channelId, "```" + stdout + "```");
-            }
-        });
+    async *uptime(event) {
+        const childProcessComplete = (0, inlinePromise_js_1.default)();
+        childProcess.exec("uptime", (error, stdout, stderr) => childProcessComplete.res([error, stdout, stderr]));
+        const [error, stdout, stderr] = await childProcessComplete.promise;
+        if (error) {
+            logger_js_1.default.error(error);
+            return "Failed to get uptime.";
+        }
+        else {
+            return "```" + stdout + "```";
+        }
     }
-    _sendJSCodeBlock(channelId, str) {
+    _JSCodeBlock(str) {
         const cleanStr = (0, ellipsisize_js_1.default)(str.replace(/ {4}/g, "\t"), 2000 - 9);
-        this.bot.client.send(channelId, "```js\n" + cleanStr + "```");
+        return "```js\n" + cleanStr + "```";
     }
     _start() {
         this._registerDefaultCommand("eval", this.eval, {

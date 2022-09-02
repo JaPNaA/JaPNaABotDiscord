@@ -44,14 +44,14 @@ class SlapJack extends game_1.default {
             "slap` when the card above is a Jack");
         this.startTicking();
     }
-    slap(event) {
+    *slap(event) {
         if (this.acceptingSlaps) {
-            this.bot.client.send(event.channelId, (0, mention_1.default)(event.userId) + " did it! yay\n" +
-                (event.createdTimestamp - this.jackedTime).toString() + "ms");
+            yield (0, mention_1.default)(event.userId) + " did it! yay\n" +
+                (event.createdTimestamp - this.jackedTime).toString() + "ms";
             this.gameEnded = true;
         }
         else {
-            this.bot.client.send(event.channelId, "you slapped too early! violent!!");
+            return "you slapped too early! violent!!";
         }
     }
     tick() {

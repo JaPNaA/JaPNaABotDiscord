@@ -58,17 +58,14 @@ class SlapJack extends Game {
         this.startTicking();
     }
 
-    slap(event: DiscordCommandEvent) {
+    *slap(event: DiscordCommandEvent) {
         if (this.acceptingSlaps) {
-            this.bot.client.send(
-                event.channelId, 
-                mention(event.userId) + " did it! yay\n" + 
-                (event.createdTimestamp - this.jackedTime).toString() + "ms"
-            );
+            yield mention(event.userId) + " did it! yay\n" + 
+                (event.createdTimestamp - this.jackedTime).toString() + "ms";
 
             this.gameEnded = true;
         } else {
-            this.bot.client.send(event.channelId, "you slapped too early! violent!!");
+            return "you slapped too early! violent!!";
         }
     }
 

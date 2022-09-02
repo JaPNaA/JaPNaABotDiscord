@@ -15,7 +15,7 @@ declare class Lobby {
     removeAllPlayers(): void;
     startLobby(): void;
     private joinCommand;
-    private addPlayerAndAnnounce;
+    private addPlayerGetAnnounceString;
     private _addPlayer;
     private handleJoinError;
     private leaveCommand;

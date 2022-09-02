@@ -23,7 +23,7 @@ export default class RichPresence extends BotPlugin {
      * Changes rich presence to play a game
      * @param args string to set as play
      */
-    public play(event: DiscordCommandEvent): void {
+    public *play(event: DiscordCommandEvent) {
         this.updatePresence("play", event.arguments);
     }
 
@@ -31,7 +31,7 @@ export default class RichPresence extends BotPlugin {
      * Changes rich presence to watch a game
      * @param args string to set as watch
      */
-    public watch(event: DiscordCommandEvent): void {
+    public *watch(event: DiscordCommandEvent) {
         this.updatePresence("watch", event.arguments);
     }
 
@@ -39,7 +39,7 @@ export default class RichPresence extends BotPlugin {
      * Changes rich presence to listen to a music
      * @param args string to set as music
      */
-    public listen_to(event: DiscordCommandEvent): void {
+    public *listen_to(event: DiscordCommandEvent) {
         this.updatePresence("listen", event.arguments);
     }
 
@@ -47,11 +47,11 @@ export default class RichPresence extends BotPlugin {
      * Changes rich presence to stream a game
      * @param args string to set as stream
      */
-    public stream(event: DiscordCommandEvent): void {
+    public *stream(event: DiscordCommandEvent) {
         this.updatePresence("stream", event.arguments);
     }
 
-    public set_status(event: DiscordCommandEvent): void {
+    public *set_status(event: DiscordCommandEvent) {
         if (
             event.arguments === "online" ||
             event.arguments === "idle" ||

@@ -17,31 +17,31 @@ class RichPresence extends plugin_1.default {
      * Changes rich presence to play a game
      * @param args string to set as play
      */
-    play(event) {
+    *play(event) {
         this.updatePresence("play", event.arguments);
     }
     /**
      * Changes rich presence to watch a game
      * @param args string to set as watch
      */
-    watch(event) {
+    *watch(event) {
         this.updatePresence("watch", event.arguments);
     }
     /**
      * Changes rich presence to listen to a music
      * @param args string to set as music
      */
-    listen_to(event) {
+    *listen_to(event) {
         this.updatePresence("listen", event.arguments);
     }
     /**
      * Changes rich presence to stream a game
      * @param args string to set as stream
      */
-    stream(event) {
+    *stream(event) {
         this.updatePresence("stream", event.arguments);
     }
-    set_status(event) {
+    *set_status(event) {
         if (event.arguments === "online" ||
             event.arguments === "idle" ||
             event.arguments === "dnd" ||

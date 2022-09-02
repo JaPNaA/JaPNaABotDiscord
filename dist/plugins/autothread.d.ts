@@ -48,8 +48,8 @@ export default class AutoThread extends BotPlugin {
     private cooldownCancelFuncs;
     private _threadUpdateHandler?;
     constructor(bot: Bot);
-    toggleAutothread(event: DiscordCommandEvent): Promise<void>;
-    archiveThreads(event: DiscordCommandEvent): Promise<void>;
+    toggleAutothread(event: DiscordCommandEvent): AsyncGenerator<never, "Cannot create threads inside threads." | "Autothread disabled." | "Autothread enabled.", unknown>;
+    archiveThreads(event: DiscordCommandEvent): AsyncGenerator<never, void, unknown>;
     messageHandler(event: DiscordMessageEvent, eventControls: EventControls): Promise<void>;
     private _onThreadUpdate;
     private addCooldownDoneTimeout;
