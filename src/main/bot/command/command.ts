@@ -65,7 +65,7 @@ class BotCommand {
      * @returns cleaned command content
      */
     _getCleanCommandContent(dirtyContent: string): CleanCommandContent {
-        let trimmed: string = dirtyContent.trimLeft();
+        let trimmed: string = dirtyContent.trimStart();
         let args: string = trimmed.slice(this.commandName.length + 1); // the +1 is the space after the command
         let commandContent: string = trimmed.toLowerCase();
         let nextCharAfterCommand: string = commandContent[this.commandName.length];
@@ -138,7 +138,7 @@ class BotCommand {
         if (results.canRun) {
             let cleaned: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
             commandEvent.arguments = cleaned.args;
-            this.tryRunCommand(commandEvent, cleaned.args);
+            this.tryRunCommand(commandEvent);
             return true;
         } else {
             if (results.reasonCannotRun) {
@@ -150,14 +150,13 @@ class BotCommand {
         }
     }
 
-    sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error): void {
+    sendError(commandEvent: DiscordCommandEvent, error: Error): void {
         const errorStr: string = createErrorString(error);
 
         const messageShort = "An error occured\n```" + error.message;
         const messageLong =
             "```An error occured" +
             "\nCommand: " + this.commandName +
-            "\nArguments: " + argString +
             "\nEvent: " + inspect(commandEvent, { depth: 3 }) +
             "\n" + errorStr;
 
@@ -167,7 +166,7 @@ class BotCommand {
     }
 
     /** Tries to run command, and sends an error message if fails */
-    async tryRunCommand(commandEvent: DiscordCommandEvent, argString: string) {
+    async tryRunCommand(commandEvent: DiscordCommandEvent) {
         try {
             const gen = this.func(commandEvent);
             let result;
@@ -182,7 +181,7 @@ class BotCommand {
                 }
             } while (!result.done);
         } catch (error) {
-            this.sendError(commandEvent, argString, error as Error);
+            this.sendError(commandEvent, error as Error);
         }
     }
 }

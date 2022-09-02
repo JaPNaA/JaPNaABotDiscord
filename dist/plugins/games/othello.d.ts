@@ -1,10 +1,12 @@
 import Bot from "../../main/bot/bot/bot";
+import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 import Game from "./game";
 export declare class Othello extends Game {
     private initer;
     logic: Logic;
     constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string);
+    exec(event: DiscordCommandEvent): Generator<never, void, unknown>;
     _start(): void;
     _stop(): void;
 }

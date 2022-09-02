@@ -106,7 +106,7 @@ class Games extends BotPlugin {
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
 
-    private unknownCommandHandler(event: DiscordCommandEvent) {
+    private *unknownCommandHandler(event: DiscordCommandEvent) {
         if (event.isDM) {
             this._forwardToGameFromDM(event);
         } else {

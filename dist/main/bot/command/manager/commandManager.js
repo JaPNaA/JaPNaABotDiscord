@@ -47,7 +47,8 @@ class CommandManager {
         this.unregisterHelp(command);
     }
     registerUnkownCommandHanlder(func) {
-        this.unknownCommandHandler = func;
+        const fillerStr = "__unknownCommandHandler";
+        this.unknownCommandHandler = new command_js_1.default(this.bot, fillerStr, fillerStr, func);
     }
     /** Apply config from bot.config to adjust command */
     applyConfigToCommand(command) {

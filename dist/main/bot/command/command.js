@@ -44,7 +44,7 @@ class BotCommand {
      * @returns cleaned command content
      */
     _getCleanCommandContent(dirtyContent) {
-        let trimmed = dirtyContent.trimLeft();
+        let trimmed = dirtyContent.trimStart();
         let args = trimmed.slice(this.commandName.length + 1); // the +1 is the space after the command
         let commandContent = trimmed.toLowerCase();
         let nextCharAfterCommand = commandContent[this.commandName.length];
@@ -99,7 +99,7 @@ class BotCommand {
         if (results.canRun) {
             let cleaned = this._getCleanCommandContent(commandEvent.commandContent);
             commandEvent.arguments = cleaned.args;
-            this.tryRunCommand(commandEvent, cleaned.args);
+            this.tryRunCommand(commandEvent);
             return true;
         }
         else {
@@ -110,19 +110,18 @@ class BotCommand {
             return false;
         }
     }
-    sendError(commandEvent, argString, error) {
+    sendError(commandEvent, error) {
         const errorStr = (0, createErrorString_1.default)(error);
         const messageShort = "An error occured\n```" + error.message;
         const messageLong = "```An error occured" +
             "\nCommand: " + this.commandName +
-            "\nArguments: " + argString +
             "\nEvent: " + (0, util_1.inspect)(commandEvent, { depth: 3 }) +
             "\n" + errorStr;
         logger_js_1.default.warn(messageLong);
         this.bot.client.send(commandEvent.channelId, messageShort.slice(0, 1997) + "```");
     }
     /** Tries to run command, and sends an error message if fails */
-    async tryRunCommand(commandEvent, argString) {
+    async tryRunCommand(commandEvent) {
         try {
             const gen = this.func(commandEvent);
             let result;
@@ -139,7 +138,7 @@ class BotCommand {
             } while (!result.done);
         }
         catch (error) {
-            this.sendError(commandEvent, argString, error);
+            this.sendError(commandEvent, error);
         }
     }
 }

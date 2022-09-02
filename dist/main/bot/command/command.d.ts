@@ -55,8 +55,8 @@ declare class BotCommand {
      * @returns Did the command run OR not have enough permissions to run
      */
     testAndRun(commandEvent: DiscordCommandEvent): Promise<boolean>;
-    sendError(commandEvent: DiscordCommandEvent, argString: string, error: Error): void;
+    sendError(commandEvent: DiscordCommandEvent, error: Error): void;
     /** Tries to run command, and sends an error message if fails */
-    tryRunCommand(commandEvent: DiscordCommandEvent, argString: string): Promise<void>;
+    tryRunCommand(commandEvent: DiscordCommandEvent): Promise<void>;
 }
 export default BotCommand;

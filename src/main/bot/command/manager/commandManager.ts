@@ -4,7 +4,6 @@ import BotCommand from "../command.js";
 import BotCommandCallback from "../commandCallback.js";
 import BotCommandOptions from "../commandOptions.js";
 import createKey from "../../utils/locationKeyCreator.js";
-import UnknownCommandHandler from "./unknownCommandHandler.js";
 import Bot from "../../bot/bot.js";
 import removeFromArray from "../../../utils/removeFromArray.js";
 import { PermissionString } from "discord.js";
@@ -14,7 +13,7 @@ class CommandManager {
     /** list of commands registered */
     commands: BotCommand[];
     /** called when an unknown command is called */
-    unknownCommandHandler?: UnknownCommandHandler;
+    unknownCommandHandler?: BotCommand;
     /** groups of commands */
     commandGroups: Map<string | undefined, BotCommand[]>;
     /** Data for help */
@@ -54,8 +53,9 @@ class CommandManager {
         this.unregisterHelp(command);
     }
 
-    registerUnkownCommandHanlder(func: UnknownCommandHandler) {
-        this.unknownCommandHandler = func;
+    registerUnkownCommandHanlder(func: BotCommandCallback) {
+        const fillerStr = "__unknownCommandHandler";
+        this.unknownCommandHandler = new BotCommand(this.bot, fillerStr, fillerStr, func);
     }
 
     /** Apply config from bot.config to adjust command */

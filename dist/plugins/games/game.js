@@ -22,9 +22,9 @@ class Game extends plugin_1.default {
         this.pluginName = "game." + this._gamePluginName;
         this._registerUnknownCommandHandler(this.commandManager, this.unknownCommandHandler);
     }
-    unknownCommandHandler(event) {
-        this.bot.client.send(event.channelId, "That command doesn't exist!\n" +
-            "(You're playing " + this.gameName + ")");
+    *unknownCommandHandler() {
+        return "That command doesn't exist!\n" +
+            "(You're playing " + this.gameName + ")";
     }
 }
 exports.default = Game;

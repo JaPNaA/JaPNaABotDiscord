@@ -1,7 +1,6 @@
 import BotCommandOptions from "../command/commandOptions";
 import { PrecommandWithoutCallback, Precommand, PrecommandWithCallback } from "../precommand/precommand";
 import PrecommandManager from "../precommand/manager/precommandManager";
-import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
 import CommandManager from "../command/manager/commandManager";
 import BotCommandCallback from "../command/commandCallback";
 import Bot from "../bot/bot";
@@ -60,11 +59,11 @@ abstract class BotPlugin {
         commandManager.register(name, this.pluginName, callback.bind(this), options);
     }
 
-    protected _registerUnknownCommandHandler(commandManager: CommandManager, func: UnknownCommandHandler): void;
-    protected _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: UnknownCommandHandler): void;
+    protected _registerUnknownCommandHandler(commandManager: CommandManager, func: BotCommandCallback): void;
+    protected _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: BotCommandCallback): void;
 
     protected _registerUnknownCommandHandler(precommandOrCommandManager: PrecommandWithoutCallback | CommandManager,
-        func: UnknownCommandHandler): void {
+        func: BotCommandCallback): void {
         let commandManager: CommandManager;
 
         if (precommandOrCommandManager instanceof PrecommandWithoutCallback) {

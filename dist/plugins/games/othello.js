@@ -22,27 +22,28 @@ class Othello extends game_1.default {
         //     autoStart: true
         // });
     }
+    *exec(event) {
+        const moveRegex = /([a-h])([1-8])/i;
+        const match = event.commandContent.match(moveRegex);
+        if (!match) {
+            this.bot.client.send(event.channelId, "Unknown command");
+            return;
+        }
+        const [_, xStr, yStr] = match;
+        const x = xStr.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
+        const y = parseInt(yStr) - 1;
+        try {
+            this.logic.place(x, y);
+        }
+        catch (err) {
+            this.bot.client.send(event.channelId, err + "");
+            return;
+        }
+        this.bot.client.send(this.channelId, "```" + this.logic.board.toString() + "```");
+    }
     _start() {
         this.bot.client.send(this.channelId, "```" + this.logic.board.toString() + "```");
-        this._registerUnknownCommandHandler(this.commandManager, event => {
-            const moveRegex = /([a-h])([1-8])/i;
-            const match = event.commandContent.match(moveRegex);
-            if (!match) {
-                this.bot.client.send(event.channelId, "Unknown command");
-                return;
-            }
-            const [_, xStr, yStr] = match;
-            const x = xStr.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
-            const y = parseInt(yStr) - 1;
-            try {
-                this.logic.place(x, y);
-            }
-            catch (err) {
-                this.bot.client.send(event.channelId, err + "");
-                return;
-            }
-            this.bot.client.send(this.channelId, "```" + this.logic.board.toString() + "```");
-        });
+        this._registerUnknownCommandHandler(this.commandManager, this.exec);
         // this.lobby.addPlayer(this.initer);
         // this.lobby.getPlayers();
     }

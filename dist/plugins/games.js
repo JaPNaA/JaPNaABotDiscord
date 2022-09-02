@@ -86,7 +86,7 @@ class Games extends plugin_js_1.default {
         });
         this._registerUnknownCommandHandler(this.precommand, this.unknownCommandHandler);
     }
-    unknownCommandHandler(event) {
+    *unknownCommandHandler(event) {
         if (event.isDM) {
             this._forwardToGameFromDM(event);
         }

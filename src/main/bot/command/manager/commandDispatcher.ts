@@ -34,7 +34,7 @@ class CommandDispatcher {
         if (!someCommandRan) {
             // command doesn't exist
             if (this.manager.unknownCommandHandler) {
-                this.manager.unknownCommandHandler(commandEvent);
+                this.manager.unknownCommandHandler.tryRunCommand(commandEvent);
             } else if (this.bot.config.doAlertCommandDoesNotExist) {
                 this.bot.client.send(
                     commandEvent.channelId, 

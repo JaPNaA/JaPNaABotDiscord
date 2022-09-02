@@ -1,6 +1,5 @@
 import BotCommandOptions from "../command/commandOptions";
 import { PrecommandWithoutCallback, PrecommandWithCallback } from "../precommand/precommand";
-import UnknownCommandHandler from "../command/manager/unknownCommandHandler";
 import CommandManager from "../command/manager/commandManager";
 import BotCommandCallback from "../command/commandCallback";
 import Bot from "../bot/bot";
@@ -30,8 +29,8 @@ declare abstract class BotPlugin {
     protected _registerDefaultCommand(name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
     protected _registerCommand(commandManager: CommandManager, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
     protected _registerCommand(precommand: PrecommandWithoutCallback, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
-    protected _registerUnknownCommandHandler(commandManager: CommandManager, func: UnknownCommandHandler): void;
-    protected _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: UnknownCommandHandler): void;
+    protected _registerUnknownCommandHandler(commandManager: CommandManager, func: BotCommandCallback): void;
+    protected _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: BotCommandCallback): void;
     protected _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
     protected _registerPrecommand(precommand: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
 }
