@@ -29,9 +29,9 @@ type TestResults = {
 const whitespaceRegex: RegExp = /\s/;
 
 class BotCommand {
-    bot: Bot;
+    private bot: Bot;
     /** Function to call when command is called */
-    func: BotCommandCallback;
+    private func: BotCommandCallback;
     /** Custom permission required to run command */
     requiredCustomPermission: string | undefined;
     /** Discord permission required to run command */
@@ -59,113 +59,26 @@ class BotCommand {
         this.pluginName = pluginName;
     }
 
-    /**
-     * Returns cleaned command content
-     * @param dirtyContent dirty content to be cleaned
-     * @returns cleaned command content
-     */
-    _getCleanCommandContent(dirtyContent: string): CleanCommandContent {
-        let trimmed: string = dirtyContent.trimStart();
-        let args: string = trimmed.slice(this.commandName.length + 1); // the +1 is the space after the command
-        let commandContent: string = trimmed.toLowerCase();
-        let nextCharAfterCommand: string = commandContent[this.commandName.length];
-
-        return {
-            commandContent: commandContent,
-            args: args,
-            nextCharAfterCommand: nextCharAfterCommand
-        };
-    }
-
-    /**
-     * Tests if command can be run
-     * @param commandEvent the event to test
-     * @returns Error string
-     */
-    async test(commandEvent: DiscordCommandEvent): Promise<TestResults> {
-        let cleanCommandContent: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
-
-        if (
-            cleanCommandContent.commandContent.startsWith(this.commandName) &&
-            (
-                !cleanCommandContent.nextCharAfterCommand ||
-                whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)
-            )
-        ) {
-            let permissions: Permissions = await
-                this.bot.permissions.getPermissions_channel(
-                    commandEvent.userId,
-                    commandEvent.serverId,
-                    commandEvent.channelId
-                );
-
-            if (this.noDM && commandEvent.isDM) {
-                return {
-                    canRun: false,
-                    reasonCannotRun: "You cannot run this command in Direct Messages"
-                };
-            }
-
-            if (this.requiredDiscordPermission && !permissions.hasDiscord(this.requiredDiscordPermission)) {
-                return {
-                    canRun: false,
-                    reasonCannotRun: mention(commandEvent.userId) + " **You must have `" +
-                        this.requiredDiscordPermission + "` permissions to run this command.**"
-                };
-            }
-
-            if (this.requiredCustomPermission && !permissions.hasCustom(this.requiredCustomPermission)) {
-                return {
-                    canRun: false,
-                    reasonCannotRun: mention(commandEvent.userId) + " **You must have custom `" +
-                        this.requiredCustomPermission + "` permissions to run this command.**"
-                };
-            }
-
-            return { canRun: true };
+    /** Tries to run command, and sends an error message if fails */
+    async run(commandEvent: DiscordCommandEvent) {
+        for await (const action of this.tryRunCommandGenerator(commandEvent)) {
+            action.perform(this.bot, commandEvent);
         }
-
-        return { canRun: false };
-    }
-
-    /**
-     * Tests if the commandWord matches, and runs the command if it does.
-     * @param commandEvent the event triggering function
-     * @returns Did the command run OR not have enough permissions to run
-     */
-    async testAndRun(commandEvent: DiscordCommandEvent): Promise<boolean> {
-        let results: TestResults = await this.test(commandEvent);
-        if (results.canRun) {
-            let cleaned: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
-            commandEvent.arguments = cleaned.args;
-            this.tryRunCommand(commandEvent);
-            return true;
-        } else {
-            if (results.reasonCannotRun) {
-                this.bot.client.send(commandEvent.channelId, results.reasonCannotRun);
-                return true;
-            }
-
-            return false;
-        }
-    }
-
-    getErrorAction(commandEvent: DiscordCommandEvent, error: Error) {
-        const errorStr: string = createErrorString(error);
-
-        const messageShort = "An error occured\n```" + error.message;
-        const messageLong =
-            "```An error occured" +
-            "\nCommand: " + this.commandName +
-            "\nEvent: " + inspect(commandEvent, { depth: 3 }) +
-            "\n" + errorStr;
-
-        Logger.warn(messageLong);
-
-        return new ReplySoft(messageShort.slice(0, 1997) + "```");
     }
 
     async *tryRunCommandGenerator(commandEvent: DiscordCommandEvent) {
+        // find arguments in command message, if not already found
+        if (!commandEvent.arguments) {
+            const cleaned = this._getCleanCommandContent(commandEvent.commandContent);
+            commandEvent.arguments = cleaned.args;
+        }
+
+        const results = await this.testPermissions(commandEvent);
+        if (!results.canRun && results.reasonCannotRun) {
+            yield new ReplySoft(results.reasonCannotRun);
+            return;
+        }
+
         try {
             const gen = this.func(commandEvent);
             let result;
@@ -183,27 +96,81 @@ class BotCommand {
         }
     }
 
-    /** Tries to run command, and sends an error message if fails */
-    async tryRunCommand(commandEvent: DiscordCommandEvent) {
-        for await (const action of this.tryRunCommandGenerator(commandEvent)) {
-            action.perform(this.bot, commandEvent);
+    public isCommandEventMatch(commandEvent: DiscordCommandEvent): boolean {
+        let cleanCommandContent: CleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
+
+        return cleanCommandContent.commandContent.startsWith(this.commandName) &&
+            (
+                !cleanCommandContent.nextCharAfterCommand ||
+                whitespaceRegex.test(cleanCommandContent.nextCharAfterCommand)
+            );
+    }
+
+    /**
+     * Returns cleaned command content
+     * @param dirtyContent dirty content to be cleaned
+     * @returns cleaned command content
+     */
+    private _getCleanCommandContent(dirtyContent: string): CleanCommandContent {
+        let trimmed: string = dirtyContent.trimStart();
+        let args: string = trimmed.slice(this.commandName.length + 1); // the +1 is the space after the command
+        let commandContent: string = trimmed.toLowerCase();
+        let nextCharAfterCommand: string = commandContent[this.commandName.length];
+
+        return {
+            commandContent: commandContent,
+            args: args,
+            nextCharAfterCommand: nextCharAfterCommand
+        };
+    }
+
+    private async testPermissions(commandEvent: DiscordCommandEvent) {
+        let permissions: Permissions = await
+            this.bot.permissions.getPermissions_channel(
+                commandEvent.userId,
+                commandEvent.serverId,
+                commandEvent.channelId
+            );
+
+        if (this.noDM && commandEvent.isDM) {
+            return {
+                canRun: false,
+                reasonCannotRun: "You cannot run this command in Direct Messages"
+            };
         }
-        // try {
-        //     const gen = this.func(commandEvent);
-        //     let result;
-        //     do {
-        //         result = await gen.next();
-        //         const action = result.value;
-        //         if (action instanceof Action) {
-        //             await action.perform(this.bot, commandEvent);
-        //         } else if (action) {
-        //             await new ReplySoft(action)
-        //                 .perform(this.bot, commandEvent);
-        //         }
-        //     } while (!result.done);
-        // } catch (error) {
-        //     this.getErrorAction(commandEvent, error as Error);
-        // }
+
+        if (this.requiredDiscordPermission && !permissions.hasDiscord(this.requiredDiscordPermission)) {
+            return {
+                canRun: false,
+                reasonCannotRun: mention(commandEvent.userId) + " **You must have `" +
+                    this.requiredDiscordPermission + "` permissions to run this command.**"
+            };
+        }
+
+        if (this.requiredCustomPermission && !permissions.hasCustom(this.requiredCustomPermission)) {
+            return {
+                canRun: false,
+                reasonCannotRun: mention(commandEvent.userId) + " **You must have custom `" +
+                    this.requiredCustomPermission + "` permissions to run this command.**"
+            };
+        }
+
+        return { canRun: true };
+    }
+
+    private getErrorAction(commandEvent: DiscordCommandEvent, error: Error) {
+        const errorStr: string = createErrorString(error);
+
+        const messageShort = "An error occured\n```" + error.message;
+        const messageLong =
+            "```An error occured" +
+            "\nCommand: " + this.commandName +
+            "\nEvent: " + inspect(commandEvent, { depth: 3 }) +
+            "\n" + errorStr;
+
+        Logger.warn(messageLong);
+
+        return new ReplySoft(messageShort.slice(0, 1997) + "```");
     }
 }
 

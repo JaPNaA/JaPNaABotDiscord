@@ -56,7 +56,7 @@ export default class SlashCommands extends BotPlugin {
                 }
 
                 try {
-                    const gen = matchingCommand.tryRunCommandGenerator({
+                    const event = {
                         username: interaction.user.username,
                         userId: interaction.user.id,
                         channelId: interaction.channelId,
@@ -80,7 +80,9 @@ export default class SlashCommands extends BotPlugin {
                             index: 0,
                             name: "/"
                         }
-                    });
+                    };
+
+                    const gen = matchingCommand.tryRunCommandGenerator(event);
 
                     for await (const action of gen) {
                         await action.performInteraction(this.bot, interaction);

@@ -20,9 +20,9 @@ class CommandDispatcher {
     async dispatchIfIsCommand(commandEvent) {
         let someCommandRan = false;
         for (let i = this.manager.commands.length - 1; i >= 0; i--) {
-            let command = this.manager.commands[i];
-            let ran = await command.testAndRun(commandEvent);
-            if (ran) {
+            const command = this.manager.commands[i];
+            if (command.isCommandEventMatch(commandEvent)) {
+                await command.run(commandEvent);
                 someCommandRan = true;
                 break;
             }
@@ -30,7 +30,7 @@ class CommandDispatcher {
         if (!someCommandRan) {
             // command doesn't exist
             if (this.manager.unknownCommandHandler) {
-                this.manager.unknownCommandHandler.tryRunCommand(commandEvent);
+                this.manager.unknownCommandHandler.run(commandEvent);
             }
             else if (this.bot.config.doAlertCommandDoesNotExist) {
                 this.bot.client.send(commandEvent.channelId, (0, mention_1.default)(commandEvent.userId) + ", that command doesn't exist");

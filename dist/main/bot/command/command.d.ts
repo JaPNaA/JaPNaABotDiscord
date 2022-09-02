@@ -4,25 +4,11 @@ import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
 import { PermissionString } from "discord.js";
-import { Action, ReplySoft } from "../actions/actions.js";
-declare type CleanCommandContent = {
-    /** The cleaned message */
-    commandContent: string;
-    /** Arguments of the command */
-    args: string;
-    /** The character after the command */
-    nextCharAfterCommand: string;
-};
-declare type TestResults = {
-    /** If the command can run or not */
-    canRun: boolean;
-    /** Why it cannot run */
-    reasonCannotRun?: string;
-};
+import { Action } from "../actions/actions.js";
 declare class BotCommand {
-    bot: Bot;
+    private bot;
     /** Function to call when command is called */
-    func: BotCommandCallback;
+    private func;
     /** Custom permission required to run command */
     requiredCustomPermission: string | undefined;
     /** Discord permission required to run command */
@@ -38,27 +24,17 @@ declare class BotCommand {
     /** Name of the plugin that registered this command */
     pluginName: string | undefined;
     constructor(bot: Bot, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions);
+    /** Tries to run command, and sends an error message if fails */
+    run(commandEvent: DiscordCommandEvent): Promise<void>;
+    tryRunCommandGenerator(commandEvent: DiscordCommandEvent): AsyncGenerator<Action, void, unknown>;
+    isCommandEventMatch(commandEvent: DiscordCommandEvent): boolean;
     /**
      * Returns cleaned command content
      * @param dirtyContent dirty content to be cleaned
      * @returns cleaned command content
      */
-    _getCleanCommandContent(dirtyContent: string): CleanCommandContent;
-    /**
-     * Tests if command can be run
-     * @param commandEvent the event to test
-     * @returns Error string
-     */
-    test(commandEvent: DiscordCommandEvent): Promise<TestResults>;
-    /**
-     * Tests if the commandWord matches, and runs the command if it does.
-     * @param commandEvent the event triggering function
-     * @returns Did the command run OR not have enough permissions to run
-     */
-    testAndRun(commandEvent: DiscordCommandEvent): Promise<boolean>;
-    getErrorAction(commandEvent: DiscordCommandEvent, error: Error): ReplySoft;
-    tryRunCommandGenerator(commandEvent: DiscordCommandEvent): AsyncGenerator<Action, void, unknown>;
-    /** Tries to run command, and sends an error message if fails */
-    tryRunCommand(commandEvent: DiscordCommandEvent): Promise<void>;
+    private _getCleanCommandContent;
+    private testPermissions;
+    private getErrorAction;
 }
 export default BotCommand;

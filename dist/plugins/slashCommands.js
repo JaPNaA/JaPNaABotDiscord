@@ -49,7 +49,7 @@ class SlashCommands extends plugin_js_1.default {
                     return;
                 }
                 try {
-                    const gen = matchingCommand.tryRunCommandGenerator({
+                    const event = {
                         username: interaction.user.username,
                         userId: interaction.user.id,
                         channelId: interaction.channelId,
@@ -73,7 +73,8 @@ class SlashCommands extends plugin_js_1.default {
                             index: 0,
                             name: "/"
                         }
-                    });
+                    };
+                    const gen = matchingCommand.tryRunCommandGenerator(event);
                     for await (const action of gen) {
                         await action.performInteraction(this.bot, interaction);
                     }
