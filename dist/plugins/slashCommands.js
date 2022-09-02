@@ -78,6 +78,7 @@ class SlashCommands extends plugin_js_1.default {
                     for await (const action of gen) {
                         await action.performInteraction(this.bot, interaction);
                     }
+                    // prevent 'error' response
                     if (!interaction.replied) {
                         interaction.reply({
                             content: "Ok", ephemeral: true

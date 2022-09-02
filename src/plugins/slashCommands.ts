@@ -88,6 +88,7 @@ export default class SlashCommands extends BotPlugin {
                         await action.performInteraction(this.bot, interaction);
                     }
 
+                    // prevent 'error' response
                     if (!interaction.replied) {
                         interaction.reply({
                             content: "Ok", ephemeral: true
