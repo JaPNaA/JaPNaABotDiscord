@@ -195,8 +195,7 @@ class AutoThread extends plugin_js_1.default {
         this.cooldownCancelFuncs.push(cancelFunc);
     }
     async extractTitleFromMessage(message) {
-        const firstLine = message
-            .replace(/[_\*]/g, "") // remove formatting characters
+        const firstLine = this.removeFormattingCharacters(message)
             .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
             .split("\n").find(e => e.trim());
         // back out of extraction
@@ -207,7 +206,9 @@ class AutoThread extends plugin_js_1.default {
         if (firstLine.length < 25) {
             return firstLine;
         }
-        const extractedTitle = (await this.unMentionify(firstLine)) // swap <@###> -> @username
+        const extractedTitle = this.removeParentheses(// remove text (in parentheses)
+        (await this.unMentionify(firstLine)) // swap <@###> -> @username
+        )
             .split(/\s+/)
             .filter(e => !STOP_WORDS.has(// remove stop words
         e.replace(/\W/g, "").toLowerCase())).join(" ");
@@ -216,6 +217,35 @@ class AutoThread extends plugin_js_1.default {
             return firstLine;
         }
         return extractedTitle;
+    }
+    removeParentheses(str) {
+        let result = "";
+        let depth = 0;
+        let start = 0;
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] === "(") {
+                if (depth === 0) {
+                    result += str.slice(start, i);
+                }
+                depth += 1;
+            }
+            else if (str[i] === ")") {
+                depth -= 1;
+                if (depth === 0) {
+                    start = i + 1;
+                }
+                else if (depth < 0) {
+                    depth = 0;
+                }
+            }
+        }
+        if (depth === 0) {
+            result += str.slice(start);
+        }
+        return result;
+    }
+    removeFormattingCharacters(str) {
+        return str.replace(/(~~|\*\*|\*|__|_)(.+?)\1/g, (_f, formattingChar, content) => formattingChar === "~~" ? "" : content);
     }
     async unMentionify(str) {
         const regex = /<@[!@&]?\d+>/g;
