@@ -54,6 +54,9 @@ export default class AutoThread extends BotPlugin {
     private _onThreadUpdate;
     private addCooldownDoneTimeout;
     private extractTitleFromMessage;
+    private replaceURLsWithTitles;
+    private getWebsiteTitle;
+    private isWhitelistedWebsite;
     private removeParentheses;
     private removeFormattingCharacters;
     private unMentionify;

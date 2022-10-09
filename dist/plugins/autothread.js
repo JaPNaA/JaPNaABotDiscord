@@ -9,6 +9,9 @@ const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const getSnowflakeNum_js_1 = __importDefault(require("../main/utils/getSnowflakeNum.js"));
 const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
+const https_1 = __importDefault(require("https"));
+const stopWords_js_1 = require("./autothread_assets/stopWords.js");
+const websiteWhitelist_js_1 = require("./autothread_assets/websiteWhitelist.js");
 /**
  * Autothread plugin; automatically makes threads
  */
@@ -195,28 +198,102 @@ class AutoThread extends plugin_js_1.default {
         this.cooldownCancelFuncs.push(cancelFunc);
     }
     async extractTitleFromMessage(message) {
-        const firstLine = this.removeFormattingCharacters(message)
+        const firstLine = message
             .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
-            .split("\n").find(e => e.trim());
-        // back out of extraction
-        if (!firstLine) {
+            .split("\n").find(e => e.trim()) || ""; // get first line
+        const cleanFirstLine = this.removeFormattingCharacters(firstLine);
+        // back out of extraction -- no first line
+        if (!cleanFirstLine) {
             return message;
         }
+        const firstLineURLReplaced = this.removeFormattingCharacters(await this.replaceURLsWithTitles(firstLine));
         // already short enough -- no need for further extraction
-        if (firstLine.length < 25) {
-            return firstLine;
+        if (firstLineURLReplaced.length < 25) {
+            return firstLineURLReplaced;
         }
         const extractedTitle = this.removeParentheses(// remove text (in parentheses)
-        (await this.unMentionify(firstLine)) // swap <@###> -> @username
+        (await this.unMentionify(firstLineURLReplaced)) // swap <@###> -> @username
         )
             .split(/\s+/)
-            .filter(e => !STOP_WORDS.has(// remove stop words
+            .filter(e => !stopWords_js_1.stopWords.has(// remove stop words
         e.replace(/\W/g, "").toLowerCase())).join(" ");
         // extracted nothing, back out
         if (extractedTitle.length === 0) {
             return firstLine;
         }
         return extractedTitle;
+    }
+    async replaceURLsWithTitles(text) {
+        const textWithUrl = new TextWithURL(text);
+        const urls = textWithUrl.getURLs();
+        const promises = [];
+        for (const url of urls) {
+            promises.push(this.getWebsiteTitle(url)
+                .then(title => {
+                if (title) {
+                    textWithUrl.replace(url, title.trim());
+                }
+            }));
+        }
+        await Promise.all(promises);
+        return textWithUrl.toString();
+    }
+    async getWebsiteTitle(url) {
+        const urlParsed = new URL(url);
+        if (urlParsed.protocol !== 'https:') {
+            return;
+        }
+        if (!this.isWhitelistedWebsite(urlParsed)) {
+            return;
+        }
+        const promise = new Promise(resolve => {
+            let text = "";
+            let gotTitle = false;
+            function checkTitle() {
+                const title = text.match(/<title>(.+)<\/title>/);
+                if (title) {
+                    resolve(title[1]);
+                    gotTitle = true;
+                }
+            }
+            function end(response) {
+                checkTitle();
+                response.destroy();
+                if (!gotTitle) {
+                    resolve("");
+                    gotTitle = true;
+                }
+            }
+            const request = https_1.default.get(url, response => {
+                if (response.statusCode !== 200) {
+                    resolve("");
+                    return;
+                }
+                response.on("data", chunk => {
+                    text += chunk.toString();
+                    checkTitle();
+                    if (gotTitle) {
+                        response.destroy();
+                    }
+                });
+                response.on("end", () => end(response));
+                response.on("error", () => end(response));
+                response.on("pause", () => end(response));
+                response.on("close", () => end(response));
+            });
+            request.on("error", error => logger_js_1.default.log(error));
+        });
+        promise.catch(err => { logger_js_1.default.log(err); });
+        return promise;
+    }
+    isWhitelistedWebsite(url) {
+        const parts = url.hostname.split(".");
+        for (let i = parts.length; i >= 2; i--) {
+            if (websiteWhitelist_js_1.websiteWhitelist.has(parts.slice(-i).join("."))) {
+                return true;
+            }
+        }
+        return false;
     }
     removeParentheses(str) {
         let result = "";
@@ -312,133 +389,48 @@ class AutoThread extends plugin_js_1.default {
     }
 }
 exports.default = AutoThread;
-const STOP_WORDS = new Set(`i
-me
-my
-myself
-we
-our
-ours
-ourselves
-you
-your
-yours
-yourself
-yourselves
-he
-him
-his
-himself
-she
-her
-hers
-herself
-it
-its
-itself
-they
-them
-their
-theirs
-themselves
-what
-which
-who
-whom
-this
-that
-these
-those
-am
-is
-are
-was
-were
-be
-been
-being
-have
-has
-had
-having
-do
-does
-did
-doing
-a
-an
-the
-and
-but
-if
-or
-because
-as
-until
-while
-of
-at
-by
-for
-with
-about
-against
-between
-into
-through
-during
-before
-after
-above
-below
-to
-from
-up
-down
-in
-out
-on
-off
-over
-under
-again
-further
-then
-once
-here
-there
-when
-where
-why
-how
-all
-any
-both
-each
-few
-more
-most
-other
-some
-such
-no
-nor
-not
-only
-own
-same
-so
-than
-too
-very
-s
-t
-can
-will
-just
-don
-should
-now
-literally
-bruh
-lol`.split("\n"));
+class TextWithURL {
+    parts;
+    constructor(text) {
+        this.parts = [];
+        const urlRegex = /https?:\/\/[^\s]+/g;
+        let lastIndex = 0;
+        for (let match; match = urlRegex.exec(text);) {
+            this.parts.push(text.slice(lastIndex, match.index));
+            this.parts.push({
+                original: match[0],
+                replacement: new URL(match[0]).hostname || match[0]
+            });
+            lastIndex = match.index + match[0].length;
+        }
+        this.parts.push(text.slice(lastIndex));
+    }
+    getURLs() {
+        const urls = [];
+        for (const part of this.parts) {
+            if (typeof part === "object") {
+                urls.push(part.original);
+            }
+        }
+        return urls;
+    }
+    replace(original, replacement) {
+        for (const part of this.parts) {
+            if (typeof part === "object" && part.original === original) {
+                part.replacement = replacement;
+            }
+        }
+    }
+    toString() {
+        let str = "";
+        for (const part of this.parts) {
+            if (typeof part === "string") {
+                str += part;
+            }
+            else {
+                str += part.replacement;
+            }
+        }
+        return str;
+    }
+}
