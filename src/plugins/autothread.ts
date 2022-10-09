@@ -10,10 +10,13 @@ import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
 import { EventControls } from "../main/bot/events/eventHandlers.js";
 import fakeMessage from "../main/utils/fakeMessage.js";
 import mention from "../main/utils/str/mention.js";
-import https, { Agent } from "https";
+import https from "https";
 import { stopWords } from "./autothread_assets/stopWords.js";
 import { websiteWhitelist } from "./autothread_assets/websiteWhitelist.js";
 import { IncomingMessage } from "http";
+import wait from "../main/utils/async/wait.js";
+
+const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 
 /**
  * Autothread plugin; automatically makes threads
@@ -294,6 +297,7 @@ export default class AutoThread extends BotPlugin {
                 response.on("error", () => end(response));
                 response.on("pause", () => end(response));
                 response.on("close", () => end(response));
+                wait(WEBSITE_TITLE_GET_TIMEOUT).then(() => end(response));
             });
             request.on("error", error => Logger.log(error));
         });

@@ -12,6 +12,8 @@ const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 const https_1 = __importDefault(require("https"));
 const stopWords_js_1 = require("./autothread_assets/stopWords.js");
 const websiteWhitelist_js_1 = require("./autothread_assets/websiteWhitelist.js");
+const wait_js_1 = __importDefault(require("../main/utils/async/wait.js"));
+const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 /**
  * Autothread plugin; automatically makes threads
  */
@@ -280,6 +282,7 @@ class AutoThread extends plugin_js_1.default {
                 response.on("error", () => end(response));
                 response.on("pause", () => end(response));
                 response.on("close", () => end(response));
+                (0, wait_js_1.default)(WEBSITE_TITLE_GET_TIMEOUT).then(() => end(response));
             });
             request.on("error", error => logger_js_1.default.log(error));
         });
