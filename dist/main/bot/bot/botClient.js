@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const discord_js_1 = require("discord.js");
 const logger_js_1 = __importDefault(require("../../utils/logger.js"));
 class PresenceSetter {
     client;
@@ -201,8 +202,18 @@ class BotClient {
     getServer(serverId) {
         return this.client.guilds.fetch(serverId);
     }
-    getUser(userId) {
-        return this.client.users.fetch(userId);
+    async getUser(userId) {
+        try {
+            return await this.client.users.fetch(userId);
+        }
+        catch (err) {
+            if (err instanceof discord_js_1.DiscordAPIError) {
+                return undefined;
+            }
+            else {
+                throw err;
+            }
+        }
     }
     async getMessageFromChannel(channelId, messageId) {
         const channel = await this.getChannel(channelId);

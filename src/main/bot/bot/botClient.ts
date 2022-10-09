@@ -1,4 +1,4 @@
-import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel, MessageOptions, MessageEmbedOptions, DMChannel } from "discord.js";
+import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel, MessageOptions, MessageEmbedOptions, DMChannel, DiscordAPIError } from "discord.js";
 
 import Logger from "../../utils/logger.js";
 import MessageObject from "../types/messageObject.js";
@@ -229,8 +229,16 @@ class BotClient {
         return this.client.guilds.fetch(serverId);
     }
 
-    getUser(userId: string): Promise<User | undefined> {
-        return this.client.users.fetch(userId);
+    async getUser(userId: string): Promise<User | undefined> {
+        try {
+            return await this.client.users.fetch(userId);
+        } catch (err) {
+            if (err instanceof DiscordAPIError) {
+                return undefined;
+            } else {
+                throw err;
+            }
+        }
     }
 
     async getMessageFromChannel(channelId: string, messageId: string): Promise<Message> {
