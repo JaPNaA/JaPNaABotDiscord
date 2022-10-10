@@ -28,6 +28,8 @@ abstract class Reply extends Action {
 /**
  * Replies to a message. 'Soft' means the bot will not always use the 'reply'
  * function unless necessary.
+ * 
+ * Intended for general response messages
  */
 export class ReplySoft extends Reply {
     public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
@@ -66,6 +68,8 @@ export class ReplySoft extends Reply {
 /**
  * Replies to a message privately. Only the runner will
  * see the message.
+ * 
+ * Intended for sending private information
  */
 export class ReplyPrivate extends Reply {
     public perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
@@ -84,6 +88,9 @@ export class ReplyPrivate extends Reply {
 /**
  * Replies to a message. Will hide the message from others
  * if convenient for the user.
+ * 
+ * Intended for error messages, 'empty' messages, messages everyone
+ * doesn't need to see.
  */
 export class ReplyUnimportant extends Reply {
     public perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
@@ -103,6 +110,9 @@ export class ReplyUnimportant extends Reply {
 
 /**
  * Sends a message in a channel.
+ * 
+ * Intended for messages not triggered by a command directly.
+ * Ex. reminders, routine messages, announcements, etc.
  */
 export class Send extends Action {
     constructor(
@@ -125,6 +135,9 @@ export class Send extends Action {
 
 /**
  * Sends a message to a user privately (through DMs)
+ * 
+ * Intended for private messages not triggered by a command directly.
+ * Ex. reminders, routine messages, announcements, etc.
  */
 export class SendPrivate extends Action {
     constructor(
