@@ -41,7 +41,7 @@ class BotCommand {
     /** Tries to run command, and sends an error message if fails */
     async run(commandEvent) {
         for await (const action of this.tryRunCommandGenerator(commandEvent)) {
-            action.perform(this.bot, commandEvent);
+            await action.perform(this.bot, commandEvent);
         }
     }
     async *tryRunCommandGenerator(commandEvent) {
