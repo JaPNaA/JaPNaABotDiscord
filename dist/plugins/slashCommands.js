@@ -21,7 +21,7 @@ class SlashCommands extends plugin_js_1.default {
         const slashCommands = [];
         for (const command of this.bot.defaultPrecommand.commandManager.commands) {
             const slashCommand = new builders_1.SlashCommandBuilder()
-                .setName(command.commandName.replace(/\s/g, "_"));
+                .setName(this.cleanCommandName(command.commandName));
             if (command.help) {
                 slashCommand.setDescription((0, ellipsisize_js_1.default)(command.help.description, 100));
             }
@@ -36,58 +36,59 @@ class SlashCommands extends plugin_js_1.default {
             body: slashCommands
         }).catch(err => console.log(err));
         this.bot.client.client.on("interactionCreate", async (interaction) => {
-            if (interaction.isCommand()) {
-                if (!interaction.member) {
-                    return;
+            if (!interaction.isCommand()) {
+                return;
+            }
+            if (!interaction.user) {
+                return;
+            }
+            const matchingCommand = this.findMatchingCommand(interaction.commandName);
+            if (!matchingCommand) {
+                interaction.reply({
+                    ephemeral: true,
+                    content: "Error: command not found"
+                });
+                return;
+            }
+            try {
+                const event = {
+                    username: interaction.user.username,
+                    userId: interaction.user.id,
+                    channelId: interaction.channelId,
+                    serverId: interaction.guildId || "",
+                    messageId: interaction.id,
+                    message: "",
+                    commandContent: "",
+                    createdTimestamp: interaction.createdTimestamp,
+                    isDM: !interaction.guildId,
+                    arguments: interaction.options.getString("args") || "",
+                    originalEvent: {
+                        author: (await this.bot.client.getUser(interaction.user.id)),
+                        channel: (await this.bot.client.getChannel(interaction.channelId)),
+                        content: "",
+                        guild: interaction.guildId ? (await this.bot.client.getServer(interaction.guildId)) : null,
+                        id: interaction.id,
+                        createdTimestamp: interaction.createdTimestamp
+                    },
+                    precommandName: {
+                        precommand: this.precommand,
+                        index: 0,
+                        name: "/"
+                    }
+                };
+                const gen = matchingCommand.tryRunCommandGenerator(event);
+                for await (const action of gen) {
+                    await action.performInteraction(this.bot, interaction);
                 }
-                const matchingCommand = this.findMatchingCommand(interaction.commandName);
-                if (!matchingCommand) {
+                // prevent 'error' response
+                if (!interaction.replied) {
                     interaction.reply({
-                        ephemeral: true,
-                        content: "Error: command not found"
+                        content: "Ok", ephemeral: true
                     });
-                    return;
                 }
-                try {
-                    const event = {
-                        username: interaction.user.username,
-                        userId: interaction.user.id,
-                        channelId: interaction.channelId,
-                        serverId: interaction.guildId || "",
-                        messageId: interaction.id,
-                        message: "",
-                        commandContent: "",
-                        createdTimestamp: interaction.createdTimestamp,
-                        isDM: !interaction.guildId,
-                        arguments: interaction.options.getString("args") || "",
-                        originalEvent: {
-                            author: (await this.bot.client.getUser(interaction.member.user.id)),
-                            channel: (await this.bot.client.getChannel(interaction.channelId)),
-                            content: "",
-                            guild: (await this.bot.client.getServer(interaction.guildId)),
-                            id: interaction.id,
-                            createdTimestamp: interaction.createdTimestamp
-                        },
-                        precommandName: {
-                            precommand: this.precommand,
-                            index: 0,
-                            name: "/"
-                        }
-                    };
-                    const gen = matchingCommand.tryRunCommandGenerator(event);
-                    for await (const action of gen) {
-                        await action.performInteraction(this.bot, interaction);
-                    }
-                    // prevent 'error' response
-                    if (!interaction.replied) {
-                        interaction.reply({
-                            content: "Ok", ephemeral: true
-                        });
-                    }
-                }
-                catch (err) {
-                    logger_js_1.default.error(err);
-                }
+            }
+            catch (err) {
+                logger_js_1.default.error(err);
             }
         });
     }
@@ -100,7 +101,7 @@ class SlashCommands extends plugin_js_1.default {
         return null;
     }
     strReplaceSpaces(str) {
-        return str.replace(/\s/g, "_");
+        return str.replace(/\s/g, "");
     }
     cleanCommandName(str) {
         return this.strReplaceSpaces(str).toLowerCase();

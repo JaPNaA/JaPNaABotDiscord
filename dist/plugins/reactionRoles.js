@@ -31,21 +31,21 @@ class ReactionRoles extends plugin_1.default {
         }
         const server = await this.bot.client.getServer(event.serverId);
         if (!server) {
-            throw new Error("Must run in server.");
+            return new actions_1.ReplyUnimportant("You must run this command in server.");
         }
         const self = await this.bot.client.getMemberFromServer(this.bot.client.id, event.serverId);
         if (!self) {
-            throw new Error("Bot not in server");
+            return new actions_1.ReplyUnimportant("Error: The bot is not in server.");
         }
         if (server.roles.comparePositions(self.roles.highest, rollId) <= 0) {
-            return "Bot cannot assign roll higher than bot's highest roll";
+            return new actions_1.ReplyUnimportant("Bot cannot assign roll higher than bot's highest roll");
         }
         const sender = await this.bot.client.getMemberFromServer(event.userId, event.serverId);
         if (!sender) {
-            throw new Error("Sender not in server");
+            return new actions_1.ReplyUnimportant("Error: Sender not in server.");
         }
         if (server.roles.comparePositions(sender.roles.highest, rollId) <= 0) {
-            return "You cannot assign roll higher than your highest roll";
+            return new actions_1.ReplyUnimportant("You cannot assign roll higher than your highest roll");
         }
         const reply = new actions_1.ReplySoft({
             content: `React with ${emoji} to get the <@&${rollId}> roll.`,
