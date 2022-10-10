@@ -1,10 +1,9 @@
-import { DeleteMessageSoft, ReplySoft } from "../main/bot/actions/actions";
+import { DeleteMessageSoft, ReplySoft, ReplyUnimportant } from "../main/bot/actions/actions";
 import Bot from "../main/bot/bot/bot";
 import CommandArguments from "../main/bot/command/commandArguments";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum";
-import toOne from "../main/utils/toOne";
 
 const SCROLL_EMOJI = "\ud83d\udcdc";
 
@@ -39,17 +38,17 @@ export default class ReactionRoles extends BotPlugin {
         }
 
         const server = await this.bot.client.getServer(event.serverId);
-        if (!server) { throw new Error("Must run in server."); }
+        if (!server) { return new ReplyUnimportant("You must run this command in server."); }
         const self = await this.bot.client.getMemberFromServer(this.bot.client.id!, event.serverId);
-        if (!self) { throw new Error("Bot not in server"); }
+        if (!self) { return new ReplyUnimportant("Error: The bot is not in server."); }
         if (server.roles.comparePositions(self.roles.highest, rollId) <= 0) {
-            return "Bot cannot assign roll higher than bot's highest roll";
+            return new ReplyUnimportant("Bot cannot assign roll higher than bot's highest roll");
         }
 
         const sender = await this.bot.client.getMemberFromServer(event.userId, event.serverId);
-        if (!sender) { throw new Error("Sender not in server"); }
+        if (!sender) { return new ReplyUnimportant("Error: Sender not in server."); }
         if (server.roles.comparePositions(sender.roles.highest, rollId) <= 0) {
-            return "You cannot assign roll higher than your highest roll";
+            return new ReplyUnimportant("You cannot assign roll higher than your highest roll");
         }
 
         const reply = new ReplySoft({
