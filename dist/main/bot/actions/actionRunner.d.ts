@@ -6,7 +6,7 @@ export declare class ActionRunner {
     private bot;
     constructor(bot: Bot);
     /** Tries to run command, and sends an error message if fails */
-    run(generator: AsyncGenerator<MessageOrAction>, messageEvent: DiscordMessageEvent, interaction?: Interaction): Promise<void>;
+    run(generator: AsyncGenerator<MessageOrAction> | Generator<MessageOrAction>, messageEvent: DiscordMessageEvent, interaction?: Interaction): Promise<void>;
     private generatorWrapper;
     private getErrorAction;
 }

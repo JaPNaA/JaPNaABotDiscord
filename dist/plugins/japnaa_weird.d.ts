@@ -31,7 +31,7 @@ declare class JapnaaWeird extends BotPlugin {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    onmessageHandler_lol(event: DiscordMessageEvent, eventControls: EventControls): Promise<void>;
+    onmessageHandler_lol(event: DiscordMessageEvent, eventControls: EventControls): AsyncGenerator<string, void, unknown>;
     private _countL$wl;
     _isUserMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean>;
     _start(): void;

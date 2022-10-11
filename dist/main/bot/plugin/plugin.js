@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const precommand_1 = require("../precommand/precommand");
 const pluginConfig_1 = __importDefault(require("./pluginConfig"));
+const actionRunner_1 = require("../actions/actionRunner");
 class BotPlugin {
     bot;
     pluginName;
@@ -48,6 +49,13 @@ class BotPlugin {
         else {
             return precommandManager.createAndRegister(precommand);
         }
+    }
+    _registerMessageHandler(func) {
+        const actionRunner = new actionRunner_1.ActionRunner(this.bot);
+        const boundFunc = func.bind(this);
+        this.bot.events.message.addHandler(async (messageEvent, eventControls) => {
+            await actionRunner.run(boundFunc(messageEvent, eventControls), messageEvent);
+        });
     }
 }
 exports.default = BotPlugin;

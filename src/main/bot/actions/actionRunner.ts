@@ -11,7 +11,7 @@ export class ActionRunner {
     constructor(private bot: Bot) { }
 
     /** Tries to run command, and sends an error message if fails */
-    async run(generator: AsyncGenerator<MessageOrAction>, messageEvent: DiscordMessageEvent, interaction?: Interaction) {
+    async run(generator: AsyncGenerator<MessageOrAction> | Generator<MessageOrAction>, messageEvent: DiscordMessageEvent, interaction?: Interaction) {
         const wrapped = this.generatorWrapper(generator, messageEvent);
         for await (const action of wrapped) {
             if (interaction) {
@@ -22,7 +22,7 @@ export class ActionRunner {
         }
     }
 
-    private async *generatorWrapper(generator: AsyncGenerator<MessageOrAction>, messageEvent: DiscordMessageEvent) {
+    private async *generatorWrapper(generator: AsyncGenerator<MessageOrAction> | Generator<MessageOrAction>, messageEvent: DiscordMessageEvent) {
         try {
             let result;
             do {

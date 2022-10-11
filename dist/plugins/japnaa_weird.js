@@ -10,7 +10,7 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 class JapnaaWeird extends plugin_js_1.default {
     lolRegexp = /(\W|^)(([l1|\\!/\uff4c]|(\ud83c\uddf1))+)+[\W_]*((h|w)*([a@&\*eiouy0.=]|(\ud83c\udd7e\ufe0f)|(\ud83c\uddf4))+(h|w)*)[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))+(\W|$)/i;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
-    l$wlRegexp = /.(ЛЮЉ)|(([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ])[\W_]*([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ]))/gi;
+    l$wlRegexp = /(theword)|.(ЛЮЉ)|(([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ])[\W_]*([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ]))/gi;
     constructor(bot) {
         super(bot);
         this.pluginName = "japnaaweird";
@@ -50,14 +50,13 @@ class JapnaaWeird extends plugin_js_1.default {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    async onmessageHandler_lol(event, eventControls) {
+    async *onmessageHandler_lol(event, eventControls) {
         if (!await this._isUserMessage(this.bot, event)) {
             return;
         }
         const numL$wl = this._countL$wl(event.message);
         if (numL$wl) {
-            let str = "no ".repeat(numL$wl);
-            this.bot.client.send(event.channelId, str);
+            yield "no ".repeat(numL$wl);
             // ignore commands with matching l$wl
             if (event.precommandName) {
                 eventControls.preventSystemNext();
@@ -65,7 +64,7 @@ class JapnaaWeird extends plugin_js_1.default {
         }
         else if (this.lolRegexp.test(event.message) && !event.precommandName) {
             // ^ contains valid 'lol' and is not command
-            this.bot.client.send(event.channelId, "lol");
+            yield "lol";
         }
     }
     _countL$wl(str) {
@@ -86,7 +85,7 @@ class JapnaaWeird extends plugin_js_1.default {
                 description: "Replies with a message in memory of 'outfit based on weather bot.' If JaPNaA feels like it some day, they may reimplement the behavior in JaPNaABot."
             }
         });
-        this.bot.events.message.addHandler(this.onmessageHandler_lol.bind(this));
+        this._registerMessageHandler(this.onmessageHandler_lol);
     }
     _stop() {
         // do nothing

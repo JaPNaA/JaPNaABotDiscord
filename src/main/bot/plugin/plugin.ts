@@ -6,6 +6,10 @@ import BotCommandCallback from "../command/commandCallback";
 import Bot from "../bot/bot";
 import PrecommandCallback from "../precommand/precommandCallback";
 import PluginConfig from "./pluginConfig";
+import MessageOrAction from "../types/messageOrAction";
+import DiscordMessageEvent from "../events/discordMessageEvent";
+import { ActionRunner } from "../actions/actionRunner";
+import { EventControls } from "../events/eventHandlers";
 
 abstract class BotPlugin {
     public pluginName: string;
@@ -87,6 +91,14 @@ abstract class BotPlugin {
         } else {
             return precommandManager.createAndRegister(precommand);
         }
+    }
+
+    protected _registerMessageHandler(func: (event: DiscordMessageEvent, eventControls: EventControls) => Generator<MessageOrAction> | AsyncGenerator<MessageOrAction>) {
+        const actionRunner = new ActionRunner(this.bot);
+        const boundFunc = func.bind(this);
+        this.bot.events.message.addHandler(async (messageEvent, eventControls) => {
+            await actionRunner.run(boundFunc(messageEvent, eventControls), messageEvent);
+        });
     }
 }
 

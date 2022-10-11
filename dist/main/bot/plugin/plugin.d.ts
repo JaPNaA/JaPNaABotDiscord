@@ -5,6 +5,9 @@ import BotCommandCallback from "../command/commandCallback";
 import Bot from "../bot/bot";
 import PrecommandCallback from "../precommand/precommandCallback";
 import PluginConfig from "./pluginConfig";
+import MessageOrAction from "../types/messageOrAction";
+import DiscordMessageEvent from "../events/discordMessageEvent";
+import { EventControls } from "../events/eventHandlers";
 declare abstract class BotPlugin {
     protected bot: Bot;
     pluginName: string;
@@ -33,5 +36,6 @@ declare abstract class BotPlugin {
     protected _registerUnknownCommandHandler(precommand: PrecommandWithoutCallback, func: BotCommandCallback): void;
     protected _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
     protected _registerPrecommand(precommand: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
+    protected _registerMessageHandler(func: (event: DiscordMessageEvent, eventControls: EventControls) => Generator<MessageOrAction> | AsyncGenerator<MessageOrAction>): void;
 }
 export default BotPlugin;
