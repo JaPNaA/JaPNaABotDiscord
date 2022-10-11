@@ -32,7 +32,7 @@ class Lobby {
             this._addPlayer(userId);
         }
         catch (err) {
-            this.handleJoinError(err, userId);
+            this.bot.client.send(this.parentGame.channelId, this.getJoinErrorString(err, userId));
         }
     }
     removeAllPlayers() {
@@ -62,7 +62,7 @@ class Lobby {
             return (0, mention_1.default)(userId) + " has joined " + this.parentGame.gameName + "!";
         }
         catch (err) {
-            this.handleJoinError(err, userId);
+            return this.getJoinErrorString(err, userId);
         }
     }
     _addPlayer(userId) {
@@ -74,8 +74,8 @@ class Lobby {
                 throw new DMAlreadyLockedError();
             }
             this.parentGame.parentPlugin._lockAndGetDMHandle(userId, this.parentGame);
-            this.players.push(userId);
         }
+        this.players.push(userId);
         if (this.settings.autoStart) {
             if ((this.settings.maxPlayers === undefined ||
                 this.players.length <= this.settings.maxPlayers) && (this.settings.minPlayers === undefined ||
@@ -84,13 +84,16 @@ class Lobby {
             }
         }
     }
-    handleJoinError(err, userId) {
+    getJoinErrorString(err, userId) {
         if (err instanceof AlreadyJoinedError) {
-            this.bot.client.send(this.parentGame.channelId, (0, mention_1.default)(userId) + ", you're already in the game!");
+            return (0, mention_1.default)(userId) + ", you're already in the game!";
         }
         else if (err instanceof DMAlreadyLockedError) {
-            this.bot.client.send(this.parentGame.channelId, "Failed to add " + (0, mention_1.default)(userId) +
-                ". You're in another game which also requires DMs!");
+            return "Failed to add " + (0, mention_1.default)(userId) +
+                ". You're in another game which also requires DMs!";
+        }
+        else {
+            return "Error: " + err.message;
         }
     }
     *leaveCommand(event) {

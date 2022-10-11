@@ -17,7 +17,7 @@ declare class Lobby {
     private joinCommand;
     private addPlayerGetAnnounceString;
     private _addPlayer;
-    private handleJoinError;
+    private getJoinErrorString;
     private leaveCommand;
     private listPlayersCommand;
     private startCommand;

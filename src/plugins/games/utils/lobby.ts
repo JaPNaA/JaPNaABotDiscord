@@ -33,7 +33,9 @@ class Lobby {
         try {
             this._addPlayer(userId);
         } catch (err) {
-            this.handleJoinError(err as Error, userId);
+            this.bot.client.send(this.parentGame.channelId,
+                this.getJoinErrorString(err as Error, userId)
+            );
         }
     }
 
@@ -67,7 +69,7 @@ class Lobby {
             this._addPlayer(userId);
             return mention(userId) + " has joined " + this.parentGame.gameName + "!";
         } catch (err) {
-            this.handleJoinError(err as Error, userId);
+            return this.getJoinErrorString(err as Error, userId);
         }
     }
 
@@ -100,14 +102,14 @@ class Lobby {
         }
     }
 
-    private handleJoinError(err: Error, userId: string) {
+    private getJoinErrorString(err: Error, userId: string) {
         if (err instanceof AlreadyJoinedError) {
-            this.bot.client.send(this.parentGame.channelId, mention(userId) + ", you're already in the game!");
+            return mention(userId) + ", you're already in the game!";
         } else if (err instanceof DMAlreadyLockedError) {
-            this.bot.client.send(this.parentGame.channelId,
-                "Failed to add " + mention(userId) +
-                ". You're in another game which also requires DMs!"
-            );
+            return "Failed to add " + mention(userId) +
+                ". You're in another game which also requires DMs!";
+        } else {
+            return "Error: " + err.message;
         }
     }
 
