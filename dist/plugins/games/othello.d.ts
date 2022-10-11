@@ -2,12 +2,16 @@ import Bot from "../../main/bot/bot/bot";
 import DiscordCommandEvent from "../../main/bot/events/discordCommandEvent";
 import Games from "../games";
 import Game from "./game";
+import Lobby from "./utils/lobby";
 export declare class Othello extends Game {
     private initer;
+    lobby: Lobby;
     logic: Logic;
+    players?: string[];
+    started: boolean;
     constructor(bot: Bot, parentPlugin: Games, channelId: string, initer: string);
-    exec(event: DiscordCommandEvent): Generator<never, void, unknown>;
-    _start(): void;
+    exec(event: DiscordCommandEvent): Generator<string, string | undefined, unknown>;
+    _start(): Promise<void>;
     _stop(): void;
 }
 declare class Logic {

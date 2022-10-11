@@ -4,30 +4,44 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Othello = void 0;
+const mention_1 = __importDefault(require("../../main/utils/str/mention"));
 const game_1 = __importDefault(require("./game"));
+const lobby_1 = __importDefault(require("./utils/lobby"));
 class Othello extends game_1.default {
     initer;
-    // public lobby: Lobby;
+    lobby;
     logic = new Logic();
+    players;
+    started = false;
     constructor(bot, parentPlugin, channelId, initer) {
         super(bot, parentPlugin, channelId);
         this.initer = initer;
-        // this.gameName = "Othello";
-        // this.lobby = new Lobby(this, bot);
-        // this.lobby.setSettings({
-        //     description: "Board game where the sandwiched pieces become yours.",
-        //     dmLock: true,
-        //     maxPlayers: 2,
-        //     minPlayers: 1,
-        //     autoStart: true
-        // });
+        this.gameName = "Othello";
+        this.lobby = new lobby_1.default(this, bot);
+        this.lobby.setSettings({
+            description: "Board game where the sandwiched pieces become yours.",
+            maxPlayers: 2,
+            minPlayers: 1,
+            autoStart: true
+        });
     }
     *exec(event) {
+        if (!this.players || !this.started) {
+            return "Game not yet started";
+        }
         const moveRegex = /([a-h])([1-8])/i;
         const match = event.commandContent.match(moveRegex);
         if (!match) {
-            this.bot.client.send(event.channelId, "Unknown command");
-            return;
+            return "Unknown command";
+        }
+        if (this.players.length > 1 &&
+            event.userId !== (this.logic.board.darkTurn ? this.players[0] : this.players[1])) {
+            if (this.players.includes(event.userId)) {
+                return "Not your turn, " + (0, mention_1.default)(event.userId) + "!";
+            }
+            else {
+                return "You're not in the game, " + (0, mention_1.default)(event.userId) + "!";
+            }
         }
         const [_, xStr, yStr] = match;
         const x = xStr.toUpperCase().charCodeAt(0) - "A".charCodeAt(0);
@@ -36,19 +50,19 @@ class Othello extends game_1.default {
             this.logic.place(x, y);
         }
         catch (err) {
-            this.bot.client.send(event.channelId, err + "");
-            return;
+            return String(err);
         }
-        this.bot.client.send(this.channelId, "```" + this.logic.board.toString() + "```");
+        yield "```" + this.logic.board.toString() + "```";
     }
-    _start() {
+    async _start() {
+        this.lobby.addPlayer(this.initer);
+        this.players = await this.lobby.getPlayers();
         this.bot.client.send(this.channelId, "```" + this.logic.board.toString() + "```");
         this._registerUnknownCommandHandler(this.commandManager, this.exec);
-        // this.lobby.addPlayer(this.initer);
-        // this.lobby.getPlayers();
+        this.started = true;
     }
     _stop() {
-        // this.lobby.removeAllPlayers();
+        this.lobby.removeAllPlayers();
     }
 }
 exports.Othello = Othello;
