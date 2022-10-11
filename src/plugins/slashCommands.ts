@@ -7,8 +7,8 @@ import { SlashCommandBuilder } from "@discordjs/builders";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
 import { TextBasedChannel } from "discord.js";
 import { PrecommandWithCallback } from "../main/bot/precommand/precommand.js";
-import { ReplySoft } from "../main/bot/actions/actions.js";
 import Logger from "../main/utils/logger.js";
+import { ActionRunner } from "../main/bot/actions/actionRunner.js";
 
 export default class SlashCommands extends BotPlugin {
     private precommand = new PrecommandWithCallback(this.bot, ["/"], () => { });
@@ -41,7 +41,7 @@ export default class SlashCommands extends BotPlugin {
             {
                 body: slashCommands
             }
-        ).catch(err => console.log(err));
+        ).catch(err => Logger.error(err));
 
         this.bot.client.client.on("interactionCreate", async interaction => {
             if (!interaction.isCommand()) { return; }
@@ -84,10 +84,9 @@ export default class SlashCommands extends BotPlugin {
                 };
 
                 const gen = matchingCommand.tryRunCommandGenerator(event);
+                const actionRunner = new ActionRunner(this.bot);
 
-                for await (const action of gen) {
-                    await action.performInteraction(this.bot, interaction);
-                }
+                await actionRunner.run(gen, event, interaction);
 
                 // prevent 'error' response
                 if (!interaction.replied) {

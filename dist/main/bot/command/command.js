@@ -3,11 +3,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const logger_js_1 = __importDefault(require("../../utils/logger.js"));
-const createErrorString_1 = __importDefault(require("../../utils/str/createErrorString"));
-const util_1 = require("util");
 const mention_1 = __importDefault(require("../../utils/str/mention"));
 const actions_js_1 = require("../actions/actions.js");
+const actionRunner_js_1 = require("../actions/actionRunner.js");
 const whitespaceRegex = /\s/;
 class BotCommand {
     bot;
@@ -27,6 +25,7 @@ class BotCommand {
     commandName;
     /** Name of the plugin that registered this command */
     pluginName;
+    actionRunner;
     constructor(bot, commandName, pluginName, func, options) {
         this.bot = bot;
         this.func = func;
@@ -37,12 +36,11 @@ class BotCommand {
         this.group = options && options.group;
         this.commandName = commandName.toLowerCase();
         this.pluginName = pluginName;
+        this.actionRunner = new actionRunner_js_1.ActionRunner(bot);
     }
     /** Tries to run command, and sends an error message if fails */
     async run(commandEvent) {
-        for await (const action of this.tryRunCommandGenerator(commandEvent)) {
-            await action.perform(this.bot, commandEvent);
-        }
+        this.actionRunner.run(this.tryRunCommandGenerator(commandEvent), commandEvent);
     }
     async *tryRunCommandGenerator(commandEvent) {
         // find arguments in command message, if not already found
@@ -55,23 +53,7 @@ class BotCommand {
             yield new actions_js_1.ReplyUnimportant(results.reasonCannotRun);
             return;
         }
-        try {
-            const gen = this.func(commandEvent);
-            let result;
-            do {
-                result = await gen.next();
-                const action = result.value;
-                if (action instanceof actions_js_1.Action) {
-                    yield action;
-                }
-                else if (action) {
-                    yield new actions_js_1.ReplySoft(action);
-                }
-            } while (!result.done);
-        }
-        catch (error) {
-            yield this.getErrorAction(commandEvent, error);
-        }
+        yield yield* this.func(commandEvent);
     }
     isCommandEventMatch(commandEvent) {
         let cleanCommandContent = this._getCleanCommandContent(commandEvent.commandContent);
@@ -118,16 +100,6 @@ class BotCommand {
             };
         }
         return { canRun: true };
-    }
-    getErrorAction(commandEvent, error) {
-        const errorStr = (0, createErrorString_1.default)(error);
-        const messageShort = "An error occured\n```" + error.message;
-        const messageLong = "```An error occured" +
-            "\nCommand: " + this.commandName +
-            "\nEvent: " + (0, util_1.inspect)(commandEvent, { depth: 3 }) +
-            "\n" + errorStr;
-        logger_js_1.default.warn(messageLong);
-        return new actions_js_1.ReplySoft(messageShort.slice(0, 1997) + "```");
     }
 }
 exports.default = BotCommand;

@@ -1,6 +1,3 @@
-import Logger from "../../utils/logger.js";
-import createErrorString from "../../utils/str/createErrorString";
-import { inspect } from "util";
 import DiscordCommandEvent from "../events/discordCommandEvent";
 import BotCommandCallback from "./commandCallback.js";
 import Permissions from "../../types/permissions.js";
@@ -9,7 +6,8 @@ import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
 import { PermissionString } from "discord.js";
-import { Action, ReplySoft, ReplyUnimportant } from "../actions/actions.js";
+import { ReplyUnimportant } from "../actions/actions.js";
+import { ActionRunner } from "../actions/actionRunner.js";
 
 type CleanCommandContent = {
     /** The cleaned message */
@@ -47,6 +45,8 @@ class BotCommand {
     /** Name of the plugin that registered this command */
     pluginName: string | undefined;
 
+    private actionRunner: ActionRunner;
+
     constructor(bot: Bot, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions) {
         this.bot = bot;
         this.func = func;
@@ -57,13 +57,12 @@ class BotCommand {
         this.group = options && options.group;
         this.commandName = commandName.toLowerCase();
         this.pluginName = pluginName;
+        this.actionRunner = new ActionRunner(bot);
     }
 
     /** Tries to run command, and sends an error message if fails */
     async run(commandEvent: DiscordCommandEvent) {
-        for await (const action of this.tryRunCommandGenerator(commandEvent)) {
-            await action.perform(this.bot, commandEvent);
-        }
+        this.actionRunner.run(this.tryRunCommandGenerator(commandEvent), commandEvent);
     }
 
     async *tryRunCommandGenerator(commandEvent: DiscordCommandEvent) {
@@ -79,21 +78,7 @@ class BotCommand {
             return;
         }
 
-        try {
-            const gen = this.func(commandEvent);
-            let result;
-            do {
-                result = await gen.next();
-                const action = result.value;
-                if (action instanceof Action) {
-                    yield action;
-                } else if (action) {
-                    yield new ReplySoft(action);
-                }
-            } while (!result.done);
-        } catch (error) {
-            yield this.getErrorAction(commandEvent, error as Error);
-        }
+        yield yield* this.func(commandEvent);
     }
 
     public isCommandEventMatch(commandEvent: DiscordCommandEvent): boolean {
@@ -156,21 +141,6 @@ class BotCommand {
         }
 
         return { canRun: true };
-    }
-
-    private getErrorAction(commandEvent: DiscordCommandEvent, error: Error) {
-        const errorStr: string = createErrorString(error);
-
-        const messageShort = "An error occured\n```" + error.message;
-        const messageLong =
-            "```An error occured" +
-            "\nCommand: " + this.commandName +
-            "\nEvent: " + inspect(commandEvent, { depth: 3 }) +
-            "\n" + errorStr;
-
-        Logger.warn(messageLong);
-
-        return new ReplySoft(messageShort.slice(0, 1997) + "```");
     }
 }
 

@@ -4,7 +4,6 @@ import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
 import { PermissionString } from "discord.js";
-import { Action } from "../actions/actions.js";
 declare class BotCommand {
     private bot;
     /** Function to call when command is called */
@@ -23,10 +22,11 @@ declare class BotCommand {
     commandName: string;
     /** Name of the plugin that registered this command */
     pluginName: string | undefined;
+    private actionRunner;
     constructor(bot: Bot, commandName: string, pluginName: string, func: BotCommandCallback, options?: BotCommandOptions);
     /** Tries to run command, and sends an error message if fails */
     run(commandEvent: DiscordCommandEvent): Promise<void>;
-    tryRunCommandGenerator(commandEvent: DiscordCommandEvent): AsyncGenerator<Action, void, unknown>;
+    tryRunCommandGenerator(commandEvent: DiscordCommandEvent): AsyncGenerator<any, void, unknown>;
     isCommandEventMatch(commandEvent: DiscordCommandEvent): boolean;
     /**
      * Returns cleaned command content
@@ -35,6 +35,5 @@ declare class BotCommand {
      */
     private _getCleanCommandContent;
     private testPermissions;
-    private getErrorAction;
 }
 export default BotCommand;

@@ -10,6 +10,7 @@ const builders_1 = require("@discordjs/builders");
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
 const precommand_js_1 = require("../main/bot/precommand/precommand.js");
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
+const actionRunner_js_1 = require("../main/bot/actions/actionRunner.js");
 class SlashCommands extends plugin_js_1.default {
     precommand = new precommand_js_1.PrecommandWithCallback(this.bot, ["/"], () => { });
     constructor(bot) {
@@ -34,7 +35,7 @@ class SlashCommands extends plugin_js_1.default {
         const rest = new rest_1.REST({ version: '9' }).setToken(this.bot.client.client.token);
         rest.put(v9_1.Routes.applicationCommands(this.bot.client.id), {
             body: slashCommands
-        }).catch(err => console.log(err));
+        }).catch(err => logger_js_1.default.error(err));
         this.bot.client.client.on("interactionCreate", async (interaction) => {
             if (!interaction.isCommand()) {
                 return;
@@ -77,9 +78,8 @@ class SlashCommands extends plugin_js_1.default {
                     }
                 };
                 const gen = matchingCommand.tryRunCommandGenerator(event);
-                for await (const action of gen) {
-                    await action.performInteraction(this.bot, interaction);
-                }
+                const actionRunner = new actionRunner_js_1.ActionRunner(this.bot);
+                await actionRunner.run(gen, event, interaction);
                 // prevent 'error' response
                 if (!interaction.replied) {
                     interaction.reply({
