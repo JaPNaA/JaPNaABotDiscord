@@ -81,8 +81,9 @@ class Lobby {
                 throw new DMAlreadyLockedError();
             }
             this.parentGame.parentPlugin._lockAndGetDMHandle(userId, this.parentGame);
-            this.players.push(userId);
         }
+
+        this.players.push(userId);
 
         if (this.settings.autoStart) {
             if (
