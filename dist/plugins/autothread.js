@@ -11,7 +11,7 @@ const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js")
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 const https_1 = __importDefault(require("https"));
 const stopWords_js_1 = require("./autothread_assets/stopWords.js");
-const websiteWhitelist_js_1 = require("./autothread_assets/websiteWhitelist.js");
+const websiteWhitelist_js_1 = __importDefault(require("./autothread_assets/websiteWhitelist.js"));
 const wait_js_1 = __importDefault(require("../main/utils/async/wait.js"));
 const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 /**
@@ -241,7 +241,8 @@ class AutoThread extends plugin_js_1.default {
         return textWithUrl.toString();
     }
     async getWebsiteTitle(url) {
-        const urlParsed = new URL(url);
+        const unmappedUrl = this.unmapRedirects(url);
+        const urlParsed = new URL(unmappedUrl);
         if (urlParsed.protocol !== 'https:') {
             return;
         }
@@ -266,7 +267,7 @@ class AutoThread extends plugin_js_1.default {
                     gotTitle = true;
                 }
             }
-            const request = https_1.default.get(url, response => {
+            const request = https_1.default.get(unmappedUrl, response => {
                 if (response.statusCode !== 200) {
                     resolve("");
                     return;
@@ -289,10 +290,20 @@ class AutoThread extends plugin_js_1.default {
         promise.catch(err => { logger_js_1.default.log(err); });
         return promise;
     }
+    unmapRedirects(url) {
+        const urlParsed = new URL(url);
+        const redirectFunc = websiteWhitelist_js_1.default.redirects[urlParsed.hostname];
+        if (redirectFunc) {
+            return redirectFunc(url);
+        }
+        else {
+            return url;
+        }
+    }
     isWhitelistedWebsite(url) {
         const parts = url.hostname.split(".");
         for (let i = parts.length; i >= 2; i--) {
-            if (websiteWhitelist_js_1.websiteWhitelist.has(parts.slice(-i).join("."))) {
+            if (websiteWhitelist_js_1.default.whitelist.has(parts.slice(-i).join("."))) {
                 return true;
             }
         }

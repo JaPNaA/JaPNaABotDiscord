@@ -12,7 +12,7 @@ import fakeMessage from "../main/utils/fakeMessage.js";
 import mention from "../main/utils/str/mention.js";
 import https from "https";
 import { stopWords } from "./autothread_assets/stopWords.js";
-import { websiteWhitelist } from "./autothread_assets/websiteWhitelist.js";
+import websites from "./autothread_assets/websiteWhitelist.js";
 import { IncomingMessage } from "http";
 import wait from "../main/utils/async/wait.js";
 
@@ -263,7 +263,8 @@ export default class AutoThread extends BotPlugin {
     }
 
     private async getWebsiteTitle(url: string): Promise<string | undefined> {
-        const urlParsed = new URL(url);
+        const unmappedUrl = this.unmapRedirects(url);
+        const urlParsed = new URL(unmappedUrl);
         if (urlParsed.protocol !== 'https:') { return; }
         if (!this.isWhitelistedWebsite(urlParsed)) { return; }
 
@@ -285,7 +286,7 @@ export default class AutoThread extends BotPlugin {
                 if (!gotTitle) { resolve(""); gotTitle = true; }
             }
 
-            const request = https.get(url, response => {
+            const request = https.get(unmappedUrl, response => {
                 if (response.statusCode !== 200) { resolve(""); return; }
 
                 response.on("data", chunk => {
@@ -306,10 +307,20 @@ export default class AutoThread extends BotPlugin {
         return promise;
     }
 
+    private unmapRedirects(url: string): string {
+        const urlParsed = new URL(url);
+        const redirectFunc = websites.redirects[urlParsed.hostname];
+        if (redirectFunc) {
+            return redirectFunc(url);
+        } else {
+            return url;
+        }
+    }
+
     private isWhitelistedWebsite(url: URL): boolean {
         const parts = url.hostname.split(".");
         for (let i = parts.length; i >= 2; i--) {
-            if (websiteWhitelist.has(parts.slice(-i).join("."))) {
+            if (websites.whitelist.has(parts.slice(-i).join("."))) {
                 return true;
             }
         }

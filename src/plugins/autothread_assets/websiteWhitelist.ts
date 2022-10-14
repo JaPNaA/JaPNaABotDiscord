@@ -1,6 +1,6 @@
 // From Alexa Top Websites (from https://www.expireddomains.net/alexa-top-websites/, accessed 2022-10-09)
 // Modified by JaPNaA
-const websiteWhitelist = new Set(`google.com
+const whitelist = new Set(`google.com
 youtube.com
 baidu.com
 bilibili.com
@@ -1002,4 +1002,14 @@ gazeta.pl
 pcauto.com.cn
 github.io`.split("\n"));
 
-export { websiteWhitelist };
+const redirects: { [x: string]: ((url: string) => string) | undefined } = {
+    "youtu.be": (url: string) => {
+        const match = url.match(/youtu\.be\/([^/]+)$/);
+        if (!match) { return url; }
+        return `https://www.youtube.com/watch?v=${match[1]}`;
+    }
+}
+
+const websites = { whitelist, redirects };
+
+export default websites;

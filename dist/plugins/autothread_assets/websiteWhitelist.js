@@ -1,9 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.websiteWhitelist = void 0;
 // From Alexa Top Websites (from https://www.expireddomains.net/alexa-top-websites/, accessed 2022-10-09)
 // Modified by JaPNaA
-const websiteWhitelist = new Set(`google.com
+const whitelist = new Set(`google.com
 youtube.com
 baidu.com
 bilibili.com
@@ -1004,4 +1003,14 @@ gazeta.pl
 66law.cn
 pcauto.com.cn
 github.io`.split("\n"));
-exports.websiteWhitelist = websiteWhitelist;
+const redirects = {
+    "youtu.be": (url) => {
+        const match = url.match(/youtu\.be\/([^/]+)$/);
+        if (!match) {
+            return url;
+        }
+        return `https://www.youtube.com/watch?v=${match[1]}`;
+    }
+};
+const websites = { whitelist, redirects };
+exports.default = websites;
