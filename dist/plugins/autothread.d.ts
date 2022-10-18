@@ -56,6 +56,7 @@ export default class AutoThread extends BotPlugin {
     private extractTitleFromMessage;
     private replaceURLsWithTitles;
     private getWebsiteTitle;
+    private parseOrRemoveHTMLEntities;
     private unmapRedirects;
     private isWhitelistedWebsite;
     private removeParentheses;

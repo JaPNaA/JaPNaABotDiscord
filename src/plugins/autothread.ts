@@ -263,6 +263,7 @@ export default class AutoThread extends BotPlugin {
     }
 
     private async getWebsiteTitle(url: string): Promise<string | undefined> {
+        const that = this;
         const unmappedUrl = this.unmapRedirects(url);
         const urlParsed = new URL(unmappedUrl);
         if (urlParsed.protocol !== 'https:') { return; }
@@ -275,7 +276,7 @@ export default class AutoThread extends BotPlugin {
             function checkTitle() {
                 const title = text.match(/<title>(.+)<\/title>/);
                 if (title) {
-                    resolve(title[1]);
+                    resolve(that.parseOrRemoveHTMLEntities(title[1]));
                     gotTitle = true;
                 }
             }
@@ -305,6 +306,12 @@ export default class AutoThread extends BotPlugin {
         promise.catch(err => { Logger.log(err); });
 
         return promise;
+    }
+
+    private parseOrRemoveHTMLEntities(str: string) {
+        return str
+            .replace(/&#(\d+?);/g, substr => String.fromCharCode(parseInt(substr.slice(2, -1))))
+            .replace(/&(\w+?);/g, "");
     }
 
     private unmapRedirects(url: string): string {

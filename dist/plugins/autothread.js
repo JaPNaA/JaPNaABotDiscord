@@ -241,6 +241,7 @@ class AutoThread extends plugin_js_1.default {
         return textWithUrl.toString();
     }
     async getWebsiteTitle(url) {
+        const that = this;
         const unmappedUrl = this.unmapRedirects(url);
         const urlParsed = new URL(unmappedUrl);
         if (urlParsed.protocol !== 'https:') {
@@ -255,7 +256,7 @@ class AutoThread extends plugin_js_1.default {
             function checkTitle() {
                 const title = text.match(/<title>(.+)<\/title>/);
                 if (title) {
-                    resolve(title[1]);
+                    resolve(that.parseOrRemoveHTMLEntities(title[1]));
                     gotTitle = true;
                 }
             }
@@ -289,6 +290,11 @@ class AutoThread extends plugin_js_1.default {
         });
         promise.catch(err => { logger_js_1.default.log(err); });
         return promise;
+    }
+    parseOrRemoveHTMLEntities(str) {
+        return str
+            .replace(/&#(\d+?);/g, substr => String.fromCharCode(parseInt(substr.slice(2, -1))))
+            .replace(/&(\w+?);/g, "");
     }
     unmapRedirects(url) {
         const urlParsed = new URL(url);
