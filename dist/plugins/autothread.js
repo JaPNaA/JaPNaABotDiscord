@@ -87,6 +87,9 @@ class AutoThread extends plugin_js_1.default {
             });
         }
     }
+    async *getThreadTitleCommand(event) {
+        yield "`" + (await this.extractTitleFromMessage(event.arguments)).replace("`", "") + "`";
+    }
     async messageHandler(event, eventControls) {
         const config = await this.config.getAllUserSettingsInChannel(event.channelId);
         if (!config.get("enabled")) {
@@ -202,6 +205,7 @@ class AutoThread extends plugin_js_1.default {
     async extractTitleFromMessage(message) {
         const firstLine = message
             .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
+            .replace(/<:([a-z_]+):\d{7,}>/gi, (_, emojiName) => emojiName)
             .split("\n").find(e => e.trim()) || ""; // get first line
         const cleanFirstLine = this.removeFormattingCharacters(firstLine);
         // back out of extraction -- no first line
@@ -396,6 +400,12 @@ class AutoThread extends plugin_js_1.default {
             },
             noDM: true,
             requiredDiscordPermission: "MANAGE_THREADS"
+        });
+        this._registerDefaultCommand("get thread title", this.getThreadTitleCommand, {
+            group: "Testing",
+            help: {
+                description: "Generates the title of a thread started by a given message."
+            }
         });
         this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
     }
