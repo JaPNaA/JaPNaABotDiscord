@@ -174,10 +174,16 @@ export default class AnnounceVCJoin extends BotPlugin {
         // Discord doesn't send (mobile) notifications for thread creation
         channelState.thread = undefined;
         channelState.announcementMessage = toOne(await this.bot.client.send(
-            announceInChannelId, {
+            announceInChannelId,
+            {
+                allowedMentions: { users: [] },
+                content: `${state.member && state.member.displayName} joined ${channel.name}`
+            }
+        ));
+        channelState.announcementMessage.edit({
             allowedMentions: { users: [] },
             content: `${state.member && mention(state.member?.id)} joined <#${channelId}>`
-        }));
+        });
 
         if (config.get("makeThread") && !announceInChannel.isThread()) {
             const thread = await announceInChannel.threads.create({
@@ -222,7 +228,7 @@ export default class AnnounceVCJoin extends BotPlugin {
                         await channelState.announcementMessage.delete();
                         channelState.announcementMessage = undefined;
                     }
-    
+
                     await channelState.thread.delete("Lonely call");
                     channelState.thread = undefined;
                 }

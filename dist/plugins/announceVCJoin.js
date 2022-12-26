@@ -172,8 +172,12 @@ class AnnounceVCJoin extends plugin_js_1.default {
         channelState.thread = undefined;
         channelState.announcementMessage = (0, allUtils_js_1.toOne)(await this.bot.client.send(announceInChannelId, {
             allowedMentions: { users: [] },
-            content: `${state.member && (0, mention_js_1.default)(state.member?.id)} joined <#${channelId}>`
+            content: `${state.member && state.member.displayName} joined ${channel.name}`
         }));
+        channelState.announcementMessage.edit({
+            allowedMentions: { users: [] },
+            content: `${state.member && (0, mention_js_1.default)(state.member?.id)} joined <#${channelId}>`
+        });
         if (config.get("makeThread") && !announceInChannel.isThread()) {
             const thread = await announceInChannel.threads.create({
                 name: `call in ${channel.name} at ${this._getNowFormatted()}`,
