@@ -12,14 +12,14 @@ class PresenceSetter {
     }
     setGame(name) {
         this.client.user?.setPresence({
-            activities: [{ name: name || undefined, type: 0 /* PLAYING */ }]
+            activities: [{ name: name || undefined, type: 0 /* ActivityTypes.PLAYING */ }]
         });
     }
     setWatch(name) {
         this.client.user?.setPresence({
             activities: [{
                     name: name || undefined,
-                    type: 3 /* WATCHING */
+                    type: 3 /* ActivityTypes.WATCHING */
                 }]
         });
     }
@@ -27,7 +27,7 @@ class PresenceSetter {
         this.client.user?.setPresence({
             activities: [{
                     name: name || undefined,
-                    type: 2 /* LISTENING */
+                    type: 2 /* ActivityTypes.LISTENING */
                 }]
         });
     }
@@ -35,7 +35,7 @@ class PresenceSetter {
         this.client.user?.setPresence({
             activities: [{
                     name: name || undefined,
-                    type: 1 /* STREAMING */
+                    type: 1 /* ActivityTypes.STREAMING */
                 }]
         });
     }

@@ -35,7 +35,7 @@
     "strip-json-comments": "^2.0.1"
   },
   "devDependencies": {
-    "@types/node": "^17.0.8",
+    "@types/node": "^17.0.45",
     "@types/strip-json-comments": "0.0.30"
   }
 }

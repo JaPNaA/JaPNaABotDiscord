@@ -17,7 +17,7 @@ export declare class ChessHistory {
     toString(): string;
     private moveToString;
 }
-export declare type MoveData = NormalMoveData | CastleMoveData;
+export type MoveData = NormalMoveData | CastleMoveData;
 interface _MoveData {
     isCastle: boolean;
     check: boolean;

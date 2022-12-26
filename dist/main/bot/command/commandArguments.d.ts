@@ -2,7 +2,7 @@
  * Class allowing flexible and complex unix-like command argument parsing
  * intended to replace utils/str/stringToArgs.ts
  */
-declare type Checker = RegExp | ((str: string) => boolean);
+type Checker = RegExp | ((str: string) => boolean);
 export default class CommandArguments {
     private args;
     constructor(args: string);

@@ -5,7 +5,7 @@ import PlayerAction from "./action";
 import PresidentsMain from "../game";
 import MessageType from "../messageType";
 import MessageEvent from "../messageEvent";
-declare type MessageCallback = (event: MessageEvent) => void;
+type MessageCallback = (event: MessageEvent) => void;
 declare class Player {
     bot: Bot;
     userId: string;

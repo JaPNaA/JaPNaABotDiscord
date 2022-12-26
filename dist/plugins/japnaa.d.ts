@@ -5,7 +5,7 @@ import { JSONObject } from "../main/types/jsonObject.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import { Action, ReplyThreadSoft, SendPrivate } from "../main/bot/actions/actions";
-declare type SpamCallback = () => void;
+type SpamCallback = () => void;
 /**
  * Commonly used commands made by me, JaPNaA
  */

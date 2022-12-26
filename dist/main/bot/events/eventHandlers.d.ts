@@ -1,4 +1,4 @@
-export declare type EventHandler<T> = (data: T, eventControls: EventControls) => any;
+export type EventHandler<T> = (data: T, eventControls: EventControls) => any;
 export interface EventControls {
     /**
      * Prevents lower-priority handlers from running.

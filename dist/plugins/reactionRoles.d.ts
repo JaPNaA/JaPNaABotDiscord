@@ -5,7 +5,7 @@ import BotPlugin from "../main/bot/plugin/plugin";
 export default class ReactionRoles extends BotPlugin {
     private messageReactionRoleMap;
     constructor(bot: Bot);
-    createReactionRoll(event: DiscordCommandEvent): AsyncGenerator<ReplySoft | DeleteMessageSoft, "Please specify a roll via mention." | ReplyUnimportant | undefined, unknown>;
+    createReactionRoll(event: DiscordCommandEvent): AsyncGenerator<ReplySoft | DeleteMessageSoft, ReplyUnimportant | "Please specify a roll via mention." | undefined, unknown>;
     _start(): void;
     private getMemberFromChannel;
     private isSameEmoji;

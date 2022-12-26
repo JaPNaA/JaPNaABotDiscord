@@ -38,7 +38,7 @@ declare class Default extends BotPlugin {
     /**
      * Sends general help information (all commands)
      */
-    _sendGeneralHelp(event: DiscordCommandEvent): AsyncGenerator<ReplyUnimportant | ReplyPrivate | {
+    _sendGeneralHelp(event: DiscordCommandEvent): AsyncGenerator<ReplyPrivate | ReplyUnimportant | {
         embeds: object[];
     }, void, unknown>;
     /**
@@ -60,19 +60,19 @@ declare class Default extends BotPlugin {
     /**
      * Sends a help embed about a command
      */
-    _sendHelpAboutCommand(event: DiscordCommandEvent, command: string, help: BotCommandHelpFull): Generator<ReplyUnimportant | ReplyPrivate | {
+    _sendHelpAboutCommand(event: DiscordCommandEvent, command: string, help: BotCommandHelpFull): Generator<ReplyPrivate | ReplyUnimportant | {
         embeds: object[];
     }, void, unknown>;
     /**
      * Sends help about a command, checks if the command and command help exists
      */
-    _sendSpecificHelp(event: DiscordCommandEvent, command: string): Generator<ReplyUnimportant | ReplyPrivate | {
+    _sendSpecificHelp(event: DiscordCommandEvent, command: string): Generator<ReplyPrivate | ReplyUnimportant | {
         embeds: object[];
     }, void, unknown>;
     /**
      * Pretends to recieve a message from soneone else
      */
-    help(event: DiscordCommandEvent): AsyncGenerator<ReplyUnimportant | ReplyPrivate | {
+    help(event: DiscordCommandEvent): AsyncGenerator<ReplyPrivate | ReplyUnimportant | {
         embeds: object[];
     }, void, unknown>;
     /**
