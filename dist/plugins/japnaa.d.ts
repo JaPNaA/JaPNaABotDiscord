@@ -4,7 +4,7 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import { JSONObject } from "../main/types/jsonObject.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
-import { Action, ReplyThreadSoft, SendPrivate } from "../main/bot/actions/actions";
+import { Action, ReplyThreadSoft, ReplyUnimportant, SendPrivate } from "../main/bot/actions/actions";
 type SpamCallback = () => void;
 /**
  * Commonly used commands made by me, JaPNaA
@@ -104,9 +104,12 @@ declare class Japnaa extends BotPlugin {
      */
     tell(event: DiscordCommandEvent): AsyncGenerator<string | SendPrivate, void, unknown>;
     /**
-     * Create a thread and pretend to recieve the message in the thread
+     * This command has two behaviours.
+     *
+     * 1. With argument: Create a thread and pretend to recieve the message (defined by argument) in the thread.
+     * 2. No argument: Create a thread from the last message
      */
-    thread(event: DiscordCommandEvent): AsyncGenerator<ReplyThreadSoft, void, unknown>;
+    thread(event: DiscordCommandEvent): AsyncGenerator<ReplyThreadSoft, ReplyUnimportant | undefined, unknown>;
     _stop(): void;
     _start(): void;
 }

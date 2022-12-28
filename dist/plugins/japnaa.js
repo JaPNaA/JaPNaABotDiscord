@@ -397,19 +397,35 @@ class Japnaa extends plugin_js_1.default {
         }
     }
     /**
-     * Create a thread and pretend to recieve the message in the thread
+     * This command has two behaviours.
+     *
+     * 1. With argument: Create a thread and pretend to recieve the message (defined by argument) in the thread.
+     * 2. No argument: Create a thread from the last message
      */
     async *thread(event) {
         const message = event.arguments;
-        const thread = new actions_1.ReplyThreadSoft((0, ellipsisize_1.default)(message, 100));
-        yield thread;
-        this.bot.rawEventAdapter.onMessage((0, fakeMessage_1.default)({
-            author: (await this.bot.client.getUser(event.userId)),
-            channel: thread.getThread(),
-            content: message,
-            guild: (await this.bot.client.getServer(event.serverId)),
-            id: event.messageId
-        }));
+        if (message.trim()) {
+            const thread = new actions_1.ReplyThreadSoft((0, ellipsisize_1.default)(message, 100));
+            yield thread;
+            this.bot.rawEventAdapter.onMessage((0, fakeMessage_1.default)({
+                author: (await this.bot.client.getUser(event.userId)),
+                channel: thread.getThread(),
+                content: message,
+                guild: (await this.bot.client.getServer(event.serverId)),
+                id: event.messageId
+            }));
+        }
+        else {
+            const channel = await this.bot.client.getChannel(event.channelId);
+            if (channel?.isText() && channel.lastMessage && !channel.lastMessage.hasThread) {
+                yield new actions_1.ReplyThreadSoft((0, ellipsisize_1.default)(channel.lastMessage.content, 100) || "Untitled", {
+                    startMessage: channel.lastMessage
+                });
+            }
+            else {
+                return new actions_1.ReplyUnimportant("You must supply a message.");
+            }
+        }
     }
     _stop() {
         this._stopAllSpam();
@@ -544,9 +560,10 @@ class Japnaa extends plugin_js_1.default {
         const precommand = this.bot.precommandManager.precommands[0].names[0] || "!";
         this._registerDefaultCommand("thread", this.thread, {
             help: {
-                description: "Creates a thread with your message as title. If your message is a command, the bot act as if you sent that message in the thread.",
+                description: "This command has two behaviours. (1) Creates a thread with your message as the title. If your message is a command, the bot acts as if you sent that message in the thread. (2) If your message is empty, the bot will create a thread from the last message.",
                 examples: [
-                    [`thread ${precommand}echo a`, `Creates a thread with title "${precommand}echo a" then, the bot will send "a" in the thread`]
+                    [`thread ${precommand}echo a`, `Creates a thread with title "${precommand}echo a" then, the bot will send "a" in the thread`],
+                    ["thread", "Creates a thread from the last message in the channel. *Only useful when used as a slash command.* (Does nothing if already in thread.)"]
                 ]
             }
         });
