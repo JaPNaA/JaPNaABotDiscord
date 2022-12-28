@@ -191,8 +191,14 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
     client = new DISCORD.Client({
         intents: [
             Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES,
-            Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_VOICE_STATES,
-            Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+            Intents.FLAGS.DIRECT_MESSAGES,
+            // todo: come up with a system for plugins to register intents
+            // required by announceVCJoin
+            Intents.FLAGS.GUILD_VOICE_STATES,
+            // required by reactionRoles
+            Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+            // required by activityTracker
+            Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES
         ],
         partials: ["CHANNEL", "MESSAGE", "REACTION"]
     });

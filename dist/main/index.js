@@ -197,8 +197,14 @@ function start(apiToken, botConfig, pathToMemoryFile) {
     client = new discord_js_1.default.Client({
         intents: [
             discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_MESSAGES,
-            discord_js_1.Intents.FLAGS.DIRECT_MESSAGES, discord_js_1.Intents.FLAGS.GUILD_VOICE_STATES,
-            discord_js_1.Intents.FLAGS.GUILD_MESSAGE_REACTIONS
+            discord_js_1.Intents.FLAGS.DIRECT_MESSAGES,
+            // todo: come up with a system for plugins to register intents
+            // required by announceVCJoin
+            discord_js_1.Intents.FLAGS.GUILD_VOICE_STATES,
+            // required by reactionRoles
+            discord_js_1.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+            // required by activityTracker
+            discord_js_1.Intents.FLAGS.GUILD_MEMBERS, discord_js_1.Intents.FLAGS.GUILD_PRESENCES
         ],
         partials: ["CHANNEL", "MESSAGE", "REACTION"]
     });

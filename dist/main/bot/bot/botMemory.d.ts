@@ -20,6 +20,10 @@ declare class Memory {
      * @param important write after remember?
      */
     write(namespace: string, key: string, value: string | number | object | undefined, important?: boolean): void;
+    /**
+     * Marks the memory changed, allowing a writeOut on the next writeOut_auto
+     */
+    markDirty(): void;
     get(namespace: string, key: string): any | null;
     /**
      * Writes memory to disk

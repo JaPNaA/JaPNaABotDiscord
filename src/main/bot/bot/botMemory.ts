@@ -36,6 +36,13 @@ class Memory {
         }
     }
 
+    /**
+     * Marks the memory changed, allowing a writeOut on the next writeOut_auto
+     */
+    markDirty() {
+        this.memoryChanged = true;
+    }
+
     get(namespace: string, key: string): any | null {
         if (!this.memory[namespace]) {
             return null;
