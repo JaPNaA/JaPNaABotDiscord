@@ -110,6 +110,10 @@ declare class Japnaa extends BotPlugin {
      * 2. No argument: Create a thread from the last message
      */
     thread(event: DiscordCommandEvent): AsyncGenerator<ReplyThreadSoft, ReplyUnimportant | undefined, unknown>;
+    /**
+     * Recieves each message in a command separately
+     */
+    multi(event: DiscordCommandEvent): AsyncGenerator<never, void, unknown>;
     _stop(): void;
     _start(): void;
 }

@@ -427,6 +427,27 @@ class Japnaa extends plugin_js_1.default {
             }
         }
     }
+    /**
+     * Recieves each message in a command separately
+     */
+    async *multi(event) {
+        let args = event.arguments.split("\n");
+        if (args.length === 1) {
+            args = event.arguments.split(/;\s+/g);
+        }
+        for (const submessage of args) {
+            if (!submessage.trim()) {
+                continue;
+            }
+            this.bot.rawEventAdapter.onMessage((0, fakeMessage_1.default)({
+                author: (await this.bot.client.getUser(event.userId)),
+                channel: (await this.bot.client.getChannel(event.channelId)),
+                content: submessage,
+                guild: (await this.bot.client.getServer(event.serverId)),
+                id: event.messageId
+            }));
+        }
+    }
     _stop() {
         this._stopAllSpam();
     }
@@ -564,6 +585,15 @@ class Japnaa extends plugin_js_1.default {
                 examples: [
                     [`thread ${precommand}echo a`, `Creates a thread with title "${precommand}echo a" then, the bot will send "a" in the thread`],
                     ["thread", "Creates a thread from the last message in the channel. *Only useful when used as a slash command.* (Does nothing if already in thread.)"]
+                ]
+            }
+        });
+        this._registerDefaultCommand("multi", this.multi, {
+            help: {
+                description: "Treats each line in the argument as a separate message (treats ';' as a line separator if there are no new lines).",
+                examples: [
+                    [`multi ${precommand}echo a\n${precommand}echo b`, "Tells the bot to say 'a', then 'b'"],
+                    [`multi ${precommand}echo a; ${precommand}echo b`, "Tells the bot to say 'a', then 'b'"]
                 ]
             }
         });
