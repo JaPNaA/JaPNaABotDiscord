@@ -1,4 +1,5 @@
 import { GuildMember, Message, TextChannel, ThreadAutoArchiveDuration, ThreadChannel, VoiceChannel, VoiceState } from "discord.js";
+import { ReplyUnimportant } from "../main/bot/actions/actions.js";
 import Bot from "../main/bot/bot/bot.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 
@@ -60,6 +61,14 @@ export default class AnnounceVCJoin extends BotPlugin {
         wasNotLonelyCall?: boolean
     }> = new Map();
 
+    /**
+     * Call threads as assigned by command `set call thread`.
+     * 
+     * key: Server or VoiceChannel id;
+     * value: ThreadChannel
+     */
+    private callThreadAssignments: Map<string, ThreadChannel> = new Map();
+
     private _voiceStateUpdateHandler?: any;
 
     constructor(bot: Bot) {
@@ -99,7 +108,41 @@ export default class AnnounceVCJoin extends BotPlugin {
                 }
             }
         }
+    }
 
+    public async *set_call_thread(event: DiscordCommandEvent) {
+        const channel = await this.bot.client.getChannel(event.channelId);
+        if (!channel || !channel.isText()) { throw new Error("Channel not found or is not text-based"); }
+
+        let thread: ThreadChannel | undefined = undefined;
+        let wasRunInThread = false;
+        if (channel.isThread()) {
+            thread = channel;
+            wasRunInThread = true;
+        } else if (channel instanceof TextChannel) {
+            thread = channel.threads.cache.last();
+        }
+
+        if (thread === undefined) {
+            return new ReplyUnimportant("Cannot find thread. If this is a text thread, make sure there is an active thread in this channel. Or, try running this command in a thread.");
+        }
+
+        let targetId = event.serverId;
+        let isTargetServer = true;
+        const voiceChannelId = getSnowflakeNum(event.arguments);
+        if (voiceChannelId) {
+            targetId = voiceChannelId;
+            isTargetServer = false;
+        }
+
+        const existingAssignment = this.callThreadAssignments.get(targetId);
+        if (existingAssignment && existingAssignment.id === thread.id) {
+            this.callThreadAssignments.delete(targetId);
+            return "Unassigned " + (wasRunInThread ? "this thread" : "the latest thread") + " as the call thread.";
+        }
+
+        this.callThreadAssignments.set(targetId, thread);
+        return "Assigned the next call in " + (isTargetServer ? "this server" : `<#${targetId}>`) + " to " + (wasRunInThread ? "this thread" : "the latest thread") + ".";
     }
 
     private async _onVoiceStateUpdate(oldState: VoiceState, newState: VoiceState) {
@@ -138,19 +181,36 @@ export default class AnnounceVCJoin extends BotPlugin {
 
         if (channel.members.size !== 1) { return; }  // first person to join
 
+        // DELAY PHASE
         if (channelState.isWaitingForDelay) { return; } // cancel if channel is already waiting for delay
         channelState.isWaitingForDelay = true;
         await this._wait(config.get("delay") * 1000); // check still in after delay
         channelState.isWaitingForDelay = false;
 
-        if (channel.members.size <= 0) { return; } // person left
+        if (channel.members.size <= 0) { return; } // person left: cancel announcement
 
         const announceInChannel = await this.bot.client.getChannel(announceInChannelId) as TextChannel;
         if (!announceInChannel?.isText()) { return; }
 
+        // ASSIGNED THREAD CHECK
+        let assignedThread: ThreadChannel | undefined = undefined;
+        if (this.callThreadAssignments.get(channelId)) {
+            assignedThread = this.callThreadAssignments.get(channelId);
+            this.callThreadAssignments.delete(channelId);
+        } else if (channel.guildId && this.callThreadAssignments.get(channel.guildId)) {
+            assignedThread = this.callThreadAssignments.get(channel.guildId);
+            this.callThreadAssignments.delete(channel.guildId);
+        }
+
+        if (assignedThread) {
+            channelState.thread = assignedThread;
+            channelState.threadMessage = new CallThreadMessage(channelId, assignedThread, null);
+        }
+
+        // RESTORATION / COOLDOWN
         // ignore if a message announcing this channel was sent recently
         // if was thread, unarchive and add participant
-        if (channelState.cooldownBy && Date.now() < channelState.cooldownBy) {
+        if (channelState.cooldownBy && Date.now() < channelState.cooldownBy || assignedThread) {
             if (channelState.thread) {
                 channelState.thread.setArchived(false);
 
@@ -169,6 +229,7 @@ export default class AnnounceVCJoin extends BotPlugin {
             return;
         }
 
+        // ANNOUNCEMENT PHASE
         // anounce call start
         // Always send announcement message, even if creating thread
         // Discord doesn't send (mobile) notifications for thread creation
@@ -293,6 +354,20 @@ export default class AnnounceVCJoin extends BotPlugin {
                 ]
             }
         });
+
+        this._registerDefaultCommand("set call thread", this.set_call_thread, {
+            group: "Communication",
+            help: {
+                description: "Assigns this (or the latest) thread as the thread for the next call. The bot will treat the assigned thread as the automatic thread generated with the voice channel join announcement. Works without the makeThread option.",
+                overloads: [{
+                    "[voiceChannel]": "Optional. The specific voice channel's call thread to assign."
+                }],
+                examples: [
+                    ["set call thread", "The bot will treat this (or the last) thread as the call thread"],
+                    ["set call thread 937157681297391656", "The bot will treat this (or the last) thread as the call thread for the next call in <#937157681297391656>"]
+                ]
+            }
+        });
     }
 
     _stop() {
@@ -314,6 +389,8 @@ class CallThreadMessage {
             const message = await this.messagePromise;
             await message.edit(mention(this.starter.id));
             await message.edit(this.generateMessageStr());
+        } else {
+            this.messagePromise = this.thread.send(this.generateMessageStr());
         }
     }
 
