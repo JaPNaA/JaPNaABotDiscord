@@ -36,7 +36,7 @@ abstract class BotPlugin {
     /**
      * Stops the plugin
      */
-    public abstract _stop(): void;
+    public abstract _stop(): void | Promise<void>;
 
     /** Registers a command handler */
     protected _registerDefaultCommand(name: string, callback: BotCommandCallback, options?: BotCommandOptions): void {

@@ -61,7 +61,7 @@ export default class AutoThread extends BotPlugin {
     };
 
     private cooldowns: Map<string, number> = new Map();
-    private cooldownCancelFuncs: Function[] = [];
+    private cooldownCancelFuncs: Map<string, Function> = new Map();
     private _threadUpdateHandler?: (oldThread: ThreadChannel, newThread: ThreadChannel) => void;
 
     constructor(bot: Bot) {
@@ -140,6 +140,7 @@ export default class AutoThread extends BotPlugin {
             channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
             this.addCooldownDoneTimeout(
                 () => channel.permissionOverwrites.delete(channel.guild.roles.everyone),
+                channel.id,
                 cooldownTime
             )
         }
@@ -200,19 +201,18 @@ export default class AutoThread extends BotPlugin {
         await newState.delete();
     }
 
-    private addCooldownDoneTimeout(func: Function, cooldownTime: number) {
+    private addCooldownDoneTimeout(func: Function, channelId: string, cooldownTime: number) {
         const timeout = setTimeout(() => {
             func();
         }, cooldownTime);
 
-        const cancelFunc = () => {
+        const cancelFunc = async () => {
             clearTimeout(timeout);
-            func();
-            this.cooldownCancelFuncs.splice(
-                this.cooldownCancelFuncs.indexOf(cancelFunc), 1);
+            await func();
+            this.cooldownCancelFuncs.delete(channelId);
         };
 
-        this.cooldownCancelFuncs.push(cancelFunc);
+        this.cooldownCancelFuncs.set(channelId, cancelFunc);
     }
 
     private async extractTitleFromMessage(message: string) {
@@ -441,14 +441,17 @@ export default class AutoThread extends BotPlugin {
         this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
     }
 
-    _stop() {
+    async _stop() {
         if (this._threadUpdateHandler) {
             this.bot.client.client.off("threadUpdate", this._threadUpdateHandler);
         }
 
-        while (this.cooldownCancelFuncs.length > 0) {
-            this.cooldownCancelFuncs[this.cooldownCancelFuncs.length - 1]();
+        const cooldownCancelFuncs = Array.from(this.cooldownCancelFuncs.values());
+        const promises = [];
+        for (const cooldownCancelFunc of cooldownCancelFuncs) {
+            promises.push(cooldownCancelFunc());
         }
+        await Promise.all(promises);
     }
 }
 

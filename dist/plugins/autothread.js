@@ -56,7 +56,7 @@ class AutoThread extends plugin_js_1.default {
         }
     };
     cooldowns = new Map();
-    cooldownCancelFuncs = [];
+    cooldownCancelFuncs = new Map();
     _threadUpdateHandler;
     constructor(bot) {
         super(bot);
@@ -132,7 +132,7 @@ class AutoThread extends plugin_js_1.default {
         if (disableChatCooldown) {
             // prevent people from sending messages while on cooldown
             channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
-            this.addCooldownDoneTimeout(() => channel.permissionOverwrites.delete(channel.guild.roles.everyone), cooldownTime);
+            this.addCooldownDoneTimeout(() => channel.permissionOverwrites.delete(channel.guild.roles.everyone), channel.id, cooldownTime);
         }
         // if the bot responds to the message (ex. command), respond in thread
         eventControls.preventSystemNext();
@@ -191,16 +191,16 @@ class AutoThread extends plugin_js_1.default {
         } // ignore; contains or has chance to contain messages
         await newState.delete();
     }
-    addCooldownDoneTimeout(func, cooldownTime) {
+    addCooldownDoneTimeout(func, channelId, cooldownTime) {
         const timeout = setTimeout(() => {
             func();
         }, cooldownTime);
-        const cancelFunc = () => {
+        const cancelFunc = async () => {
             clearTimeout(timeout);
-            func();
-            this.cooldownCancelFuncs.splice(this.cooldownCancelFuncs.indexOf(cancelFunc), 1);
+            await func();
+            this.cooldownCancelFuncs.delete(channelId);
         };
-        this.cooldownCancelFuncs.push(cancelFunc);
+        this.cooldownCancelFuncs.set(channelId, cancelFunc);
     }
     async extractTitleFromMessage(message) {
         const firstLine = message
@@ -383,7 +383,7 @@ class AutoThread extends plugin_js_1.default {
             this._onThreadUpdate(oldState, newState)
                 .catch(err => logger_js_1.default.error(err));
         });
-        this._registerDefaultCommand("autothread", this.toggleAutothread, {
+        this._registerDefaultCommand("autothread", this.autothread_command, {
             group: "Communication",
             help: {
                 description: "Enables autothread (making threads) for the channel.",
@@ -409,13 +409,16 @@ class AutoThread extends plugin_js_1.default {
         });
         this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
     }
-    _stop() {
+    async _stop() {
         if (this._threadUpdateHandler) {
             this.bot.client.client.off("threadUpdate", this._threadUpdateHandler);
         }
-        while (this.cooldownCancelFuncs.length > 0) {
-            this.cooldownCancelFuncs[this.cooldownCancelFuncs.length - 1]();
+        const cooldownCancelFuncs = Array.from(this.cooldownCancelFuncs.values());
+        const promises = [];
+        for (const cooldownCancelFunc of cooldownCancelFuncs) {
+            promises.push(cooldownCancelFunc());
         }
+        await Promise.all(promises);
     }
 }
 exports.default = AutoThread;

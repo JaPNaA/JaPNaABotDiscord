@@ -48,7 +48,7 @@ export default class AutoThread extends BotPlugin {
     private cooldownCancelFuncs;
     private _threadUpdateHandler?;
     constructor(bot: Bot);
-    toggleAutothread(event: DiscordCommandEvent): AsyncGenerator<never, "Cannot create threads inside threads." | "Autothread disabled." | "Autothread enabled.", unknown>;
+    autothread_command(event: DiscordCommandEvent): AsyncGenerator<never, ReplyUnimportant | "Autothread disabled." | "Autothread enabled." | undefined, unknown>;
     archiveThreads(event: DiscordCommandEvent): AsyncGenerator<never, void, unknown>;
     getThreadTitleCommand(event: DiscordCommandEvent): AsyncGenerator<string, void, unknown>;
     messageHandler(event: DiscordMessageEvent, eventControls: EventControls): Promise<void>;
@@ -67,5 +67,5 @@ export default class AutoThread extends BotPlugin {
     private isCool;
     private setCooldown;
     _start(): void;
-    _stop(): void;
+    _stop(): Promise<void>;
 }

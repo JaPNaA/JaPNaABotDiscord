@@ -27,9 +27,12 @@ class PluginManager {
         }
     }
     unregisterAllPlugins() {
+        this.bot.newAsyncRequest();
+        const promises = [];
         for (let plugin of this.plugins) {
-            plugin._stop();
+            promises.push(plugin._stop());
         }
+        Promise.all(promises).then(() => this.bot.doneAsyncRequest());
         this.plugins.length = 0;
         console.warn("Don't forget to unregister all commands and precommands too, future me!");
     }

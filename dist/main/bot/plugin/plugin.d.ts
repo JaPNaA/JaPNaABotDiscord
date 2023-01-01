@@ -27,7 +27,7 @@ declare abstract class BotPlugin {
     /**
      * Stops the plugin
      */
-    abstract _stop(): void;
+    abstract _stop(): void | Promise<void>;
     /** Registers a command handler */
     protected _registerDefaultCommand(name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
     protected _registerCommand(commandManager: CommandManager, name: string, callback: BotCommandCallback, options?: BotCommandOptions): void;
