@@ -128,26 +128,42 @@ class SubthreadFirstMessage {
     }
 
     static async editToMention(message: Message, ids: string[]) {
-        if (message.partial) { await message.fetch(); }
+        const promises = [];
+        if (message.partial) { promises.push(message.fetch()); }
+
         let wasThreadUnarchived = false;
-        if (message.channel instanceof ThreadChannel && message.channel.archived && message.channel.unarchivable) {
-            wasThreadUnarchived = true;
-            await message.channel.setArchived(false);
-        }
-        if (!message.editable) { return; }
+        let wasThreadLocked = false;
 
-        let text;
-        if (SubthreadFirstMessage.MENTION_AREA_REGEX.test(message.content)) {
-            text = message.content.replace(SubthreadFirstMessage.MENTION_AREA_REGEX, this.generateMentionLine(ids));
-        } else {
-            text = message.content + this.generateMentionLine(ids);
+        if (message.channel instanceof ThreadChannel) {
+            if (message.channel.archived && message.channel.unarchivable) {
+                wasThreadUnarchived = true;
+                promises.push(message.channel.setArchived(false));
+            }
+            if (message.channel.locked) {
+                wasThreadLocked = true;
+                promises.push(message.channel.setLocked(false));
+            }
         }
+        await Promise.all(promises);
+        promises.length = 0;
 
-        await message.edit(text);
+        if (message.editable) {
+            let text;
+            if (SubthreadFirstMessage.MENTION_AREA_REGEX.test(message.content)) {
+                text = message.content.replace(SubthreadFirstMessage.MENTION_AREA_REGEX, this.generateMentionLine(ids));
+            } else {
+                text = message.content + this.generateMentionLine(ids);
+            }
+            await message.edit(text);
+        }
 
         if (wasThreadUnarchived) {
-            await (message.channel as ThreadChannel).setArchived(true);
+            promises.push((message.channel as ThreadChannel).setArchived(true));
         }
+        if (wasThreadLocked) {
+            promises.push((message.channel as ThreadChannel).setLocked(true));
+        }
+        await Promise.all(promises);
     }
 }
 

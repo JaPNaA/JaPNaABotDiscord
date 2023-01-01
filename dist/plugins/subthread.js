@@ -121,28 +121,41 @@ class SubthreadFirstMessage {
                     SubthreadFirstMessage.MENTION_AREA);
     }
     static async editToMention(message, ids) {
+        const promises = [];
         if (message.partial) {
-            await message.fetch();
+            promises.push(message.fetch());
         }
         let wasThreadUnarchived = false;
-        if (message.channel instanceof discord_js_1.ThreadChannel && message.channel.archived && message.channel.unarchivable) {
-            wasThreadUnarchived = true;
-            await message.channel.setArchived(false);
+        let wasThreadLocked = false;
+        if (message.channel instanceof discord_js_1.ThreadChannel) {
+            if (message.channel.archived && message.channel.unarchivable) {
+                wasThreadUnarchived = true;
+                promises.push(message.channel.setArchived(false));
+            }
+            if (message.channel.locked) {
+                wasThreadLocked = true;
+                promises.push(message.channel.setLocked(false));
+            }
         }
-        if (!message.editable) {
-            return;
+        await Promise.all(promises);
+        promises.length = 0;
+        if (message.editable) {
+            let text;
+            if (SubthreadFirstMessage.MENTION_AREA_REGEX.test(message.content)) {
+                text = message.content.replace(SubthreadFirstMessage.MENTION_AREA_REGEX, this.generateMentionLine(ids));
+            }
+            else {
+                text = message.content + this.generateMentionLine(ids);
+            }
+            await message.edit(text);
         }
-        let text;
-        if (SubthreadFirstMessage.MENTION_AREA_REGEX.test(message.content)) {
-            text = message.content.replace(SubthreadFirstMessage.MENTION_AREA_REGEX, this.generateMentionLine(ids));
-        }
-        else {
-            text = message.content + this.generateMentionLine(ids);
-        }
-        await message.edit(text);
         if (wasThreadUnarchived) {
-            await message.channel.setArchived(true);
+            promises.push(message.channel.setArchived(true));
         }
+        if (wasThreadLocked) {
+            promises.push(message.channel.setLocked(true));
+        }
+        await Promise.all(promises);
     }
 }
 exports.default = Subthread;
