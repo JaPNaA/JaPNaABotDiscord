@@ -52,9 +52,11 @@ export declare class ReplyUnimportant extends Reply {
 export declare class Send extends Action {
     channelId: string;
     message: string | MessageOptions;
+    protected sentMessage?: Message | Message[];
     constructor(channelId: string, message: string | MessageOptions);
     perform(bot: Bot): Promise<any>;
     performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
+    getMessage(): Message;
 }
 /**
  * Sends a message to a user privately (through DMs)

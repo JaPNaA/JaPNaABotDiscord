@@ -123,21 +123,28 @@ exports.ReplyUnimportant = ReplyUnimportant;
 class Send extends Action {
     channelId;
     message;
+    sentMessage;
     constructor(channelId, message) {
         super();
         this.channelId = channelId;
         this.message = message;
     }
-    perform(bot) {
-        return bot.client.send(this.channelId, this.message);
+    async perform(bot) {
+        this.sentMessage = await bot.client.send(this.channelId, this.message);
     }
     async performInteraction(bot, interaction) {
         if (interaction.isRepliable() && this.channelId === interaction.channelId) {
-            return followUpOrReply(bot, interaction, this.message);
+            this.sentMessage = await followUpOrReply(bot, interaction, this.message);
         }
         else {
-            this.perform(bot);
+            return this.perform(bot);
         }
+    }
+    getMessage() {
+        if (!this.sentMessage) {
+            throw new ActionNotYetPerformedError();
+        }
+        return (0, toOne_1.default)(this.sentMessage);
     }
 }
 exports.Send = Send;

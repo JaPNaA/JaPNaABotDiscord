@@ -42,7 +42,8 @@
     "announceVCJoin",
     "reactionRoles",
     "slashCommands",
-    "activityTracker"
+    "activityTracker",
+    "subthread"
   ],
 
   // Plugins running in bot (external)

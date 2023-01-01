@@ -115,21 +115,28 @@ export class ReplyUnimportant extends Reply {
  * Ex. reminders, routine messages, announcements, etc.
  */
 export class Send extends Action {
+    protected sentMessage?: Message | Message[];
+
     constructor(
         public channelId: string,
         public message: string | MessageOptions
     ) { super(); }
 
-    public perform(bot: Bot): Promise<any> {
-        return bot.client.send(this.channelId, this.message);
+    public async perform(bot: Bot): Promise<any> {
+        this.sentMessage = await bot.client.send(this.channelId, this.message);
     }
 
     public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
         if (interaction.isRepliable() && this.channelId === interaction.channelId) {
-            return followUpOrReply(bot, interaction, this.message as any);
+            this.sentMessage = await followUpOrReply(bot, interaction, this.message as any);
         } else {
-            this.perform(bot);
+            return this.perform(bot);
         }
+    }
+
+    public getMessage(): Message {
+        if (!this.sentMessage) { throw new ActionNotYetPerformedError(); }
+        return toOne(this.sentMessage);
     }
 }
 
