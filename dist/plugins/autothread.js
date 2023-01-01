@@ -13,6 +13,7 @@ const https_1 = __importDefault(require("https"));
 const stopWords_js_1 = require("./autothread_assets/stopWords.js");
 const websiteWhitelist_js_1 = __importDefault(require("./autothread_assets/websiteWhitelist.js"));
 const wait_js_1 = __importDefault(require("../main/utils/async/wait.js"));
+const actions_js_1 = require("../main/bot/actions/actions.js");
 const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 /**
  * Autothread plugin; automatically makes threads
@@ -62,10 +63,24 @@ class AutoThread extends plugin_js_1.default {
         super(bot);
         this.pluginName = "autothread";
     }
-    async *toggleAutothread(event) {
+    async *autothread_command(event) {
+        const argsCleaned = event.arguments.trim().toLowerCase();
+        // autothread cool subcommand -- cancels the cooldown
+        if (argsCleaned) {
+            if (argsCleaned === "cool") {
+                const cancelFunc = this.cooldownCancelFuncs.get(event.channelId);
+                if (cancelFunc) {
+                    await cancelFunc();
+                }
+                return;
+            }
+            else {
+                return new actions_js_1.ReplyUnimportant(`Unknown subcommand. See \`${event.precommandName}help autothread\` for usage.`);
+            }
+        }
         const channel = await this.bot.client.getChannel(event.channelId);
         if (!channel || channel.isThread()) {
-            return "Cannot create threads inside threads.";
+            return new actions_js_1.ReplyUnimportant("Cannot create threads inside threads.");
         }
         const isEnabled = await this.config.getInChannel(event.channelId, "enabled");
         if (isEnabled) {
@@ -387,8 +402,14 @@ class AutoThread extends plugin_js_1.default {
             group: "Communication",
             help: {
                 description: "Enables autothread (making threads) for the channel.",
+                overloads: [{
+                        "none": "Toggles autothread on the channel"
+                    }, {
+                        "cool": "Appending 'cool' will re-enable chat if the channel is on disableChatCooldown (see config)"
+                    }],
                 examples: [
-                    ["autothread", "Toggles autothread on the channel"]
+                    ["autothread", "Toggles autothread on the channel"],
+                    ["autothread cool", "If the channel is on disableChatCooldown, will re-enable chat (finishing the cooldown)"]
                 ]
             },
             noDM: true
