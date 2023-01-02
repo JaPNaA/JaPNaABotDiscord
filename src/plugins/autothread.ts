@@ -16,6 +16,7 @@ import websites from "./autothread_assets/websiteWhitelist.js";
 import { IncomingMessage } from "http";
 import wait from "../main/utils/async/wait.js";
 import { ReplyUnimportant } from "../main/bot/actions/actions.js";
+import removeFormattingChars from "../main/utils/str/removeFormattingChars.js";
 
 const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 
@@ -234,12 +235,12 @@ export default class AutoThread extends BotPlugin {
             .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
             .replace(/<:([a-z_]+):\d{7,}>/gi, (_, emojiName) => emojiName)
             .split("\n").find(e => e.trim()) || "" // get first line
-        const cleanFirstLine = this.removeFormattingCharacters(firstLine);
+        const cleanFirstLine = removeFormattingChars(firstLine);
 
         // back out of extraction -- no first line
         if (!cleanFirstLine) { return message; }
 
-        const firstLineURLReplaced = this.removeFormattingCharacters(
+        const firstLineURLReplaced = removeFormattingChars(
             await this.replaceURLsWithTitles(firstLine)
         );
 
@@ -376,10 +377,6 @@ export default class AutoThread extends BotPlugin {
             result += str.slice(start);
         }
         return result;
-    }
-
-    private removeFormattingCharacters(str: string): string {
-        return str.replace(/(~~|\*\*|\*|__|_)(.+?)\1/g, (_f, formattingChar, content) => formattingChar === "~~" ? "" : content)
     }
 
     private async unMentionify(str: string): Promise<string> {

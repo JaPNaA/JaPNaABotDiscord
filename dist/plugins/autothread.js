@@ -14,6 +14,7 @@ const stopWords_js_1 = require("./autothread_assets/stopWords.js");
 const websiteWhitelist_js_1 = __importDefault(require("./autothread_assets/websiteWhitelist.js"));
 const wait_js_1 = __importDefault(require("../main/utils/async/wait.js"));
 const actions_js_1 = require("../main/bot/actions/actions.js");
+const removeFormattingChars_js_1 = __importDefault(require("../main/utils/str/removeFormattingChars.js"));
 const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 /**
  * Autothread plugin; automatically makes threads
@@ -222,12 +223,12 @@ class AutoThread extends plugin_js_1.default {
             .replace(/\|\|.+?\|\|/g, "(...)") // remove spoiler text
             .replace(/<:([a-z_]+):\d{7,}>/gi, (_, emojiName) => emojiName)
             .split("\n").find(e => e.trim()) || ""; // get first line
-        const cleanFirstLine = this.removeFormattingCharacters(firstLine);
+        const cleanFirstLine = (0, removeFormattingChars_js_1.default)(firstLine);
         // back out of extraction -- no first line
         if (!cleanFirstLine) {
             return message;
         }
-        const firstLineURLReplaced = this.removeFormattingCharacters(await this.replaceURLsWithTitles(firstLine));
+        const firstLineURLReplaced = (0, removeFormattingChars_js_1.default)(await this.replaceURLsWithTitles(firstLine));
         // already short enough -- no need for further extraction
         if (firstLineURLReplaced.length < 25) {
             return firstLineURLReplaced;
@@ -359,9 +360,6 @@ class AutoThread extends plugin_js_1.default {
             result += str.slice(start);
         }
         return result;
-    }
-    removeFormattingCharacters(str) {
-        return str.replace(/(~~|\*\*|\*|__|_)(.+?)\1/g, (_f, formattingChar, content) => formattingChar === "~~" ? "" : content);
     }
     async unMentionify(str) {
         const regex = /<@[!@&]?\d+>/g;
