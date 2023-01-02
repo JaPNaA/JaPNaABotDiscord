@@ -9,6 +9,7 @@ const plugin_1 = __importDefault(require("../main/bot/plugin/plugin"));
 const logger_1 = __importDefault(require("../main/utils/logger"));
 const ellipsisize_1 = __importDefault(require("../main/utils/str/ellipsisize"));
 const mention_1 = __importDefault(require("../main/utils/str/mention"));
+const removeFormattingChars_1 = __importDefault(require("../main/utils/str/removeFormattingChars"));
 /**
  * Subthread plugin, a workaround to get threads inside other threads
  */
@@ -35,8 +36,9 @@ class Subthread extends plugin_1.default {
             threadTitle = channel.lastMessage.content;
             lastMessage = channel.lastMessage;
         }
+        threadTitle = (0, ellipsisize_1.default)((0, removeFormattingChars_1.default)(threadTitle), 100) || "Untitled";
         if (!channel.isThread()) {
-            return new actions_1.ReplyThreadSoft((0, ellipsisize_1.default)(threadTitle, 100) || "Untitled", {
+            return new actions_1.ReplyThreadSoft(threadTitle, {
                 startMessage: lastMessage
             });
         }
@@ -45,10 +47,10 @@ class Subthread extends plugin_1.default {
             throw new Error("A parent text channel is required to create a thread.");
         }
         const thread = await parentChannel.threads.create({
-            name: (0, ellipsisize_1.default)((threadTitle || "Untitled") + ` (in ${channel.name})`, 100),
+            name: (0, ellipsisize_1.default)(threadTitle + ` (in ${channel.name})`, 100),
             type: "GUILD_PRIVATE_THREAD",
         });
-        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage);
+        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || channel.lastMessage);
         yield threadFirstMessageAction;
         const threadFirstMessage = threadFirstMessageAction.getMessage();
         const initalMembers = [event.userId];
@@ -57,7 +59,7 @@ class Subthread extends plugin_1.default {
         }
         await SubthreadFirstMessage.editToMention(threadFirstMessage, initalMembers);
         return new actions_1.ReplySoft({
-            content: `**Subthread** --> <#${thread.id}>`,
+            content: "**Subthread** " + (lastMessage ? "from last message" : `_${threadTitle}_`) + `\n--> <#${thread.id}>`,
             components: [
                 new discord_js_1.MessageActionRow().addComponents(new discord_js_1.MessageButton()
                     .setLabel("Gain access")
@@ -114,11 +116,15 @@ class SubthreadFirstMessage {
         }
     }
     static generate(newThread, parentThread, lastMessage) {
-        return lastMessage ?
-            new actions_1.Send(newThread.id, `Initial message: https://discord.com/channels/${newThread.guildId || "@me"}/${lastMessage.channelId}/${lastMessage.id}` + SubthreadFirstMessage.MENTION_AREA)
-            :
-                new actions_1.Send(newThread.id, `Parent thread: <#${parentThread.id}>` +
-                    SubthreadFirstMessage.MENTION_AREA);
+        let message;
+        if (lastMessage) {
+            message = `\nJump: https://discord.com/channels/${newThread.guildId || "@me"}/${lastMessage.channelId}/${lastMessage.id} (in <#${parentThread.id}>)`;
+        }
+        else {
+            message = `Parent thread: <#${parentThread.id}>`;
+        }
+        message += SubthreadFirstMessage.MENTION_AREA;
+        return new actions_1.Send(newThread.id, message);
     }
     static async editToMention(message, ids) {
         const promises = [];

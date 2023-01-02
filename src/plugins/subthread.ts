@@ -7,6 +7,7 @@ import BotPlugin from "../main/bot/plugin/plugin";
 import Logger from "../main/utils/logger";
 import ellipsisize from "../main/utils/str/ellipsisize";
 import mention from "../main/utils/str/mention";
+import removeFormattingChars from "../main/utils/str/removeFormattingChars";
 
 /**
  * Subthread plugin, a workaround to get threads inside other threads
@@ -32,8 +33,10 @@ class Subthread extends BotPlugin {
             lastMessage = channel.lastMessage;
         }
 
+        threadTitle = ellipsisize(removeFormattingChars(threadTitle), 100) || "Untitled";
+
         if (!channel.isThread()) {
-            return new ReplyThreadSoft(ellipsisize(threadTitle, 100) || "Untitled", {
+            return new ReplyThreadSoft(threadTitle, {
                 startMessage: lastMessage
             });
         }
@@ -43,11 +46,11 @@ class Subthread extends BotPlugin {
             throw new Error("A parent text channel is required to create a thread.");
         }
         const thread = await parentChannel.threads.create({
-            name: ellipsisize((threadTitle || "Untitled") + ` (in ${channel.name})`, 100),
+            name: ellipsisize(threadTitle + ` (in ${channel.name})`, 100),
             type: "GUILD_PRIVATE_THREAD",
         });
 
-        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage);
+        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || channel.lastMessage);
         yield threadFirstMessageAction;
         const threadFirstMessage = threadFirstMessageAction.getMessage();
 
@@ -58,7 +61,7 @@ class Subthread extends BotPlugin {
         await SubthreadFirstMessage.editToMention(threadFirstMessage, initalMembers);
 
         return new ReplySoft({
-            content: `**Subthread** --> <#${thread.id}>`,
+            content: "**Subthread** " + (lastMessage ? "from last message" : `_${threadTitle}_`) + `\n--> <#${thread.id}>`,
             components: [
                 new MessageActionRow().addComponents(
                     new MessageButton()
@@ -119,12 +122,15 @@ class SubthreadFirstMessage {
         }
     }
 
-    static generate(newThread: ThreadChannel, parentThread: ThreadChannel, lastMessage?: Message) {
-        return lastMessage ?
-            new Send(newThread.id, `Initial message: https://discord.com/channels/${newThread.guildId || "@me"}/${lastMessage.channelId}/${lastMessage.id}` + SubthreadFirstMessage.MENTION_AREA)
-            :
-            new Send(newThread.id, `Parent thread: <#${parentThread.id}>` +
-                SubthreadFirstMessage.MENTION_AREA);
+    static generate(newThread: ThreadChannel, parentThread: ThreadChannel, lastMessage?: Message | null) {
+        let message: string;
+        if (lastMessage) {
+            message = `\nJump: https://discord.com/channels/${newThread.guildId || "@me"}/${lastMessage.channelId}/${lastMessage.id} (in <#${parentThread.id}>)`;
+        } else {
+            message = `Parent thread: <#${parentThread.id}>`;
+        }
+        message += SubthreadFirstMessage.MENTION_AREA;
+        return new Send(newThread.id, message);
     }
 
     static async editToMention(message: Message, ids: string[]) {
