@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
+const actions_1 = require("../main/bot/actions/actions");
 /**
  * The weirder side of JaPNaABot
  */
@@ -11,6 +12,8 @@ class JapnaaWeird extends plugin_js_1.default {
     lolRegexp = /(\W|^)(([l1|\\!/\uff4c]|(\ud83c\uddf1))+)+[\W_]*((h|w)*([a@&\*eiouy0.=]|(\ud83c\udd7e\ufe0f)|(\ud83c\uddf4))+(h|w)*)[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))+(\W|$)/i;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
     l$wlRegexp = /.(ЛЮЉ)|(([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ])[\W_]*([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ]))/gi;
+    goodBotRegexp = /(\s|^)good bots?(\s|$)/i;
+    badBotRegexp = /(\s|^)bad bots?(\s|$)/i;
     constructor(bot) {
         super(bot);
         this.pluginName = "japnaaweird";
@@ -62,9 +65,17 @@ class JapnaaWeird extends plugin_js_1.default {
                 eventControls.preventSystemNext();
             }
         }
-        else if (this.lolRegexp.test(event.message) && !event.precommandName) {
-            // ^ contains valid 'lol' and is not command
-            yield "lol";
+        else if (!event.precommandName) {
+            if (this.lolRegexp.test(event.message)) {
+                // ^ contains valid 'lol' and is not command
+                yield "lol";
+            }
+            if (this.goodBotRegexp.test(event.message)) {
+                yield new actions_1.ReplyReact("\ud83d\ude04");
+            }
+            if (this.badBotRegexp.test(event.message)) {
+                yield new actions_1.ReplyReact("\ud83d\ude26");
+            }
         }
     }
     _countL$wl(str) {

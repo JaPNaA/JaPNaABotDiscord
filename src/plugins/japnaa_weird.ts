@@ -4,6 +4,8 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import { EventControls } from "../main/bot/events/eventHandlers";
+import { TextChannel } from "discord.js";
+import { ReplyReact } from "../main/bot/actions/actions";
 
 /**
  * The weirder side of JaPNaABot
@@ -12,6 +14,8 @@ class JapnaaWeird extends BotPlugin {
     lolRegexp: RegExp = /(\W|^)(([l1|\\!/\uff4c]|(\ud83c\uddf1))+)+[\W_]*((h|w)*([a@&\*eiouy0.=]|(\ud83c\udd7e\ufe0f)|(\ud83c\uddf4))+(h|w)*)[\W_]*([l1|\\!/\uff4c]|(\ud83c\uddf1))+(\W|$)/i;
     // note: original (aggressive) lol detection: /(\s*[l|\\!/]+\s*)+\W*((h|w)*([aeiouy0.=]|(?!\s)\W)+(h|w)*)\W*[l|\\!/]+/i
     l$wlRegexp: RegExp = /.(ЛЮЉ)|(([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ])[\W_]*([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ]))/gi;
+    goodBotRegexp: RegExp = /(\s|^)good bots?(\s|$)/i;
+    badBotRegexp: RegExp = /(\s|^)bad bots?(\s|$)/i;
 
     constructor(bot: Bot) {
         super(bot);
@@ -66,9 +70,18 @@ class JapnaaWeird extends BotPlugin {
             yield "no ".repeat(numL$wl);
             // ignore commands with matching l$wl
             if (event.precommandName) { eventControls.preventSystemNext(); }
-        } else if (this.lolRegexp.test(event.message) && !event.precommandName) {
-            // ^ contains valid 'lol' and is not command
-            yield "lol";
+        } else if (!event.precommandName) {
+            if (this.lolRegexp.test(event.message)) {
+                // ^ contains valid 'lol' and is not command
+                yield "lol";
+            }
+
+            if (this.goodBotRegexp.test(event.message)) {
+                yield new ReplyReact("\ud83d\ude04");
+            }
+            if (this.badBotRegexp.test(event.message)) {
+                yield new ReplyReact("\ud83d\ude26");
+            }
         }
     }
 
