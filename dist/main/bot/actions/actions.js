@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DeleteMessageSoft = exports.ReplyThreadSoft = exports.SendPrivate = exports.Send = exports.ReplyUnimportant = exports.ReplyPrivate = exports.ReplySoft = exports.Action = void 0;
+exports.ReplyReact = exports.React = exports.DeleteMessageSoft = exports.ReplyThreadSoft = exports.SendPrivate = exports.Send = exports.ReplyUnimportant = exports.ReplyPrivate = exports.ReplySoft = exports.Action = void 0;
 const discord_js_1 = require("discord.js");
 const toOne_1 = __importDefault(require("../../utils/toOne"));
 class Action {
@@ -232,16 +232,65 @@ class DeleteMessageSoft extends Action {
     async perform(bot) {
         const channel = await bot.client.getChannel(this.channelId);
         if (channel?.isText()) {
-            channel.messages.fetch(this.messageId)
+            await channel.messages.fetch(this.messageId)
                 .then(message => message.delete())
                 .catch(_ => { });
         }
     }
     async performInteraction(bot) {
-        this.perform(bot);
+        return this.perform(bot);
     }
 }
 exports.DeleteMessageSoft = DeleteMessageSoft;
+/**
+ * Reactions to a message with an emoji.
+ */
+class React extends Action {
+    channelId;
+    messageId;
+    emoji;
+    constructor(channelId, messageId, emoji) {
+        super();
+        this.channelId = channelId;
+        this.messageId = messageId;
+        this.emoji = emoji;
+    }
+    async perform(bot) {
+        const channel = await bot.client.getChannel(this.channelId);
+        if (channel?.isText()) {
+            await (await channel.messages.fetch(this.messageId)).react(this.emoji);
+        }
+    }
+    async performInteraction(bot) {
+        return this.perform(bot);
+    }
+}
+exports.React = React;
+/**
+ * Responds to a message with a reaction emoji.
+ */
+class ReplyReact extends Action {
+    emoji;
+    constructor(emoji) {
+        super();
+        this.emoji = emoji;
+    }
+    async perform(bot, event) {
+        const channel = await bot.client.getChannel(event.channelId);
+        if (channel?.isText()) {
+            try {
+                await (await channel.messages.fetch(event.messageId)).react(this.emoji);
+            }
+            catch (err) {
+                return new ReplyUnimportant(this.emoji).perform(bot, event);
+            }
+        }
+    }
+    async performInteraction(bot, interaction) {
+        return new ReplyUnimportant(this.emoji).performInteraction(bot, interaction);
+    }
+}
+exports.ReplyReact = ReplyReact;
 class ActionNotYetPerformedError extends Error {
     constructor() {
         super("Action not yet performed");

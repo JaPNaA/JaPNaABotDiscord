@@ -218,14 +218,58 @@ export class DeleteMessageSoft extends Action {
     public async perform(bot: Bot): Promise<any> {
         const channel = await bot.client.getChannel(this.channelId);
         if (channel?.isText()) {
-            channel.messages.fetch(this.messageId)
+            await channel.messages.fetch(this.messageId)
                 .then(message => message.delete())
                 .catch(_ => { });
         }
     }
 
     public async performInteraction(bot: Bot): Promise<any> {
-        this.perform(bot);
+        return this.perform(bot);
+    }
+}
+
+/**
+ * Reactions to a message with an emoji.
+ */
+export class React extends Action {
+    constructor(
+        public channelId: string,
+        public messageId: string,
+        public emoji: string
+    ) { super(); }
+
+    public async perform(bot: Bot): Promise<any> {
+        const channel = await bot.client.getChannel(this.channelId);
+        if (channel?.isText()) {
+            await (await channel.messages.fetch(this.messageId)).react(this.emoji);
+        }
+    }
+
+    public async performInteraction(bot: Bot): Promise<any> {
+        return this.perform(bot);
+    }
+}
+
+/**
+ * Responds to a message with a reaction emoji.
+ */
+export class ReplyReact extends Action {
+    constructor(public emoji: string) { super(); }
+
+    public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
+        const channel = await bot.client.getChannel(event.channelId);
+        if (channel?.isText()) {
+            try {
+                await (await channel.messages.fetch(event.messageId)).react(this.emoji);
+            } catch (err) {
+                return new ReplyUnimportant(this.emoji).perform(bot, event);
+            }
+        }
+    }
+
+    public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {
+        return new ReplyUnimportant(this.emoji).performInteraction(bot, interaction);
     }
 }
 

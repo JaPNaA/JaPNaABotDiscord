@@ -96,4 +96,24 @@ export declare class DeleteMessageSoft extends Action {
     perform(bot: Bot): Promise<any>;
     performInteraction(bot: Bot): Promise<any>;
 }
+/**
+ * Reactions to a message with an emoji.
+ */
+export declare class React extends Action {
+    channelId: string;
+    messageId: string;
+    emoji: string;
+    constructor(channelId: string, messageId: string, emoji: string);
+    perform(bot: Bot): Promise<any>;
+    performInteraction(bot: Bot): Promise<any>;
+}
+/**
+ * Responds to a message with a reaction emoji.
+ */
+export declare class ReplyReact extends Action {
+    emoji: string;
+    constructor(emoji: string);
+    perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
+    performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
+}
 export {};
