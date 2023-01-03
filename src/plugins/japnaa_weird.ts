@@ -4,7 +4,7 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import { EventControls } from "../main/bot/events/eventHandlers";
-import { TextChannel } from "discord.js";
+import { Message, PartialMessage } from "discord.js";
 import { ReplyReact } from "../main/bot/actions/actions";
 
 /**
@@ -16,6 +16,7 @@ class JapnaaWeird extends BotPlugin {
     l$wlRegexp: RegExp = /.(ЛЮЉ)|(([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ])[\W_]*([il1|\\!/\uff4c]|(\ud83c\uddf1))[\W_]*)|((the[\W_]*)?absolute[\W_]*(value[\W_]*)?(of[\W_]*)?([e3\uff45]|(\ud83c\uddea))[\W_]*((vv)|(\ud83c\uddfc)|[wuｗ]))/gi;
     goodBotRegexp: RegExp = /(\s|^)good bots?(\s|$)/i;
     badBotRegexp: RegExp = /(\s|^)bad bots?(\s|$)/i;
+    noMessageRegexp: RegExp = /^\s*(no\s*)+$/;
 
     constructor(bot: Bot) {
         super(bot);
@@ -85,6 +86,34 @@ class JapnaaWeird extends BotPlugin {
         }
     }
 
+    private async messageEditHandler(oldMessage: Message | PartialMessage, newMessage: Message | PartialMessage) {
+        const oldCount = oldMessage.content ? this._countL$wl(oldMessage.content) : 0;
+        const newCount = newMessage.content ? this._countL$wl(newMessage.content) : 0;
+        const delta = newCount - oldCount;
+        if (delta <= 0) { return; }
+        const messagesAfter = await newMessage.channel.messages.fetch({
+            after: newMessage.id,
+            limit: 3
+        });
+
+        let noMessage;
+        for (const [id, message] of messagesAfter) {
+            if (message.author.id === this.bot.client.id && this.noMessageRegexp.test(message.content)) {
+                noMessage = message;
+                break;
+            }
+        }
+
+        if (noMessage) {
+            const currCount = noMessage.content.match(/no/ig)?.length || 0;
+            noMessage.edit("no ".repeat(currCount + delta));
+        } else {
+            this.bot.client.send(newMessage.thread?.id || newMessage.channelId, "no ".repeat(delta));
+        }
+
+        console.log(messagesAfter);
+    }
+
     private _countL$wl(str: string): number {
         let i = 0;
         for (let match; match = this.l$wlRegexp.exec(str); i++) {
@@ -113,10 +142,13 @@ class JapnaaWeird extends BotPlugin {
         });
 
         this._registerMessageHandler(this.onmessageHandler_lol);
+
+        this.messageEditHandler = this.messageEditHandler.bind(this);
+        this.bot.client.client.on("messageUpdate", this.messageEditHandler);
     }
 
     _stop(): void {
-        // do nothing
+        this.bot.client.client.off("messageUpdate", this.messageEditHandler);
     }
 }
 

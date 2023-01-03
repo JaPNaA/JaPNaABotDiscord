@@ -12,6 +12,7 @@ declare class JapnaaWeird extends BotPlugin {
     l$wlRegexp: RegExp;
     goodBotRegexp: RegExp;
     badBotRegexp: RegExp;
+    noMessageRegexp: RegExp;
     constructor(bot: Bot);
     /**
      * Tetris is a racing game.
@@ -35,6 +36,7 @@ declare class JapnaaWeird extends BotPlugin {
      * Listens for messages with 'lol' and deviations
      */
     onmessageHandler_lol(event: DiscordMessageEvent, eventControls: EventControls): AsyncGenerator<string | ReplyReact, void, unknown>;
+    private messageEditHandler;
     private _countL$wl;
     _isUserMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean>;
     _start(): void;
