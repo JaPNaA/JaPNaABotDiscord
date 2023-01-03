@@ -288,25 +288,38 @@ class AutoThread extends plugin_js_1.default {
                     gotTitle = true;
                 }
             }
-            const request = https_1.default.get(unmappedUrl, response => {
-                if (response.statusCode !== 200) {
-                    resolve("");
-                    return;
-                }
-                response.on("data", chunk => {
-                    text += chunk.toString();
-                    checkTitle();
-                    if (gotTitle) {
-                        response.destroy();
+            let remainingRedirects = 5; // start with 5 redirects
+            function makeHttpRequest(url) {
+                const request = https_1.default.get(url, response => {
+                    console.log(response.statusCode);
+                    if (response.statusCode !== 200) {
+                        if (response.statusCode && [301, 302, 303, 307, 308].includes(response.statusCode) &&
+                            response.headers.location && that.isWhitelistedWebsite(new URL(response.headers.location)) &&
+                            remainingRedirects > 0) {
+                            remainingRedirects--;
+                            response.destroy();
+                            makeHttpRequest(response.headers.location);
+                            return;
+                        }
+                        resolve("");
+                        return;
                     }
+                    response.on("data", chunk => {
+                        text += chunk.toString();
+                        checkTitle();
+                        if (gotTitle) {
+                            response.destroy();
+                        }
+                    });
+                    response.on("end", () => end(response));
+                    response.on("error", () => end(response));
+                    response.on("pause", () => end(response));
+                    response.on("close", () => end(response));
+                    (0, wait_js_1.default)(WEBSITE_TITLE_GET_TIMEOUT).then(() => end(response));
                 });
-                response.on("end", () => end(response));
-                response.on("error", () => end(response));
-                response.on("pause", () => end(response));
-                response.on("close", () => end(response));
-                (0, wait_js_1.default)(WEBSITE_TITLE_GET_TIMEOUT).then(() => end(response));
-            });
-            request.on("error", error => logger_js_1.default.log(error));
+                request.on("error", error => logger_js_1.default.log(error));
+            }
+            makeHttpRequest(unmappedUrl);
         });
         promise.catch(err => { logger_js_1.default.log(err); });
         return promise;
