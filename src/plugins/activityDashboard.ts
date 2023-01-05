@@ -125,7 +125,15 @@ class ActivityDashboard extends BotPlugin {
         this.messageHandler = this.messageHandler.bind(this);
         this.bot.events.message.addHandler(this.messageHandler);
 
-        this._registerDefaultCommand("activity dashboard", this.activityDashboard);
+        this._registerDefaultCommand("activity dashboard", this.activityDashboard, {
+            help: {
+                description: "Summons a live activity dashboard which lists recent activity on a server",
+                examples: [
+                    ["activity dashboard", "Summons an activity dashboard"]
+                ]
+            },
+            requiredDiscordPermission: "ADMINISTRATOR"
+        });
     }
 
     public _stop(): void | Promise<void> {
