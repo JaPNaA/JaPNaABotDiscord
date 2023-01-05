@@ -52,7 +52,6 @@ class ActivityDashboard extends plugin_1.default {
         while (state.activity.length > ActivityDashboard.ACTIVITY_HISTORY_MAX_LENGTH) {
             state.activity.shift();
         }
-        console.log(state.activity.length);
         if (config.get("dashboardMessage")) {
             await this.requestDashboardUpdate(event.serverId);
         }
@@ -81,7 +80,6 @@ class ActivityDashboard extends plugin_1.default {
         if (!state.dashboardMessageCache || state.dashboardMessageCache.id !== dashboardMessageMessageId || state.dashboardMessageCache.channelId !== dashboardMessageChannelId) {
             state.dashboardMessageCache = await this.bot.client.getMessageFromChannel(dashboardMessageChannelId, dashboardMessageMessageId);
         }
-        console.log('edit message');
         state.dashboardMessageCache.edit(this.generateMessage(serverId))
             .catch(err => { });
         (0, wait_1.default)(ActivityDashboard.DASHBOARD_UPDATE_COOLDOWN_TIME).then(() => {
