@@ -33,6 +33,14 @@ class ActivityDashboard extends plugin_1.default {
     constructor(bot) {
         super(bot);
         this.pluginName = "activityDashboard";
+        const memoryHistory = this.bot.memory.get(this.pluginName, "activityHistory");
+        if (memoryHistory) {
+            const keys = Object.keys(memoryHistory);
+            for (const key of keys) {
+                const state = this.getServerStateMut(key);
+                state.activity.deserialize(memoryHistory[key]);
+            }
+        }
     }
     getServerStateMut(serverId) {
         const state = this.serverStates.get(serverId);
@@ -166,6 +174,13 @@ class ActivityDashboard extends plugin_1.default {
             allowedMentions: { users: [] }
         };
     }
+    serializeActivityHistory() {
+        const map = new Map();
+        for (const [key, serverState] of this.serverStates) {
+            map.set(key, serverState.activity.serialize());
+        }
+        return Object.fromEntries(map);
+    }
     _start() {
         this.messageHandler = this.messageHandler.bind(this);
         this.bot.events.message.addHandler(this.messageHandler);
@@ -181,6 +196,9 @@ class ActivityDashboard extends plugin_1.default {
                 ]
             },
             requiredDiscordPermission: "ADMINISTRATOR"
+        });
+        this.bot.events.beforeMemoryWrite.addHandler(() => {
+            this.bot.memory.write(this.pluginName, "activityHistory", this.serializeActivityHistory());
         });
     }
     _stop() {
@@ -214,6 +232,14 @@ class Activity {
     }
     getRecords() {
         return this.activityPerChannelCache;
+    }
+    serialize() {
+        return this.activityRecords;
+    }
+    deserialize(data) {
+        for (const item of data) {
+            this.add(item);
+        }
     }
     getRecordsInChannel(channelId) {
         const existing = this.activityPerChannelCache.get(channelId);

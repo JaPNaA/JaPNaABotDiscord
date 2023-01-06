@@ -4,6 +4,7 @@ import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin";
+import { JSONObject, JSONType } from "../main/types/jsonObject";
 import wait from "../main/utils/async/wait";
 import Logger from "../main/utils/logger";
 import ellipsisize from "../main/utils/str/ellipsisize";
@@ -36,6 +37,15 @@ class ActivityDashboard extends BotPlugin {
     constructor(bot: Bot) {
         super(bot);
         this.pluginName = "activityDashboard";
+
+        const memoryHistory = this.bot.memory.get(this.pluginName, "activityHistory");
+        if (memoryHistory) {
+            const keys = Object.keys(memoryHistory);
+            for (const key of keys) {
+                const state = this.getServerStateMut(key);
+                state.activity.deserialize(memoryHistory[key]);
+            }
+        }
     }
 
     private getServerStateMut(serverId: string): ServerState {
@@ -188,6 +198,14 @@ class ActivityDashboard extends BotPlugin {
         };
     }
 
+    private serializeActivityHistory(): JSONObject {
+        const map = new Map<string, JSONType>();
+        for (const [key, serverState] of this.serverStates) {
+            map.set(key, serverState.activity.serialize());
+        }
+        return Object.fromEntries(map);
+    }
+
     public _start(): void {
         this.messageHandler = this.messageHandler.bind(this);
         this.bot.events.message.addHandler(this.messageHandler);
@@ -206,6 +224,10 @@ class ActivityDashboard extends BotPlugin {
                 ]
             },
             requiredDiscordPermission: "ADMINISTRATOR"
+        });
+
+        this.bot.events.beforeMemoryWrite.addHandler(() => {
+            this.bot.memory.write(this.pluginName, "activityHistory", this.serializeActivityHistory());
         });
     }
 
@@ -250,6 +272,16 @@ class Activity {
 
     public getRecords(): Readonly<Map<string, readonly Readonly<ActivityRecord>[]>> {
         return this.activityPerChannelCache;
+    }
+
+    public serialize(): JSONType {
+        return this.activityRecords as any as JSONType;
+    }
+
+    public deserialize(data: JSONType) {
+        for (const item of data as JSONObject[]) {
+            this.add(item as any as ActivityRecord);
+        }
     }
 
     private getRecordsInChannel(channelId: string) {

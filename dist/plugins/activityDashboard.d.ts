@@ -31,6 +31,7 @@ declare class ActivityDashboard extends BotPlugin {
     activityDashboard(event: DiscordCommandEvent): AsyncGenerator<ReplySoft, void, unknown>;
     private requestDashboardUpdate;
     private generateMessage;
+    private serializeActivityHistory;
     _start(): void;
     _stop(): void | Promise<void>;
 }
