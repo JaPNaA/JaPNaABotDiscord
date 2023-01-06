@@ -155,7 +155,7 @@ class ActivityDashboard extends BotPlugin {
                     messageText = ellipsisize(removeFormattingChars(messageText.replaceAll("\n", "/")), 50);
                 }
                 message.addLine(`<t:${activity.timestamp}:R> ${mention(activity.userId)} [${activity.type}: ${messageText}](https://discord.com/channels/${serverId}/${activity.channelId}/${activity.messageId})`);
-                if (message.getCharCount() > 1024) {
+                if (message.getCharCount() > ActivityDashboard.EMBED_FIELD_VALUE_MAX_LENGTH) {
                     message.removeLastLine();
                     break;
                 }
@@ -181,7 +181,7 @@ class ActivityDashboard extends BotPlugin {
         return {
             content: "Activity Dashboard",
             embeds: [{
-                fields: channelFields.map(x => x[1]),
+                fields: channelFields.slice(-ActivityDashboard.EMBED_FIELDS_MAX_LENGTH).map(x => x[1]),
                 timestamp: Date.now()
             }],
             allowedMentions: { users: [] }
