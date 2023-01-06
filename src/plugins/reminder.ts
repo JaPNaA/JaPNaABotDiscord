@@ -7,6 +7,7 @@ import mention from "../main/utils/str/mention.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 import CommandArguments from "../main/bot/command/commandArguments.js";
 import removeFromArray from "../main/utils/removeFromArray.js";
+import { ReplyUnimportant } from "../main/bot/actions/actions.js";
 
 const RELATIVE_TIME_STR_REGEX = /^(\d+)([a-z]+)$/;
 const ABSOLUTE_TIME_STR_REGEX = /^(\d+):(\d+)(:(\d+)(\.(\d+))?)?\s*((a|p)m?)?$/i;
@@ -94,6 +95,9 @@ class Reminders extends BotPlugin {
         const time = this._parseTimeStr(args.get("--time"), now);
         const title = args.get("title");
 
+        if (time <= now) {
+            return new ReplyUnimportant("Specified date already passed.");
+        }
 
         const reminder: Reminder = {
             channelId: event.channelId,

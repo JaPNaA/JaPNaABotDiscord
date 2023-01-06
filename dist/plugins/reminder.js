@@ -8,6 +8,7 @@ const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 const commandArguments_js_1 = __importDefault(require("../main/bot/command/commandArguments.js"));
 const removeFromArray_js_1 = __importDefault(require("../main/utils/removeFromArray.js"));
+const actions_js_1 = require("../main/bot/actions/actions.js");
 const RELATIVE_TIME_STR_REGEX = /^(\d+)([a-z]+)$/;
 const ABSOLUTE_TIME_STR_REGEX = /^(\d+):(\d+)(:(\d+)(\.(\d+))?)?\s*((a|p)m?)?$/i;
 /**
@@ -85,6 +86,9 @@ class Reminders extends plugin_js_1.default {
         const now = Date.now();
         const time = this._parseTimeStr(args.get("--time"), now);
         const title = args.get("title");
+        if (time <= now) {
+            return new actions_js_1.ReplyUnimportant("Specified date already passed.");
+        }
         const reminder = {
             channelId: event.channelId,
             setTime: now,
