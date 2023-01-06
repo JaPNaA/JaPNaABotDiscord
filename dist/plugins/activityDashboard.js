@@ -176,6 +176,7 @@ class ActivityDashboard extends plugin_1.default {
         return {
             content: "Activity Dashboard",
             embeds: [{
+                    description: channelFields.length ? undefined : "_Empty_",
                     fields: channelFields.slice(-ActivityDashboard.EMBED_FIELDS_MAX_LENGTH).map(x => x[1]),
                     timestamp: Date.now()
                 }],
