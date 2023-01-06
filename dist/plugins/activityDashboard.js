@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const actions_1 = require("../main/bot/actions/actions");
 const plugin_1 = __importDefault(require("../main/bot/plugin/plugin"));
 const wait_1 = __importDefault(require("../main/utils/async/wait"));
+const logger_1 = __importDefault(require("../main/utils/logger"));
 const ellipsisize_1 = __importDefault(require("../main/utils/str/ellipsisize"));
 const mention_1 = __importDefault(require("../main/utils/str/mention"));
 const mentionChannel_1 = __importDefault(require("../main/utils/str/mentionChannel"));
@@ -13,6 +14,9 @@ const removeFormattingChars_1 = __importDefault(require("../main/utils/str/remov
 class ActivityDashboard extends plugin_1.default {
     static DASHBOARD_UPDATE_COOLDOWN_TIME = 5000;
     static ACTIVITY_HISTORY_MAX_LENGTH = 30;
+    static EMBED_FIELD_VALUE_MAX_LENGTH = 1024;
+    static EMBED_FIELDS_MAX_LENGTH = 25;
+    static LINES_PER_CHANNEL_MAX = 5;
     userConfigSchema = {
         enabled: {
             type: "boolean",
@@ -36,28 +40,60 @@ class ActivityDashboard extends plugin_1.default {
             return state;
         }
         else {
-            const newState = { activity: [] };
+            const newState = { activity: new Activity() };
             this.serverStates.set(serverId, newState);
             return newState;
         }
     }
     async messageHandler(event) {
-        const config = await this.config.getAllUserSettingsInChannel(event.channelId);
+        return this.maybeRecordAndUpdate(event.serverId, {
+            timestamp: this.secondTimestamp(event.createdTimestamp),
+            userId: event.userId,
+            type: "sent",
+            message: event.message,
+            messageId: event.messageId,
+            channelId: event.channelId
+        });
+    }
+    async messageEditHandler(oldMessage, newMessage) {
+        return this.maybeRecordAndUpdate(newMessage.guildId || "", {
+            timestamp: this.secondTimestamp(newMessage.editedTimestamp || Date.now()),
+            userId: newMessage.author?.id || "",
+            type: "edited",
+            message: newMessage.content || "",
+            messageId: newMessage.id,
+            channelId: newMessage.channelId
+        });
+    }
+    async reactHandler(reaction, user) {
+        return this.maybeRecordAndUpdate(reaction.message.guildId || "", {
+            timestamp: this.secondTimestamp(Date.now()),
+            userId: user.id,
+            type: "reacted",
+            message: reaction.emoji.id ? `<${reaction.emoji.animated ? 'a' : ''}:${reaction.emoji.name}:${reaction.emoji.id}>` : reaction.emoji.name || "",
+            messageId: reaction.message.id,
+            channelId: reaction.message.channelId
+        });
+    }
+    secondTimestamp(millisecondTimestamp) {
+        return Math.round(millisecondTimestamp / 1000);
+    }
+    async maybeRecordAndUpdate(serverId, record) {
+        if (record.userId === this.bot.client.id) {
+            return;
+        }
+        const config = await this.config.getAllUserSettingsInChannel(record.channelId);
         if (!config.get("enabled")) {
             return;
         }
-        const state = this.getServerStateMut(event.serverId);
-        const activity = { timestamp: Math.round(event.createdTimestamp / 1000), userId: event.userId, message: event.message, channel: event.channelId };
-        state.activity.push(activity);
-        while (state.activity.length > ActivityDashboard.ACTIVITY_HISTORY_MAX_LENGTH) {
-            state.activity.shift();
-        }
+        const state = this.getServerStateMut(serverId);
+        state.activity.add(record);
         if (config.get("dashboardMessage")) {
-            await this.requestDashboardUpdate(event.serverId);
+            await this.requestDashboardUpdate(serverId);
         }
     }
-    *activityDashboard(event) {
-        const reply = new actions_1.ReplySoft(this.generateMessage(event.serverId));
+    async *activityDashboard(event) {
+        const reply = new actions_1.ReplySoft(await this.generateMessage(event.serverId));
         yield reply;
         const message = reply.getMessage();
         const state = this.getServerStateMut(event.serverId);
@@ -80,7 +116,7 @@ class ActivityDashboard extends plugin_1.default {
         if (!state.dashboardMessageCache || state.dashboardMessageCache.id !== dashboardMessageMessageId || state.dashboardMessageCache.channelId !== dashboardMessageChannelId) {
             state.dashboardMessageCache = await this.bot.client.getMessageFromChannel(dashboardMessageChannelId, dashboardMessageMessageId);
         }
-        state.dashboardMessageCache.edit(this.generateMessage(serverId))
+        this.generateMessage(serverId).then(message => state.dashboardMessageCache?.edit(message))
             .catch(err => { });
         (0, wait_1.default)(ActivityDashboard.DASHBOARD_UPDATE_COOLDOWN_TIME).then(() => {
             state.onCooldown = false;
@@ -89,26 +125,54 @@ class ActivityDashboard extends plugin_1.default {
             }
         });
     }
-    generateMessage(serverId) {
-        const activityLog = this.getServerStateMut(serverId).activity;
-        const message = new ReversedMessageBuilder();
-        message.addLine(`Last updated: <t:${Math.round(Date.now() / 1000)}:R>`);
-        for (let i = activityLog.length - 1; i >= 0; i--) {
-            const activity = activityLog[i];
-            message.addLine(`<t:${activity.timestamp}:R> ${(0, mention_1.default)(activity.userId)} ${(0, mentionChannel_1.default)(activity.channel)}: ${(0, ellipsisize_1.default)((0, removeFormattingChars_1.default)(activity.message), 40)}`);
-            if (message.getCharCount() > 2000) {
-                message.removeLastLine();
-                break;
+    async generateMessage(serverId) {
+        const activityLog = this.getServerStateMut(serverId).activity.getRecords();
+        const channelFields = [];
+        const promises = [];
+        for (const [channelId, records] of activityLog) {
+            const message = new ReversedMessageBuilder();
+            const iMin = Math.max(0, records.length - ActivityDashboard.LINES_PER_CHANNEL_MAX);
+            for (let i = records.length - 1; i >= iMin; i--) {
+                const activity = records[i];
+                let messageText = activity.message;
+                if (activity.type !== 'reacted') {
+                    messageText = (0, ellipsisize_1.default)((0, removeFormattingChars_1.default)(messageText.replaceAll("\n", "/")), 50);
+                }
+                message.addLine(`<t:${activity.timestamp}:R> ${(0, mention_1.default)(activity.userId)} [${activity.type}: ${messageText}](https://discord.com/channels/${serverId}/${activity.channelId}/${activity.messageId})`);
+                if (message.getCharCount() > 1024) {
+                    message.removeLastLine();
+                    break;
+                }
             }
+            message.addLine("Open " + (0, mentionChannel_1.default)(channelId));
+            promises.push(this.bot.client.getChannel(channelId).then(channel => {
+                channelFields.push([
+                    records[records.length - 1].timestamp,
+                    {
+                        name: channel ? ('name' in channel ? channel.name : "Untitled") : "Untitled",
+                        value: message.getMessage()
+                    }
+                ]);
+            }));
         }
+        await Promise.all(promises);
+        channelFields.sort((a, b) => a[0] - b[0]);
         return {
-            content: message.getMessage(),
+            content: "Activity Dashboard",
+            embeds: [{
+                    fields: channelFields.map(x => x[1]),
+                    timestamp: Date.now()
+                }],
             allowedMentions: { users: [] }
         };
     }
     _start() {
         this.messageHandler = this.messageHandler.bind(this);
         this.bot.events.message.addHandler(this.messageHandler);
+        this.messageEditHandler = this.messageEditHandler.bind(this);
+        this.bot.client.client.on("messageUpdate", this.messageEditHandler);
+        this.reactHandler = this.reactHandler.bind(this);
+        this.bot.client.client.on("messageReactionAdd", this.reactHandler);
         this._registerDefaultCommand("activity dashboard", this.activityDashboard, {
             help: {
                 description: "Summons a live activity dashboard which lists recent activity on a server",
@@ -121,6 +185,46 @@ class ActivityDashboard extends plugin_1.default {
     }
     _stop() {
         this.bot.events.message.removeHandler(this.messageHandler);
+        this.bot.client.client.off("messageUpdate", this.messageEditHandler);
+        this.bot.client.client.off("messageReactionAdd", this.reactHandler);
+    }
+}
+class Activity {
+    activityRecords = [];
+    activityPerChannelCache = new Map();
+    add(record) {
+        this.activityRecords.push(record);
+        const records = this.getRecordsInChannel(record.channelId);
+        records.push(record);
+        while (this.activityRecords.length > ActivityDashboard.ACTIVITY_HISTORY_MAX_LENGTH) {
+            const removed = this.activityRecords.shift();
+            if (removed) {
+                const records = this.getRecordsInChannel(removed.channelId);
+                if (records[0] === removed) {
+                    records.shift();
+                    if (records.length <= 0) {
+                        this.activityPerChannelCache.delete(removed.channelId);
+                    }
+                }
+                else {
+                    logger_1.default.warn(new Error("Failed to removed an activity record in per channel cache"));
+                }
+            }
+        }
+    }
+    getRecords() {
+        return this.activityPerChannelCache;
+    }
+    getRecordsInChannel(channelId) {
+        const existing = this.activityPerChannelCache.get(channelId);
+        if (existing) {
+            return existing;
+        }
+        else {
+            const newRecords = [];
+            this.activityPerChannelCache.set(channelId, newRecords);
+            return newRecords;
+        }
     }
 }
 /**
