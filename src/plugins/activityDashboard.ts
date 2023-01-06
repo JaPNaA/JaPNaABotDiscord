@@ -14,7 +14,7 @@ import removeFormattingChars from "../main/utils/str/removeFormattingChars";
 
 class ActivityDashboard extends BotPlugin {
     public static readonly DASHBOARD_UPDATE_COOLDOWN_TIME = 5000;
-    public static readonly ACTIVITY_HISTORY_MAX_LENGTH = 30;
+    public static readonly ACTIVITY_HISTORY_MAX_LENGTH = 50;
     public static readonly EMBED_FIELD_VALUE_MAX_LENGTH = 1024;
     public static readonly EMBED_FIELDS_MAX_LENGTH = 25;
     public static readonly LINES_PER_CHANNEL_MAX = 5;
@@ -71,6 +71,11 @@ class ActivityDashboard extends BotPlugin {
     }
 
     private async messageEditHandler(oldMessage: Message | PartialMessage, newMessage: Message | PartialMessage) {
+        // change is thread creation
+        if (!oldMessage.hasThread && newMessage.hasThread) { return; }
+        // probably not a message edit
+        if (newMessage.partial) { return; }
+
         return this.maybeRecordAndUpdate(newMessage.guildId || "", {
             timestamp: this.secondTimestamp(newMessage.editedTimestamp || Date.now()),
             userId: newMessage.author?.id || "",
