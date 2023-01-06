@@ -7,6 +7,7 @@ import toArray from "../main/utils/toArray.js";
 import toOne from "../main/utils/toOne.js";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
+import { JSONObject, JSONType } from "../main/types/jsonObject.js";
 
 /**
  * Tracks the activity and status messages of members in the server
@@ -202,9 +203,9 @@ class UserStatusHistory {
     public statuses: StatusHistoryRecord[] = [];
     public activities: ActivityHistoryRecord[] = [];
 
-    public import(obj: any) {
-        this.statuses = (obj.statuses ? toArray(obj.statuses) : []);
-        this.activities = (obj.activities ? toArray(obj.activities) : []);
+    public import(obj: JSONObject) {
+        this.statuses = (obj.statuses ? toArray(obj.statuses) : []) as any as StatusHistoryRecord[];
+        this.activities = (obj.activities ? toArray(obj.activities) : []) as any as ActivityHistoryRecord[];
     }
 
     public recordStatus(newStatus: string, isRefresh: boolean) {
@@ -238,10 +239,10 @@ class UserStatusHistory {
         return this.activities[this.activities.length - 1];
     }
 
-    public export(): any {
+    public export(): JSONObject {
         return {
-            "statuses": this.statuses,
-            "activities": this.activities
+            "statuses": this.statuses as any as JSONType[],
+            "activities": this.activities as any as JSONType[]
         };
     }
 }
