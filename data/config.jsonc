@@ -43,7 +43,8 @@
     "reactionRoles",
     "slashCommands",
     "activityTracker",
-    "subthread"
+    "subthread",
+    "activityDashboard"
   ],
 
   // Plugins running in bot (external)
