@@ -101,6 +101,7 @@ class Reminders extends BotPlugin {
 
         const reminder: Reminder = {
             channelId: event.channelId,
+            serverId: event.serverId,
             setTime: now,
             setterUserId: event.userId,
             targetTime: time,
@@ -301,7 +302,8 @@ class Reminders extends BotPlugin {
 
         this.bot.client.send(reminder.channelId,
             `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${mention(reminder.setterUserId)}`
-        );
+        ).catch(err => Logger.warn("Failed to send reminder", reminder, err));
+
         if (reminder.repeat && reminder.interval) {
             reminder.targetTime += reminder.interval[0];
             this._addReminder(reminder); // note: calls _updateReminders
@@ -407,6 +409,7 @@ interface Reminder {
     title: string,
     targetTime: number,
     channelId: string,
+    serverId?: string,
     setterUserId: string,
     setTime: number,
     repeat?: boolean,

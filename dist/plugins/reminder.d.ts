@@ -2,6 +2,7 @@ import Bot from "../main/bot/bot/bot.js";
 import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
+import { ReplyUnimportant } from "../main/bot/actions/actions.js";
 /**
  * Reminders plugin
  */
@@ -18,7 +19,7 @@ declare class Reminders extends BotPlugin {
     private _reminders;
     private _remindersTimeoutId;
     constructor(bot: Bot);
-    set_reminder(event: DiscordCommandEvent): AsyncGenerator<string, void, unknown>;
+    set_reminder(event: DiscordCommandEvent): AsyncGenerator<string, ReplyUnimportant | undefined, unknown>;
     edit_reminder(event: DiscordCommandEvent): AsyncGenerator<string, void, unknown>;
     list_reminders(event: DiscordCommandEvent): Generator<string, void, unknown>;
     cancel_reminder(event: DiscordCommandEvent): Generator<string, void, unknown>;
@@ -39,6 +40,7 @@ interface Reminder {
     title: string;
     targetTime: number;
     channelId: string;
+    serverId?: string;
     setterUserId: string;
     setTime: number;
     repeat?: boolean;

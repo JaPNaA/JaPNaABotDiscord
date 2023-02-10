@@ -91,6 +91,7 @@ class Reminders extends plugin_js_1.default {
         }
         const reminder = {
             channelId: event.channelId,
+            serverId: event.serverId,
             setTime: now,
             setterUserId: event.userId,
             targetTime: time,
@@ -274,7 +275,7 @@ class Reminders extends plugin_js_1.default {
             return;
         }
         this._reminders.splice(index, 1);
-        this.bot.client.send(reminder.channelId, `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${(0, mention_js_1.default)(reminder.setterUserId)}`);
+        this.bot.client.send(reminder.channelId, `Reminder: **${reminder.title}**\nSet on ${new Date(reminder.setTime).toLocaleString()} by ${(0, mention_js_1.default)(reminder.setterUserId)}`).catch(err => logger_js_1.default.warn("Failed to send reminder", reminder, err));
         if (reminder.repeat && reminder.interval) {
             reminder.targetTime += reminder.interval[0];
             this._addReminder(reminder); // note: calls _updateReminders
