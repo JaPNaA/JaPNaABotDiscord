@@ -14,6 +14,18 @@ const removeFormattingChars_1 = __importDefault(require("../main/utils/str/remov
  * Subthread plugin, a workaround to get threads inside other threads
  */
 class Subthread extends plugin_1.default {
+    userConfigSchema = {
+        "subthreadChannel": {
+            type: "string",
+            comment: "The channel to create subthreads in.",
+            default: ""
+        },
+        "channelSelection": {
+            type: "string",
+            comment: "How to choose channels to create subthreads in. Set to 'parent' to always use the current parent channel. Set to 'parentThenSpecified' to use the current parent if possible, otherwise uses the subthreadChannel. Set to 'specified' to always use the specified subthreadChannel.",
+            default: "parentThenSpecified"
+        }
+    };
     constructor(bot) {
         super(bot);
         this.pluginName = "subthread";
@@ -24,6 +36,9 @@ class Subthread extends plugin_1.default {
         const channel = await this.bot.client.getChannel(event.channelId);
         if (!channel?.isText()) {
             return new actions_1.ReplyUnimportant("You must run this command in a text channel");
+        }
+        if (channel instanceof discord_js_1.DMChannel) {
+            return new actions_1.ReplyUnimportant("Cannot use this command in DMs");
         }
         if (!threadTitle) {
             // automatic title (no title provided)
@@ -37,17 +52,14 @@ class Subthread extends plugin_1.default {
             lastMessage = channel.lastMessage;
         }
         threadTitle = (0, ellipsisize_1.default)((0, removeFormattingChars_1.default)(threadTitle), 100) || "Untitled";
-        if (!channel.isThread()) {
+        if (this.canCreatePrivateThreadIn(channel)) { // can create normal thread
             return new actions_1.ReplyThreadSoft(threadTitle, {
                 startMessage: lastMessage
             });
         }
-        const parentChannel = channel.parent;
-        if (!(parentChannel instanceof discord_js_1.TextChannel)) {
-            throw new Error("A parent text channel is required to create a thread.");
-        }
-        const thread = await parentChannel.threads.create({
-            name: (0, ellipsisize_1.default)(threadTitle + ` (in ${channel.name})`, 100),
+        const parentChannel = await this.chooseSubthreadChannel(channel);
+        let thread = await parentChannel.threads.create({
+            name: (0, ellipsisize_1.default)(threadTitle + ('name' in channel ? ` (in ${channel.name})` : ""), 100),
             type: "GUILD_PRIVATE_THREAD",
         });
         const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || channel.lastMessage);
@@ -67,6 +79,37 @@ class Subthread extends plugin_1.default {
                     .setStyle(1 /* MessageButtonStyles.PRIMARY */))
             ]
         });
+    }
+    async chooseSubthreadChannel(channel) {
+        const config = await this.config.getAllUserSettingsInChannel(channel.id);
+        const subthreadChannelSelectionMethod = config.get("channelSelection");
+        const subthreadChannelId = config.get("subthreadChannel");
+        switch (subthreadChannelSelectionMethod) {
+            default:
+            case "parent":
+            case "parentThenSpecified":
+                if (this.canCreatePrivateThreadIn(channel)) {
+                    return channel;
+                }
+                if ('parent' in channel && this.canCreatePrivateThreadIn(channel.parent)) {
+                    return channel.parent;
+                }
+                if (subthreadChannelSelectionMethod == "parent") {
+                    throw new Error("Cannot create subthread here.");
+                }
+                if (!subthreadChannelId) {
+                    throw new Error("Cannot create subthread here. No subthreadChannel configured to fallback to.");
+                }
+            case "specified":
+                const defaultChannel = await this.bot.client.getChannel(subthreadChannelId);
+                if (!this.canCreatePrivateThreadIn(defaultChannel)) {
+                    throw new Error("Cannot create thread in (or cannot find) configured subthreadChannel.");
+                }
+                return defaultChannel;
+        }
+    }
+    canCreatePrivateThreadIn(channel) {
+        return channel instanceof discord_js_1.TextChannel;
     }
     async interactionHandler(interaction) {
         try {
@@ -98,7 +141,19 @@ class Subthread extends plugin_1.default {
         // Handling ReplyThreadHard
         this.interactionHandler = this.interactionHandler.bind(this);
         this.bot.client.client.on("interactionCreate", this.interactionHandler);
-        this._registerDefaultCommand("subthread", this.subthread);
+        this._registerDefaultCommand("subthread", this.subthread, {
+            help: {
+                description: "Creates a subthread",
+                overloads: [{ "title": "Optional. Specifies a title for the subthread" }],
+                examples: [
+                    ["subthread", "Creates a subthread from the message above"],
+                    ["subthread my thread", "Creates a subthread titled 'my thread'"]
+                ]
+            },
+            group: "Communication",
+            noDM: true,
+            requiredDiscordPermission: "CREATE_PRIVATE_THREADS"
+        });
     }
     _stop() {
         this.bot.client.client.off("interactionCreate", this.interactionHandler);
