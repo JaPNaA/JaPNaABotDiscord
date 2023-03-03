@@ -1,4 +1,4 @@
-import { MessageOptions } from "discord.js";
+import { Options as MessageOptions } from "discord.js";
 import DiscordCommandEvent from "../events/discordCommandEvent.js";
 import DiscordMessageEvent from "../events/discordMessageEvent.js";
 import { EventHandlers } from "../events/eventHandlers.js";

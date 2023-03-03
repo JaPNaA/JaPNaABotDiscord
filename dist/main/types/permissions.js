@@ -6,7 +6,7 @@ class Permissions {
         "BOT_ADMINISTRATOR"
     ];
     customPermissionsSet = new Set();
-    discordPermissions = new discord_js_1.Permissions();
+    discordPermissions = new discord_js_1.PermissionsBitField();
     hasAdmin = false;
     /**
      * Permissions Constructor
@@ -20,7 +20,7 @@ class Permissions {
         if (extendsPermissions) {
             this.addPermissions(extendsPermissions);
         }
-        if (this.hasDiscord('ADMINISTRATOR')) {
+        if (this.hasDiscord('Administrator')) {
             this.hasAdmin = true;
         }
         /** Custom Permissions */

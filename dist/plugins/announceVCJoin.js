@@ -82,7 +82,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
             if (!announceChannel) {
                 throw new Error("Text channel not found.");
             }
-            if (!announceChannel.isText()) {
+            if (!announceChannel.isTextBased()) {
                 throw new Error("Text channel is not a text channel");
             }
             this.config.setInChannel(voiceChannelId, "enabled", true);
@@ -109,7 +109,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
     }
     async *set_call_thread(event) {
         const channel = await this.bot.client.getChannel(event.channelId);
-        if (!channel || !channel.isText()) {
+        if (!channel || !channel.isTextBased()) {
             throw new Error("Channel not found or is not text-based");
         }
         let thread = undefined;
@@ -188,7 +188,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
             return;
         } // person left: cancel announcement
         const announceInChannel = await this.bot.client.getChannel(announceInChannelId);
-        if (!announceInChannel?.isText()) {
+        if (!announceInChannel?.isTextBased()) {
             return;
         }
         // ASSIGNED THREAD CHECK
@@ -304,7 +304,7 @@ class AnnounceVCJoin extends plugin_js_1.default {
             return;
         }
         const channel = await this.bot.client.getChannel(channelId);
-        if (!channel?.isText()) {
+        if (!channel?.isTextBased() || !('messages' in channel)) {
             return;
         }
         const message = await channel.messages.fetch(messageId);

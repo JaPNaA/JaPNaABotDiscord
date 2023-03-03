@@ -3,7 +3,7 @@ import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotPlugin from "../main/bot/plugin/plugin";
 
-type PresenceType = "play" | "watch" | "listen" | "stream";
+type PresenceType = "play" | "watch" | "listen" | "stream" | "compete";
 
 export default class RichPresence extends BotPlugin {
     private lastPresence?: {
@@ -51,6 +51,14 @@ export default class RichPresence extends BotPlugin {
         this.updatePresence("stream", event.arguments);
     }
 
+    /**
+     * Changes rich presence to compete in a tournament
+     * @param event string to set as compete
+     */
+    public *compete_in(event: DiscordCommandEvent) {
+        this.updatePresence("compete", event.arguments);
+    }
+
     public *set_status(event: DiscordCommandEvent) {
         if (
             event.arguments === "online" ||
@@ -80,6 +88,9 @@ export default class RichPresence extends BotPlugin {
                 break;
             case "stream":
                 this.bot.client.presence.setStream(name);
+                break;
+            case "compete":
+                this.bot.client.presence.setCompete(name);
                 break;
         }
     }
@@ -152,6 +163,21 @@ export default class RichPresence extends BotPlugin {
                 examples: [
                     ["stream", "Removes the \"streaming\" tag"],
                     ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
+                ]
+            },
+            group: "Rich Presence",
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
+        });
+
+        this._registerDefaultCommand("compete in", this.compete_in, {
+            help: {
+                description: "Sets the \"compete in\" value",
+                overloads: [{
+                    "value": "The \"thing\" to \"compete in\""
+                }],
+                examples: [
+                    ["stream", "Removes the \"competing in\" tag"],
+                    ["stream nothing", "Sets the \"competing\" tag to \"nothing\"."]
                 ]
             },
             group: "Rich Presence",

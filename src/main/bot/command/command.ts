@@ -5,7 +5,7 @@ import mention from "../../utils/str/mention";
 import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
-import { PermissionString } from "discord.js";
+import { PermissionsString } from "discord.js";
 import { ReplyUnimportant } from "../actions/actions.js";
 import { ActionRunner } from "../actions/actionRunner.js";
 
@@ -33,7 +33,7 @@ class BotCommand {
     /** Custom permission required to run command */
     requiredCustomPermission: string | undefined;
     /** Discord permission required to run command */
-    requiredDiscordPermission: PermissionString | undefined;
+    requiredDiscordPermission: PermissionsString | undefined;
     /** Is using this command in Direct Messages disallowed? */
     noDM: boolean;
     /** Help for the command */

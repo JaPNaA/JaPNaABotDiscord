@@ -25,6 +25,11 @@ export default class RichPresence extends BotPlugin {
      * @param args string to set as stream
      */
     stream(event: DiscordCommandEvent): Generator<never, void, unknown>;
+    /**
+     * Changes rich presence to compete in a tournament
+     * @param event string to set as compete
+     */
+    compete_in(event: DiscordCommandEvent): Generator<never, void, unknown>;
     set_status(event: DiscordCommandEvent): Generator<never, void, unknown>;
     private updatePresence;
     private updateStatus;

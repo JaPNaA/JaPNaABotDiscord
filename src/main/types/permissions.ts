@@ -1,4 +1,4 @@
-import { Permissions as DiscordJSPermissions, PermissionString } from "discord.js";
+import { PermissionsBitField as DiscordJSPermissions, PermissionsString } from "discord.js";
 
 class Permissions {
     public static specialCustoms: string[] = [
@@ -23,7 +23,7 @@ class Permissions {
             this.addPermissions(extendsPermissions);
         }
 
-        if (this.hasDiscord('ADMINISTRATOR')) {
+        if (this.hasDiscord('Administrator')) {
             this.hasAdmin = true;
         }
 
@@ -42,7 +42,7 @@ class Permissions {
         }
     }
 
-    hasDiscord(permission: PermissionString): boolean {
+    hasDiscord(permission: PermissionsString): boolean {
         return this.hasAdmin || this.discordPermissions.has(permission);
     }
 

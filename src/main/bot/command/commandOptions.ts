@@ -1,9 +1,9 @@
-import { PermissionString } from "discord.js";
+import { PermissionsString } from "discord.js";
 import { BotCommandHelp } from "./commandHelp";
 
 interface BotCommandOptions {
     requiredCustomPermission?: string;
-    requiredDiscordPermission?: PermissionString;
+    requiredDiscordPermission?: PermissionsString;
     noDM?: boolean;
     help?: BotCommandHelp;
     group?: string;

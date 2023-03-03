@@ -12,14 +12,14 @@ class PresenceSetter {
     }
     setGame(name) {
         this.client.user?.setPresence({
-            activities: [{ name: name || undefined, type: 0 /* ActivityTypes.PLAYING */ }]
+            activities: [{ name: name || undefined, type: discord_js_1.ActivityType.Playing }]
         });
     }
     setWatch(name) {
         this.client.user?.setPresence({
             activities: [{
                     name: name || undefined,
-                    type: 3 /* ActivityTypes.WATCHING */
+                    type: discord_js_1.ActivityType.Watching
                 }]
         });
     }
@@ -27,7 +27,7 @@ class PresenceSetter {
         this.client.user?.setPresence({
             activities: [{
                     name: name || undefined,
-                    type: 2 /* ActivityTypes.LISTENING */
+                    type: discord_js_1.ActivityType.Listening
                 }]
         });
     }
@@ -35,7 +35,15 @@ class PresenceSetter {
         this.client.user?.setPresence({
             activities: [{
                     name: name || undefined,
-                    type: 1 /* ActivityTypes.STREAMING */
+                    type: discord_js_1.ActivityType.Streaming
+                }]
+        });
+    }
+    setCompete(name) {
+        this.client.user?.setPresence({
+            activities: [{
+                    name: name || undefined,
+                    type: discord_js_1.ActivityType.Competing
                 }]
         });
     }
@@ -123,7 +131,7 @@ class BotClient {
         if (!textChannel) {
             throw new Error("Cannot find channel");
         }
-        if (!textChannel.isText()) {
+        if (!textChannel.isTextBased() || !('send' in textChannel)) {
             throw new TypeError("Cannot send to non-text channel");
         }
         const { preventedSystem } = await this.bot.events.send.dispatch({
@@ -217,7 +225,7 @@ class BotClient {
     }
     async getMessageFromChannel(channelId, messageId) {
         const channel = await this.getChannel(channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             return channel.messages.fetch(messageId);
         }
         else {

@@ -1,4 +1,4 @@
-import { AllowedThreadTypeForTextChannel, CacheType, Interaction, InteractionReplyOptions, Message, MessageOptions, TextChannel, ThreadChannel, ThreadCreateOptions } from "discord.js";
+import { AllowedThreadTypeForTextChannel, CacheType, GuildTextThreadCreateOptions, Interaction, InteractionReplyOptions, Message, Options as MessageOptions, TextChannel, ThreadChannel } from "discord.js";
 import toOne from "../../utils/toOne";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
@@ -36,7 +36,7 @@ export class ReplySoft extends Reply {
         // if the last message was the command, send message normally but
         // if last message is not the command message, reply to command message
         const channel = await bot.client.getChannel(event.channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             const lastMessage = channel.messages.cache.last();
             if (lastMessage && lastMessage.id !== event.messageId) {
                 try {
@@ -49,7 +49,7 @@ export class ReplySoft extends Reply {
                 await this.send(bot, event.channelId);
             }
         } else {
-            throw new Error("Channel <#" + event.channelId + "> is not a text channel.");
+            throw new Error("Channel <#" + event.channelId + "> is not a text channel, or does not have a messages attribute.");
         }
     }
 
@@ -174,7 +174,7 @@ export class ReplyThreadSoft extends Action {
 
     constructor(
         public threadName: string,
-        private options: Partial<ThreadCreateOptions<AllowedThreadTypeForTextChannel>> = {}
+        private options: Partial<GuildTextThreadCreateOptions<AllowedThreadTypeForTextChannel>> = {}
     ) { super(); }
 
     public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
@@ -217,8 +217,8 @@ export class DeleteMessageSoft extends Action {
 
     public async perform(bot: Bot): Promise<any> {
         const channel = await bot.client.getChannel(this.channelId);
-        if (channel?.isText()) {
-            await channel.messages.fetch(this.messageId)
+        if (channel?.isTextBased() && 'messages' in channel) {
+            await (channel.messages.fetch(this.messageId) as Promise<any>)
                 .then(message => message.delete())
                 .catch(_ => { });
         }
@@ -241,7 +241,7 @@ export class React extends Action {
 
     public async perform(bot: Bot): Promise<any> {
         const channel = await bot.client.getChannel(this.channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             await (await channel.messages.fetch(this.messageId)).react(this.emoji);
         }
     }
@@ -259,7 +259,7 @@ export class ReplyReact extends Action {
 
     public async perform(bot: Bot, event: DiscordMessageEvent): Promise<any> {
         const channel = await bot.client.getChannel(event.channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             try {
                 await (await channel.messages.fetch(event.messageId)).react(this.emoji);
             } catch (err) {

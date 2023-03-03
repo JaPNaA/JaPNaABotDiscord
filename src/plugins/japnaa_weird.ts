@@ -91,6 +91,7 @@ class JapnaaWeird extends BotPlugin {
         const newCount = newMessage.content ? this._countL$wl(newMessage.content) : 0;
         const delta = newCount - oldCount;
         if (delta <= 0) { return; }
+        if (!('messages' in newMessage.channel)) { return; }
         const messagesAfter = await newMessage.channel.messages.fetch({
             after: newMessage.id,
             limit: 3

@@ -1,4 +1,4 @@
-import { EmbedFieldData } from "discord.js";
+import { APIEmbedField, EmbedField } from "discord.js";
 import Bot from "../../../main/bot/bot/bot";
 import BotCommandCallback from "../../../main/bot/command/commandCallback";
 import DiscordCommandEvent from "../../../main/bot/events/discordCommandEvent";
@@ -163,7 +163,7 @@ class Lobby {
 
     private sendAboutMessage() {
         const { maxPlayers, minPlayers } = this.settings;
-        const fields: EmbedFieldData[] = [];
+        const fields: APIEmbedField[] = [];
         const precommmand = this.parentGame.parentPlugin.precommand.names[0];
         let numPlayersLimit: string = "??";
 

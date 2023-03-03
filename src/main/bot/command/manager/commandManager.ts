@@ -6,7 +6,7 @@ import BotCommandOptions from "../commandOptions.js";
 import createKey from "../../utils/locationKeyCreator.js";
 import Bot from "../../bot/bot.js";
 import removeFromArray from "../../../utils/removeFromArray.js";
-import { PermissionString } from "discord.js";
+import { PermissionsString } from "discord.js";
 
 class CommandManager {
     dispatch: CommandDispatcher;
@@ -70,7 +70,7 @@ class CommandManager {
 
         if (overridingRequiredPermission) {
             command.requiredCustomPermission = overridingRequiredPermission.custom;
-            command.requiredDiscordPermission = overridingRequiredPermission.discord as PermissionString;
+            command.requiredDiscordPermission = overridingRequiredPermission.discord as PermissionsString;
         }
     }
 

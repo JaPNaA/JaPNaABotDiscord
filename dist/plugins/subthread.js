@@ -34,7 +34,7 @@ class Subthread extends plugin_1.default {
         let threadTitle = event.arguments.trim();
         let lastMessage;
         const channel = await this.bot.client.getChannel(event.channelId);
-        if (!channel?.isText()) {
+        if (!channel?.isTextBased()) {
             return new actions_1.ReplyUnimportant("You must run this command in a text channel");
         }
         if (channel instanceof discord_js_1.DMChannel) {
@@ -42,6 +42,9 @@ class Subthread extends plugin_1.default {
         }
         if (!threadTitle) {
             // automatic title (no title provided)
+            if (!('lastMessage' in channel)) {
+                return new actions_1.ReplyUnimportant("Cannot get last message in this channel.");
+            }
             if (!channel.lastMessage) {
                 return new actions_1.ReplyUnimportant("Must provide a thread title because no last message was found in this channel.");
             }
@@ -60,9 +63,9 @@ class Subthread extends plugin_1.default {
         const parentChannel = await this.chooseSubthreadChannel(channel);
         let thread = await parentChannel.threads.create({
             name: (0, ellipsisize_1.default)(threadTitle + ('name' in channel ? ` (in ${channel.name})` : ""), 100),
-            type: "GUILD_PRIVATE_THREAD",
+            type: discord_js_1.ChannelType.PrivateThread
         });
-        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || channel.lastMessage);
+        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || ('lastMessage' in channel ? channel.lastMessage : undefined));
         yield threadFirstMessageAction;
         const threadFirstMessage = threadFirstMessageAction.getMessage();
         const initalMembers = [event.userId];
@@ -73,10 +76,10 @@ class Subthread extends plugin_1.default {
         return new actions_1.ReplySoft({
             content: "**Subthread** " + (lastMessage ? "from last message" : `_${threadTitle}_`) + `\n--> <#${thread.id}>`,
             components: [
-                new discord_js_1.MessageActionRow().addComponents(new discord_js_1.MessageButton()
+                new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
                     .setLabel("Gain access")
                     .setCustomId(`threadaccessgive:${thread.id}:${threadFirstMessage.id}`)
-                    .setStyle(1 /* MessageButtonStyles.PRIMARY */))
+                    .setStyle(discord_js_1.ButtonStyle.Primary))
             ]
         });
     }
@@ -152,7 +155,7 @@ class Subthread extends plugin_1.default {
             },
             group: "Communication",
             noDM: true,
-            requiredDiscordPermission: "CREATE_PRIVATE_THREADS"
+            requiredDiscordPermission: "CreatePrivateThreads"
         });
     }
     _stop() {

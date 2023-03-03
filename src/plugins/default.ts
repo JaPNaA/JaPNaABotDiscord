@@ -7,7 +7,7 @@ import createKey from "../main/bot/utils/locationKeyCreator.js";
 import Permissions from "../main/types/permissions.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
-import { EmbedFieldData, TextChannel } from "discord.js";
+import { APIEmbedField, TextChannel } from "discord.js";
 
 import * as childProcess from "child_process";
 import * as japnaabot from "../main/index";
@@ -55,7 +55,7 @@ class Default extends BotPlugin {
     async *user_info(event: DiscordCommandEvent) {
         let userId: string | null = event.userId;
 
-        let response: EmbedFieldData[] = [];
+        let response: APIEmbedField[] = [];
 
         if (event.arguments) {
             let newUserId: string | null = getSnowflakeNum(event.arguments);
@@ -623,9 +623,9 @@ class Default extends BotPlugin {
             const server = await this.bot.client.getServerFromChannel(location);
             if (!server) { throw new Error("Could not find server or channel"); }
             if (!(await this.bot.permissions.getPermissions_channel(
-                event.userId, server.id, location)).hasDiscord("ADMINISTRATOR")
+                event.userId, server.id, location)).hasDiscord("Administrator")
             ) {
-                return "You do not have permission (`ADMINISTRATOR`) to configure that channel";
+                return "You do not have permission (`Administrator`) to configure that channel";
             }
 
             humanReadableLocation = `<#${location}>`;
@@ -635,9 +635,9 @@ class Default extends BotPlugin {
 
             // check permissions
             if (!(await this.bot.permissions.getPermissions_channel(
-                event.userId, location, event.channelId)).hasDiscord("ADMINISTRATOR")
+                event.userId, location, event.channelId)).hasDiscord("Administrator")
             ) {
-                return "You do not have permission (`ADMINISTRATOR`) to configure that server";
+                return "You do not have permission (`Administrator`) to configure that server";
             }
 
             config = await plugin.config.getAllUserSettingsInServer(location);
@@ -917,7 +917,7 @@ class Default extends BotPlugin {
         });
 
         this._registerDefaultCommand("edit permission", this.edit_permission, {
-            requiredDiscordPermission: "ADMINISTRATOR",
+            requiredDiscordPermission: "Administrator",
             help: {
                 description: "Edits the permissions of a person or role.",
                 overloads: [{
@@ -987,7 +987,7 @@ class Default extends BotPlugin {
                     ]
                 ]
             },
-            requiredDiscordPermission: "ADMINISTRATOR"
+            requiredDiscordPermission: "Administrator"
         });
 
         this._registerDefaultCommand("send", this.send, {

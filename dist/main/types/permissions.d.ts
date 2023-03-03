@@ -1,4 +1,4 @@
-import { Permissions as DiscordJSPermissions, PermissionString } from "discord.js";
+import { PermissionsBitField as DiscordJSPermissions, PermissionsString } from "discord.js";
 declare class Permissions {
     static specialCustoms: string[];
     customPermissionsSet: Set<string>;
@@ -11,7 +11,7 @@ declare class Permissions {
      */
     constructor(discordJSPermissions?: DiscordJSPermissions, extendsPermissions?: Permissions);
     addPermissions(permissions: Permissions | DiscordJSPermissions): void;
-    hasDiscord(permission: PermissionString): boolean;
+    hasDiscord(permission: PermissionsString): boolean;
     hasCustom(permission: string): boolean;
     /** Converts capital to lowercase, replace underscores with spaces */
     private toReadable;

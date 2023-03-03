@@ -3,7 +3,7 @@ import BotCommandCallback from "./commandCallback.js";
 import Bot from "../bot/bot.js";
 import { BotCommandHelp } from "./commandHelp.js";
 import BotCommandOptions from "./commandOptions.js";
-import { PermissionString } from "discord.js";
+import { PermissionsString } from "discord.js";
 declare class BotCommand {
     private bot;
     /** Function to call when command is called */
@@ -11,7 +11,7 @@ declare class BotCommand {
     /** Custom permission required to run command */
     requiredCustomPermission: string | undefined;
     /** Discord permission required to run command */
-    requiredDiscordPermission: PermissionString | undefined;
+    requiredDiscordPermission: PermissionsString | undefined;
     /** Is using this command in Direct Messages disallowed? */
     noDM: boolean;
     /** Help for the command */

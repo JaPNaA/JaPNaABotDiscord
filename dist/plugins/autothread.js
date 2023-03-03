@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
+const discord_js_1 = require("discord.js");
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
 const getSnowflakeNum_js_1 = __importDefault(require("../main/utils/getSnowflakeNum.js"));
@@ -95,7 +96,7 @@ class AutoThread extends plugin_js_1.default {
     }
     async *archiveThreads(event) {
         const channel = await this.bot.client.getChannel(event.channelId);
-        if (channel && channel.isText() && 'threads' in channel) {
+        if (channel && channel.isTextBased() && 'threads' in channel) {
             channel.threads.cache.forEach(thread => {
                 if (!thread.archived) {
                     thread.setArchived();
@@ -147,7 +148,7 @@ class AutoThread extends plugin_js_1.default {
         this.setCooldown(event.channelId, cooldownTime);
         if (disableChatCooldown) {
             // prevent people from sending messages while on cooldown
-            channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
+            channel.permissionOverwrites.create(channel.guild.roles.everyone, { SendMessages: false });
             this.addCooldownDoneTimeout(() => channel.permissionOverwrites.delete(channel.guild.roles.everyone), channel.id, cooldownTime);
         }
         // if the bot responds to the message (ex. command), respond in thread
@@ -196,7 +197,7 @@ class AutoThread extends plugin_js_1.default {
         let messageCacheSize = newState.messages.cache.size;
         if (messageCacheSize === 1) {
             const firstMessage = newState.messages.cache.at(0);
-            if (firstMessage && firstMessage.type === "THREAD_STARTER_MESSAGE") {
+            if (firstMessage && firstMessage.type === discord_js_1.MessageType.ThreadStarterMessage) {
                 messageCacheSize -= 1; // first message is not message
             }
         }
@@ -431,7 +432,7 @@ class AutoThread extends plugin_js_1.default {
                 description: "Archives all active threads in the channel."
             },
             noDM: true,
-            requiredDiscordPermission: "MANAGE_THREADS"
+            requiredDiscordPermission: "ManageThreads"
         });
         this._registerDefaultCommand("get thread title", this.getThreadTitleCommand, {
             group: "Testing",

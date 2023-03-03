@@ -37,7 +37,7 @@ class ReplySoft extends Reply {
         // if the last message was the command, send message normally but
         // if last message is not the command message, reply to command message
         const channel = await bot.client.getChannel(event.channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             const lastMessage = channel.messages.cache.last();
             if (lastMessage && lastMessage.id !== event.messageId) {
                 try {
@@ -53,7 +53,7 @@ class ReplySoft extends Reply {
             }
         }
         else {
-            throw new Error("Channel <#" + event.channelId + "> is not a text channel.");
+            throw new Error("Channel <#" + event.channelId + "> is not a text channel, or does not have a messages attribute.");
         }
     }
     async performInteraction(bot, interaction) {
@@ -231,7 +231,7 @@ class DeleteMessageSoft extends Action {
     }
     async perform(bot) {
         const channel = await bot.client.getChannel(this.channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             await channel.messages.fetch(this.messageId)
                 .then(message => message.delete())
                 .catch(_ => { });
@@ -257,7 +257,7 @@ class React extends Action {
     }
     async perform(bot) {
         const channel = await bot.client.getChannel(this.channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             await (await channel.messages.fetch(this.messageId)).react(this.emoji);
         }
     }
@@ -277,7 +277,7 @@ class ReplyReact extends Action {
     }
     async perform(bot, event) {
         const channel = await bot.client.getChannel(event.channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             try {
                 await (await channel.messages.fetch(event.messageId)).react(this.emoji);
             }

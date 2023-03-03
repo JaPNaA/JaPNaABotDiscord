@@ -50,7 +50,7 @@ class Censorship extends plugin_js_1.default {
                 logger_1.default.log("Incoming message censored");
                 if (await config.get("deleteCensoredMessages")) {
                     const channel = await this.bot.client.getChannel(event.channelId);
-                    if (channel && channel.isText()) {
+                    if (channel && channel.isTextBased() && 'messages' in channel) {
                         const message = await channel.messages.fetch(event.messageId);
                         if (message) {
                             await message.delete();

@@ -479,7 +479,7 @@ class Japnaa extends BotPlugin {
             }));
         } else {
             const channel = await this.bot.client.getChannel(event.channelId);
-            if (channel?.isText() && channel.lastMessage && !channel.lastMessage.hasThread) {
+            if (channel?.isTextBased() && 'lastMessage' in channel && channel.lastMessage && !channel.lastMessage.hasThread) {
                 yield new ReplyThreadSoft(ellipsisize(channel.lastMessage.content, 100) || "Untitled", {
                     startMessage: channel.lastMessage
                 });

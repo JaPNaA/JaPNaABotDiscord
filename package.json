@@ -29,13 +29,11 @@
   },
   "private": true,
   "dependencies": {
-    "@discordjs/rest": "^1.1.0",
-    "discord-api-types": "^0.37.5",
-    "discord.js": "^13.12.0",
+    "discord.js": "^14.7.1",
     "strip-json-comments": "^2.0.1"
   },
   "devDependencies": {
-    "@types/node": "^17.0.45",
+    "@types/node": "^18.14.4",
     "@types/strip-json-comments": "0.0.30"
   }
 }

@@ -1,4 +1,4 @@
-import { User, Client, Guild, Role, GuildMember, Message, AnyChannel, MessageOptions, MessageEmbedOptions } from "discord.js";
+import { User, Client, Guild, Role, GuildMember, Message, Options, EmbedData, Channel } from "discord.js";
 import MessageObject from "../types/messageObject.js";
 import Bot from "./bot.js";
 declare class PresenceSetter {
@@ -8,6 +8,7 @@ declare class PresenceSetter {
     setWatch(name: string): void;
     setListen(name: string): void;
     setStream(name: string): void;
+    setCompete(name: string): void;
 }
 declare class SentMessageRecorder {
     recordedSentMessages: {
@@ -52,8 +53,8 @@ declare class BotClient {
      * Send message
      * @returns A promise that resolves when sent
      */
-    send(channelId: string, message: string | MessageOptions): Promise<Message | Message[]>;
-    sendEmbed(channelId: string, embed: MessageEmbedOptions): Promise<Message | Message[]>;
+    send(channelId: string, message: string | Options): Promise<Message | Message[]>;
+    sendEmbed(channelId: string, embed: EmbedData): Promise<Message | Message[]>;
     /**
      * Sends direct message
      * @param userId id of user
@@ -62,7 +63,7 @@ declare class BotClient {
      * @returns A promise that resolves when message sends, rejcts if fail
      */
     sendDM(userId: string, message: string | MessageObject, failCallback?: Function): Promise<Message | Message[]>;
-    getChannel(channelId: string): Promise<AnyChannel | null>;
+    getChannel(channelId: string): Promise<Channel | null>;
     getServerFromChannel(channelId: string): Promise<Guild | undefined>;
     getServer(serverId: string): Promise<Guild | undefined>;
     getUser(userId: string): Promise<User | undefined>;

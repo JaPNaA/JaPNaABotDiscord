@@ -41,6 +41,13 @@ class RichPresence extends plugin_1.default {
     *stream(event) {
         this.updatePresence("stream", event.arguments);
     }
+    /**
+     * Changes rich presence to compete in a tournament
+     * @param event string to set as compete
+     */
+    *compete_in(event) {
+        this.updatePresence("compete", event.arguments);
+    }
     *set_status(event) {
         if (event.arguments === "online" ||
             event.arguments === "idle" ||
@@ -67,6 +74,9 @@ class RichPresence extends plugin_1.default {
                 break;
             case "stream":
                 this.bot.client.presence.setStream(name);
+                break;
+            case "compete":
+                this.bot.client.presence.setCompete(name);
                 break;
         }
     }
@@ -133,6 +143,20 @@ class RichPresence extends plugin_1.default {
                 examples: [
                     ["stream", "Removes the \"streaming\" tag"],
                     ["stream nothing", "Sets the \"streaming\" tag to \"nothing\"."]
+                ]
+            },
+            group: "Rich Presence",
+            requiredCustomPermission: "BOT_ADMINISTRATOR"
+        });
+        this._registerDefaultCommand("compete in", this.compete_in, {
+            help: {
+                description: "Sets the \"compete in\" value",
+                overloads: [{
+                        "value": "The \"thing\" to \"compete in\""
+                    }],
+                examples: [
+                    ["stream", "Removes the \"competing in\" tag"],
+                    ["stream nothing", "Sets the \"competing\" tag to \"nothing\"."]
                 ]
             },
             group: "Rich Presence",

@@ -1,6 +1,6 @@
 import FS from "fs";
 import PATH from "path";
-import DISCORD, { Intents } from "discord.js";
+import DISCORD, { GatewayIntentBits, Partials } from "discord.js";
 import STRIP_JSON_COMMENTS from "strip-json-comments";
 import Logger from "./utils/logger.js";
 import Bot from "./bot/bot/bot.js";
@@ -190,17 +190,18 @@ function start(apiToken: string, botConfig: string | object, pathToMemoryFile: s
 
     client = new DISCORD.Client({
         intents: [
-            Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES,
-            Intents.FLAGS.DIRECT_MESSAGES,
+            GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.MessageContent,
+            GatewayIntentBits.DirectMessages,
             // todo: come up with a system for plugins to register intents
             // required by announceVCJoin
-            Intents.FLAGS.GUILD_VOICE_STATES,
+            GatewayIntentBits.GuildVoiceStates,
             // required by reactionRoles
-            Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
+            GatewayIntentBits.GuildMessageReactions,
             // required by activityTracker
-            Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_PRESENCES
+            GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildPresences,
         ],
-        partials: ["CHANNEL", "MESSAGE", "REACTION"]
+        partials: [Partials.Channel, Partials.Message, Partials.Reaction]
     });
     client.login(token);
 

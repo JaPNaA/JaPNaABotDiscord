@@ -3,7 +3,7 @@ import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
-import { TextChannel, ThreadChannel } from "discord.js";
+import { MessageType, TextChannel, ThreadChannel } from "discord.js";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
 import Logger from "../main/utils/logger.js";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
@@ -103,7 +103,7 @@ export default class AutoThread extends BotPlugin {
 
     public async *archiveThreads(event: DiscordCommandEvent) {
         const channel = await this.bot.client.getChannel(event.channelId);
-        if (channel && channel.isText() && 'threads' in channel) {
+        if (channel && channel.isTextBased() && 'threads' in channel) {
             channel.threads.cache.forEach(thread => {
                 if (!thread.archived) {
                     thread.setArchived();
@@ -152,7 +152,7 @@ export default class AutoThread extends BotPlugin {
 
         if (disableChatCooldown) {
             // prevent people from sending messages while on cooldown
-            channel.permissionOverwrites.create(channel.guild.roles.everyone, { SEND_MESSAGES: false });
+            channel.permissionOverwrites.create(channel.guild.roles.everyone, { SendMessages: false });
             this.addCooldownDoneTimeout(
                 () => channel.permissionOverwrites.delete(channel.guild.roles.everyone),
                 channel.id,
@@ -202,7 +202,7 @@ export default class AutoThread extends BotPlugin {
         let messageCacheSize = newState.messages.cache.size;
         if (messageCacheSize === 1) {
             const firstMessage = newState.messages.cache.at(0);
-            if (firstMessage && firstMessage.type === "THREAD_STARTER_MESSAGE") {
+            if (firstMessage && firstMessage.type === MessageType.ThreadStarterMessage) {
                 messageCacheSize -= 1; // first message is not message
             }
         }
@@ -462,7 +462,7 @@ export default class AutoThread extends BotPlugin {
                 description: "Archives all active threads in the channel."
             },
             noDM: true,
-            requiredDiscordPermission: "MANAGE_THREADS"
+            requiredDiscordPermission: "ManageThreads"
         });
 
 

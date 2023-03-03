@@ -62,7 +62,7 @@ class SlashCommands extends plugin_js_1.default {
                     commandContent: "",
                     createdTimestamp: interaction.createdTimestamp,
                     isDM: !interaction.guildId,
-                    arguments: interaction.options.getString("args") || "",
+                    arguments: interaction.options.get("args")?.value?.toString() || "",
                     originalEvent: {
                         author: (await this.bot.client.getUser(interaction.user.id)),
                         channel: (await this.bot.client.getChannel(interaction.channelId)),

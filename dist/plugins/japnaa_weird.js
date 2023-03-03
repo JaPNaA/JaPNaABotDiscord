@@ -86,6 +86,9 @@ class JapnaaWeird extends plugin_js_1.default {
         if (delta <= 0) {
             return;
         }
+        if (!('messages' in newMessage.channel)) {
+            return;
+        }
         const messagesAfter = await newMessage.channel.messages.fetch({
             after: newMessage.id,
             limit: 3

@@ -88,7 +88,7 @@ export default class AnnounceVCJoin extends BotPlugin {
             if (!announceChannelId) { throw new Error("Invalid arguments"); }
             const announceChannel = await this.bot.client.getChannel(announceChannelId);
             if (!announceChannel) { throw new Error("Text channel not found."); }
-            if (!announceChannel.isText()) { throw new Error("Text channel is not a text channel"); }
+            if (!announceChannel.isTextBased()) { throw new Error("Text channel is not a text channel"); }
 
             this.config.setInChannel(voiceChannelId, "enabled", true);
             this.config.setInChannel(voiceChannelId, "announceIn", announceChannelId);
@@ -112,7 +112,7 @@ export default class AnnounceVCJoin extends BotPlugin {
 
     public async *set_call_thread(event: DiscordCommandEvent) {
         const channel = await this.bot.client.getChannel(event.channelId);
-        if (!channel || !channel.isText()) { throw new Error("Channel not found or is not text-based"); }
+        if (!channel || !channel.isTextBased()) { throw new Error("Channel not found or is not text-based"); }
 
         let thread: ThreadChannel | undefined = undefined;
         let wasRunInThread = false;
@@ -190,7 +190,7 @@ export default class AnnounceVCJoin extends BotPlugin {
         if (channel.members.size <= 0) { return; } // person left: cancel announcement
 
         const announceInChannel = await this.bot.client.getChannel(announceInChannelId) as TextChannel;
-        if (!announceInChannel?.isText()) { return; }
+        if (!announceInChannel?.isTextBased()) { return; }
 
         // ASSIGNED THREAD CHECK
         let assignedThread: ThreadChannel | undefined = undefined;
@@ -317,7 +317,7 @@ export default class AnnounceVCJoin extends BotPlugin {
     private async _deleteMessageInChannel(channelId: string, messageId: string) {
         if (!channelId) { return; }
         const channel = await this.bot.client.getChannel(channelId);
-        if (!channel?.isText()) { return; }
+        if (!channel?.isTextBased() || !('messages' in channel)) { return; }
         const message = await channel.messages.fetch(messageId);
         if (!message || !message.deletable) { return; }
 

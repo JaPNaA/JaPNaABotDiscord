@@ -2,7 +2,7 @@ import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import { EventControls } from "../main/bot/events/eventHandlers";
-import { MessageOptions } from "discord.js";
+import { Options } from "discord.js";
 /**
  * Keep channels 'clean,' and get rid free speech.
  */
@@ -33,7 +33,7 @@ declare class Censorship extends BotPlugin {
     messageHandler(event: DiscordMessageEvent, eventControls: EventControls): Promise<void>;
     sendMessageHandler({ channelId, content }: {
         channelId: string;
-        content: string | MessageOptions;
+        content: string | Options;
     }, eventControls: EventControls): Promise<void>;
     _isUserMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean>;
     _start(): void;

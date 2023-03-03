@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const actions_js_1 = require("../main/bot/actions/actions.js");
+const discord_js_1 = require("discord.js");
 const toArray_js_1 = __importDefault(require("../main/utils/toArray.js"));
 const toOne_js_1 = __importDefault(require("../main/utils/toOne.js"));
 const getSnowflakeNum_js_1 = __importDefault(require("../main/utils/getSnowflakeNum.js"));
@@ -142,10 +143,10 @@ class StatusHistory {
         const userStatusHistory = this.getOrCreateUserStatusHistory(userId);
         const latestActivity = userStatusHistory.getLatestActivity();
         const activityName = activity ?
-            (activity.type === "CUSTOM" ?
+            (activity.type === discord_js_1.ActivityType.Custom ?
                 (activity.emoji?.name ? activity.emoji.name + " " : "") + activity.state || ""
                 : activity.name) : "";
-        const activityType = activity ? activity.type : "NONE";
+        const activityType = activity ? activity.type : -1;
         if (latestActivity && latestActivity.type === activityType && latestActivity.name === activityName) {
             return;
         } // not changed

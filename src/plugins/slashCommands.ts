@@ -5,7 +5,7 @@ import { REST } from "@discordjs/rest";
 import { Routes } from "discord-api-types/v9";
 import { SlashCommandBuilder } from "@discordjs/builders";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
-import { TextBasedChannel } from "discord.js";
+import { ApplicationCommandOptionType, TextBasedChannel } from "discord.js";
 import { PrecommandWithCallback } from "../main/bot/precommand/precommand.js";
 import Logger from "../main/utils/logger.js";
 import { ActionRunner } from "../main/bot/actions/actionRunner.js";
@@ -67,7 +67,7 @@ export default class SlashCommands extends BotPlugin {
                     commandContent: "",
                     createdTimestamp: interaction.createdTimestamp,
                     isDM: !interaction.guildId,
-                    arguments: interaction.options.getString("args") || "",
+                    arguments: interaction.options.get("args")?.value?.toString() || "",
                     originalEvent: {
                         author: (await this.bot.client.getUser(interaction.user.id))!,
                         channel: (await this.bot.client.getChannel(interaction.channelId)) as TextBasedChannel,

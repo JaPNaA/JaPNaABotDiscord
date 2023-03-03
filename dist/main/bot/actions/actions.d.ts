@@ -1,4 +1,4 @@
-import { AllowedThreadTypeForTextChannel, CacheType, Interaction, Message, MessageOptions, ThreadChannel, ThreadCreateOptions } from "discord.js";
+import { AllowedThreadTypeForTextChannel, CacheType, GuildTextThreadCreateOptions, Interaction, Message, Options as MessageOptions, ThreadChannel } from "discord.js";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
 export declare abstract class Action {
@@ -79,11 +79,11 @@ export declare class ReplyThreadSoft extends Action {
     threadName: string;
     private options;
     private thread?;
-    constructor(threadName: string, options?: Partial<ThreadCreateOptions<AllowedThreadTypeForTextChannel>>);
+    constructor(threadName: string, options?: Partial<GuildTextThreadCreateOptions<AllowedThreadTypeForTextChannel>>);
     perform(bot: Bot, event: DiscordMessageEvent): Promise<any>;
     performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
     private createThread;
-    getThread(): ThreadChannel;
+    getThread(): ThreadChannel<boolean>;
 }
 /**
  * Deletes a message. 'Soft' means the bot won't throw an error if

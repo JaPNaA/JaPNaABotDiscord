@@ -417,7 +417,7 @@ class Japnaa extends plugin_js_1.default {
         }
         else {
             const channel = await this.bot.client.getChannel(event.channelId);
-            if (channel?.isText() && channel.lastMessage && !channel.lastMessage.hasThread) {
+            if (channel?.isTextBased() && 'lastMessage' in channel && channel.lastMessage && !channel.lastMessage.hasThread) {
                 yield new actions_1.ReplyThreadSoft((0, ellipsisize_1.default)(channel.lastMessage.content, 100) || "Untitled", {
                     startMessage: channel.lastMessage
                 });

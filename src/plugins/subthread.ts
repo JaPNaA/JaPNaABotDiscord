@@ -1,5 +1,4 @@
-import { ThreadChannel, Interaction, TextChannel, MessageActionRow, MessageButton, Message, NewsChannel, AnyChannel, DMChannel } from "discord.js";
-import { MessageButtonStyles } from "discord.js/typings/enums";
+import { ThreadChannel, Interaction, TextChannel, Message, DMChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, ChannelType } from "discord.js";
 import { ReplySoft, ReplyThreadSoft, ReplyUnimportant, Send } from "../main/bot/actions/actions";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
@@ -36,11 +35,12 @@ class Subthread extends BotPlugin {
         let lastMessage;
 
         const channel = await this.bot.client.getChannel(event.channelId);
-        if (!channel?.isText()) { return new ReplyUnimportant("You must run this command in a text channel"); }
+        if (!channel?.isTextBased()) { return new ReplyUnimportant("You must run this command in a text channel"); }
         if (channel instanceof DMChannel) { return new ReplyUnimportant("Cannot use this command in DMs"); }
 
         if (!threadTitle) {
             // automatic title (no title provided)
+            if (!('lastMessage' in channel)) { return new ReplyUnimportant("Cannot get last message in this channel."); }
             if (!channel.lastMessage) { return new ReplyUnimportant("Must provide a thread title because no last message was found in this channel."); }
             if (channel.lastMessage.hasThread) { return new ReplyUnimportant("Must provide a thread title to create new thread since the last message already has a thread"); }
             threadTitle = channel.lastMessage.content;
@@ -59,10 +59,10 @@ class Subthread extends BotPlugin {
 
         let thread = await parentChannel.threads.create({
             name: ellipsisize(threadTitle + ('name' in channel ? ` (in ${channel.name})` : ""), 100),
-            type: "GUILD_PRIVATE_THREAD",
+            type: ChannelType.PrivateThread
         });
 
-        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || channel.lastMessage);
+        const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || ('lastMessage' in channel ? channel.lastMessage : undefined));
         yield threadFirstMessageAction;
         const threadFirstMessage = threadFirstMessageAction.getMessage();
 
@@ -75,17 +75,17 @@ class Subthread extends BotPlugin {
         return new ReplySoft({
             content: "**Subthread** " + (lastMessage ? "from last message" : `_${threadTitle}_`) + `\n--> <#${thread.id}>`,
             components: [
-                new MessageActionRow().addComponents(
-                    new MessageButton()
+                new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
                         .setLabel("Gain access")
                         .setCustomId(`threadaccessgive:${thread.id}:${threadFirstMessage.id}`)
-                        .setStyle(MessageButtonStyles.PRIMARY)
+                        .setStyle(ButtonStyle.Primary)
                 )
             ]
         });
     }
 
-    private async chooseSubthreadChannel(channel: AnyChannel) {
+    private async chooseSubthreadChannel(channel: Channel) {
         const config = await this.config.getAllUserSettingsInChannel(channel.id);
         const subthreadChannelSelectionMethod = config.get("channelSelection");
         const subthreadChannelId = config.get("subthreadChannel");
@@ -114,7 +114,7 @@ class Subthread extends BotPlugin {
         }
     }
 
-    private canCreatePrivateThreadIn(channel: AnyChannel | null): channel is TextChannel {
+    private canCreatePrivateThreadIn(channel: Channel | null): channel is TextChannel {
         return channel instanceof TextChannel;
     }
 
@@ -158,7 +158,7 @@ class Subthread extends BotPlugin {
             },
             group: "Communication",
             noDM: true,
-            requiredDiscordPermission: "CREATE_PRIVATE_THREADS"
+            requiredDiscordPermission: "CreatePrivateThreads"
         });
     }
 
@@ -179,7 +179,7 @@ class SubthreadFirstMessage {
         }
     }
 
-    static generate(newThread: ThreadChannel, parentThread: AnyChannel, lastMessage?: Message | null) {
+    static generate(newThread: ThreadChannel, parentThread: Channel, lastMessage?: Message | null) {
         let message: string;
         if (lastMessage) {
             message = `\nJump: https://discord.com/channels/${newThread.guildId || "@me"}/${lastMessage.channelId}/${lastMessage.id} (in <#${parentThread.id}>)`;

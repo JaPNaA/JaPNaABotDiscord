@@ -1,4 +1,4 @@
-import { EmbedFieldData, Message, MessageEditOptions, MessageOptions, MessageReaction, PartialMessage, PartialMessageReaction, PartialUser, TextChannel, User } from "discord.js";
+import { APIEmbedField, Message, MessageEditOptions, MessageReaction, Options, PartialMessage, PartialMessageReaction, PartialUser, TextChannel, User } from "discord.js";
 import { ReplySoft } from "../main/bot/actions/actions";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
@@ -153,9 +153,9 @@ class ActivityDashboard extends BotPlugin {
         });
     }
 
-    private async generateMessage(serverId: string): Promise<MessageOptions & MessageEditOptions> {
+    private async generateMessage(serverId: string): Promise<Options & MessageEditOptions> {
         const activityLog = this.getServerStateMut(serverId).activity.getRecords();
-        const channelFields: [number, EmbedFieldData][] = [];
+        const channelFields: [number, APIEmbedField][] = [];
 
         const promises = [];
 
@@ -182,7 +182,7 @@ class ActivityDashboard extends BotPlugin {
                 channelFields.push([
                     records[records.length - 1].timestamp,
                     {
-                        name: channel ? ('name' in channel ? channel.name : "Untitled") : "Untitled",
+                        name: channel ? ('name' in channel && channel.name ? channel.name : "Untitled") : "Untitled",
                         value: message.getMessage()
                     }
                 ]);
@@ -198,7 +198,7 @@ class ActivityDashboard extends BotPlugin {
             embeds: [{
                 description: channelFields.length ? undefined : "_Empty_",
                 fields: channelFields.slice(-ActivityDashboard.EMBED_FIELDS_MAX_LENGTH).map(x => x[1]),
-                timestamp: Date.now()
+                timestamp: new Date().toISOString()
             }],
             allowedMentions: { users: [] }
         };
@@ -229,7 +229,7 @@ class ActivityDashboard extends BotPlugin {
                     ["activity dashboard", "Summons an activity dashboard"]
                 ]
             },
-            requiredDiscordPermission: "ADMINISTRATOR"
+            requiredDiscordPermission: "Administrator"
         });
 
         this.bot.events.beforeMemoryWrite.addHandler(() => {

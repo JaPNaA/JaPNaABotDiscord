@@ -574,8 +574,8 @@ class Default extends plugin_js_1.default {
             if (!server) {
                 throw new Error("Could not find server or channel");
             }
-            if (!(await this.bot.permissions.getPermissions_channel(event.userId, server.id, location)).hasDiscord("ADMINISTRATOR")) {
-                return "You do not have permission (`ADMINISTRATOR`) to configure that channel";
+            if (!(await this.bot.permissions.getPermissions_channel(event.userId, server.id, location)).hasDiscord("Administrator")) {
+                return "You do not have permission (`Administrator`) to configure that channel";
             }
             humanReadableLocation = `<#${location}>`;
             config = await plugin.config.getAllUserSettingsInChannel(location);
@@ -585,8 +585,8 @@ class Default extends plugin_js_1.default {
                 location = event.serverId;
             }
             // check permissions
-            if (!(await this.bot.permissions.getPermissions_channel(event.userId, location, event.channelId)).hasDiscord("ADMINISTRATOR")) {
-                return "You do not have permission (`ADMINISTRATOR`) to configure that server";
+            if (!(await this.bot.permissions.getPermissions_channel(event.userId, location, event.channelId)).hasDiscord("Administrator")) {
+                return "You do not have permission (`Administrator`) to configure that server";
             }
             config = await plugin.config.getAllUserSettingsInServer(location);
             humanReadableLocation = "server";
@@ -856,7 +856,7 @@ class Default extends plugin_js_1.default {
             group: "Communication"
         });
         this._registerDefaultCommand("edit permission", this.edit_permission, {
-            requiredDiscordPermission: "ADMINISTRATOR",
+            requiredDiscordPermission: "Administrator",
             help: {
                 description: "Edits the permissions of a person or role.",
                 overloads: [{
@@ -925,7 +925,7 @@ class Default extends plugin_js_1.default {
                     ]
                 ]
             },
-            requiredDiscordPermission: "ADMINISTRATOR"
+            requiredDiscordPermission: "Administrator"
         });
         this._registerDefaultCommand("send", this.send, {
             requiredCustomPermission: "BOT_ADMINISTRATOR",

@@ -1,8 +1,7 @@
-import { User, Client, TextChannel, Guild, Role, GuildMember, Message, AnyChannel, ThreadChannel, MessageOptions, MessageEmbedOptions, DMChannel, DiscordAPIError } from "discord.js";
+import { User, Client, Guild, Role, GuildMember, Message, DiscordAPIError, ActivityType, Options, EmbedData, Channel } from "discord.js";
 
 import Logger from "../../utils/logger.js";
 import MessageObject from "../types/messageObject.js";
-import { ActivityTypes } from "discord.js/typings/enums";
 import Bot from "./bot.js";
 
 class PresenceSetter {
@@ -14,7 +13,7 @@ class PresenceSetter {
 
     setGame(name: string): void {
         this.client.user?.setPresence({
-            activities: [{ name: name || undefined, type: ActivityTypes.PLAYING }]
+            activities: [{ name: name || undefined, type: ActivityType.Playing }]
         });
     }
 
@@ -22,7 +21,7 @@ class PresenceSetter {
         this.client.user?.setPresence({
             activities: [{
                 name: name || undefined,
-                type: ActivityTypes.WATCHING
+                type: ActivityType.Watching
             }]
         });
     }
@@ -31,7 +30,7 @@ class PresenceSetter {
         this.client.user?.setPresence({
             activities: [{
                 name: name || undefined,
-                type: ActivityTypes.LISTENING
+                type: ActivityType.Listening
             }]
         });
     }
@@ -40,7 +39,16 @@ class PresenceSetter {
         this.client.user?.setPresence({
             activities: [{
                 name: name || undefined,
-                type: ActivityTypes.STREAMING
+                type: ActivityType.Streaming
+            }]
+        });
+    }
+
+    setCompete(name: string): void {
+        this.client.user?.setPresence({
+            activities: [{
+                name: name || undefined,
+                type: ActivityType.Competing
             }]
         });
     }
@@ -134,7 +142,7 @@ class BotClient {
      * Send message
      * @returns A promise that resolves when sent
      */
-    async send(channelId: string, message: string | MessageOptions): Promise<Message | Message[]> {
+    async send(channelId: string, message: string | Options): Promise<Message | Message[]> {
         Logger.log_message(">>", message);
 
         let promise: Promise<Message | Message[]>;
@@ -144,7 +152,7 @@ class BotClient {
             throw new Error("Cannot find channel");
         }
 
-        if (!textChannel.isText()) {
+        if (!textChannel.isTextBased() || !('send' in textChannel)) {
             throw new TypeError("Cannot send to non-text channel");
         }
 
@@ -170,7 +178,7 @@ class BotClient {
         return promise;
     }
 
-    async sendEmbed(channelId: string, embed: MessageEmbedOptions): Promise<Message | Message[]> {
+    async sendEmbed(channelId: string, embed: EmbedData): Promise<Message | Message[]> {
         return this.send(channelId, {
             embeds: [embed]
         });
@@ -214,7 +222,7 @@ class BotClient {
         return promise;
     }
 
-    getChannel(channelId: string): Promise<AnyChannel | null> {
+    getChannel(channelId: string): Promise<Channel | null> {
         return this.client.channels.fetch(channelId);
     }
 
@@ -243,7 +251,7 @@ class BotClient {
 
     async getMessageFromChannel(channelId: string, messageId: string): Promise<Message> {
         const channel = await this.getChannel(channelId);
-        if (channel?.isText()) {
+        if (channel?.isTextBased() && 'messages' in channel) {
             return channel.messages.fetch(messageId);
         } else {
             throw new Error("Channel doesn't exist or is not text");

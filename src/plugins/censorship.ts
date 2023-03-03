@@ -3,8 +3,8 @@ import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import { EventControls } from "../main/bot/events/eventHandlers";
-import { MessageOptions } from "discord.js";
 import Logger from "../main/utils/logger";
+import { Options } from "discord.js";
 
 /**
  * Keep channels 'clean,' and get rid free speech.
@@ -51,7 +51,7 @@ class Censorship extends BotPlugin {
 
                 if (await config.get("deleteCensoredMessages")) {
                     const channel = await this.bot.client.getChannel(event.channelId);
-                    if (channel && channel.isText()) {
+                    if (channel && channel.isTextBased() && 'messages' in channel) {
                         const message = await channel.messages.fetch(event.messageId);
                         if (message) {
                             await message.delete();
@@ -71,7 +71,7 @@ class Censorship extends BotPlugin {
     }
 
     async sendMessageHandler(
-        { channelId, content }: { channelId: string, content: string | MessageOptions },
+        { channelId, content }: { channelId: string, content: string | Options },
         eventControls: EventControls
     ) {
         const config = await this.config.getAllUserSettingsInChannel(channelId);

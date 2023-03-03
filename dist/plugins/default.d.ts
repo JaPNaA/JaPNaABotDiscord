@@ -1,7 +1,7 @@
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import BotCommand from "../main/bot/command/command.js";
-import { EmbedFieldData } from "discord.js";
+import { APIEmbedField } from "discord.js";
 import Bot from "../main/bot/bot/bot.js";
 import { BotCommandHelp, BotCommandHelpFull } from "../main/bot/command/commandHelp.js";
 import { ReplyPrivate, ReplyUnimportant, Send } from "../main/bot/actions/actions.js";
@@ -24,7 +24,7 @@ declare class Default extends BotPlugin {
                 name: string;
                 icon_url: string | undefined;
             };
-            fields: EmbedFieldData[];
+            fields: APIEmbedField[];
             timestamp: Date;
         }[];
     }, void, unknown>;

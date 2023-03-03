@@ -1,8 +1,8 @@
-import { User, Guild, TextBasedChannel } from "discord.js";
+import { User, Guild, TextBasedChannel, ThreadChannel } from "discord.js";
 
 interface IMessage {
     author: User;
-    channel: TextBasedChannel;
+    channel: TextBasedChannel | ThreadChannel;
     guild: Guild | null;
     id: string;
     content: string;

@@ -165,7 +165,7 @@ class ActivityDashboard extends plugin_1.default {
                 channelFields.push([
                     records[records.length - 1].timestamp,
                     {
-                        name: channel ? ('name' in channel ? channel.name : "Untitled") : "Untitled",
+                        name: channel ? ('name' in channel && channel.name ? channel.name : "Untitled") : "Untitled",
                         value: message.getMessage()
                     }
                 ]);
@@ -178,7 +178,7 @@ class ActivityDashboard extends plugin_1.default {
             embeds: [{
                     description: channelFields.length ? undefined : "_Empty_",
                     fields: channelFields.slice(-ActivityDashboard.EMBED_FIELDS_MAX_LENGTH).map(x => x[1]),
-                    timestamp: Date.now()
+                    timestamp: new Date().toISOString()
                 }],
             allowedMentions: { users: [] }
         };
@@ -204,7 +204,7 @@ class ActivityDashboard extends plugin_1.default {
                     ["activity dashboard", "Summons an activity dashboard"]
                 ]
             },
-            requiredDiscordPermission: "ADMINISTRATOR"
+            requiredDiscordPermission: "Administrator"
         });
         this.bot.events.beforeMemoryWrite.addHandler(() => {
             this.bot.memory.write(this.pluginName, "activityHistory", this.serializeActivityHistory());

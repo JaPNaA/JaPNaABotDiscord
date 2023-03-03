@@ -2,7 +2,7 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
 import { ReplyUnimportant } from "../main/bot/actions/actions.js";
-import { Activity, Guild, Presence } from "discord.js";
+import { Activity, ActivityType, Guild, Presence } from "discord.js";
 import toArray from "../main/utils/toArray.js";
 import toOne from "../main/utils/toOne.js";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
@@ -157,11 +157,11 @@ class StatusHistory {
         const latestActivity = userStatusHistory.getLatestActivity();
         const activityName = activity ?
             (
-                activity.type === "CUSTOM" ?
+                activity.type === ActivityType.Custom ?
                     (activity.emoji?.name ? activity.emoji.name + " " : "") + activity.state || ""
                     : activity.name
             ) : "";
-        const activityType = activity ? activity.type : "NONE";
+        const activityType = activity ? activity.type : -1;
         if (latestActivity && latestActivity.type === activityType && latestActivity.name === activityName) { return; } // not changed
 
         userStatusHistory.recordActivity(activityType, activityName, this.refreshing);
@@ -219,7 +219,7 @@ class UserStatusHistory {
         this.statuses.push(record);
     }
 
-    public recordActivity(type: string, name: string, isRefresh: boolean) {
+    public recordActivity(type: number, name: string, isRefresh: boolean) {
         const record: ActivityHistoryRecord = {
             type: type,
             name: name,
@@ -258,7 +258,7 @@ interface StatusHistoryRecord {
 }
 
 interface ActivityHistoryRecord {
-    type: string;
+    type: number;
     name: string;
     startTime: number;
     /**
