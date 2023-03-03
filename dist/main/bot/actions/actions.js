@@ -12,6 +12,7 @@ exports.Action = Action;
 class Reply extends Action {
     message;
     sentMessage;
+    suppressNotifications = true;
     constructor(message) {
         super();
         this.message = message;
@@ -22,8 +23,31 @@ class Reply extends Action {
         }
         return (0, toOne_1.default)(this.sentMessage);
     }
+    setSendNotifications() {
+        this.suppressNotifications = false;
+    }
     async send(bot, channelId) {
-        this.sentMessage = await bot.client.send(channelId, this.message);
+        if (this.suppressNotifications) {
+            if (typeof this.message == "string") {
+                this.sentMessage = await bot.client.send(channelId, {
+                    content: this.message,
+                    // @ts-ignore -- discord.js is expecting SuppressEmbeds, but SuppressNotifications works fine
+                    flags: discord_js_1.MessageFlags.SuppressNotifications
+                });
+            }
+            else {
+                const newFlags = new discord_js_1.BitField(this.message.flags);
+                // @ts-ignore -- discord.js is expecting SuppressEmbeds, but SuppressNotifications works fine
+                newFlags.add(discord_js_1.MessageFlags.SuppressNotifications);
+                this.sentMessage = await bot.client.send(channelId, {
+                    ...this.message,
+                    flags: newFlags
+                });
+            }
+        }
+        else {
+            this.sentMessage = await bot.client.send(channelId, this.message);
+        }
     }
 }
 /**

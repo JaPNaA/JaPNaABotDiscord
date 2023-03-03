@@ -8,8 +8,10 @@ export declare abstract class Action {
 declare abstract class Reply extends Action {
     message: string | MessageCreateOptions;
     protected sentMessage?: Message | Message[];
+    protected suppressNotifications: boolean;
     constructor(message: string | MessageCreateOptions);
     getMessage(): Message;
+    setSendNotifications(): void;
     protected send(bot: Bot, channelId: string): Promise<void>;
 }
 /**

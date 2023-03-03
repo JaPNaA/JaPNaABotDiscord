@@ -1,4 +1,4 @@
-import { AllowedThreadTypeForTextChannel, CacheType, GuildTextThreadCreateOptions, Interaction, InteractionReplyOptions, Message, MessageCreateOptions, TextChannel, ThreadChannel } from "discord.js";
+import { AllowedThreadTypeForTextChannel, BitField, CacheType, GuildTextThreadCreateOptions, Interaction, InteractionReplyOptions, Message, MessageCreateOptions, MessageFlags, TextChannel, ThreadChannel } from "discord.js";
 import toOne from "../../utils/toOne";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
@@ -10,6 +10,7 @@ export abstract class Action {
 
 abstract class Reply extends Action {
     protected sentMessage?: Message | Message[];
+    protected suppressNotifications = true;
 
     constructor(
         public message: string | MessageCreateOptions
@@ -20,8 +21,30 @@ abstract class Reply extends Action {
         return toOne(this.sentMessage);
     }
 
+    public setSendNotifications() {
+        this.suppressNotifications = false;
+    }
+
     protected async send(bot: Bot, channelId: string) {
-        this.sentMessage = await bot.client.send(channelId, this.message);
+        if (this.suppressNotifications) {
+            if (typeof this.message == "string") {
+                this.sentMessage = await bot.client.send(channelId, {
+                    content: this.message,
+                    // @ts-ignore -- discord.js is expecting SuppressEmbeds, but SuppressNotifications works fine
+                    flags: MessageFlags.SuppressNotifications
+                });
+            } else {
+                const newFlags = new BitField(this.message.flags);
+                // @ts-ignore -- discord.js is expecting SuppressEmbeds, but SuppressNotifications works fine
+                newFlags.add(MessageFlags.SuppressNotifications);
+                this.sentMessage = await bot.client.send(channelId, {
+                    ...this.message,
+                    flags: newFlags
+                });
+            }
+        } else {
+            this.sentMessage = await bot.client.send(channelId, this.message);
+        }
     }
 }
 

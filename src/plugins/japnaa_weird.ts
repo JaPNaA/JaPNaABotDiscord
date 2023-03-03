@@ -74,9 +74,7 @@ class JapnaaWeird extends BotPlugin {
         } else if (!event.precommandName) {
             if (this.lolRegexp.test(event.message)) {
                 // ^ contains valid 'lol' and is not command
-                yield new ReplySoft({
-                    content: "lol"
-                });
+                yield "lol";
             }
 
             if (this.goodBotRegexp.test(event.message)) {
