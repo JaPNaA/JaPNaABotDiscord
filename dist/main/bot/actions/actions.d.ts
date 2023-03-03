@@ -1,4 +1,4 @@
-import { AllowedThreadTypeForTextChannel, CacheType, GuildTextThreadCreateOptions, Interaction, Message, Options as MessageOptions, ThreadChannel } from "discord.js";
+import { AllowedThreadTypeForTextChannel, CacheType, GuildTextThreadCreateOptions, Interaction, Message, MessageCreateOptions, ThreadChannel } from "discord.js";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
 export declare abstract class Action {
@@ -6,9 +6,9 @@ export declare abstract class Action {
     abstract performInteraction(bot: Bot, interaction: Interaction): Promise<any>;
 }
 declare abstract class Reply extends Action {
-    message: string | MessageOptions;
+    message: string | MessageCreateOptions;
     protected sentMessage?: Message | Message[];
-    constructor(message: string | MessageOptions);
+    constructor(message: string | MessageCreateOptions);
     getMessage(): Message;
     protected send(bot: Bot, channelId: string): Promise<void>;
 }
@@ -51,9 +51,9 @@ export declare class ReplyUnimportant extends Reply {
  */
 export declare class Send extends Action {
     channelId: string;
-    message: string | MessageOptions;
+    message: string | MessageCreateOptions;
     protected sentMessage?: Message | Message[];
-    constructor(channelId: string, message: string | MessageOptions);
+    constructor(channelId: string, message: string | MessageCreateOptions);
     perform(bot: Bot): Promise<any>;
     performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
     getMessage(): Message;
@@ -66,8 +66,8 @@ export declare class Send extends Action {
  */
 export declare class SendPrivate extends Action {
     userId: string;
-    message: string | MessageOptions;
-    constructor(userId: string, message: string | MessageOptions);
+    message: string | MessageCreateOptions;
+    constructor(userId: string, message: string | MessageCreateOptions);
     perform(bot: Bot): Promise<any>;
     performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;
 }

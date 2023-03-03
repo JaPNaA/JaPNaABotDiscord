@@ -1,4 +1,4 @@
-import { AllowedThreadTypeForTextChannel, CacheType, GuildTextThreadCreateOptions, Interaction, InteractionReplyOptions, Message, Options as MessageOptions, TextChannel, ThreadChannel } from "discord.js";
+import { AllowedThreadTypeForTextChannel, CacheType, GuildTextThreadCreateOptions, Interaction, InteractionReplyOptions, Message, MessageCreateOptions, TextChannel, ThreadChannel } from "discord.js";
 import toOne from "../../utils/toOne";
 import Bot from "../bot/bot";
 import DiscordMessageEvent from "../events/discordMessageEvent";
@@ -12,7 +12,7 @@ abstract class Reply extends Action {
     protected sentMessage?: Message | Message[];
 
     constructor(
-        public message: string | MessageOptions
+        public message: string | MessageCreateOptions
     ) { super(); }
 
     public getMessage(): Message {
@@ -119,7 +119,7 @@ export class Send extends Action {
 
     constructor(
         public channelId: string,
-        public message: string | MessageOptions
+        public message: string | MessageCreateOptions
     ) { super(); }
 
     public async perform(bot: Bot): Promise<any> {
@@ -149,7 +149,7 @@ export class Send extends Action {
 export class SendPrivate extends Action {
     constructor(
         public userId: string,
-        public message: string | MessageOptions
+        public message: string | MessageCreateOptions
     ) { super(); }
 
     public perform(bot: Bot): Promise<any> {
@@ -294,7 +294,7 @@ async function followUpOrReply(bot: Bot, interaction: Interaction, message: stri
     }
 }
 
-function ephemeralize(message: string | MessageOptions): InteractionReplyOptions {
+function ephemeralize(message: string | MessageCreateOptions): InteractionReplyOptions {
     if (typeof message === "string") {
         return {
             content: message,

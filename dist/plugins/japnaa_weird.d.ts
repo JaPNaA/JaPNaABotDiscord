@@ -3,7 +3,7 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import { EventControls } from "../main/bot/events/eventHandlers";
-import { ReplyReact } from "../main/bot/actions/actions";
+import { ReplyReact, ReplySoft } from "../main/bot/actions/actions";
 /**
  * The weirder side of JaPNaABot
  */
@@ -35,7 +35,7 @@ declare class JapnaaWeird extends BotPlugin {
     /**
      * Listens for messages with 'lol' and deviations
      */
-    onmessageHandler_lol(event: DiscordMessageEvent, eventControls: EventControls): AsyncGenerator<string | ReplyReact, void, unknown>;
+    onmessageHandler_lol(event: DiscordMessageEvent, eventControls: EventControls): AsyncGenerator<string | ReplySoft | ReplyReact, void, unknown>;
     private messageEditHandler;
     private _countL$wl;
     _isUserMessage(bot: Bot, event: DiscordMessageEvent): Promise<boolean>;

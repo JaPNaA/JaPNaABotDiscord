@@ -1,4 +1,4 @@
-import { User, Client, Guild, Role, GuildMember, Message, Options, EmbedData, Channel } from "discord.js";
+import { User, Client, Guild, Role, GuildMember, Message, Channel, MessageCreateOptions, APIEmbed } from "discord.js";
 import MessageObject from "../types/messageObject.js";
 import Bot from "./bot.js";
 declare class PresenceSetter {
@@ -53,8 +53,8 @@ declare class BotClient {
      * Send message
      * @returns A promise that resolves when sent
      */
-    send(channelId: string, message: string | Options): Promise<Message | Message[]>;
-    sendEmbed(channelId: string, embed: EmbedData): Promise<Message | Message[]>;
+    send(channelId: string, message: string | MessageCreateOptions): Promise<Message | Message[]>;
+    sendEmbed(channelId: string, embed: APIEmbed): Promise<Message | Message[]>;
     /**
      * Sends direct message
      * @param userId id of user

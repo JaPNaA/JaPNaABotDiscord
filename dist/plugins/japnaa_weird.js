@@ -69,7 +69,9 @@ class JapnaaWeird extends plugin_js_1.default {
         else if (!event.precommandName) {
             if (this.lolRegexp.test(event.message)) {
                 // ^ contains valid 'lol' and is not command
-                yield "lol";
+                yield new actions_1.ReplySoft({
+                    content: "lol"
+                });
             }
             if (this.goodBotRegexp.test(event.message)) {
                 yield new actions_1.ReplyReact("\ud83d\ude04");

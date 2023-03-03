@@ -76,6 +76,7 @@ class Subthread extends plugin_1.default {
         return new actions_1.ReplySoft({
             content: "**Subthread** " + (lastMessage ? "from last message" : `_${threadTitle}_`) + `\n--> <#${thread.id}>`,
             components: [
+                // @ts-ignore -- This fails typechecks, but is how they do it in the discord.js guide
                 new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
                     .setLabel("Gain access")
                     .setCustomId(`threadaccessgive:${thread.id}:${threadFirstMessage.id}`)

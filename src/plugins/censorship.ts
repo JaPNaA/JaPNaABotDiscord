@@ -4,7 +4,7 @@ import BotPlugin from "../main/bot/plugin/plugin.js";
 import Bot from "../main/bot/bot/bot";
 import { EventControls } from "../main/bot/events/eventHandlers";
 import Logger from "../main/utils/logger";
-import { Options } from "discord.js";
+import { MessageCreateOptions } from "discord.js";
 
 /**
  * Keep channels 'clean,' and get rid free speech.
@@ -71,7 +71,7 @@ class Censorship extends BotPlugin {
     }
 
     async sendMessageHandler(
-        { channelId, content }: { channelId: string, content: string | Options },
+        { channelId, content }: { channelId: string, content: string | MessageCreateOptions },
         eventControls: EventControls
     ) {
         const config = await this.config.getAllUserSettingsInChannel(channelId);

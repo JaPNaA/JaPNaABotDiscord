@@ -1,4 +1,4 @@
-import { Options as MessageOptions } from "discord.js";
+import { MessageCreateOptions } from "discord.js";
 import DiscordCommandEvent from "../events/discordCommandEvent.js";
 import DiscordMessageEvent from "../events/discordMessageEvent.js";
 import { EventHandlers } from "../events/eventHandlers.js";
@@ -15,7 +15,7 @@ class BotEvent {
 
     public send = new EventHandlers<{
         channelId: string,
-        content: string | MessageOptions
+        content: string | MessageCreateOptions
     }>();
     public sendDM = new EventHandlers<{
         userId: string,

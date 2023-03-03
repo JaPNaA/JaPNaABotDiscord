@@ -1,4 +1,4 @@
-import { ThreadChannel, Interaction, TextChannel, Message, DMChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, ChannelType } from "discord.js";
+import { ThreadChannel, Interaction, TextChannel, Message, DMChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, ChannelType, EmbedBuilder } from "discord.js";
 import { ReplySoft, ReplyThreadSoft, ReplyUnimportant, Send } from "../main/bot/actions/actions";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
@@ -75,6 +75,7 @@ class Subthread extends BotPlugin {
         return new ReplySoft({
             content: "**Subthread** " + (lastMessage ? "from last message" : `_${threadTitle}_`) + `\n--> <#${thread.id}>`,
             components: [
+                // @ts-ignore -- This fails typechecks, but is how they do it in the discord.js guide
                 new ActionRowBuilder().addComponents(
                     new ButtonBuilder()
                         .setLabel("Gain access")

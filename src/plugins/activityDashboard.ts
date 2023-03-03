@@ -1,4 +1,4 @@
-import { APIEmbedField, Message, MessageEditOptions, MessageReaction, Options, PartialMessage, PartialMessageReaction, PartialUser, TextChannel, User } from "discord.js";
+import { APIEmbedField, Message, MessageCreateOptions, MessageEditOptions, MessageReaction, PartialMessage, PartialMessageReaction, PartialUser, TextChannel, User } from "discord.js";
 import { ReplySoft } from "../main/bot/actions/actions";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
@@ -153,7 +153,7 @@ class ActivityDashboard extends BotPlugin {
         });
     }
 
-    private async generateMessage(serverId: string): Promise<Options & MessageEditOptions> {
+    private async generateMessage(serverId: string): Promise<MessageCreateOptions & MessageEditOptions> {
         const activityLog = this.getServerStateMut(serverId).activity.getRecords();
         const channelFields: [number, APIEmbedField][] = [];
 

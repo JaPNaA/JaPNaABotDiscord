@@ -23,6 +23,7 @@ import { JSONObject, JSONType } from "../main/types/jsonObject.js";
 import removeFromArray from "../main/utils/removeFromArray.js";
 import { ReplyPrivate, ReplyUnimportant, Send } from "../main/bot/actions/actions.js";
 import inlinePromise from "../main/utils/async/inlinePromise.js";
+import MessageOrAction from "../main/bot/types/messageOrAction.js";
 
 /**
  * Normal commands every bot shoud have
@@ -52,7 +53,7 @@ class Default extends BotPlugin {
         Logger.log(event.arguments);
     }
 
-    async *user_info(event: DiscordCommandEvent) {
+    async *user_info(event: DiscordCommandEvent): AsyncGenerator<MessageOrAction> {
         let userId: string | null = event.userId;
 
         let response: APIEmbedField[] = [];
@@ -144,7 +145,7 @@ class Default extends BotPlugin {
                         icon_url: user.avatarURL({ size: 128 }) || undefined
                     },
                     fields: response,
-                    timestamp: new Date()
+                    timestamp: new Date().toISOString()
                 }]
             };
         } else {

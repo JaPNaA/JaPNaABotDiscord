@@ -140,7 +140,7 @@ class Default extends plugin_js_1.default {
                             icon_url: user.avatarURL({ size: 128 }) || undefined
                         },
                         fields: response,
-                        timestamp: new Date()
+                        timestamp: new Date().toISOString()
                     }]
             };
         }

@@ -5,7 +5,7 @@ import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import { EventControls } from "../main/bot/events/eventHandlers";
 import { Message, PartialMessage } from "discord.js";
-import { ReplyReact } from "../main/bot/actions/actions";
+import { ReplyReact, ReplySoft } from "../main/bot/actions/actions";
 
 /**
  * The weirder side of JaPNaABot
@@ -74,7 +74,9 @@ class JapnaaWeird extends BotPlugin {
         } else if (!event.precommandName) {
             if (this.lolRegexp.test(event.message)) {
                 // ^ contains valid 'lol' and is not command
-                yield "lol";
+                yield new ReplySoft({
+                    content: "lol"
+                });
             }
 
             if (this.goodBotRegexp.test(event.message)) {
