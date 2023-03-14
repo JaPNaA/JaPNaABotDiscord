@@ -7,6 +7,7 @@ import BotPlugin from "../main/bot/plugin/plugin";
 import { JSONObject, JSONType } from "../main/types/jsonObject";
 import wait from "../main/utils/async/wait";
 import Logger from "../main/utils/logger";
+import removeFromArray from "../main/utils/removeFromArray";
 import ellipsisize from "../main/utils/str/ellipsisize";
 import mention from "../main/utils/str/mention";
 import mentionChannel from "../main/utils/str/mentionChannel";
@@ -71,8 +72,8 @@ class ActivityDashboard extends BotPlugin {
     }
 
     private async messageEditHandler(oldMessage: Message | PartialMessage, newMessage: Message | PartialMessage) {
-        // change is thread creation
-        if (!oldMessage.hasThread && newMessage.hasThread) { return; }
+        // change not relevant
+        if (oldMessage.content === newMessage.content && oldMessage.attachments.size === newMessage.attachments.size) { return; }
         // probably not a message edit
         if (newMessage.partial) { return; }
 
@@ -258,19 +259,68 @@ class Activity {
     private activityPerChannelCache: Map<string, ActivityRecord[]> = new Map();
 
     public add(record: ActivityRecord) {
+        if (this.tryAddByMerge(record)) { return; }
+
         this.activityRecords.push(record);
         const records = this.getRecordsInChannel(record.channelId);
         records.push(record);
 
+        this.removeOldRecordsIfNeeded();
+    }
+
+    /**
+     * Tries to add to activityRecords by merging with an existing ActivityRecord.
+     * 
+     * Returns true if merged, false if not.
+     */
+    private tryAddByMerge(record: ActivityRecord): boolean {
+        const recordsInChannel = this.getRecordsInChannel(record.channelId);
+        const lastRecord = recordsInChannel[recordsInChannel.length - 1];
+        if (!lastRecord) { return false; }
+        if ( // merge conditions
+            lastRecord.type === record.type &&
+            lastRecord.userId === record.userId &&
+            record.timestamp - lastRecord.timestamp < 10 * 60 // sent within 10 minutes
+        ) {
+            if (lastRecord.type === "edited") {
+                lastRecord.message = record.message;
+            } else if (lastRecord.type === "reacted") {
+                lastRecord.message = (lastRecord.message + record.message).slice(0, 5000);
+            } else { // lastRecord.type === "sent"
+                lastRecord.message = (lastRecord.message + "\n" + record.message).slice(0, 5000);
+            }
+            lastRecord.timestamp = record.timestamp;
+            return true;
+        }
+        return false;
+    }
+
+    private removeOldRecordsIfNeeded() {
         while (this.activityRecords.length > ActivityDashboard.ACTIVITY_HISTORY_MAX_LENGTH) {
-            const removed = this.activityRecords.shift();
-            if (removed) {
-                const records = this.getRecordsInChannel(removed.channelId);
-                if (records[0] === removed) {
-                    records.shift();
-                    if (records.length <= 0) { this.activityPerChannelCache.delete(removed.channelId); }
-                } else {
-                    Logger.warn(new Error("Failed to removed an activity record in per channel cache"));
+            let channelWithMostRecords;
+            let mostRecords = 0;
+            for (const [id, records] of this.activityPerChannelCache) {
+                if (records.length > mostRecords) {
+                    channelWithMostRecords = id;
+                    mostRecords = records.length;
+                }
+            }
+
+            if (channelWithMostRecords) {
+                const records = this.getRecordsInChannel(channelWithMostRecords);
+                const removed = records.shift();
+                if (records.length <= 0) { this.activityPerChannelCache.delete(channelWithMostRecords); }
+                if (removed) { removeFromArray(this.activityRecords, removed); }
+            } else {
+                const removed = this.activityRecords.shift();
+                if (removed) {
+                    const records = this.getRecordsInChannel(removed.channelId);
+                    if (records[0] === removed) {
+                        records.shift();
+                        if (records.length <= 0) { this.activityPerChannelCache.delete(removed.channelId); }
+                    } else {
+                        Logger.warn(new Error("Failed to removed an activity record in per channel cache"));
+                    }
                 }
             }
         }
