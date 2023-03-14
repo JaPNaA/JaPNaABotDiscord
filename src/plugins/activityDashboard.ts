@@ -187,7 +187,7 @@ class ActivityDashboard extends BotPlugin {
                         value: message.getMessage()
                     }
                 ]);
-            }));
+            }).catch(() => { }));
         }
 
         await Promise.all(promises);

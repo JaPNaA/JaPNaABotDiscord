@@ -170,7 +170,7 @@ class ActivityDashboard extends plugin_1.default {
                         value: message.getMessage()
                     }
                 ]);
-            }));
+            }).catch(() => { }));
         }
         await Promise.all(promises);
         channelFields.sort((a, b) => a[0] - b[0]);
