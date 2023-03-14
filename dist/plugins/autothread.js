@@ -292,7 +292,6 @@ class AutoThread extends plugin_js_1.default {
             let remainingRedirects = 5; // start with 5 redirects
             function makeHttpRequest(url) {
                 const request = https_1.default.get(url, response => {
-                    console.log(response.statusCode);
                     if (response.statusCode !== 200) {
                         if (response.statusCode && [301, 302, 303, 307, 308].includes(response.statusCode) &&
                             response.headers.location && that.isWhitelistedWebsite(new URL(response.headers.location)) &&

@@ -311,7 +311,6 @@ export default class AutoThread extends BotPlugin {
 
             function makeHttpRequest(url: string) {
                 const request = https.get(url, response => {
-                    console.log(response.statusCode);
                     if (response.statusCode !== 200) {
                         if (response.statusCode && [301, 302, 303, 307, 308].includes(response.statusCode) &&
                             response.headers.location && that.isWhitelistedWebsite(new URL(response.headers.location)) &&

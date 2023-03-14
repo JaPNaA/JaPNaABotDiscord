@@ -111,8 +111,6 @@ class JapnaaWeird extends BotPlugin {
         } else {
             this.bot.client.send(newMessage.thread?.id || newMessage.channelId, "no ".repeat(delta));
         }
-
-        console.log(messagesAfter);
     }
 
     private _countL$wl(str: string): number {

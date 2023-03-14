@@ -107,7 +107,6 @@ class JapnaaWeird extends plugin_js_1.default {
         else {
             this.bot.client.send(newMessage.thread?.id || newMessage.channelId, "no ".repeat(delta));
         }
-        console.log(messagesAfter);
     }
     _countL$wl(str) {
         let i = 0;
