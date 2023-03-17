@@ -122,7 +122,7 @@ class ActivityDashboard extends BotPlugin {
     }
 
     public async *activityDashboard(event: DiscordCommandEvent) {
-        const reply = new ReplySoft(await this.generateMessage(event.serverId));
+        const reply = new ReplySoft(await this.generateMessage(event, event.serverId));
         yield reply;
         const message = reply.getMessage();
         const state = this.getServerStateMut(event.serverId);
@@ -147,7 +147,7 @@ class ActivityDashboard extends BotPlugin {
             state.dashboardMessageCache = await this.bot.client.getMessageFromChannel(dashboardMessageChannelId, dashboardMessageMessageId);
         }
 
-        this.generateMessage(serverId).then(message => state.dashboardMessageCache?.edit(message))
+        this.generateMessage(null, serverId).then(message => state.dashboardMessageCache?.edit(message))
             .catch(err => { });
 
         wait(ActivityDashboard.DASHBOARD_UPDATE_COOLDOWN_TIME).then(() => {
@@ -217,7 +217,7 @@ class ActivityDashboard extends BotPlugin {
         return { channelNameTimerString: null, nextUpdate: undefined };
     }
 
-    private async generateMessage(serverId: string): Promise<MessageCreateOptions & MessageEditOptions> {
+    private async generateMessage(event: DiscordCommandEvent | null, serverId: string): Promise<MessageCreateOptions & MessageEditOptions> {
         const activityLog = this.getServerStateMut(serverId).activity.getRecords();
         const channelFields: [number, APIEmbedField][] = [];
 
@@ -258,7 +258,9 @@ class ActivityDashboard extends BotPlugin {
         channelFields.sort((a, b) => a[0] - b[0]);
 
         return {
-            content: "Activity Dashboard",
+            content: this.config.getInServer(serverId, "enabled") ?
+                "Activity Dashboard"
+                : `Note: Tracking messages for activity dashboard is disabled. Send \`${event?.precommandName.name || ""}config activityDashboard s here enabled true\` to enable tracking.`,
             embeds: [{
                 description: channelFields.length ? undefined : "_Empty_",
                 fields: channelFields.slice(-ActivityDashboard.EMBED_FIELDS_MAX_LENGTH).map(x => x[1]),

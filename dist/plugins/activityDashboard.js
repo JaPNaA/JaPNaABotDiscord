@@ -115,7 +115,7 @@ class ActivityDashboard extends plugin_1.default {
         }
     }
     async *activityDashboard(event) {
-        const reply = new actions_1.ReplySoft(await this.generateMessage(event.serverId));
+        const reply = new actions_1.ReplySoft(await this.generateMessage(event, event.serverId));
         yield reply;
         const message = reply.getMessage();
         const state = this.getServerStateMut(event.serverId);
@@ -138,7 +138,7 @@ class ActivityDashboard extends plugin_1.default {
         if (!state.dashboardMessageCache || state.dashboardMessageCache.id !== dashboardMessageMessageId || state.dashboardMessageCache.channelId !== dashboardMessageChannelId) {
             state.dashboardMessageCache = await this.bot.client.getMessageFromChannel(dashboardMessageChannelId, dashboardMessageMessageId);
         }
-        this.generateMessage(serverId).then(message => state.dashboardMessageCache?.edit(message))
+        this.generateMessage(null, serverId).then(message => state.dashboardMessageCache?.edit(message))
             .catch(err => { });
         (0, wait_1.default)(ActivityDashboard.DASHBOARD_UPDATE_COOLDOWN_TIME).then(() => {
             state.onCooldown = false;
@@ -199,7 +199,7 @@ class ActivityDashboard extends plugin_1.default {
         //  string - <string> time ago
         return { channelNameTimerString: null, nextUpdate: undefined };
     }
-    async generateMessage(serverId) {
+    async generateMessage(event, serverId) {
         const activityLog = this.getServerStateMut(serverId).activity.getRecords();
         const channelFields = [];
         const promises = [];
@@ -232,7 +232,9 @@ class ActivityDashboard extends plugin_1.default {
         await Promise.all(promises);
         channelFields.sort((a, b) => a[0] - b[0]);
         return {
-            content: "Activity Dashboard",
+            content: this.config.getInServer(serverId, "enabled") ?
+                "Activity Dashboard"
+                : `Note: Tracking messages for activity dashboard is disabled. Send \`${event?.precommandName.name || ""}config activityDashboard s here enabled true\` to enable tracking.`,
             embeds: [{
                     description: channelFields.length ? undefined : "_Empty_",
                     fields: channelFields.slice(-ActivityDashboard.EMBED_FIELDS_MAX_LENGTH).map(x => x[1]),
