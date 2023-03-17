@@ -19,6 +19,11 @@ declare class ActivityDashboard extends BotPlugin {
             comment: string;
             default: string;
         };
+        liveChannelName: {
+            type: string;
+            comment: string;
+            default: boolean;
+        };
     };
     private serverStates;
     constructor(bot: Bot);
@@ -30,6 +35,9 @@ declare class ActivityDashboard extends BotPlugin {
     private maybeRecordAndUpdate;
     activityDashboard(event: DiscordCommandEvent): AsyncGenerator<ReplySoft, void, unknown>;
     private requestDashboardUpdate;
+    /** Updates the channel name timer if required, then, sets the (channel name timer)-updating timer */
+    private setChannelNameTimerUpdaterTimer;
+    private getChannelNameTimerString;
     private generateMessage;
     private serializeActivityHistory;
     _start(): void;

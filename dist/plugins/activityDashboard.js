@@ -28,6 +28,11 @@ class ActivityDashboard extends plugin_1.default {
             type: "string",
             comment: "The ID (channelId-messageId format) of the message to use to record latest events. (Server-level config only)",
             default: ""
+        },
+        liveChannelName: {
+            type: "boolean",
+            comment: "Update the channel name to indicate recent activity? (ex. '#activity-12m-ago'). The channel with the activity dashboard message's name will be updated. (Server-level config only)",
+            default: false
         }
     };
     serverStates = new Map();
@@ -141,6 +146,58 @@ class ActivityDashboard extends plugin_1.default {
                 return this.requestDashboardUpdate(serverId);
             }
         });
+        this.setChannelNameTimerUpdaterTimer(serverId).catch(err => logger_1.default.error(err));
+    }
+    /** Updates the channel name timer if required, then, sets the (channel name timer)-updating timer */
+    async setChannelNameTimerUpdaterTimer(serverId) {
+        if (!this.config.getInServer(serverId, "liveChannelName")) {
+            return;
+        }
+        const state = this.getServerStateMut(serverId);
+        if (state.channelNameUpdateInterval) {
+            clearTimeout(state.channelNameUpdateInterval);
+        }
+        const lastRecord = state.activity.getLastRecord();
+        if (!lastRecord) {
+            return;
+        }
+        const { channelNameTimerString, nextUpdate } = this.getChannelNameTimerString((Date.now() / 1000 - lastRecord.timestamp) / 60);
+        if (channelNameTimerString !== state.channelNameTimerString) {
+            state.channelNameTimerString = channelNameTimerString;
+            const dashboardMessageLocation = this.config.getInServer(serverId, "dashboardMessage");
+            const [dashboardMessageChannelId, _] = dashboardMessageLocation.split("-");
+            const channel = await this.bot.client.getChannel(dashboardMessageChannelId);
+            if (channel && 'setName' in channel) {
+                console.log("update write", channelNameTimerString);
+                if (channelNameTimerString) {
+                    await channel.setName(`activity-${channelNameTimerString}`);
+                }
+                else {
+                    await channel.setName("activity-dashboard");
+                }
+            }
+        }
+        if (nextUpdate) {
+            state.channelNameUpdateInterval = setTimeout(() => {
+                this.setChannelNameTimerUpdaterTimer(serverId);
+            }, nextUpdate);
+        }
+    }
+    getChannelNameTimerString(minutesAgo) {
+        if (minutesAgo < 5) {
+            return { channelNameTimerString: "just-now", nextUpdate: 5 * 60 * 1000 };
+        }
+        if (minutesAgo < 55) { // 55 and not 60, since 55 would round up to "60m", which should be "1h"
+            return { channelNameTimerString: Math.round(minutesAgo / 10) * 10 + "m-ago", nextUpdate: 10 * 60 * 1000 };
+        }
+        if (minutesAgo < 60 * 12) {
+            return { channelNameTimerString: Math.round(minutesAgo / 60) + "h-ago", nextUpdate: 60 * 60 * 1000 };
+        }
+        // channelNameTimerString:
+        //  undefined - don't know
+        //  null - long time, use default name
+        //  string - <string> time ago
+        return { channelNameTimerString: null, nextUpdate: undefined };
     }
     async generateMessage(serverId) {
         const activityLog = this.getServerStateMut(serverId).activity.getRecords();
@@ -210,6 +267,12 @@ class ActivityDashboard extends plugin_1.default {
         this.bot.events.beforeMemoryWrite.addHandler(() => {
             this.bot.memory.write(this.pluginName, "activityHistory", this.serializeActivityHistory());
         });
+        this.bot.events.ready.addHandler(() => {
+            // start channel name timer updaters
+            for (const [id, server] of this.serverStates) {
+                this.setChannelNameTimerUpdaterTimer(id).catch(err => logger_1.default.error(err));
+            }
+        });
     }
     _stop() {
         this.bot.events.message.removeHandler(this.messageHandler);
@@ -228,6 +291,9 @@ class Activity {
         const records = this.getRecordsInChannel(record.channelId);
         records.push(record);
         this.removeOldRecordsIfNeeded();
+    }
+    getLastRecord() {
+        return this.activityRecords[this.activityRecords.length - 1];
     }
     /**
      * Tries to add to activityRecords by merging with an existing ActivityRecord.
@@ -255,6 +321,9 @@ class Activity {
                 lastRecord.message = (lastRecord.message + "\n" + record.message).slice(0, 5000);
             }
             lastRecord.timestamp = record.timestamp;
+            // move record back to top
+            (0, removeFromArray_1.default)(this.activityRecords, lastRecord);
+            this.activityRecords.push(lastRecord);
             return true;
         }
         return false;
