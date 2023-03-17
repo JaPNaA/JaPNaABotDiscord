@@ -184,7 +184,7 @@ class ActivityDashboard extends BotPlugin {
             const channel = await this.bot.client.getChannel(dashboardMessageChannelId);
 
             if (channel && 'setName' in channel) {
-                Logger.log("Update activity dashboard channel name timer", channelNameTimerString);
+                Logger.log_message("Update activity dashboard channel name timer", channelNameTimerString);
                 if (channelNameTimerString) {
                     await channel.setName(`activity-${channelNameTimerString}`);
                 } else {
