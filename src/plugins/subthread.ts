@@ -124,7 +124,21 @@ class Subthread extends BotPlugin {
             if (!interaction.isButton()) { return; }
             if (interaction.customId.startsWith("threadaccessgive:")) {
                 const [command, threadId, firstMessageId] = interaction.customId.split(":");
-                const thread = await this.bot.client.getChannel(threadId);
+                let thread;
+                try {
+                    thread = await this.bot.client.getChannel(threadId);
+                    console.log(thread);
+                } catch (err) {
+                    await interaction.update({
+                        components: [],
+                        content: "_(Subthread deleted)_"
+                    });
+                    await interaction.followUp({
+                        content: "This subthread no longer exists. :/",
+                        ephemeral: true
+                    });
+                    return;
+                }
                 if (thread instanceof ThreadChannel) {
                     const firstMessage = await thread.messages.fetch(firstMessageId);
                     if (firstMessage) {
