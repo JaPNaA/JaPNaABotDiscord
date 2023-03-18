@@ -16,6 +16,7 @@ import removeFormattingChars from "../main/utils/str/removeFormattingChars";
 class ActivityDashboard extends BotPlugin {
     public static readonly DASHBOARD_UPDATE_COOLDOWN_TIME = 5000;
     public static readonly ACTIVITY_HISTORY_MAX_LENGTH = 50;
+    public static readonly EMBED_MAX_TOTAL_CHARS = 6000;
     public static readonly EMBED_FIELD_VALUE_MAX_LENGTH = 1024;
     public static readonly EMBED_FIELDS_MAX_LENGTH = 25;
     public static readonly LINES_PER_CHANNEL_MAX = 5;
@@ -148,7 +149,7 @@ class ActivityDashboard extends BotPlugin {
         }
 
         this.generateMessage(null, serverId).then(message => state.dashboardMessageCache?.edit(message))
-            .catch(err => { });
+            .catch(err => { Logger.warn(err); });
 
         wait(ActivityDashboard.DASHBOARD_UPDATE_COOLDOWN_TIME).then(() => {
             state.onCooldown = false;
@@ -222,6 +223,7 @@ class ActivityDashboard extends BotPlugin {
         const channelFields: [number, APIEmbedField][] = [];
 
         const promises = [];
+        let messageTotalLength = 0;
 
         for (const [channelId, records] of activityLog) {
             const message = new ReversedMessageBuilder();
@@ -243,19 +245,22 @@ class ActivityDashboard extends BotPlugin {
             message.addLine("Open " + mentionChannel(channelId));
 
             promises.push(this.bot.client.getChannel(channelId).then(channel => {
-                channelFields.push([
-                    records[records.length - 1].timestamp,
-                    {
-                        name: channel ? ('name' in channel && channel.name ? channel.name : "Untitled") : "Untitled",
-                        value: message.getMessage()
-                    }
-                ]);
+                const name = (channel && 'name' in channel && channel.name) ? channel.name : "Untitled";
+                const value = message.getMessage();
+                messageTotalLength += name.length + value.length;
+                channelFields.push([records[records.length - 1].timestamp, { name, value }]);
             }).catch(() => { }));
         }
 
         await Promise.all(promises);
 
         channelFields.sort((a, b) => a[0] - b[0]);
+        // ensure message total length is less than 6000 chars
+        while (messageTotalLength > ActivityDashboard.EMBED_MAX_TOTAL_CHARS) {
+            const channelField = channelFields.shift();
+            if (!channelField) { break; }
+            messageTotalLength -= channelField[1].name.length + channelField[1].value.length;
+        }
 
         return {
             content: this.config.getInServer(serverId, "enabled") ?

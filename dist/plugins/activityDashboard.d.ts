@@ -5,6 +5,7 @@ import BotPlugin from "../main/bot/plugin/plugin";
 declare class ActivityDashboard extends BotPlugin {
     static readonly DASHBOARD_UPDATE_COOLDOWN_TIME = 5000;
     static readonly ACTIVITY_HISTORY_MAX_LENGTH = 50;
+    static readonly EMBED_MAX_TOTAL_CHARS = 6000;
     static readonly EMBED_FIELD_VALUE_MAX_LENGTH = 1024;
     static readonly EMBED_FIELDS_MAX_LENGTH = 25;
     static readonly LINES_PER_CHANNEL_MAX = 5;
