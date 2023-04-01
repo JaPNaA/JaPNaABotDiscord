@@ -384,19 +384,20 @@ class Activity {
 
     private removeOldRecordsIfNeeded() {
         while (this.activityRecords.length > ActivityDashboard.ACTIVITY_HISTORY_MAX_LENGTH) {
-            let channelWithMostRecords;
-            let mostRecords = 0;
+            let oldestChannel;
+            let lastMessageTime = Infinity;
             for (const [id, records] of this.activityPerChannelCache) {
-                if (records.length > mostRecords) {
-                    channelWithMostRecords = id;
-                    mostRecords = records.length;
+                if (records.length <= 0) { continue; }
+                if (records[0].timestamp < lastMessageTime) {
+                    oldestChannel = id;
+                    lastMessageTime = records[0].timestamp;
                 }
             }
 
-            if (channelWithMostRecords) {
-                const records = this.getRecordsInChannel(channelWithMostRecords);
+            if (oldestChannel) {
+                const records = this.getRecordsInChannel(oldestChannel);
                 const removed = records.shift();
-                if (records.length <= 0) { this.activityPerChannelCache.delete(channelWithMostRecords); }
+                if (records.length <= 0) { this.activityPerChannelCache.delete(oldestChannel); }
                 if (removed) { removeFromArray(this.activityRecords, removed); }
             } else {
                 const removed = this.activityRecords.shift();
