@@ -338,9 +338,9 @@ class Japnaa extends BotPlugin {
                 _this.spamAsyncStarted++;
 
                 if (counter) {
-                    yield new Send(channelId, `**${count + 1}/${amount}:** ${message}`);
+                    yield new Send(channelId, `**${count + 1}/${amount}:** ${message}`).setSendNotifications();
                 } else {
-                    yield new Send(channelId, message);
+                    yield new Send(channelId, message).setSendNotifications();
                 }
 
                 _this.spamAsyncDone++;

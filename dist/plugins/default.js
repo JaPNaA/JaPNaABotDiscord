@@ -421,7 +421,7 @@ class Default extends plugin_js_1.default {
         let sentMessages = this.bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {
-            yield new actions_js_1.Send(channelId, message);
+            yield new actions_js_1.Send(channelId, message).setSendNotifications();
         }
     }
     /**
@@ -722,7 +722,7 @@ class Default extends plugin_js_1.default {
         if (!whitespaceIndex) {
             throw new Error("Unknown error");
         }
-        return new actions_js_1.Send(event.arguments.slice(0, whitespaceIndex), event.arguments.slice(whitespaceIndex + 1));
+        return new actions_js_1.Send(event.arguments.slice(0, whitespaceIndex), event.arguments.slice(whitespaceIndex + 1)).setSendNotifications();
     }
     /**
      * Sends link to add bot to server

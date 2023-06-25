@@ -288,10 +288,10 @@ class Japnaa extends plugin_js_1.default {
             for (let count = 0; count < amount; count++) {
                 _this.spamAsyncStarted++;
                 if (counter) {
-                    yield new actions_1.Send(channelId, `**${count + 1}/${amount}:** ${message}`);
+                    yield new actions_1.Send(channelId, `**${count + 1}/${amount}:** ${message}`).setSendNotifications();
                 }
                 else {
-                    yield new actions_1.Send(channelId, message);
+                    yield new actions_1.Send(channelId, message).setSendNotifications();
                 }
                 _this.spamAsyncDone++;
                 if (_this.spamAsyncDone >= _this.spamAsyncStarted && _this.spamAsyncAllDoneCallback) {

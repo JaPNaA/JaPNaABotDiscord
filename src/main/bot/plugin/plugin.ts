@@ -94,9 +94,13 @@ abstract class BotPlugin {
     }
 
     protected _registerMessageHandler(func: (event: DiscordMessageEvent, eventControls: EventControls) => Generator<MessageOrAction> | AsyncGenerator<MessageOrAction>) {
+        this.bot.events.message.addHandler(this._bindActionHandler(func));
+    }
+
+    protected _bindActionHandler(func: (event: DiscordMessageEvent, eventControls: EventControls) => Generator<MessageOrAction> | AsyncGenerator<MessageOrAction>) {
         const actionRunner = new ActionRunner(this.bot);
         const boundFunc = func.bind(this);
-        this.bot.events.message.addHandler(async (messageEvent, eventControls) => {
+        return (async (messageEvent: DiscordMessageEvent, eventControls: EventControls) => {
             await actionRunner.run(boundFunc(messageEvent, eventControls), messageEvent);
         });
     }

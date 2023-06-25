@@ -107,7 +107,7 @@ class AutoThread extends plugin_js_1.default {
     async *getThreadTitleCommand(event) {
         yield "`" + (await this.extractTitleFromMessage(event.arguments)).replace("`", "") + "`";
     }
-    async messageHandler(event, eventControls) {
+    async *messageHandler(event, eventControls) {
         const config = await this.config.getAllUserSettingsInChannel(event.channelId);
         if (!config.get("enabled")) {
             return;
@@ -166,7 +166,9 @@ class AutoThread extends plugin_js_1.default {
         if (Array.isArray(subscribers) && subscribers.length > 0) {
             const subscribersToNotice = subscribers.filter(id => id !== event.userId);
             if (subscribersToNotice.length > 0) {
-                const message = await thread.send("(Adding subscribers...)");
+                const action = new actions_js_1.Send(thread.id, "(Adding subscribers...)");
+                yield action;
+                const message = action.getMessage();
                 const messageText = thread.name + ": subscribed\n" +
                     subscribersToNotice
                         .map(id => (0, mention_js_1.default)(id))
@@ -439,7 +441,7 @@ class AutoThread extends plugin_js_1.default {
                 description: "Generates the title of a thread started by a given message."
             }
         });
-        this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
+        this.bot.events.message.addHighPriorityHandler(this._bindActionHandler(this.messageHandler));
     }
     async _stop() {
         if (this._threadUpdateHandler) {

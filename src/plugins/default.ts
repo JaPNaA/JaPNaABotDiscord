@@ -467,7 +467,7 @@ class Default extends BotPlugin {
         let sentMessages: object[] = this.bot.client.sentMessageRecorder
             .stopAndFlushSentMessagesRecordedFromChannel(event.channelId);
         for (let message of sentMessages) {
-            yield new Send(channelId, message);
+            yield new Send(channelId, message).setSendNotifications();
         }
     }
 
@@ -759,7 +759,7 @@ class Default extends BotPlugin {
         let whitespaceIndex: number | undefined = whitespaceMatch.index;
         if (!whitespaceIndex) { throw new Error("Unknown error"); }
 
-        return new Send(event.arguments.slice(0, whitespaceIndex), event.arguments.slice(whitespaceIndex + 1));
+        return new Send(event.arguments.slice(0, whitespaceIndex), event.arguments.slice(whitespaceIndex + 1)).setSendNotifications();
     }
 
     /**

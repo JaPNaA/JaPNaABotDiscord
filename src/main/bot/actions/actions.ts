@@ -21,8 +21,9 @@ abstract class Reply extends Action {
         return toOne(this.sentMessage);
     }
 
-    public setSendNotifications() {
+    public setSendNotifications(): this {
         this.suppressNotifications = false;
+        return this;
     }
 
     protected async send(bot: Bot, channelId: string) {
@@ -137,16 +138,14 @@ export class ReplyUnimportant extends Reply {
  * Intended for messages not triggered by a command directly.
  * Ex. reminders, routine messages, announcements, etc.
  */
-export class Send extends Action {
-    protected sentMessage?: Message | Message[];
-
+export class Send extends Reply {
     constructor(
         public channelId: string,
-        public message: string | MessageCreateOptions
-    ) { super(); }
+        message: string | MessageCreateOptions
+    ) { super(message); }
 
     public async perform(bot: Bot): Promise<any> {
-        this.sentMessage = await bot.client.send(this.channelId, this.message);
+        return this.send(bot, this.channelId);
     }
 
     public async performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any> {

@@ -11,7 +11,7 @@ declare abstract class Reply extends Action {
     protected suppressNotifications: boolean;
     constructor(message: string | MessageCreateOptions);
     getMessage(): Message;
-    setSendNotifications(): void;
+    setSendNotifications(): this;
     protected send(bot: Bot, channelId: string): Promise<void>;
 }
 /**
@@ -51,10 +51,8 @@ export declare class ReplyUnimportant extends Reply {
  * Intended for messages not triggered by a command directly.
  * Ex. reminders, routine messages, announcements, etc.
  */
-export declare class Send extends Action {
+export declare class Send extends Reply {
     channelId: string;
-    message: string | MessageCreateOptions;
-    protected sentMessage?: Message | Message[];
     constructor(channelId: string, message: string | MessageCreateOptions);
     perform(bot: Bot): Promise<any>;
     performInteraction(bot: Bot, interaction: Interaction<CacheType>): Promise<any>;

@@ -3,7 +3,7 @@ import DiscordMessageEvent from "../main/bot/events/discordMessageEvent";
 
 import BotPlugin from "../main/bot/plugin/plugin.js";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent.js";
-import { MessageType, TextChannel, ThreadChannel } from "discord.js";
+import { MessageFlags, MessageType, TextChannel, ThreadChannel } from "discord.js";
 import ellipsisize from "../main/utils/str/ellipsisize.js";
 import Logger from "../main/utils/logger.js";
 import getSnowflakeNum from "../main/utils/getSnowflakeNum.js";
@@ -15,7 +15,7 @@ import { stopWords } from "./autothread_assets/stopWords.js";
 import websites from "./autothread_assets/websiteWhitelist.js";
 import { IncomingMessage } from "http";
 import wait from "../main/utils/async/wait.js";
-import { ReplyUnimportant } from "../main/bot/actions/actions.js";
+import { ReplyUnimportant, Send } from "../main/bot/actions/actions.js";
 import removeFormattingChars from "../main/utils/str/removeFormattingChars.js";
 
 const WEBSITE_TITLE_GET_TIMEOUT = 1000;
@@ -116,7 +116,7 @@ export default class AutoThread extends BotPlugin {
         yield "`" + (await this.extractTitleFromMessage(event.arguments)).replace("`", "") + "`";
     }
 
-    public async messageHandler(event: DiscordMessageEvent, eventControls: EventControls) {
+    public async *messageHandler(event: DiscordMessageEvent, eventControls: EventControls) {
         const config = await this.config.getAllUserSettingsInChannel(event.channelId);
         if (!config.get("enabled")) { return; }
         if (!(await this._isUserMessage(event))) { return; }
@@ -177,7 +177,9 @@ export default class AutoThread extends BotPlugin {
         if (Array.isArray(subscribers) && subscribers.length > 0) {
             const subscribersToNotice = subscribers.filter(id => id !== event.userId);
             if (subscribersToNotice.length > 0) {
-                const message = await thread.send("(Adding subscribers...)");
+                const action = new Send(thread.id, "(Adding subscribers...)");
+                yield action;
+                const message = action.getMessage();
                 const messageText =
                     thread.name + ": subscribed\n" +
                     subscribersToNotice
@@ -472,7 +474,8 @@ export default class AutoThread extends BotPlugin {
             }
         });
 
-        this.bot.events.message.addHighPriorityHandler(this.messageHandler.bind(this));
+        this.bot.events.message.addHighPriorityHandler(
+            this._bindActionHandler(this.messageHandler));
     }
 
     async _stop() {

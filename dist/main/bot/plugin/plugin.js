@@ -51,9 +51,12 @@ class BotPlugin {
         }
     }
     _registerMessageHandler(func) {
+        this.bot.events.message.addHandler(this._bindActionHandler(func));
+    }
+    _bindActionHandler(func) {
         const actionRunner = new actionRunner_1.ActionRunner(this.bot);
         const boundFunc = func.bind(this);
-        this.bot.events.message.addHandler(async (messageEvent, eventControls) => {
+        return (async (messageEvent, eventControls) => {
             await actionRunner.run(boundFunc(messageEvent, eventControls), messageEvent);
         });
     }

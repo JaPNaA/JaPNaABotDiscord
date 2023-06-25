@@ -25,6 +25,7 @@ class Reply extends Action {
     }
     setSendNotifications() {
         this.suppressNotifications = false;
+        return this;
     }
     async send(bot, channelId) {
         if (this.suppressNotifications) {
@@ -144,17 +145,14 @@ exports.ReplyUnimportant = ReplyUnimportant;
  * Intended for messages not triggered by a command directly.
  * Ex. reminders, routine messages, announcements, etc.
  */
-class Send extends Action {
+class Send extends Reply {
     channelId;
-    message;
-    sentMessage;
     constructor(channelId, message) {
-        super();
+        super(message);
         this.channelId = channelId;
-        this.message = message;
     }
     async perform(bot) {
-        this.sentMessage = await bot.client.send(this.channelId, this.message);
+        return this.send(bot, this.channelId);
     }
     async performInteraction(bot, interaction) {
         if (interaction.isRepliable() && this.channelId === interaction.channelId) {

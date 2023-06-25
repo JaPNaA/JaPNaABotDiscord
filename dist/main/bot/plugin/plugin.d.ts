@@ -37,5 +37,6 @@ declare abstract class BotPlugin {
     protected _registerPrecommand(precommand: string | string[]): PrecommandWithoutCallback;
     protected _registerPrecommand(precommand: string | string[], callback: PrecommandCallback): PrecommandWithCallback;
     protected _registerMessageHandler(func: (event: DiscordMessageEvent, eventControls: EventControls) => Generator<MessageOrAction> | AsyncGenerator<MessageOrAction>): void;
+    protected _bindActionHandler(func: (event: DiscordMessageEvent, eventControls: EventControls) => Generator<MessageOrAction> | AsyncGenerator<MessageOrAction>): (messageEvent: DiscordMessageEvent, eventControls: EventControls) => Promise<void>;
 }
 export default BotPlugin;
