@@ -110,9 +110,6 @@ most
 other
 some
 such
-no
-nor
-not
 only
 own
 same
@@ -125,10 +122,10 @@ t
 can
 will
 just
-don
 should
 now
 literally
 bruh
-lol`.split("\n"));
+lol
+apparently`.split("\n"));
 exports.stopWords = stopWords;
