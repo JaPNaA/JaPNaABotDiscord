@@ -243,6 +243,9 @@ class ActivityDashboard extends BotPlugin {
             }
 
             message.addLine("Open " + mentionChannel(channelId));
+            if (message.getCharCount() > ActivityDashboard.EMBED_FIELD_VALUE_MAX_LENGTH) {
+                message.removeLastLine(); // in case channel mention tips the message over the limit
+            }
 
             promises.push(this.bot.client.getChannel(channelId).then(channel => {
                 const name = (channel && 'name' in channel && channel.name) ? channel.name : "Untitled";
