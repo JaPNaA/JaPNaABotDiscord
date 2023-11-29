@@ -7,7 +7,6 @@ const plugin_js_1 = __importDefault(require("../main/bot/plugin/plugin.js"));
 const discord_js_1 = require("discord.js");
 const ellipsisize_js_1 = __importDefault(require("../main/utils/str/ellipsisize.js"));
 const logger_js_1 = __importDefault(require("../main/utils/logger.js"));
-const getSnowflakeNum_js_1 = __importDefault(require("../main/utils/getSnowflakeNum.js"));
 const fakeMessage_js_1 = __importDefault(require("../main/utils/fakeMessage.js"));
 const mention_js_1 = __importDefault(require("../main/utils/str/mention.js"));
 const https_1 = __importDefault(require("https"));
@@ -16,6 +15,7 @@ const websiteWhitelist_js_1 = __importDefault(require("./autothread_assets/websi
 const wait_js_1 = __importDefault(require("../main/utils/async/wait.js"));
 const actions_js_1 = require("../main/bot/actions/actions.js");
 const removeFormattingChars_js_1 = __importDefault(require("../main/utils/str/removeFormattingChars.js"));
+const unmentionify_js_1 = require("../main/utils/str/unmentionify.js");
 const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 /**
  * Autothread plugin; automatically makes threads
@@ -237,7 +237,7 @@ class AutoThread extends plugin_js_1.default {
             return firstLineURLReplaced;
         }
         const extractedTitle = this.removeParentheses(// remove text (in parentheses)
-        (await this.unMentionify(firstLineURLReplaced)) // swap <@###> -> @username
+        (await (0, unmentionify_js_1.unMentionify)(this.bot, firstLineURLReplaced)) // swap <@###> -> @username
         )
             .split(/\s+/)
             .filter(e => !stopWords_js_1.stopWords.has(// remove stop words
@@ -375,42 +375,6 @@ class AutoThread extends plugin_js_1.default {
             result += str.slice(start);
         }
         return result;
-    }
-    async unMentionify(str) {
-        const regex = /<(@|#)[!@&]?\d+>/g;
-        let strParts = [];
-        let lastIndex = 0;
-        for (let match; match = regex.exec(str);) {
-            const snowflake = (0, getSnowflakeNum_js_1.default)(match[0]);
-            if (!snowflake) {
-                continue;
-            }
-            let replaceWith;
-            if (match[1] == "#") {
-                // channel
-                const channel = await this.bot.client.getChannel(snowflake);
-                if (!channel) {
-                    continue;
-                }
-                if (channel.isDMBased()) {
-                    replaceWith = "DM channel";
-                }
-                else {
-                    replaceWith = "#" + channel.name;
-                }
-            }
-            else {
-                const user = await this.bot.client.getUser(snowflake);
-                if (!user) {
-                    continue;
-                }
-                replaceWith = "@" + user.username;
-            }
-            strParts.push(str.slice(lastIndex, match.index));
-            strParts.push(replaceWith);
-            lastIndex = match.index + match[0].length;
-        }
-        return strParts.join("") + str.slice(lastIndex);
     }
     async _isUserMessage(event) {
         const user = await this.bot.client.getUser(event.userId);

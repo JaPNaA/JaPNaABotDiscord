@@ -62,7 +62,6 @@ export default class AutoThread extends BotPlugin {
     private unmapRedirects;
     private isWhitelistedWebsite;
     private removeParentheses;
-    private unMentionify;
     private _isUserMessage;
     private isCool;
     private setCooldown;

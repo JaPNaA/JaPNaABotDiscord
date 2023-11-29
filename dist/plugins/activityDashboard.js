@@ -12,6 +12,7 @@ const ellipsisize_1 = __importDefault(require("../main/utils/str/ellipsisize"));
 const mention_1 = __importDefault(require("../main/utils/str/mention"));
 const mentionChannel_1 = __importDefault(require("../main/utils/str/mentionChannel"));
 const removeFormattingChars_1 = __importDefault(require("../main/utils/str/removeFormattingChars"));
+const unmentionify_1 = require("../main/utils/str/unmentionify");
 class ActivityDashboard extends plugin_1.default {
     static DASHBOARD_UPDATE_COOLDOWN_TIME = 5000;
     static ACTIVITY_HISTORY_MAX_LENGTH = 50;
@@ -212,7 +213,13 @@ class ActivityDashboard extends plugin_1.default {
                 const activity = records[i];
                 let messageText = activity.message;
                 if (activity.type !== 'reacted') {
-                    messageText = (0, ellipsisize_1.default)((0, removeFormattingChars_1.default)(messageText.replaceAll("\n", "/")), 50);
+                    messageText = (0, ellipsisize_1.default)((0, removeFormattingChars_1.default)((await (0, unmentionify_1.unMentionify)(this.bot, messageText))
+                        // prevent discord safety from destroying message
+                        .replace(/https?:\/\//g, "")
+                        .replace(/</g, "")
+                        .replace(/>/g, "")
+                        // make everything one line
+                        .replaceAll("\n", "/")), 50);
                 }
                 message.addLine(`<t:${activity.timestamp}:R> ${(0, mention_1.default)(activity.userId)} [${activity.type}: ${messageText}](https://discord.com/channels/${serverId}/${activity.channelId}/${activity.messageId})`);
                 if (message.getCharCount() > ActivityDashboard.EMBED_FIELD_VALUE_MAX_LENGTH) {

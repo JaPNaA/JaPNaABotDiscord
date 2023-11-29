@@ -196,8 +196,18 @@ class BotClient {
         }
         return promise;
     }
-    getChannel(channelId) {
-        return this.client.channels.fetch(channelId);
+    async getChannel(channelId) {
+        try {
+            return await this.client.channels.fetch(channelId);
+        }
+        catch (err) {
+            if (err instanceof discord_js_1.DiscordAPIError) {
+                return null;
+            }
+            else {
+                throw err;
+            }
+        }
     }
     async getServerFromChannel(channelId) {
         let channel = await this.getChannel(channelId);
