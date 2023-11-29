@@ -17,6 +17,7 @@ import { IncomingMessage } from "http";
 import wait from "../main/utils/async/wait.js";
 import { ReplyUnimportant, Send } from "../main/bot/actions/actions.js";
 import removeFormattingChars from "../main/utils/str/removeFormattingChars.js";
+import { unMentionify } from "../main/utils/str/unmentionify.js";
 
 const WEBSITE_TITLE_GET_TIMEOUT = 1000;
 
@@ -250,7 +251,7 @@ export default class AutoThread extends BotPlugin {
         if (firstLineURLReplaced.length < 25) { return firstLineURLReplaced; }
 
         const extractedTitle = this.removeParentheses( // remove text (in parentheses)
-            (await this.unMentionify(firstLineURLReplaced)) // swap <@###> -> @username
+            (await unMentionify(this.bot, firstLineURLReplaced)) // swap <@###> -> @username
         )
             .split(/\s+/)
             .filter(e => !stopWords.has( // remove stop words
@@ -396,39 +397,6 @@ export default class AutoThread extends BotPlugin {
             result += str.slice(start);
         }
         return result;
-    }
-
-    private async unMentionify(str: string): Promise<string> {
-        const regex = /<(@|#)[!@&]?\d+>/g;
-        let strParts = [];
-        let lastIndex = 0;
-
-        for (let match; match = regex.exec(str);) {
-            const snowflake = getSnowflakeNum(match[0]);
-            if (!snowflake) { continue; }
-            let replaceWith;
-            if (match[1] == "#") {
-                // channel
-                const channel = await this.bot.client.getChannel(snowflake);
-                if (!channel) { continue; }
-
-                if (channel.isDMBased()) {
-                    replaceWith = "DM channel";
-                } else {
-                    replaceWith = "#" + channel.name;
-                }
-            } else {
-                const user = await this.bot.client.getUser(snowflake);
-                if (!user) { continue; }
-
-                replaceWith = "@" + user.username;
-            }
-            strParts.push(str.slice(lastIndex, match.index));
-            strParts.push(replaceWith);
-            lastIndex = match.index + match[0].length;
-        }
-
-        return strParts.join("") + str.slice(lastIndex);
     }
 
     private async _isUserMessage(event: DiscordMessageEvent): Promise<boolean> {
