@@ -377,7 +377,7 @@ class AutoThread extends plugin_js_1.default {
         return result;
     }
     async unMentionify(str) {
-        const regex = /<@[!@&]?\d+>/g;
+        const regex = /<(@|#)[!@&]?\d+>/g;
         let strParts = [];
         let lastIndex = 0;
         for (let match; match = regex.exec(str);) {
@@ -385,12 +385,29 @@ class AutoThread extends plugin_js_1.default {
             if (!snowflake) {
                 continue;
             }
-            const user = await this.bot.client.getUser(snowflake);
-            if (!user) {
-                continue;
+            let replaceWith;
+            if (match[1] == "#") {
+                // channel
+                const channel = await this.bot.client.getChannel(snowflake);
+                if (!channel) {
+                    continue;
+                }
+                if (channel.isDMBased()) {
+                    replaceWith = "DM channel";
+                }
+                else {
+                    replaceWith = "#" + channel.name;
+                }
+            }
+            else {
+                const user = await this.bot.client.getUser(snowflake);
+                if (!user) {
+                    continue;
+                }
+                replaceWith = "@" + user.username;
             }
             strParts.push(str.slice(lastIndex, match.index));
-            strParts.push("@" + user.username);
+            strParts.push(replaceWith);
             lastIndex = match.index + match[0].length;
         }
         return strParts.join("") + str.slice(lastIndex);
