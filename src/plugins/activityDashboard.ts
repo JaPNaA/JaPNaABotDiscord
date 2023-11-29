@@ -12,6 +12,7 @@ import ellipsisize from "../main/utils/str/ellipsisize";
 import mention from "../main/utils/str/mention";
 import mentionChannel from "../main/utils/str/mentionChannel";
 import removeFormattingChars from "../main/utils/str/removeFormattingChars";
+import { unMentionify } from "../main/utils/str/unmentionify";
 
 class ActivityDashboard extends BotPlugin {
     public static readonly DASHBOARD_UPDATE_COOLDOWN_TIME = 5000;
@@ -233,7 +234,15 @@ class ActivityDashboard extends BotPlugin {
                 const activity = records[i];
                 let messageText = activity.message;
                 if (activity.type !== 'reacted') {
-                    messageText = ellipsisize(removeFormattingChars(messageText.replaceAll("\n", "/")), 50);
+                    messageText = ellipsisize(removeFormattingChars(
+                        (await unMentionify(this.bot, messageText))
+                            // prevent discord safety from destroying message
+                            .replace(/https?:\/\//g, "")
+                            .replace(/</g, "")
+                            .replace(/>/g, "")
+                            // make everything one line
+                            .replaceAll("\n", "/")
+                    ), 50);
                 }
                 message.addLine(`<t:${activity.timestamp}:R> ${mention(activity.userId)} [${activity.type}: ${messageText}](https://discord.com/channels/${serverId}/${activity.channelId}/${activity.messageId})`);
                 if (message.getCharCount() > ActivityDashboard.EMBED_FIELD_VALUE_MAX_LENGTH) {
