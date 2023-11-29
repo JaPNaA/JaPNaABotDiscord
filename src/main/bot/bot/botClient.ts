@@ -222,8 +222,16 @@ class BotClient {
         return promise;
     }
 
-    getChannel(channelId: string): Promise<Channel | null> {
-        return this.client.channels.fetch(channelId);
+    async getChannel(channelId: string): Promise<Channel | null> {
+        try {
+            return await this.client.channels.fetch(channelId);
+        } catch (err) {
+            if (err instanceof DiscordAPIError) {
+                return null;
+            } else {
+                throw err;
+            }
+        }
     }
 
     async getServerFromChannel(channelId: string): Promise<Guild | undefined> {
