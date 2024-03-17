@@ -230,7 +230,7 @@ class Japnaa extends BotPlugin {
         // dice notation
         const parts = event.arguments.toLowerCase().replace(/\s+/g, "").split("+");
         const dices: number[] = [];
-        let bonus = undefined;
+        let bonus: number | undefined = undefined;
         let sawFirstDice = false;
         let totalMax = 0;
 
@@ -243,9 +243,9 @@ class Japnaa extends BotPlugin {
                     yield new ReplyUnimportant("Error: invalid dice '" + removeFormattingChars(part) + "'");
                     return;
                 }
+                totalMax += max * times;
                 for (let i = 0; i < times; i++) {
                     dices.push(max);
-                    totalMax += max;
                 }
                 sawFirstDice = true;
             } else if (!sawFirstDice) {
@@ -254,6 +254,7 @@ class Japnaa extends BotPlugin {
                     yield new ReplyUnimportant("Error: invalid dice '" + removeFormattingChars(part) + "'");
                     return;
                 }
+                totalMax += max;
                 dices.push(max);
             } else {
                 const bonusPart = parseInt(part);

@@ -202,9 +202,9 @@ class Japnaa extends plugin_js_1.default {
                     yield new actions_1.ReplyUnimportant("Error: invalid dice '" + (0, removeFormattingChars_1.default)(part) + "'");
                     return;
                 }
+                totalMax += max * times;
                 for (let i = 0; i < times; i++) {
                     dices.push(max);
-                    totalMax += max;
                 }
                 sawFirstDice = true;
             }
@@ -214,6 +214,7 @@ class Japnaa extends plugin_js_1.default {
                     yield new actions_1.ReplyUnimportant("Error: invalid dice '" + (0, removeFormattingChars_1.default)(part) + "'");
                     return;
                 }
+                totalMax += max;
                 dices.push(max);
             }
             else {
