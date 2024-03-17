@@ -248,7 +248,8 @@ class Japnaa extends plugin_js_1.default {
                 diceResultsLen += resultStr.length + 2;
             }
         }
-        yield `${diceResults.join(", ") + (stopAddingToString ? "..." : "")}\nSum: ` + (bonus ? `${sum} + ${bonus} = **${sum + bonus}**` : `**${sum}**`) + "/" + totalMax;
+        yield `${diceResults.join(", ") + (stopAddingToString ? "..." : "")}` + (diceResults.length == 1 && !bonus ? "" :
+            `\nSum: ` + (bonus ? `${sum} + ${bonus} = **${sum + bonus}**` : `**${sum}**`) + "/" + totalMax);
     }
     _parseFloatWithDefault(str, defaultNum) {
         if (!str) {

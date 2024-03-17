@@ -290,7 +290,10 @@ class Japnaa extends BotPlugin {
             }
         }
 
-        yield `${diceResults.join(", ") + (stopAddingToString ? "..." : "")}\nSum: ` + (bonus ? `${sum} + ${bonus} = **${sum + bonus}**` : `**${sum}**`) + "/" + totalMax;
+        yield `${diceResults.join(", ") + (stopAddingToString ? "..." : "")}` + (
+            diceResults.length == 1 && !bonus ? "" :
+                `\nSum: ` + (bonus ? `${sum} + ${bonus} = **${sum + bonus}**` : `**${sum}**`) + "/" + totalMax
+        );
     }
 
     private _parseFloatWithDefault(str: string, defaultNum: number) {
