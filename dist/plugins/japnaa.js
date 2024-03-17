@@ -16,6 +16,7 @@ const node_util_1 = require("node:util");
 const commandArguments_1 = __importDefault(require("../main/bot/command/commandArguments"));
 const fakeMessage_1 = __importDefault(require("../main/utils/fakeMessage"));
 const actions_1 = require("../main/bot/actions/actions");
+const removeFormattingChars_1 = __importDefault(require("../main/utils/str/removeFormattingChars"));
 /**
  * Commonly used commands made by me, JaPNaA
  */
@@ -124,6 +125,11 @@ class Japnaa extends plugin_js_1.default {
             yield* this.random_select(event);
             return;
         }
+        // random dice branch
+        if (maxArg && maxArg.toLowerCase().includes("d")) {
+            yield* this.random_dice(event);
+            return;
+        }
         let max = this._parseFloatWithDefault(maxArg, 1);
         let min = this._parseFloatWithDefault(minArg, 0);
         let step = parseFloat(stepArg);
@@ -179,6 +185,69 @@ class Japnaa extends plugin_js_1.default {
             ...event,
             arguments: last
         });
+    }
+    *random_dice(event) {
+        // dice notation
+        const parts = event.arguments.toLowerCase().replace(/\s+/g, "").split("+");
+        const dices = [];
+        let bonus = undefined;
+        let sawFirstDice = false;
+        let totalMax = 0;
+        for (const part of parts) {
+            if (part.includes("d")) {
+                const [timesStr, maxStr] = part.split("d");
+                const times = timesStr ? parseInt(timesStr) : 1;
+                const max = parseInt(maxStr);
+                if (isNaN(times) || isNaN(max) || times > 100) {
+                    yield new actions_1.ReplyUnimportant("Error: invalid dice '" + (0, removeFormattingChars_1.default)(part) + "'");
+                    return;
+                }
+                for (let i = 0; i < times; i++) {
+                    dices.push(max);
+                    totalMax += max;
+                }
+                sawFirstDice = true;
+            }
+            else if (!sawFirstDice) {
+                const max = parseInt(part);
+                if (isNaN(max)) {
+                    yield new actions_1.ReplyUnimportant("Error: invalid dice '" + (0, removeFormattingChars_1.default)(part) + "'");
+                    return;
+                }
+                dices.push(max);
+            }
+            else {
+                const bonusPart = parseInt(part);
+                if (isNaN(bonusPart)) {
+                    yield new actions_1.ReplyUnimportant("Error: invalid bonus '" + (0, removeFormattingChars_1.default)(part) + "'");
+                    return;
+                }
+                if (bonus !== undefined) {
+                    yield new actions_1.ReplyUnimportant("Error: cannot specify second bonus '" + (0, removeFormattingChars_1.default)(part) + "'");
+                    return;
+                }
+                bonus = bonusPart;
+                totalMax += bonus;
+            }
+        }
+        let diceResults = [];
+        let diceResultsLen = 0;
+        let stopAddingToString = false;
+        let sum = 0;
+        for (const dice of dices) {
+            const result = Math.floor(Math.random() * dice) + 1;
+            const resultStr = "**" + result + "**/" + dice;
+            sum += result;
+            if (!stopAddingToString) {
+                if (diceResultsLen + resultStr.length > 1500) {
+                    stopAddingToString = true;
+                    continue;
+                }
+                diceResults.push(resultStr);
+                diceResultsLen += resultStr.length + 2;
+            }
+        }
+        yield `${diceResults.join(", ") + (stopAddingToString ? "..." : "")}\nSum: ` + (bonus ? `${sum} + ${bonus} = **${sum + bonus}**` : `**${sum}**`) + "/" + totalMax;
     }
     _parseFloatWithDefault(str, defaultNum) {
         if (!str) {
@@ -489,6 +558,8 @@ class Japnaa extends plugin_js_1.default {
                         "[step]": "Optional. What the number must be dividible by. 0 indicates it doesn't have to be divisible by anything.",
                         "[times]": "Optional. How many random numbers to generate"
                     }, {
+                        "dice_notation": "Provide a string in dice notation. For example, 'D6', '2D4+2', '6+d4+4'."
+                    }, {
                         "\"string\"": "\"string\", will respond with a randomly generated string.",
                         "[length]": "Length of random string (default is 128)."
                     }, {
@@ -504,6 +575,7 @@ class Japnaa extends plugin_js_1.default {
                     ["random 5 10 2", "A random number between 5 and 10 that's divisible by 2"],
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
                     ["random 5 10 1.6 10", "10 random numbers between 5 and 10 that's divisible by 1.6"],
+                    ["random 6+D4+4", "The result of rolling a 6-faced die and 4-faced die, plus a bonus of 4."],
                     ["random string", "A random string 128 characters long"],
                     ["random string 10", "A random string 10 characters long"],
                     ["random select a b c", "Selects one of a, b, or c randomly"],

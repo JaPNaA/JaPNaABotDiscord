@@ -5,6 +5,7 @@ import { JSONObject } from "../main/types/jsonObject.js";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
 import { Action, ReplyThreadSoft, ReplyUnimportant, SendPrivate } from "../main/bot/actions/actions";
+import MessageOrAction from "../main/bot/types/messageOrAction";
 type SpamCallback = () => void;
 /**
  * Commonly used commands made by me, JaPNaA
@@ -51,10 +52,11 @@ declare class Japnaa extends BotPlugin {
     /**
      * Generates random stuff
      */
-    random(event: DiscordCommandEvent): Generator<string>;
+    random(event: DiscordCommandEvent): Generator<MessageOrAction>;
     private random_string;
     private random_select;
     private random_again;
+    private random_dice;
     private _parseFloatWithDefault;
     /**
      * Begins spamming from spam que with interval

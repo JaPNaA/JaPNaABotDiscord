@@ -20,6 +20,8 @@ import CommandArguments from "../main/bot/command/commandArguments";
 import fakeMessage from "../main/utils/fakeMessage";
 import { Action, ReplyThreadSoft, ReplyUnimportant, Send, SendPrivate } from "../main/bot/actions/actions";
 import { TextChannel } from "discord.js";
+import removeFormattingChars from "../main/utils/str/removeFormattingChars";
+import MessageOrAction from "../main/bot/types/messageOrAction";
 
 type SpamCallback = () => void;
 
@@ -123,7 +125,7 @@ class Japnaa extends BotPlugin {
     /**
      * Generates random stuff
      */
-    *random(event: DiscordCommandEvent): Generator<string> {
+    *random(event: DiscordCommandEvent): Generator<MessageOrAction> {
         const [maxArg, minArg, stepArg, timesArg] = stringToArgs(event.arguments);
 
         // random again branch
@@ -144,6 +146,12 @@ class Japnaa extends BotPlugin {
         // random select branch
         if (maxArg && maxArg.toLowerCase() === "select") {
             yield* this.random_select(event);
+            return;
+        }
+
+        // random dice branch
+        if (maxArg && maxArg.toLowerCase().includes("d")) {
+            yield* this.random_dice(event);
             return;
         }
 
@@ -216,6 +224,72 @@ class Japnaa extends BotPlugin {
             ...event,
             arguments: last
         });
+    }
+
+    private *random_dice(event: DiscordCommandEvent) {
+        // dice notation
+        const parts = event.arguments.toLowerCase().replace(/\s+/g, "").split("+");
+        const dices: number[] = [];
+        let bonus = undefined;
+        let sawFirstDice = false;
+        let totalMax = 0;
+
+        for (const part of parts) {
+            if (part.includes("d")) {
+                const [timesStr, maxStr] = part.split("d");
+                const times = timesStr ? parseInt(timesStr) : 1;
+                const max = parseInt(maxStr);
+                if (isNaN(times) || isNaN(max) || times > 100) {
+                    yield new ReplyUnimportant("Error: invalid dice '" + removeFormattingChars(part) + "'");
+                    return;
+                }
+                for (let i = 0; i < times; i++) {
+                    dices.push(max);
+                    totalMax += max;
+                }
+                sawFirstDice = true;
+            } else if (!sawFirstDice) {
+                const max = parseInt(part);
+                if (isNaN(max)) {
+                    yield new ReplyUnimportant("Error: invalid dice '" + removeFormattingChars(part) + "'");
+                    return;
+                }
+                dices.push(max);
+            } else {
+                const bonusPart = parseInt(part);
+                if (isNaN(bonusPart)) {
+                    yield new ReplyUnimportant("Error: invalid bonus '" + removeFormattingChars(part) + "'");
+                    return;
+                }
+
+                if (bonus !== undefined) {
+                    yield new ReplyUnimportant("Error: cannot specify second bonus '" + removeFormattingChars(part) + "'");
+                    return;
+                }
+                bonus = bonusPart;
+                totalMax += bonus;
+            }
+        }
+
+        let diceResults: string[] = [];
+        let diceResultsLen = 0;
+        let stopAddingToString = false;
+
+        let sum = 0;
+
+        for (const dice of dices) {
+            const result = Math.floor(Math.random() * dice) + 1;
+            const resultStr = "**" + result + "**/" + dice;
+            sum += result;
+
+            if (!stopAddingToString) {
+                if (diceResultsLen + resultStr.length > 1500) { stopAddingToString = true; continue; }
+                diceResults.push(resultStr);
+                diceResultsLen += resultStr.length + 2;
+            }
+        }
+
+        yield `${diceResults.join(", ") + (stopAddingToString ? "..." : "")}\nSum: ` + (bonus ? `${sum} + ${bonus} = **${sum + bonus}**` : `**${sum}**`) + "/" + totalMax;
     }
 
     private _parseFloatWithDefault(str: string, defaultNum: number) {
@@ -555,6 +629,8 @@ class Japnaa extends BotPlugin {
                     "[step]": "Optional. What the number must be dividible by. 0 indicates it doesn't have to be divisible by anything.",
                     "[times]": "Optional. How many random numbers to generate"
                 }, {
+                    "dice_notation": "Provide a string in dice notation. For example, 'D6', '2D4+2', '6+d4+4'."
+                }, {
                     "\"string\"": "\"string\", will respond with a randomly generated string.",
                     "[length]": "Length of random string (default is 128)."
                 }, {
@@ -570,6 +646,7 @@ class Japnaa extends BotPlugin {
                     ["random 5 10 2", "A random number between 5 and 10 that's divisible by 2"],
                     ["random 5 10 1.6", "A random number between 5 and 10 that's divisible by 1.6"],
                     ["random 5 10 1.6 10", "10 random numbers between 5 and 10 that's divisible by 1.6"],
+                    ["random 6+D4+4", "The result of rolling a 6-faced die and 4-faced die, plus a bonus of 4."],
                     ["random string", "A random string 128 characters long"],
                     ["random string 10", "A random string 10 characters long"],
                     ["random select a b c", "Selects one of a, b, or c randomly"],
