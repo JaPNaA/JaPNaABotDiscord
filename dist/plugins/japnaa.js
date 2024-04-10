@@ -190,8 +190,7 @@ class Japnaa extends plugin_js_1.default {
         // dice notation
         const parts = event.arguments.toLowerCase().replace(/\s+/g, "").split("+");
         const dices = [];
-        let bonus = undefined;
-        let sawFirstDice = false;
+        let bonus = 0;
         let totalMax = 0;
         for (const part of parts) {
             if (part.includes("d")) {
@@ -206,16 +205,6 @@ class Japnaa extends plugin_js_1.default {
                 for (let i = 0; i < times; i++) {
                     dices.push(max);
                 }
-                sawFirstDice = true;
-            }
-            else if (!sawFirstDice) {
-                const max = parseInt(part);
-                if (isNaN(max)) {
-                    yield new actions_1.ReplyUnimportant("Error: invalid dice '" + (0, removeFormattingChars_1.default)(part) + "'");
-                    return;
-                }
-                totalMax += max;
-                dices.push(max);
             }
             else {
                 const bonusPart = parseInt(part);
@@ -223,12 +212,8 @@ class Japnaa extends plugin_js_1.default {
                     yield new actions_1.ReplyUnimportant("Error: invalid bonus '" + (0, removeFormattingChars_1.default)(part) + "'");
                     return;
                 }
-                if (bonus !== undefined) {
-                    yield new actions_1.ReplyUnimportant("Error: cannot specify second bonus '" + (0, removeFormattingChars_1.default)(part) + "'");
-                    return;
-                }
-                bonus = bonusPart;
-                totalMax += bonus;
+                bonus += bonusPart;
+                totalMax += bonusPart;
             }
         }
         let diceResults = [];

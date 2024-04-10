@@ -230,8 +230,7 @@ class Japnaa extends BotPlugin {
         // dice notation
         const parts = event.arguments.toLowerCase().replace(/\s+/g, "").split("+");
         const dices: number[] = [];
-        let bonus: number | undefined = undefined;
-        let sawFirstDice = false;
+        let bonus: number = 0;
         let totalMax = 0;
 
         for (const part of parts) {
@@ -247,15 +246,6 @@ class Japnaa extends BotPlugin {
                 for (let i = 0; i < times; i++) {
                     dices.push(max);
                 }
-                sawFirstDice = true;
-            } else if (!sawFirstDice) {
-                const max = parseInt(part);
-                if (isNaN(max)) {
-                    yield new ReplyUnimportant("Error: invalid dice '" + removeFormattingChars(part) + "'");
-                    return;
-                }
-                totalMax += max;
-                dices.push(max);
             } else {
                 const bonusPart = parseInt(part);
                 if (isNaN(bonusPart)) {
@@ -263,12 +253,8 @@ class Japnaa extends BotPlugin {
                     return;
                 }
 
-                if (bonus !== undefined) {
-                    yield new ReplyUnimportant("Error: cannot specify second bonus '" + removeFormattingChars(part) + "'");
-                    return;
-                }
-                bonus = bonusPart;
-                totalMax += bonus;
+                bonus += bonusPart;
+                totalMax += bonusPart;
             }
         }
 
