@@ -17,6 +17,11 @@ declare class Subthread extends BotPlugin {
             comment: string;
             default: string;
         };
+        usePrivateThreads: {
+            type: string;
+            comment: string;
+            default: boolean;
+        };
     };
     constructor(bot: Bot);
     subthread(event: DiscordCommandEvent): AsyncGenerator<Send, ReplySoft | ReplyUnimportant | ReplyThreadSoft, unknown>;

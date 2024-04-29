@@ -24,6 +24,11 @@ class Subthread extends plugin_1.default {
             type: "string",
             comment: "How to choose channels to create subthreads in. Set to 'parent' to always use the current parent channel. Set to 'parentThenSpecified' to use the current parent if possible, otherwise uses the subthreadChannel. Set to 'specified' to always use the specified subthreadChannel.",
             default: "parentThenSpecified"
+        },
+        "usePrivateThreads": {
+            type: "boolean",
+            comment: "Should mark subthreads as private? Setting threads private prevents Discord from sending a thread creation announcement. Setting threads public removes the need for the 'Gain Access' button.",
+            default: true
         }
     };
     constructor(bot) {
@@ -61,9 +66,10 @@ class Subthread extends plugin_1.default {
             });
         }
         const parentChannel = await this.chooseSubthreadChannel(channel);
+        const isUsePrivateThreads = await this.config.getInChannel(channel.id, "usePrivateThreads");
         let thread = await parentChannel.threads.create({
             name: (0, ellipsisize_1.default)(threadTitle + ('name' in channel ? ` (in ${channel.name})` : ""), 100),
-            type: discord_js_1.ChannelType.PrivateThread
+            type: isUsePrivateThreads ? discord_js_1.ChannelType.PrivateThread : discord_js_1.ChannelType.PublicThread
         });
         const threadFirstMessageAction = SubthreadFirstMessage.generate(thread, channel, lastMessage || ('lastMessage' in channel ? channel.lastMessage : undefined));
         yield threadFirstMessageAction;
@@ -72,16 +78,18 @@ class Subthread extends plugin_1.default {
         if (lastMessage && event.userId !== lastMessage.author.id) { // second condition avoids redundant mention
             initalMembers.push(lastMessage.author.id);
         }
-        await SubthreadFirstMessage.editToMention(threadFirstMessage, initalMembers);
+        if (isUsePrivateThreads) {
+            await SubthreadFirstMessage.editToMention(threadFirstMessage, initalMembers);
+        }
         return new actions_1.ReplySoft({
             content: "**Subthread** " + (lastMessage ? "from last message" : `_${threadTitle}_`) + `\n--> <#${thread.id}>`,
-            components: [
-                // @ts-ignore -- This fails typechecks, but is how they do it in the discord.js guide
+            // @ts-ignore -- This fails typechecks, but is how they do it in the discord.js guide
+            components: isUsePrivateThreads ? [
                 new discord_js_1.ActionRowBuilder().addComponents(new discord_js_1.ButtonBuilder()
                     .setLabel("Gain access")
                     .setCustomId(`threadaccessgive:${thread.id}:${threadFirstMessage.id}`)
                     .setStyle(discord_js_1.ButtonStyle.Primary))
-            ]
+            ] : undefined
         });
     }
     async chooseSubthreadChannel(channel) {
@@ -192,12 +200,11 @@ class SubthreadFirstMessage {
     static generate(newThread, parentThread, lastMessage) {
         let message;
         if (lastMessage) {
-            message = `\nJump: https://discord.com/channels/${newThread.guildId || "@me"}/${lastMessage.channelId}/${lastMessage.id} (in <#${parentThread.id}>)`;
+            message = `\nJump: https://discord.com/channels/${newThread.guildId || "@me"}/${lastMessage.channelId}/${lastMessage.id}`;
         }
         else {
             message = `Parent thread: <#${parentThread.id}>`;
         }
-        message += SubthreadFirstMessage.MENTION_AREA;
         return new actions_1.Send(newThread.id, message);
     }
     static async editToMention(message, ids) {
