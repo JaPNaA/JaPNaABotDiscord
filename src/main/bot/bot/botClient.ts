@@ -12,42 +12,47 @@ class PresenceSetter {
     }
 
     setGame(name: string): void {
+        if (!name) { this.client.user?.setPresence({ activities: [] }); }
         this.client.user?.setPresence({
-            activities: [{ name: name || undefined, type: ActivityType.Playing }]
+            activities: [{ name: name, type: ActivityType.Playing }]
         });
     }
 
     setWatch(name: string): void {
+        if (!name) { this.client.user?.setPresence({ activities: [] }); }
         this.client.user?.setPresence({
             activities: [{
-                name: name || undefined,
+                name: name,
                 type: ActivityType.Watching
             }]
         });
     }
 
     setListen(name: string): void {
+        if (!name) { this.client.user?.setPresence({ activities: [] }); }
         this.client.user?.setPresence({
             activities: [{
-                name: name || undefined,
+                name: name,
                 type: ActivityType.Listening
             }]
         });
     }
 
     setStream(name: string): void {
+        if (!name) { this.client.user?.setPresence({ activities: [] }); }
         this.client.user?.setPresence({
             activities: [{
-                name: name || undefined,
+                name: name,
                 type: ActivityType.Streaming
             }]
         });
     }
 
     setCompete(name: string): void {
+        if (!name) { this.client.user?.setPresence({ activities: [] }); }
         this.client.user?.setPresence({
             activities: [{
-                name: name || undefined,
+                name: name,
                 type: ActivityType.Competing
             }]
         });

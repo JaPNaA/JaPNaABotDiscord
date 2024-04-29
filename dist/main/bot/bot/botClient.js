@@ -11,38 +11,53 @@ class PresenceSetter {
         this.client = client;
     }
     setGame(name) {
+        if (!name) {
+            this.client.user?.setPresence({ activities: [] });
+        }
         this.client.user?.setPresence({
-            activities: [{ name: name || undefined, type: discord_js_1.ActivityType.Playing }]
+            activities: [{ name: name, type: discord_js_1.ActivityType.Playing }]
         });
     }
     setWatch(name) {
+        if (!name) {
+            this.client.user?.setPresence({ activities: [] });
+        }
         this.client.user?.setPresence({
             activities: [{
-                    name: name || undefined,
+                    name: name,
                     type: discord_js_1.ActivityType.Watching
                 }]
         });
     }
     setListen(name) {
+        if (!name) {
+            this.client.user?.setPresence({ activities: [] });
+        }
         this.client.user?.setPresence({
             activities: [{
-                    name: name || undefined,
+                    name: name,
                     type: discord_js_1.ActivityType.Listening
                 }]
         });
     }
     setStream(name) {
+        if (!name) {
+            this.client.user?.setPresence({ activities: [] });
+        }
         this.client.user?.setPresence({
             activities: [{
-                    name: name || undefined,
+                    name: name,
                     type: discord_js_1.ActivityType.Streaming
                 }]
         });
     }
     setCompete(name) {
+        if (!name) {
+            this.client.user?.setPresence({ activities: [] });
+        }
         this.client.user?.setPresence({
             activities: [{
-                    name: name || undefined,
+                    name: name,
                     type: discord_js_1.ActivityType.Competing
                 }]
         });

@@ -22,10 +22,10 @@ class Logic {
     config = {
         burnCardRank: cardUtils_1.Rank.n2,
         // How to determine first player - via card [Card] or prez [false]
-        firstPlayer: false,
-        quickClear: true,
-        vices: false,
-        burnEnd: true,
+        firstPlayer: false, // TODO: implement
+        quickClear: true, // TODO: implement false - allow use of burning twice in a row
+        vices: false, // TODO: implement true - super bum, vice bum, vice prez., prez.
+        burnEnd: true, // TODO: implement false - allow last card to be a burn card
         revolutions: false // TODO: implement true - when 4x a card is played, card hierarchy reverses
     };
     constructor() {

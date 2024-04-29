@@ -12,8 +12,7 @@ var Suit;
     Suit[Suit["hearts"] = 1] = "hearts";
     Suit[Suit["diamonds"] = 2] = "diamonds";
     Suit[Suit["clubs"] = 3] = "clubs";
-})(Suit || (Suit = {}));
-exports.Suit = Suit;
+})(Suit || (exports.Suit = Suit = {}));
 ;
 var Rank;
 (function (Rank) {
@@ -31,15 +30,13 @@ var Rank;
     Rank[Rank["knight"] = 11] = "knight";
     Rank[Rank["queen"] = 12] = "queen";
     Rank[Rank["king"] = 13] = "king";
-})(Rank || (Rank = {}));
-exports.Rank = Rank;
+})(Rank || (exports.Rank = Rank = {}));
 ;
 var Type;
 (function (Type) {
     Type[Type["normal"] = 0] = "normal";
     Type[Type["joker"] = 1] = "joker";
-})(Type || (Type = {}));
-exports.Type = Type;
+})(Type || (exports.Type = Type = {}));
 ;
 const SuitKeys = getEnumKeys(Suit);
 exports.SuitKeys = SuitKeys;
