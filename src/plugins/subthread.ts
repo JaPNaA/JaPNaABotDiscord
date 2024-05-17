@@ -1,4 +1,4 @@
-import { ThreadChannel, Interaction, TextChannel, Message, DMChannel, ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, ChannelType, EmbedBuilder } from "discord.js";
+import { ThreadChannel, Interaction, TextChannel, Message, ActionRowBuilder, ButtonBuilder, ButtonStyle, Channel, ChannelType } from "discord.js";
 import { ReplySoft, ReplyThreadSoft, ReplyUnimportant, Send } from "../main/bot/actions/actions";
 import Bot from "../main/bot/bot/bot";
 import DiscordCommandEvent from "../main/bot/events/discordCommandEvent";
@@ -7,6 +7,8 @@ import Logger from "../main/utils/logger";
 import ellipsisize from "../main/utils/str/ellipsisize";
 import mention from "../main/utils/str/mention";
 import removeFormattingChars from "../main/utils/str/removeFormattingChars";
+import CommandArguments from "../main/bot/command/commandArguments";
+import getSnowflakeNum from "../main/utils/getSnowflakeNum";
 
 /**
  * Subthread plugin, a workaround to get threads inside other threads
@@ -25,7 +27,7 @@ class Subthread extends BotPlugin {
         },
         "usePrivateThreads": {
             type: "boolean",
-            comment: "Should mark subthreads as private? Setting threads private prevents Discord from sending a thread creation announcement. Setting threads public removes the need for the 'Gain Access' button.",
+            comment: "Should mark subthreads as private? Setting threads private prevents Discord from sending a thread creation announcement. Setting threads public removes the need for the 'Gain Access' button. Note that when creating a subthread across channels, if any channel uses private threads, a private thread will be made.",
             default: true
         }
     };
@@ -36,13 +38,38 @@ class Subthread extends BotPlugin {
     }
 
     public async *subthread(event: DiscordCommandEvent) {
-        let threadTitle = event.arguments.trim();
+        const args = new CommandArguments(event.arguments).parse({
+            overloads: [["name", "parentChannel"], ["parentChannel", "name"], ["parentChannel"], ["name"]],
+            allowMultifinal: true,
+            check: {
+                parentChannel: x => Boolean(x && !x.match(/[\sa-z]/) && getSnowflakeNum(x))
+            }
+        });
+        const parentChannelArg = args.get("parentChannel");
+        const channel = await this.bot.client.getChannel(event.channelId);
+        if (!channel) { throw new Error("Channel not found"); }
+
+        let threadTitle = args.get("name")?.trim();
         let lastMessage;
 
-        const channel = await this.bot.client.getChannel(event.channelId);
-        if (!channel?.isTextBased()) { return new ReplyUnimportant("You must run this command in a text channel"); }
-        if (channel instanceof DMChannel) { return new ReplyUnimportant("Cannot use this command in DMs"); }
+        // choose parent channel
+        let parentChannel;
+        if (parentChannelArg) {
+            const snowflake = getSnowflakeNum(parentChannelArg);
+            if (!snowflake) { throw new Error("No snowflake provided in argument"); }
+            parentChannel = await this.bot.client.getChannel(snowflake)
+        } else {
+            parentChannel = await this.chooseSubthreadChannel(channel);
+        }
 
+        if (!parentChannel) {
+            throw new Error("Parent channel not found");
+        }
+        if (!(parentChannel instanceof TextChannel)) {
+            return new ReplyUnimportant("Cannot make subthread: the channel specified is not a (normal) text channel");
+        }
+
+        // determine title
         if (!threadTitle) {
             // automatic title (no title provided)
             if (!('lastMessage' in channel)) { return new ReplyUnimportant("Cannot get last message in this channel."); }
@@ -51,17 +78,31 @@ class Subthread extends BotPlugin {
             threadTitle = channel.lastMessage.content;
             lastMessage = channel.lastMessage;
         }
-
         threadTitle = ellipsisize(removeFormattingChars(threadTitle), 100) || "Untitled";
 
-        if (this.canCreatePrivateThreadIn(channel)) { // can create normal thread
-            return new ReplyThreadSoft(threadTitle, {
-                startMessage: lastMessage
-            });
+        // check if should be private
+        const isUsePrivateThreads =
+            await this.config.getInChannel(channel.id, "usePrivateThreads") ||
+            await this.config.getInChannel(parentChannel.id, "usePrivateThreads");
+
+        // check permissions
+        if (
+            !(await this.bot.permissions.getPermissions_channel(event.userId, event.serverId, parentChannel.id))
+                .hasDiscord(isUsePrivateThreads ? "CreatePrivateThreads" : "CreatePublicThreads")
+        ) {
+            return new ReplyUnimportant(
+                "You do not have permission to make " +
+                (isUsePrivateThreads ? "private" : "public") +
+                " threads in <#" + parentChannel.id + ">"
+            );
         }
 
-        const parentChannel = await this.chooseSubthreadChannel(channel);
-        const isUsePrivateThreads = await this.config.getInChannel(channel.id, "usePrivateThreads");
+        // can create normal thread instead
+        if (parentChannel === channel) {
+            return new ReplyThreadSoft(threadTitle, {
+                startMessage: lastMessage,
+            });
+        }
 
         let thread = await parentChannel.threads.create({
             name: ellipsisize(threadTitle + ('name' in channel ? ` (in ${channel.name})` : ""), 100),
@@ -103,10 +144,10 @@ class Subthread extends BotPlugin {
             default:
             case "parent":
             case "parentThenSpecified":
-                if (this.canCreatePrivateThreadIn(channel)) {
+                if (this.canCreateThreadIn(channel)) {
                     return channel;
                 }
-                if ('parent' in channel && this.canCreatePrivateThreadIn(channel.parent)) {
+                if ('parent' in channel && this.canCreateThreadIn(channel.parent)) {
                     return channel.parent;
                 }
                 if (subthreadChannelSelectionMethod == "parent") { throw new Error("Cannot create subthread here."); }
@@ -116,14 +157,14 @@ class Subthread extends BotPlugin {
                 }
             case "specified":
                 const defaultChannel = await this.bot.client.getChannel(subthreadChannelId);
-                if (!this.canCreatePrivateThreadIn(defaultChannel)) {
+                if (!this.canCreateThreadIn(defaultChannel)) {
                     throw new Error("Cannot create thread in (or cannot find) configured subthreadChannel.");
                 }
                 return defaultChannel;
         }
     }
 
-    private canCreatePrivateThreadIn(channel: Channel | null): channel is TextChannel {
+    private canCreateThreadIn(channel: Channel | null): channel is TextChannel {
         return channel instanceof TextChannel;
     }
 
@@ -180,8 +221,7 @@ class Subthread extends BotPlugin {
                 ]
             },
             group: "Communication",
-            noDM: true,
-            requiredDiscordPermission: "CreatePrivateThreads"
+            noDM: true
         });
     }
 

@@ -24,9 +24,9 @@ declare class Subthread extends BotPlugin {
         };
     };
     constructor(bot: Bot);
-    subthread(event: DiscordCommandEvent): AsyncGenerator<Send, ReplySoft | ReplyUnimportant | ReplyThreadSoft, unknown>;
+    subthread(event: DiscordCommandEvent): AsyncGenerator<Send, ReplyUnimportant | ReplyThreadSoft | ReplySoft, unknown>;
     private chooseSubthreadChannel;
-    private canCreatePrivateThreadIn;
+    private canCreateThreadIn;
     private interactionHandler;
     _start(): void;
     _stop(): void;
