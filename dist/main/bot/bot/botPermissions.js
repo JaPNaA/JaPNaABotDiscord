@@ -30,21 +30,25 @@ class BotPermissions {
         return permissions;
     }
     async getPermissions_channel(userId, serverId, channelId) {
-        let server;
-        let user;
         let roles;
         const permissions = new permissions_js_1.default();
         if (serverId) {
-            server = await this.bot.client.getServer(serverId);
+            const server = await this.bot.client.getServer(serverId);
             if (!server) {
                 return new permissions_js_1.default();
             }
-            user = await server.members.fetch(userId);
+            const user = await server.members.fetch(userId);
             if (!user) {
                 return new permissions_js_1.default();
             }
             roles = Array.from(user.roles.cache.values());
-            permissions.addPermissions(user.permissions);
+            const channel = await this.bot.client.getChannel(channelId);
+            if (!channel) {
+                return new permissions_js_1.default();
+            }
+            if ('permissionOverwrites' in channel) {
+                permissions.addPermissions(channel.permissionsFor(user));
+            }
         }
         permissions.importCustomPermissions(this.memory.get(locationKeyCreator_js_1.default.permissions(), locationKeyCreator_js_1.default.user_global(userId)));
         if (roles) {

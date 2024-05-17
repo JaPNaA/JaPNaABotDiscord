@@ -40,20 +40,22 @@ class BotPermissions {
     }
 
     async getPermissions_channel(userId: string, serverId: string, channelId: string): Promise<Permissions> {
-        let server: Guild | undefined;
-        let user: GuildMember | undefined;
         let roles: Role[] | undefined;
         const permissions = new Permissions();
 
         if (serverId) {
-            server = await this.bot.client.getServer(serverId);
+            const server = await this.bot.client.getServer(serverId);
             if (!server) { return new Permissions(); }
-            user = await server.members.fetch(userId);
+            const user = await server.members.fetch(userId);
             if (!user) { return new Permissions(); }
 
             roles = Array.from(user.roles.cache.values());
 
-            permissions.addPermissions(user.permissions);
+            const channel = await this.bot.client.getChannel(channelId);
+            if (!channel) { return new Permissions(); }
+            if ('permissionOverwrites' in channel) {
+                permissions.addPermissions(channel.permissionsFor(user));
+            }
         }
 
         permissions.importCustomPermissions(
