@@ -33,7 +33,7 @@ class PluginConfig {
         }
         const channel = await this.bot.client.getChannel(channelId);
         let parentChannelConfig;
-        if (channel && channel.isThread() && channel.parentId) {
+        if (channel && 'parentId' in channel && channel.parentId) {
             parentChannelConfig = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.channel(serverId, channel.parentId));
         }
         const channelConfig = this.bot.memory.get(this.plugin.pluginName, "local." + locationKeyCreator_1.default.channel(serverId, channelId));
